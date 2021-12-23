@@ -1,0 +1,34 @@
+﻿schema
+	the resolved json config needs to conform to the schema
+	this is the model to rule them all; it's what everything will validate against.
+	source of truth
+
+	need to be able to tag nodes
+        ie: SECRET, etc
+        used to determine where the values should be stored
+
+tokenset
+    tokenset per environment
+
+a config section is assigned a schema
+
+
+schema needs to support file references
+
+
+SECRET
+    name with %habitat% variable.
+    schema
+        version    
+    habitat
+        version
+        schema version
+        
+        
+        
+ADR
+    using json.net, because
+        mutability
+        deepequals
+        
+        
