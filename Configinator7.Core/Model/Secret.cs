@@ -1,37 +1,48 @@
 ﻿using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NJsonSchema.Validation;
+using NuGet.Versioning;
 
 namespace Configinator7.Core.Model;
 
-public record TokenSetId(string Name, long Version);
-public class TokenSet
-{
-    public TokenSetId Id { get; set; }
-    public Dictionary<string, JToken> Tokens { get; set; }
-}
+public record SecretId(string Name);
 
-public record SecretId(string Name, long Version);
 public record Secret
 {
     public SecretId Id { get; set; }
     public string Path { get; set; }
-    public JsonSchema Schema { get; set; }
+
+    public List<ConfigurationSchema> Schemas { get; } = new();
 
     public List<Habitat> Habitats = new();
 }
 
-public record HabitatId(string Name, long Version);
+public record ConfigurationSchema(SemanticVersion Version, JsonSchema Schema);
+
+public record HabitatId(string Name);
+
 public class Habitat
 {
     public HabitatId HabitatId { get; set; }
-    public JObject Value { get; set; }
+
+    public List<HabitatSchema> Schemas { get; } = new();
+
 }
 
-public record ResolvedId(HabitatId HabitatId, long Version);
-public class Resolved
+public class HabitatSchema
 {
-    public JObject ResolvedValue { get; set; }
-    public bool IsValid => Failures == null || Failures.Count == 0;
-    public List<ValidationError> Failures { get; set; }
+    public ConfigurationSchema Schema { get; set; }
+    
+    public JObject ModelValue { get; set; }
+
+    public List<ResolvedConfigurationValue> Resolved { get; } = new();
+
 }
+
+public record ResolvedConfigurationValue(
+    JObject ModelValue, 
+    JObject ResolvedValue, 
+    TokenSet TokenSet, 
+    ICollection<ValidationError> Errors);
+
+public record TokenSet;
