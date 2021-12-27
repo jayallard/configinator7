@@ -1,0 +1,14 @@
+﻿@model CreateConfiguration
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Create a Configuration Section</h2>
+
+<form asp-action="Create">
+@Html.EditorForModel()
+@Html.ValidationSummary()
+<input type="submit" value="Create"/>
+</form>

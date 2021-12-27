@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-using System.Security.AccessControl;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NJsonSchema.Validation;
 using NuGet.Versioning;
@@ -15,23 +13,23 @@ public class SuperAggregate
 
     #endregion
 
-
     // key = SecretModelName.
     private readonly Dictionary<string, Secret> _secrets = new(StringComparer.OrdinalIgnoreCase);
-
+    private readonly Dictionary<string, Dictionary<string, JToken>> _tokenSets = new(StringComparer.OrdinalIgnoreCase);
 
     private void Play(IEvent evt)
     {
         switch (evt)
         {
-            case SecretCreated(var secretName, var path, var schema):
+            case SecretCreated(var secretName, var path, var schema, var tokenSetName):
             {
                 var id = new SecretId(secretName);
                 var secret = new Secret
                 {
                     Path = path,
                     Schemas = {schema},
-                    Id = id
+                    Id = id,
+                    TokenSetName = tokenSetName
                 };
                 _secrets.Add(secretName, secret);
                 break;
@@ -54,7 +52,7 @@ public class SuperAggregate
             }
             case ValueResolved resolved:
             {
-                var (secret, habitat, schema) = GetSchema(resolved.SecretName, resolved.HabitatName, resolved.Version);
+                var (_, _, schema) = GetSchema(resolved.SecretName, resolved.HabitatName, resolved.Version);
                 var v = new ResolvedConfigurationValue(resolved.ModelValue, resolved.ResolvedValue, resolved.Tokens,
                     null);
                 schema.Resolved.Add(v);
@@ -73,9 +71,14 @@ public class SuperAggregate
             }
             case ValueSet valueSet:
             {
-                var (secret, habitat, schema) =
+                var (_, _, schema) =
                     GetSchema(valueSet.SecretName, valueSet.HabitatName, valueSet.SchemaVersion);
                 schema.ModelValue = valueSet.Value;
+                break;
+            }
+            case TokenSetCreated created:
+            {
+                _tokenSets[created.TokenSetName] = created.Tokens;
                 break;
             }
             default:
@@ -83,16 +86,15 @@ public class SuperAggregate
         }
     }
 
-    public SecretId CreateSecret(string secretName, string path, ConfigurationSchema schema)
+    public SecretId CreateSecret(string secretName,
+        ConfigurationSchema schema,
+        string? path,
+        string? tokenSetName)
     {
         EnsureSecretDoesntExist(secretName);
-        Play(new SecretCreated(secretName, path, schema));
+        EnsureTokenSetExists(tokenSetName);
+        Play(new SecretCreated(secretName, path, schema, tokenSetName));
         return _secrets[secretName].Id;
-    }
-
-    private JObject Resolve(JObject value)
-    {
-        return value;
     }
 
     public void AddSchema(string secretName, ConfigurationSchema schema)
@@ -140,56 +142,20 @@ public class SuperAggregate
         Play(new ValueSet(secretName, habitatName, schemaVersion, value));
     }
 
-    // public void UpdateSecretSchema(string secretName, ConfigurationSchema newSchema)
-    // {
-    //     var secret = GetSecret(secretName);
-    //
-    //     var results = secret
-    //         .Habitats
-    //         .Select(habitat =>
-    //         {
-    //             var resolved = Resolve(habitat.ModelValue);
-    //             var validationResults = Validate(resolved, newSchema);
-    //             var result = new HabitatSchemaValidationResult
-    //             {
-    //                 Schema = newSchema,
-    //                 HabitatId = habitat.HabitatId,
-    //                 ValidationErrors = validationResults,
-    //                 ModelValue = habitat.ModelValue
-    //             };
-    //
-    //             return new
-    //             {
-    //                 Habitat = habitat,
-    //                 Result = result
-    //             };
-    //         })
-    //         .ToArray();
-    //
-    //     var resultSet = new HabitatSchemaValidationResults();
-    //     resultSet.AddRange(results.Select(r => r.Result));
-    //     resultSet.EnsureValid();
-    //
-    //     Play(new SchemaAdded(secretName, newSchema));
-    //     foreach (var r in results)
-    //     {
-    //         if (JToken.DeepEquals(r.Result.Value, r.Habitat.ResolvedValue))
-    //         {
-    //             // resolved value didn't change
-    //             continue;
-    //         }
-    //
-    //         Play(new ValueResolved(secretName, r.Habitat.HabitatId.Name, r.Result.Value));
-    //     }
-    // }
-
-    public void Resolve(
+    public void CreateTokenSet(string name, Dictionary<string, JToken> tokens)
+    {
+        EnsureTokenSetDoesntExist(name);
+        tokens = tokens.ToDictionary(t => t.Key, t => t.Value?.DeepClone());
+        Play(new TokenSetCreated(name, tokens));
+    }
+    
+    public async Task ResolveAsync(
         string secretName,
         string habitatName,
         SemanticVersion schemaVersion)
     {
         var (_, _, schema) = GetSchema(secretName, habitatName, schemaVersion);
-        var resolved = Resolve(schema.ModelValue);
+        var resolved = await JsonUtility.ResolveAsync(schema.ModelValue, new Dictionary<string, JToken>());
         var results = Validate(resolved, schema.Schema.Schema);
         if (results.Any())
         {
@@ -240,6 +206,19 @@ public class SuperAggregate
             throw new InvalidOperationException("Secret does not exist: " + secretName);
     }
 
+    private void EnsureTokenSetDoesntExist(string tokenSetName)
+    {
+        if (_tokenSets.ContainsKey(tokenSetName))
+            throw new InvalidOperationException("Token set already exists: " + tokenSetName);
+    }
+
+    private void EnsureTokenSetExists(string? tokenSetName)
+    {
+        if (tokenSetName == null) return;
+        if (!_tokenSets.ContainsKey(tokenSetName))
+            throw new InvalidOperationException("Token set doesn't exist: " + tokenSetName);
+    }
+    
     private void EnsureSecretDoesntExist(string secretName)
     {
         if (_secrets.ContainsKey(secretName))
@@ -260,7 +239,7 @@ public interface IEvent
 {
 };
 
-public record SecretCreated(string SecretName, string Path, ConfigurationSchema Schema) : IEvent;
+public record SecretCreated(string SecretName, string Path, ConfigurationSchema Schema, string TokenSetName) : IEvent;
 
 public record HabitatAddedToSecret(string HabitatName, string SecretName) : IEvent;
 
@@ -284,3 +263,7 @@ public record ValueResolved(
     JObject ModelValue,
     JObject ResolvedValue,
     TokenSet Tokens) : IEvent;
+    
+public record TokenSetCreated(
+    string TokenSetName,
+    Dictionary<string, JToken> Tokens) : IEvent;

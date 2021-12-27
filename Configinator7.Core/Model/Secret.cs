@@ -15,6 +15,8 @@ public record Secret
     public List<ConfigurationSchema> Schemas { get; } = new();
 
     public List<Habitat> Habitats = new();
+    
+    public string TokenSetName { get; set; }
 }
 
 public record ConfigurationSchema(SemanticVersion Version, JsonSchema Schema);

@@ -1,0 +1,18 @@
+﻿@model IEnumerable<ConfiginatorWeb.Projections.ConfigurationItemView>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Configuration Sections</h2>
+<table>
+    @foreach (var i in Model)
+    {
+        <tr>
+            <td><a asp-action="Display" asp-route-name="@i.Name">@i.Name</a></td>
+            <td>@i.Path</td>
+        </tr>
+    }
+</table>
+<a asp-action="Create">Add</a>

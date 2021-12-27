@@ -55,7 +55,7 @@ public class UnitTest1
     {
         // arrange
         var agg = new SuperAggregate();
-        agg.CreateSecret("secret", "/something", await GetSchemaTest1());
+        agg.CreateSecret("secret", await GetSchemaTest1(), "/something", null);
         agg.AddHabitat("secret", "habitat1");
 
         // act
@@ -71,7 +71,7 @@ public class UnitTest1
     {
         // arrange
         var agg = new SuperAggregate();
-        agg.CreateSecret("secret", "/something", await GetSchemaTest1());
+        agg.CreateSecret("secret", await GetSchemaTest1(), "/something", null);
         
         // act
         agg.AddHabitat("secret", "habitat1");
@@ -84,9 +84,9 @@ public class UnitTest1
     public async Task AddSchemaToHabitat()
     {
         var agg = new SuperAggregate();
-        agg.CreateSecret("boo", "boo", await GetSchemaTest1());
+        agg.CreateSecret("boo", await GetSchemaTest1(), "boo", null);
 
-        var newSchema = (await GetSchemaTest2()) with {Version = new SemanticVersion(1, 1, 0)};
+        var newSchema = await GetSchemaTest2() with {Version = new SemanticVersion(1, 1, 0)};
         agg.AddSchema("boo", newSchema);
 
         agg.TemporarySecretExposure["boo"].Schemas.Count.Should().Be(2);
@@ -109,66 +109,9 @@ public class UnitTest1
     public async Task SetValue()
     {
         var agg = new SuperAggregate();
-        agg.CreateSecret("secret", "path", await GetSchemaTest1());
+        agg.CreateSecret("secret", await GetSchemaTest1(), "path", null);
         agg.AddHabitat("secret", "dev1");
 
         agg.TemporarySecretExposure["secret"].Schemas.Single().Schema.Should().NotBeNull();
     }
-
-    // [Fact]
-    // public async Task ChangeSchemaFailsIfValidationFails()
-    // {
-    //     // -----------------------
-    //     // arrange
-    //     // -----------------------
-    //     var agg = new SuperAggregate();
-    //     agg.CreateSecret("secret", "/something", await GetSchemaTest1());
-    //
-    //     // schema requires FirstName and LastName. This is good.
-    //     var goodValue = JObject.FromObject(new {firstName = "Santa", lastName = "Claus"});
-    //     agg.AddHabitat("secret", "habitat", goodValue);
-    //
-    //     // -----------------------
-    //     // act
-    //     // -----------------------
-    //     // now update to a different schema. this requires AGE, which 
-    //     // isn't in the habitat's current value, so it wil fail.
-    //     var newSchema = await GetSchemaTest2();
-    //     var test = () => agg.UpdateSecretSchema("secret", newSchema);
-    //
-    //     // -----------------------
-    //     // assert
-    //     // -----------------------
-    //     test.Should().Throw<SchemaValidationFailedException>();
-    // }
-
-    // [Fact]
-    // public async Task ChangeSchemaSucceedsIfValidationSucceeds()
-    // {
-    //     // -----------------------
-    //     // arrange
-    //     // -----------------------
-    //     var agg = new SuperAggregate();
-    //     agg.CreateSecret("secret", "/something", await GetSchemaTest1());
-    //
-    //     // schema requires FirstName and LastName. This is good.
-    //     var goodValue = JObject.FromObject(new {firstName = "Santa", lastName = "Claus"});
-    //     agg.AddHabitat("secret", "habitat", goodValue);
-    //
-    //     // -----------------------
-    //     // act
-    //     // -----------------------
-    //     // now update to a different schema, which has a new optional
-    //     // property, "favorite color". schema validation passes,
-    //     // to the operation succeeds.
-    //     // isn't in the habitat's current value, so it wil fail.
-    //     var newSchema = await GetSchemaTest3();
-    //     agg.UpdateSecretSchema("secret", newSchema);
-    //
-    //     // -----------------------
-    //     // assert
-    //     // -----------------------
-    //     var secret = agg.TemporarySecretExposure["secret"];
-    //     secret.Habitats.Count.Should().Be(1);
-    // }
 }
