@@ -21,20 +21,24 @@ public class SuperAggregate
     {
         switch (evt)
         {
-            case SecretCreated(var secretName, var path, var schema, var tokenSetName):
+            case SecretCreatedEvent(var secretName, var path, var schema, var tokenSetName):
             {
                 var id = new SecretId(secretName);
                 var secret = new Secret
                 {
                     Path = path,
-                    Schemas = {schema},
                     Id = id,
                     TokenSetName = tokenSetName
                 };
+                if (schema != null)
+                {
+                    secret.Schemas.Add(schema);
+                }
+                
                 _secrets.Add(secretName, secret);
                 break;
             }
-            case HabitatAddedToSecret(var habitatName, var secretName):
+            case HabitatAddedToSecretEvent(var habitatName, var secretName):
             {
                 var secret = GetSecret(secretName);
                 secret.Habitats.Add(new Habitat
@@ -50,33 +54,25 @@ public class SuperAggregate
                 GetSecret(secretName).Schemas.Add(schema);
                 break;
             }
-            case ValueResolved resolved:
+            case ReleaseCreatedEvent resolved:
             {
-                var (_, _, schema) = GetSchema(resolved.SecretName, resolved.HabitatName, resolved.Version);
-                var v = new ResolvedConfigurationValue(resolved.ModelValue, resolved.ResolvedValue, resolved.Tokens,
+                var (_, habitat, schema) = GetSchema(resolved.SecretName, resolved.HabitatName, resolved.Version);
+                var release = new Release(
+                    resolved.ModelValue,
+                    resolved.ResolvedValue, 
+                    resolved.Tokens,
+                    resolved.Version, 
                     null);
-                schema.Resolved.Add(v);
+                habitat.Releases.Add(release);
                 break;
             }
-            case SchemaAddedToHabitat(var secretName, var habitatName, var schema):
+            case SchemaAddedToHabitatEvent(var secretName, var habitatName, var schema):
             {
                 var stuff = GetHabitat(secretName, habitatName);
-                var s = new HabitatSchema
-                {
-                    ModelValue = null,
-                    Schema = schema
-                };
-                stuff.Habitat.Schemas.Add(s);
+                stuff.Habitat.Schemas.Add(schema);
                 break;
             }
-            case ValueSet valueSet:
-            {
-                var (_, _, schema) =
-                    GetSchema(valueSet.SecretName, valueSet.HabitatName, valueSet.SchemaVersion);
-                schema.ModelValue = valueSet.Value;
-                break;
-            }
-            case TokenSetCreated created:
+            case TokenSetCreatedEvent created:
             {
                 _tokenSets[created.TokenSetName] = created.Tokens;
                 break;
@@ -87,13 +83,13 @@ public class SuperAggregate
     }
 
     public SecretId CreateSecret(string secretName,
-        ConfigurationSchema schema,
+        ConfigurationSchema? schema,
         string? path,
         string? tokenSetName)
     {
         EnsureSecretDoesntExist(secretName);
         EnsureTokenSetExists(tokenSetName);
-        Play(new SecretCreated(secretName, path, schema, tokenSetName));
+        Play(new SecretCreatedEvent(secretName, path, schema, tokenSetName));
         return _secrets[secretName].Id;
     }
 
@@ -123,52 +119,43 @@ public class SuperAggregate
             throw new InvalidOperationException("Schema doesn't exist.");
         }
 
-        if (habitat.Habitat.Schemas.Any(s => s.Schema.Version == version))
+        if (habitat.Habitat.Schemas.Any(s => s.Version == version))
         {
             throw new InvalidOperationException("The schema is already assigned to the habitat.");
         }
 
-        Play(new SchemaAddedToHabitat(secretName, habitatName, schema));
-    }
-
-    public void SetValue(
-        string secretName,
-        string habitatName,
-        SemanticVersion schemaVersion,
-        JObject value)
-    {
-        var habitat = GetHabitat(secretName, habitatName);
-        var _ = habitat.Habitat.Schemas.Single(s => s.Schema.Version == schemaVersion);
-        Play(new ValueSet(secretName, habitatName, schemaVersion, value));
+        Play(new SchemaAddedToHabitatEvent(secretName, habitatName, schema));
     }
 
     public void CreateTokenSet(string name, Dictionary<string, JToken> tokens)
     {
         EnsureTokenSetDoesntExist(name);
         tokens = tokens.ToDictionary(t => t.Key, t => t.Value?.DeepClone());
-        Play(new TokenSetCreated(name, tokens));
+        Play(new TokenSetCreatedEvent(name, tokens));
     }
     
-    public async Task ResolveAsync(
+    public async Task CreateReleaseAsync(
         string secretName,
         string habitatName,
-        SemanticVersion schemaVersion)
+        SemanticVersion schemaVersion,
+        JObject value)
     {
         var (_, _, schema) = GetSchema(secretName, habitatName, schemaVersion);
-        var resolved = await JsonUtility.ResolveAsync(schema.ModelValue, new Dictionary<string, JToken>());
-        var results = Validate(resolved, schema.Schema.Schema);
+        var resolved = await JsonUtility.ResolveAsync(value, new Dictionary<string, JToken>());
+        var results = Validate(resolved, schema.Schema);
         if (results.Any())
         {
             throw new InvalidOperationException("schema validation failed");
         }
 
-        Play(new ValueResolved(secretName, habitatName, schemaVersion, schema.ModelValue, resolved, null));
+        Play(new ReleaseCreatedEvent(secretName, habitatName, schemaVersion, value, resolved, null));
     }
 
-    private (Secret Secret, Habitat Habitat, HabitatSchema HabitatSchema)  GetSchema(string secretName, string habitatName, SemanticVersion version)
+    private (Secret Secret, Habitat Habitat, ConfigurationSchema Schemaa)  GetSchema(string secretName, string habitatName, SemanticVersion version)
     {
         var habitat = GetHabitat(secretName, habitatName);
-        var schema = habitat.Habitat.Schemas.Single(s => s.Schema.Version == version);
+        var schema = habitat.Habitat.Schemas.SingleOrDefault(s => s.Version == version);
+        if (schema == null) throw new InvalidOperationException($"Schema doesnt' exist. Secret={secretName}, Version={version.ToFullString()}");
         return new(habitat.Secret, habitat.Habitat, schema);
     }
 
@@ -182,7 +169,7 @@ public class SuperAggregate
         // if it fails, can't assign
         // var errors = secret.sc.Validate(value.ToString());
         // if (errors.Any()) throw new InvalidOperationException("Value is invalid. Can't be assigned.");
-        Play(new HabitatAddedToSecret(habitatName, secretName));
+        Play(new HabitatAddedToSecretEvent(habitatName, secretName));
     }
 
     private Secret GetSecret(string secretName)
@@ -234,36 +221,4 @@ public class SuperAggregate
         }
     }
 }
-
-public interface IEvent
-{
-};
-
-public record SecretCreated(string SecretName, string Path, ConfigurationSchema Schema, string TokenSetName) : IEvent;
-
-public record HabitatAddedToSecret(string HabitatName, string SecretName) : IEvent;
-
-public record SchemaAddedToSecret(string SecretName, ConfigurationSchema Schema) : IEvent;
-
-public record SchemaAddedToHabitat(
-    string SecretName,
-    string HabitatName,
-    ConfigurationSchema Schema) : IEvent;
-
-public record ValueSet(
-    string SecretName,
-    string HabitatName,
-    SemanticVersion SchemaVersion,
-    JObject Value) : IEvent;
-
-public record ValueResolved(
-    string SecretName,
-    string HabitatName,
-    SemanticVersion Version,
-    JObject ModelValue,
-    JObject ResolvedValue,
-    TokenSet Tokens) : IEvent;
     
-public record TokenSetCreated(
-    string TokenSetName,
-    Dictionary<string, JToken> Tokens) : IEvent;

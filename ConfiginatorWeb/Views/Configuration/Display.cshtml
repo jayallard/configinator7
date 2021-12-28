@@ -6,4 +6,39 @@
 }
 
 <h2>@Model.Name</h2>
-@Html.DisplayForModel(Model)
+<table>
+    <tr>
+        <td>Name</td><td>@Model.Name</td>
+    </tr>
+    <tr>
+        <td>Path</td><td>@Model.Path</td>
+    </tr>
+</table>
+<h2>Schemas</h2>
+<table>
+    @foreach (var s in Model.Schemas)
+    {
+        <tr>
+            <td>@s.Version</td>
+        </tr>
+    }
+</table>
+<h2>Habitats</h2>
+<table>
+    @foreach (var h in Model.Habitats)
+    {
+        <tr>
+            <td>@h.Name</td>
+            <td>
+                <table>
+                    @foreach (var r in h.Releases)
+                    {
+                        <tr>
+                            <td>@r.Version.ToFullString()</td>
+                        </tr>
+                    }
+                </table>
+            </td>
+        </tr>
+    }
+</table>

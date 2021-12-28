@@ -3,8 +3,6 @@ using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Projections;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using NJsonSchema;
-using NuGet.Versioning;
 
 namespace ConfiginatorWeb.Controllers;
 
@@ -39,7 +37,19 @@ public class ConfigurationController : Controller
         {
             Name = secret.Id.Name,
             Path = secret.Path,
-            Schema = secret.Schemas.Last().Schema.ToJson()
+            Schemas = secret.Schemas.Select(s => new ViewSchema
+            {
+                Text = s.Schema.ToJson(),
+                Version = s.Version
+            }).ToList(),
+            Habitats = secret.Habitats.Select(h => new ViewHabitat
+            {
+                Name = h.HabitatId.Name,
+                Releases = h.Releases.Select(r => new ViewRelease
+                {
+                    Version = r.SchemaVersion
+                }).ToList()
+            }).ToList()
         };
         return View(view);
     }
@@ -51,9 +61,7 @@ public class ConfigurationController : Controller
 
         try
         {
-            var schema = await JsonSchema.FromJsonAsync(config.Schema);
-            var configSchema = new ConfigurationSchema(new SemanticVersion(1, 0, 0), schema);
-            _aggregate.CreateSecret(config.Name, configSchema, config.Path, null);
+            _aggregate.CreateSecret(config.Name, null, config.Path, null);
         }
         catch (JsonReaderException ex)
         {

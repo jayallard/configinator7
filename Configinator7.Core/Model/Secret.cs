@@ -27,24 +27,23 @@ public class Habitat
 {
     public HabitatId HabitatId { get; set; }
 
-    public List<HabitatSchema> Schemas { get; } = new();
-
-}
-
-public class HabitatSchema
-{
-    public ConfigurationSchema Schema { get; set; }
+    public List<ConfigurationSchema> Schemas { get; } = new();
     
-    public JObject ModelValue { get; set; }
-
-    public List<ResolvedConfigurationValue> Resolved { get; } = new();
-
+    public List<Release> Releases { get; } = new();
 }
 
-public record ResolvedConfigurationValue(
-    JObject ModelValue, 
-    JObject ResolvedValue, 
-    TokenSet TokenSet, 
-    ICollection<ValidationError> Errors);
+public record Release(
+    JObject ModelValue,
+    JObject ResolvedValue,
+    TokenSet TokenSet,
+    SemanticVersion SchemaVersion,
+    ICollection<ValidationError>? Errors
+);
+
+// public record ResolvedConfigurationValue(
+//     JObject ModelValue, 
+//     JObject ResolvedValue, 
+//     TokenSet TokenSet, 
+//     ICollection<ValidationError> Errors);
 
 public record TokenSet;
