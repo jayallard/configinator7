@@ -26,8 +26,6 @@ public record HabitatId(string Name);
 public class Habitat
 {
     public HabitatId HabitatId { get; set; }
-
-    public List<ConfigurationSchema> Schemas { get; } = new();
     
     public List<Release> Releases { get; } = new();
 }
@@ -39,11 +37,5 @@ public record Release(
     SemanticVersion SchemaVersion,
     ICollection<ValidationError>? Errors
 );
-
-// public record ResolvedConfigurationValue(
-//     JObject ModelValue, 
-//     JObject ResolvedValue, 
-//     TokenSet TokenSet, 
-//     ICollection<ValidationError> Errors);
 
 public record TokenSet;

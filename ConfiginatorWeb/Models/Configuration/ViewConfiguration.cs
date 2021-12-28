@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using NuGet.Versioning;
 
-namespace ConfiginatorWeb.Models;
+namespace ConfiginatorWeb.Models.Configuration;
 
 public class ViewConfiguration
 {

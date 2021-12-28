@@ -13,11 +13,6 @@ public record HabitatAddedToSecretEvent(string HabitatName, string SecretName) :
 
 public record SchemaAddedToSecret(string SecretName, ConfigurationSchema Schema) : IEvent;
 
-public record SchemaAddedToHabitatEvent(
-    string SecretName,
-    string HabitatName,
-    ConfigurationSchema Schema) : IEvent;
-
 public record ReleaseCreatedEvent(
     string SecretName,
     string HabitatName,

@@ -81,31 +81,6 @@ public class UnitTest1
     }
 
     [Fact]
-    public async Task AddSchemaToHabitat()
-    {
-        var agg = new SuperAggregate();
-        agg.CreateSecret("boo", await GetSchemaTest1(), "boo", null);
-
-        var newSchema = await GetSchemaTest2() with {Version = new SemanticVersion(1, 1, 0)};
-        agg.AddSchema("boo", newSchema);
-
-        agg.TemporarySecretExposure["boo"].Schemas.Count.Should().Be(2);
-        agg.TemporarySecretExposure["boo"].Schemas.Last().Version.Should().Be(new SemanticVersion(1, 1, 0));
-        
-        agg.AddHabitat("boo", "h");
-        agg.TemporarySecretExposure["boo"]
-            .Habitats
-            .Single()
-            .Schemas.Count.Should().Be(0);
-        
-        agg.AddSchemaToHabitat("boo", "h", new SemanticVersion(1,1,0));
-        agg.TemporarySecretExposure["boo"]
-            .Habitats
-            .Single()
-            .Schemas.Count.Should().Be(1);
-    }
-
-    [Fact]
     public async Task SetValue()
     {
         var agg = new SuperAggregate();

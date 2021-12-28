@@ -11,19 +11,17 @@ var agg = new SuperAggregate();
 agg.CreateSecret("abc", null, "/a/b/c", null);
 agg.CreateSecret("xyz", null, "/x/y/z", null);
 
-agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(1,0,0), await JsonSchema.FromJsonAsync("{}")) );
-agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(1,0,1), await JsonSchema.FromJsonAsync("{}")) );
-agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(1,0,2), await JsonSchema.FromJsonAsync("{}")) );
-agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(2,0,0), await JsonSchema.FromJsonAsync("{}")) );
+agg.AddSchema("abc",
+    new ConfigurationSchema(new SemanticVersion(1, 0, 0), await JsonSchema.FromJsonAsync("{ _version: \"1.0.0\" }")));
+agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(1, 0, 1), await JsonSchema.FromJsonAsync("{ _version: \"1.0.1\" }")));
+agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(1, 0, 2), await JsonSchema.FromJsonAsync("{ _version: \"1.0.2\" }")));
+agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync("{ _version: \"2.0.0\" }")));
 
 agg.AddHabitat("abc", "dev");
 agg.AddHabitat("abc", "dev-jay");
 agg.AddHabitat("abc", "staging");
 agg.AddHabitat("abc", "production");
 
-agg.AddSchemaToHabitat("abc", "dev", new SemanticVersion(1,0,0));
-agg.AddSchemaToHabitat("abc", "dev", new SemanticVersion(1,0,1));
-agg.AddSchemaToHabitat("abc", "dev", new SemanticVersion(2,0,0));
 await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(1, 0, 0), JObject.Parse("{}"));
 await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(1, 0, 1), JObject.Parse("{}"));
 await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(2, 0, 0), JObject.Parse("{}"));

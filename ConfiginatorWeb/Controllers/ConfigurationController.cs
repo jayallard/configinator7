@@ -1,5 +1,6 @@
 ﻿using Configinator7.Core.Model;
 using ConfiginatorWeb.Models;
+using ConfiginatorWeb.Models.Configuration;
 using ConfiginatorWeb.Projections;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

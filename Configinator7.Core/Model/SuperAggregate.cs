@@ -56,7 +56,8 @@ public class SuperAggregate
             }
             case ReleaseCreatedEvent resolved:
             {
-                var (_, habitat, schema) = GetSchema(resolved.SecretName, resolved.HabitatName, resolved.Version);
+                var (_, schema) = GetSchema(resolved.SecretName, resolved.Version);
+                var (_, habitat) = GetHabitat(resolved.SecretName, resolved.HabitatName);
                 var release = new Release(
                     resolved.ModelValue,
                     resolved.ResolvedValue, 
@@ -64,12 +65,6 @@ public class SuperAggregate
                     resolved.Version, 
                     null);
                 habitat.Releases.Add(release);
-                break;
-            }
-            case SchemaAddedToHabitatEvent(var secretName, var habitatName, var schema):
-            {
-                var stuff = GetHabitat(secretName, habitatName);
-                stuff.Habitat.Schemas.Add(schema);
                 break;
             }
             case TokenSetCreatedEvent created:
@@ -106,27 +101,6 @@ public class SuperAggregate
 
     private ICollection<ValidationError> Validate(JObject value, JsonSchema schema) => schema.Validate(value);
 
-    public void AddSchemaToHabitat(
-        string secretName,
-        string habitatName,
-        SemanticVersion version)
-    {
-        var secret = GetSecret(secretName);
-        var habitat = GetHabitat(secretName, habitatName);
-        var schema = secret.Schemas.SingleOrDefault(s => s.Version == version);
-        if (schema == null)
-        {
-            throw new InvalidOperationException("Schema doesn't exist.");
-        }
-
-        if (habitat.Habitat.Schemas.Any(s => s.Version == version))
-        {
-            throw new InvalidOperationException("The schema is already assigned to the habitat.");
-        }
-
-        Play(new SchemaAddedToHabitatEvent(secretName, habitatName, schema));
-    }
-
     public void CreateTokenSet(string name, Dictionary<string, JToken> tokens)
     {
         EnsureTokenSetDoesntExist(name);
@@ -140,7 +114,7 @@ public class SuperAggregate
         SemanticVersion schemaVersion,
         JObject value)
     {
-        var (_, _, schema) = GetSchema(secretName, habitatName, schemaVersion);
+        var (_, schema) = GetSchema(secretName, schemaVersion);
         var resolved = await JsonUtility.ResolveAsync(value, new Dictionary<string, JToken>());
         var results = Validate(resolved, schema.Schema);
         if (results.Any())
@@ -151,12 +125,12 @@ public class SuperAggregate
         Play(new ReleaseCreatedEvent(secretName, habitatName, schemaVersion, value, resolved, null));
     }
 
-    private (Secret Secret, Habitat Habitat, ConfigurationSchema Schemaa)  GetSchema(string secretName, string habitatName, SemanticVersion version)
+    private (Secret Secret, ConfigurationSchema Schemaa)  GetSchema(string secretName, SemanticVersion version)
     {
-        var habitat = GetHabitat(secretName, habitatName);
-        var schema = habitat.Habitat.Schemas.SingleOrDefault(s => s.Version == version);
+        var secret = GetSecret(secretName);
+        var schema = secret.Schemas.SingleOrDefault(s => s.Version == version);
         if (schema == null) throw new InvalidOperationException($"Schema doesnt' exist. Secret={secretName}, Version={version.ToFullString()}");
-        return new(habitat.Secret, habitat.Habitat, schema);
+        return new(secret, schema);
     }
 
     public void AddHabitat(string secretName, string habitatName)

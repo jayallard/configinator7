@@ -1,4 +1,4 @@
-﻿@model ViewConfiguration
+﻿@model ConfiginatorWeb.Models.Configuration.ViewConfiguration
 
 @{
     ViewBag.Title = "title";
@@ -23,21 +23,25 @@
         </tr>
     }
 </table>
-<h2>Habitats</h2>
+<h2>Environments</h2>
 <table>
     @foreach (var h in Model.Habitats)
     {
         <tr>
             <td>@h.Name</td>
             <td>
-                <table>
-                    @foreach (var r in h.Releases)
-                    {
-                        <tr>
-                            <td>@r.Version.ToFullString()</td>
-                        </tr>
-                    }
-                </table>
+                @if (h.Releases.Any())
+                {
+                    <table>
+                        @foreach (var r in h.Releases)
+                        {
+                            <tr>
+                                <td>@r.Version.ToFullString()</td>
+                            </tr>
+                        }
+                    </table>
+                }
+                <a asp-controller="Release", asp-action="Edit" asp-route-secretName="@Model.Name" asp-route-habitatName="@h.Name">Add</a>
             </td>
         </tr>
     }
