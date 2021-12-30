@@ -4,6 +4,36 @@
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
+<script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js">
+</script>
+
+<script type="text/javascript">
+function deploy(habitatName, releaseId) {
+            const requestDto = {
+                 SecretName: '@Model.Name',
+                 HabitatName: habitatName,
+                 releaseId: releaseId
+            };
+            $.post('/Release/Deploy', requestDto)
+            .done(function(data) {
+                document.location.reload();
+            })
+            .error(function (e) {
+                alert(e);
+            });
+}
+
+$(document).ready(function() {
+    const deployButtons = $(":button")
+    .filter("[data-deploy='1']");
+    deployButtons
+    .click(function (e) {
+        const habitat = $(this).data('h');
+        const releaseId = $(this).data('r');
+        deploy(habitat, releaseId);
+     });
+ });
+</script>
 
 <h2>@Model.Name</h2>
 <table>
@@ -14,35 +44,62 @@
         <td>Path</td><td>@Model.Path</td>
     </tr>
 </table>
-<h2>Schemas</h2>
-<table>
-    @foreach (var s in Model.Schemas)
-    {
-        <tr>
-            <td>@s.Version</td>
-        </tr>
-    }
-</table>
 <h2>Environments</h2>
-<table>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Releases</th>
+    </tr>
+    </thead>
     @foreach (var h in Model.Habitats)
     {
         <tr>
-            <td>@h.Name</td>
+            <td>@h.Name
+                <br/>
+                <a asp-controller="release" asp-action="history" asp-route-secretName="@Model.Name" asp-route-habitatName="@h.Name">Release History</a>
+                
+            </td>
             <td>
                 @if (h.Releases.Any())
                 {
-                    <table>
+                    <table class="table table-secondary">
+                        <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Schema Version</th>
+                            <th>Create Date</th>
+                            <th></th>
+                        </tr>
+                        </thead>
                         @foreach (var r in h.Releases)
                         {
                             <tr>
+                                <td>@r.ReleaseId</td>
                                 <td>@r.Version.ToFullString()</td>
+                                <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
+                                <td>
+                                    <button data-deploy="1" data-h="@h.Name" data-r="@r.ReleaseId">Deploy</button>
+                                    @if (r.IsDeployed)
+                                    {
+                                        <span class="badge rounded-pill bg-success">Deployed</span>
+                                    }
+                                </td>
                             </tr>
                         }
                     </table>
                 }
                 <a asp-controller="Release", asp-action="Edit" asp-route-secretName="@Model.Name" asp-route-habitatName="@h.Name">Add</a>
             </td>
+        </tr>
+    }
+</table>
+<h2>Schemas</h2>
+<table class="table">
+    @foreach (var s in Model.Schemas)
+    {
+        <tr>
+            <td>@s.Version</td>
         </tr>
     }
 </table>

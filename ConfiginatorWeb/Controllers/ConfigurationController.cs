@@ -48,8 +48,13 @@ public class ConfigurationController : Controller
                 Name = h.HabitatId.Name,
                 Releases = h.Releases.Select(r => new ViewRelease
                 {
-                    Version = r.SchemaVersion
-                }).ToList()
+                    ReleaseId = r.ReleaseId,
+                    Version = r.SchemaVersion,
+                    CreateDate = r.CreateDate,
+                    IsDeployed = r.IsDeployed
+                })
+                    .OrderByDescending(r => r.ReleaseId)
+                    .ToList()
             }).ToList()
         };
         return View(view);

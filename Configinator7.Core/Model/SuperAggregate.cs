@@ -34,7 +34,7 @@ public class SuperAggregate
                 {
                     secret.Schemas.Add(schema);
                 }
-                
+
                 _secrets.Add(secretName, secret);
                 break;
             }
@@ -59,10 +59,12 @@ public class SuperAggregate
                 var (_, schema) = GetSchema(resolved.SecretName, resolved.Version);
                 var (_, habitat) = GetHabitat(resolved.SecretName, resolved.HabitatName);
                 var release = new Release(
+                    resolved.ReleaseId,
                     resolved.ModelValue,
-                    resolved.ResolvedValue, 
+                    resolved.ResolvedValue,
                     resolved.Tokens,
-                    resolved.Version, 
+                    resolved.Version,
+                    resolved.EventDate,
                     null);
                 habitat.Releases.Add(release);
                 break;
@@ -70,6 +72,20 @@ public class SuperAggregate
             case TokenSetCreatedEvent created:
             {
                 _tokenSets[created.TokenSetName] = created.Tokens;
+                break;
+            }
+            case ReleaseDeployed deployed:
+            {
+                var (_, _, release) = GetRelease(deployed.SecretName, deployed.HabitatName, deployed.ReleaseId);
+                release.Deployments.Add(new Deployment(deployed.EventDate, DeploymentAction.Set, string.Empty));
+                release.IsDeployed = true;
+                break;
+            }
+            case ReleaseUndeployed undeployed:
+            {
+                var (_, _, release) = GetRelease(undeployed.SecretName, undeployed.HabitatName, undeployed.ReleaseId);
+                release.Deployments.Add(new Deployment(undeployed.EventDate, DeploymentAction.Removed, undeployed.Reason));
+                release.IsDeployed = false;
                 break;
             }
             default:
@@ -107,7 +123,7 @@ public class SuperAggregate
         tokens = tokens.ToDictionary(t => t.Key, t => t.Value?.DeepClone());
         Play(new TokenSetCreatedEvent(name, tokens));
     }
-    
+
     public async Task CreateReleaseAsync(
         string secretName,
         string habitatName,
@@ -119,17 +135,25 @@ public class SuperAggregate
         var results = Validate(resolved, schema.Schema);
         if (results.Any())
         {
-            throw new InvalidOperationException("schema validation failed");
+            throw new SchemaValidationFailedException(results);
         }
 
-        Play(new ReleaseCreatedEvent(secretName, habitatName, schemaVersion, value, resolved, null));
+        var habitat = GetHabitat(secretName, habitatName);
+        
+        var releaseId = (_secrets
+            .Values
+            .SelectMany(s => s.Habitats.SelectMany(h => h.Releases))
+            .Max(r => r.ReleaseId as long?) ?? 0) + 1;
+        Play(new ReleaseCreatedEvent(releaseId, secretName, habitatName, schemaVersion, value, resolved, null));
     }
 
-    private (Secret Secret, ConfigurationSchema Schemaa)  GetSchema(string secretName, SemanticVersion version)
+    private (Secret Secret, ConfigurationSchema Schemaa) GetSchema(string secretName, SemanticVersion version)
     {
         var secret = GetSecret(secretName);
         var schema = secret.Schemas.SingleOrDefault(s => s.Version == version);
-        if (schema == null) throw new InvalidOperationException($"Schema doesnt' exist. Secret={secretName}, Version={version.ToFullString()}");
+        if (schema == null)
+            throw new InvalidOperationException(
+                $"Schema doesnt' exist. Secret={secretName}, Version={version.ToFullString()}");
         return new(secret, schema);
     }
 
@@ -144,6 +168,21 @@ public class SuperAggregate
         // var errors = secret.sc.Validate(value.ToString());
         // if (errors.Any()) throw new InvalidOperationException("Value is invalid. Can't be assigned.");
         Play(new HabitatAddedToSecretEvent(habitatName, secretName));
+    }
+
+    public void Deploy(string secretName, string habitatName, long releaseId)
+    {
+        var (_, habitat, _) = GetRelease(secretName, habitatName, releaseId);
+        
+        // if a release is already deployed, then set it to undeployed
+        var released = habitat.Releases.SingleOrDefault(r => r.IsDeployed && r.ReleaseId != releaseId);
+        if (released != null)
+        {
+            Play(new ReleaseUndeployed(secretName, habitatName, released.ReleaseId, $"Overwritten by Release #{releaseId}"));
+        }
+
+        // set the new release to deployed
+        Play(new ReleaseDeployed(secretName, habitatName, releaseId));
     }
 
     private Secret GetSecret(string secretName)
@@ -161,6 +200,19 @@ public class SuperAggregate
         return new(secret, habitat);
     }
 
+    private (Secret Secret, Habitat Habitat, Release Release) GetRelease(string secretName, string habitatName,
+        long releaseId)
+    {
+        var (secret, habitat) = GetHabitat(secretName, habitatName);
+        var release = habitat.Releases.SingleOrDefault(r => r.ReleaseId == releaseId);
+        if (release == null)
+        {
+            throw new InvalidOperationException("Release does not exist");
+        }
+
+        return new ValueTuple<Secret, Habitat, Release>(secret, habitat, release);
+    }
+    
     private void EnsureSecretExists(string secretName)
     {
         if (!_secrets.ContainsKey(secretName))
@@ -179,7 +231,7 @@ public class SuperAggregate
         if (!_tokenSets.ContainsKey(tokenSetName))
             throw new InvalidOperationException("Token set doesn't exist: " + tokenSetName);
     }
-    
+
     private void EnsureSecretDoesntExist(string secretName)
     {
         if (_secrets.ContainsKey(secretName))
@@ -195,4 +247,3 @@ public class SuperAggregate
         }
     }
 }
-    

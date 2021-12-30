@@ -6,5 +6,6 @@ public class ViewEditRelease
 {
     public string SecretName { get; set; }
     public string HabitatName { get; set; }
-    public List<ConfigurationSchema> Schemas { get; set; }
+    public List<ViewSchema> Schemas { get; set; }
 }
+public record ViewSchema(string Id, string Version, string Schema);

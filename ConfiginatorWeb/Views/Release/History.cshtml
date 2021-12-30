@@ -1,0 +1,32 @@
+﻿@model ConfiginatorWeb.Controllers.ReleaseController.HistoryView;
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Release History</h2>
+<p>
+    Configuration Name: <a asp-action="display" asp-controller="configuration" asp-route-name="@Model.SecretName">@Model.SecretName</a><br/>
+    Habitat: @Model.HabitatName<br/>
+</p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Schema Version</th>
+        <th>Release Id</th>
+        <th>Reason</th>
+    </tr>
+    </thead>
+    <!-- only showing deployments. de-deployment was ugly output, and not useful -->
+    @foreach (var h in Model.History.Where(m => m.IsDeploymentAction))
+    {
+        <tr>
+            <td>@h.Date.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
+            <td>@h.SchemaVersion</td>
+            <td>@h.ReleaseId</td>
+            <td>@h.Reason</td>
+        </tr>
+    }
+</table>

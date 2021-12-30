@@ -31,11 +31,24 @@ public class Habitat
 }
 
 public record Release(
+    long ReleaseId,
     JObject ModelValue,
     JObject ResolvedValue,
     TokenSet TokenSet,
     SemanticVersion SchemaVersion,
+    DateTime CreateDate,
     ICollection<ValidationError>? Errors
-);
+)
+{
+    public List<Deployment> Deployments { get; } = new();
+    public bool IsDeployed { get; set; }
+}
+
+public record Deployment(DateTime DeploymentDate, DeploymentAction Action, string Reason);
+
+public enum DeploymentAction
+{
+    Set, Removed
+}
 
 public record TokenSet;

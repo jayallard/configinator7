@@ -1,11 +1,13 @@
-﻿namespace Configinator7.Core.Model;
+﻿using NJsonSchema.Validation;
+
+namespace Configinator7.Core.Model;
 
 public class SchemaValidationFailedException : Exception
 {
-    public SchemaValidationFailedException(HabitatSchemaValidationResults results)
+    public SchemaValidationFailedException(IEnumerable<ValidationError> errors)
     {
-        Results = results;
+        Errors = errors.ToList();
     }
 
-    public HabitatSchemaValidationResults Results { get; }  
+    public List<ValidationError> Errors { get; }  
 }

@@ -33,5 +33,10 @@ public class ViewHabitat
 
 public class ViewRelease
 {
+    public long ReleaseId { get; set; }
     public SemanticVersion Version { get; set; }
+    
+    public DateTime CreateDate { get; set; }
+    
+    public bool IsDeployed { get; set; }
 }

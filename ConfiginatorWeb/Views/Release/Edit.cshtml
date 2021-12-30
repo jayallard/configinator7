@@ -1,38 +1,85 @@
 ﻿@model ConfiginatorWeb.Models.Release.ViewEditRelease
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Create Configuration Release";
     Layout = "_Layout";
 }
 
-<h2>title</h2>
+<script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js">
+</script>
+
+<script type="text/javascript">
+function selectedSchemaVersion() {
+    return $('#ddSchema option:selected').text();
+}
+
+function selectedSchemaDomId() {
+    return $('#ddSchema').val();
+}
+
+$(document).ready(function() {
+    $('#ddSchema').change(function(e) {
+        $('[id^=schema-]').hide();
+        
+        //const selectedSchemaId = '#' + $(this).val();
+        $('#' + selectedSchemaDomId()).show(); 
+    });
+    
+    $('#save').click(function (e){
+        const requestDto = {
+                                     SecretName: '@Model.SecretName',
+                                     HabitatName: '@Model.HabitatName',
+                                     Version: selectedSchemaVersion(),
+                                     value: $('#value').val()
+                                 };
+        //alert(JSON.stringify(requestDto));
+        $.post('/Release/Create', requestDto)
+        .done(function(data) {
+            if (data.success) {
+                //alert('good');
+                document.location.replace("/Configuration/Display?name=@Model.SecretName")
+                return;
+            }
+            
+            alert(JSON.stringify(data));
+        });
+    });
+});
+
+</script>
+
+<h1>Create Release</h1>
+<h2>Configuration Section: @Model.SecretName</h2>
 
 Schema Version: @Html.DropDownListFor(
-    m => m.Schemas,
-    new SelectList(Model
-        .Schemas
-        .OrderByDescending(s => s.Version)
-        .Select(s => new
-        {
-            Version = s.Version.ToFullString(),
-            Schema = s.Schema.ToJson()
-        })
-        .ToList(), "Schema", "Version"), "", new {id="ddSchema", onchange="$('#schema').text($('#ddSchema').val());"})
+                    m => m.Schemas,
+                    new SelectList(Model.Schemas, dataValueField: "Id", dataTextField: "Version"), new {id = "ddSchema"})
 
 <table style="width: 100%;">
     <thead>
     <tr>
         <th>Value</th>
-        <th>Schema</th>
     </tr>
     </thead>
     <tr>
         <td style="vertical-align: top; width: 50%;">
-            <input type="text" style="width:100%; height: 200px"/>
-        </td>
-        <td style="vertical-align: top; width: 50%;">
-            <div id="schema">
-            </div>
+            <textarea style="width:100%; height: 200px" id="value"></textarea>
         </td>
     </tr>
 </table>
+<input type="button" value="Save" id="save"/>
+
+<h2>Tokens</h2>
+<p>Coming Soon!</p>
+
+<h2>Schema</h2>
+<div id="@Model.Schemas[0].Id">
+    <pre>@Model.Schemas[0].Schema</pre>
+</div>
+
+@foreach (var schema in Model.Schemas.Skip(1))
+{
+    <div id="@schema.Id" style="display: none">
+        <pre>@schema.Schema</pre>
+    </div>
+}

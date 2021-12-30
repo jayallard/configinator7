@@ -11,20 +11,26 @@ var agg = new SuperAggregate();
 agg.CreateSecret("abc", null, "/a/b/c", null);
 agg.CreateSecret("xyz", null, "/x/y/z", null);
 
+var schema1 = File.ReadAllText((Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "2.0.0.json")));
 agg.AddSchema("abc",
     new ConfigurationSchema(new SemanticVersion(1, 0, 0), await JsonSchema.FromJsonAsync("{ _version: \"1.0.0\" }")));
-agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(1, 0, 1), await JsonSchema.FromJsonAsync("{ _version: \"1.0.1\" }")));
-agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(1, 0, 2), await JsonSchema.FromJsonAsync("{ _version: \"1.0.2\" }")));
-agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync("{ _version: \"2.0.0\" }")));
+agg.AddSchema("abc",
+    new ConfigurationSchema(new SemanticVersion(1, 0, 1), await JsonSchema.FromJsonAsync("{ _version: \"1.0.1\" }")));
+agg.AddSchema("abc",
+    new ConfigurationSchema(new SemanticVersion(1, 0, 2), await JsonSchema.FromJsonAsync("{ _version: \"1.0.2\" }")));
+agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync(schema1)));
 
 agg.AddHabitat("abc", "dev");
 agg.AddHabitat("abc", "dev-jay");
 agg.AddHabitat("abc", "staging");
 agg.AddHabitat("abc", "production");
 
-await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(1, 0, 0), JObject.Parse("{}"));
+await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(2, 0, 0),
+    (JObject) JToken.FromObject(new {firstName = "Like", lastName = "Skywalker"}));
 await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(1, 0, 1), JObject.Parse("{}"));
-await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(2, 0, 0), JObject.Parse("{}"));
+await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(1, 0, 0), JObject.Parse("{}"));
+
+agg.Deploy("abc", "dev", 1);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
