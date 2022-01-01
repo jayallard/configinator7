@@ -34,8 +34,8 @@ public record Release(
     long ReleaseId,
     JObject ModelValue,
     JObject ResolvedValue,
-    TokenSet TokenSet,
-    SemanticVersion SchemaVersion,
+    TokenSet? TokenSet,
+    ConfigurationSchema Schema,
     DateTime CreateDate,
     ICollection<ValidationError>? Errors
 )
@@ -44,11 +44,13 @@ public record Release(
     public bool IsDeployed { get; set; }
 }
 
-public record Deployment(DateTime DeploymentDate, DeploymentAction Action, string Reason);
+public record Deployment(DateTime DeploymentDate, DeploymentAction Action, string Reason)
+{
+    public bool IsDeployed { get; set; }
+}
 
 public enum DeploymentAction
 {
-    Set, Removed
+    Deployed, Removed
 }
 
-public record TokenSet;

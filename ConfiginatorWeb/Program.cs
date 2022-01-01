@@ -20,17 +20,22 @@ agg.AddSchema("abc",
     new ConfigurationSchema(new SemanticVersion(1, 0, 2), await JsonSchema.FromJsonAsync("{ _version: \"1.0.2\" }")));
 agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync(schema1)));
 
+agg.AddTokenSet("boo", new());
+agg.AddTokenSet("boo2", new());
+
 agg.AddEnvironment("abc", "dev");
 agg.AddEnvironment("abc", "dev-jay");
 agg.AddEnvironment("abc", "staging");
 agg.AddEnvironment("abc", "production");
 
-await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(2, 0, 0),
-    (JObject) JToken.FromObject(new {firstName = "Like", lastName = "Skywalker"}));
-await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(1, 0, 1), JObject.Parse("{}"));
-await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(1, 0, 0), JObject.Parse("{}"));
+await agg.CreateReleaseAsync("abc", "dev", null, new SemanticVersion(1, 0, 1), JObject.Parse("{}"));
+await agg.CreateReleaseAsync("abc", "dev", null, new SemanticVersion(1, 0, 0), JObject.Parse("{}"));
+await agg.CreateReleaseAsync("abc", "dev", "boo2", new SemanticVersion(2, 0, 0),
+    (JObject) JToken.FromObject(new {firstName = "Luke", lastName = "Skywalker"}));
 
 agg.Deploy("abc", "dev", 1);
+
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -49,8 +54,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRouting();
-
+app.UseRouting();   
 app.UseAuthorization();
 
 app.MapControllerRoute(

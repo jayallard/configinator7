@@ -2,7 +2,7 @@
 
 namespace ConfiginatorWeb.Projections;
 
-public class ConfigurationItemView
+public class ConfigurationSectionView
 {
     public SectionId SectionId { get; set; }
     public string Name { get; set; }

@@ -23,7 +23,12 @@ public class ConfigurationController : Controller
     // GET
     public IActionResult Index()
     {
-        return View(_projections.GetSections());
+        var view = new IndexView
+        {
+            ConfigurationSections = _projections.GetSections(),
+            TokenSets = _projections.GetTokenSets()
+        };
+        return View(view);
     }
 
     public IActionResult Create()
@@ -33,10 +38,10 @@ public class ConfigurationController : Controller
 
     public IActionResult Display(string name)
     {
-        var section = _aggregate.TemporaryExposure[name];
+        var section = _aggregate.TemporaryExposureSections[name];
         var view = new ViewConfiguration
         {
-            Name = section.Id.Name,
+            SectionName = section.Id.Name,
             Path = section.Path,
             Schemas = section.Schemas.Select(s => new ViewSchema
             {
@@ -45,13 +50,14 @@ public class ConfigurationController : Controller
             }).ToList(),
             Environments = section.Environments.Select(h => new ViewEnvironment
             {
-                Name = h.EnvironmentId.Name,
+                EnvironmentName = h.EnvironmentId.Name,
                 Releases = h.Releases.Select(r => new ViewRelease
                 {
                     ReleaseId = r.ReleaseId,
-                    Version = r.SchemaVersion,
+                    Version = r.Schema.Version,
                     CreateDate = r.CreateDate,
-                    IsDeployed = r.IsDeployed
+                    IsDeployed = r.IsDeployed,
+                    TokenSetName = r.TokenSet?.Name
                 })
                     .OrderByDescending(r => r.ReleaseId)
                     .ToList()

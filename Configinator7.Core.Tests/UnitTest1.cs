@@ -77,7 +77,7 @@ public class UnitTest1
         agg.AddEnvironment("section1", "env1");
         
         // assert
-        agg.TemporaryExposure.Values.Single().Environments.Single().EnvironmentId.Name.Should().Be("env1");
+        agg.TemporaryExposureSections.Values.Single().Environments.Single().EnvironmentId.Name.Should().Be("env1");
     }
 
     [Fact]
@@ -87,6 +87,6 @@ public class UnitTest1
         agg.CreateSection("section1", await GetSchemaTest1(), "path", null);
         agg.AddEnvironment("section1", "dev1");
 
-        agg.TemporaryExposure["section1"].Schemas.Single().Schema.Should().NotBeNull();
+        agg.TemporaryExposureSections["section1"].Schemas.Single().Schema.Should().NotBeNull();
     }
 }

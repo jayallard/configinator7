@@ -11,11 +11,19 @@ public class ConfigurationProjectionsFromAggregate : IConfigurationProjections
         _aggregate = aggregate;
     }
 
-    public IEnumerable<ConfigurationItemView> GetSections() =>
-        _aggregate.TemporaryExposure.Values.Select(v => new ConfigurationItemView
+    public IEnumerable<ConfigurationSectionView> GetSections() =>
+        _aggregate.TemporaryExposureSections.Values.Select(v => new ConfigurationSectionView
         {
             SectionId = v.Id,
             Name = v.Id.Name,
             Path = v.Path
+        });
+
+    public IEnumerable<TokenSetView> GetTokenSets() =>
+        _aggregate.TemporaryExposureTokenSets.Select(s => new TokenSetView
+        {
+            Tokens = s.Value.Tokens.ToDictionary(t => t.Key, t => t.Value.DeepClone()),
+            TokenSetName = s.Value.Name,
+            Base = s.Value.Base
         });
 }

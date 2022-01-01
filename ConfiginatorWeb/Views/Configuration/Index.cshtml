@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ConfiginatorWeb.Projections.ConfigurationItemView>
+﻿@model ConfiginatorWeb.Models.Configuration.IndexView
 
 @{
     ViewBag.Title = "title";
@@ -6,8 +6,8 @@
 }
 
 <h2>Configuration Sections</h2>
-<table>
-    @foreach (var i in Model)
+<table class="table">
+    @foreach (var i in Model.ConfigurationSections)
     {
         <tr>
             <td><a asp-action="Display" asp-route-name="@i.Name">@i.Name</a></td>
@@ -16,3 +16,13 @@
     }
 </table>
 <a asp-action="Create">Add</a>
+<br/><br/>
+<h2>Token Sets</h2>
+<table class="table">
+    @foreach (var t in Model.TokenSets.OrderBy(kv => kv.TokenSetName))
+    {
+        <tr>
+            <td>@t.TokenSetName</td>
+        </tr>
+    }
+</table>

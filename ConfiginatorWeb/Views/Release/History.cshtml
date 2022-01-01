@@ -5,7 +5,7 @@
     Layout = "_Layout";
 }
 
-<h2>Release History</h2>
+<h2>Deploy History</h2>
 <p>
     Configuration Name: <a asp-action="display" asp-controller="configuration" asp-route-name="@Model.SectionName">@Model.SectionName</a><br/>
     Environment: @Model.EnvironmentName<br/>
@@ -23,7 +23,13 @@
     @foreach (var h in Model.History.Where(m => m.IsDeploymentAction))
     {
         <tr>
-            <td>@h.Date.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
+            <td>
+                @h.Date.ToString("dddd, MMM dd yyyy HH:mm:ss")
+                @if (h.IsDeployed)
+                {
+                    <span class="badge rounded-pill bg-success">Deployed</span>
+                }
+            </td>
             <td>@h.SchemaVersion</td>
             <td>@h.ReleaseId</td>
             <td>@h.Reason</td>

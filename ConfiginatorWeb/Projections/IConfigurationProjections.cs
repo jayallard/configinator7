@@ -2,5 +2,6 @@
 
 public interface IConfigurationProjections
 {
-    public IEnumerable<ConfigurationItemView> GetSections();
+    public IEnumerable<ConfigurationSectionView> GetSections();
+    public IEnumerable<TokenSetView> GetTokenSets();
 }

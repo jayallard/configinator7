@@ -1,0 +1,51 @@
+﻿@model ConfiginatorWeb.Models.Release.DisplayView
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<p>Section: @Model.SectioName</p>
+<p>Environment:@Model.EnviornmentName</p>
+<p>Release Id:@Model.ReleaseId</p>
+
+<h2>Token Set</h2>
+<p>To do</p>
+
+<h2>Schema</h2>
+<pre>@Model.Release.Schema.Schema.ToJson()</pre>
+
+<h2>Model Value</h2>
+<pre>@Model.Release.ModelValue.ToString()</pre>
+
+<h2>Resolved Value</h2>
+<pre>@Model.Release.ResolvedValue.ToString()</pre>
+
+<h2>Deployment History</h2>
+@if (!Model.Release.Deployments.Any())
+{
+    <p>None</p>
+}
+<table class="table">
+    <thead>
+    <tr>
+        <th>Deployment Date</th>
+        <th>Action</th>
+        <th>Reason</th>
+    </tr>
+    </thead>
+    @foreach (var d in Model.Release.Deployments.OrderBy(d => d.DeploymentDate))
+    {
+        <tr>
+            <td>
+                @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
+                @if (d.IsDeployed)
+                {
+                    <span class="badge rounded-pill bg-success">Deployed</span>
+                }
+            </td>
+            <td>@d.Action.ToString()</td>
+            <td>@d.Reason</td>
+        </tr>
+    }
+</table>

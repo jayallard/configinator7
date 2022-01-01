@@ -10,7 +10,7 @@
 <script type="text/javascript">
 function deploy(environmenName, releaseId) {
             const requestDto = {
-                 SectionName: '@Model.Name',
+                 SectionName: '@Model.SectionName',
                  EnvironmentName: environmenName,
                  ReleaseId: releaseId
             };
@@ -35,10 +35,10 @@ $(document).ready(function() {
  });
 </script>
 
-<h2>@Model.Name</h2>
+<h2>@Model.SectionName</h2>
 <table>
     <tr>
-        <td>Name</td><td>@Model.Name</td>
+        <td>Name</td><td>@Model.SectionName</td>
     </tr>
     <tr>
         <td>Path</td><td>@Model.Path</td>
@@ -52,16 +52,16 @@ $(document).ready(function() {
         <th>Releases</th>
     </tr>
     </thead>
-    @foreach (var h in Model.Environments)
+    @foreach (var e in Model.Environments)
     {
         <tr>
-            <td>@h.Name
+            <td>@e.EnvironmentName
                 <br/>
-                <a asp-controller="release" asp-action="history" asp-route-sectionName="@Model.Name" asp-route-environmentName="@h.Name">Release History</a>
+                <a asp-controller="Release" asp-action="History" asp-route-environmentName="@e.EnvironmentName" asp-route-sectionName="@Model.SectionName" >Deploy History</a>
                 
             </td>
             <td>
-                @if (h.Releases.Any())
+                @if (e.Releases.Any())
                 {
                     <table class="table table-secondary">
                         <thead>
@@ -69,17 +69,19 @@ $(document).ready(function() {
                             <th>Id</th>
                             <th>Schema Version</th>
                             <th>Create Date</th>
+                            <th>Token Set</th>
                             <th></th>
                         </tr>
                         </thead>
-                        @foreach (var r in h.Releases)
+                        @foreach (var r in e.Releases)
                         {
                             <tr>
-                                <td>@r.ReleaseId</td>
+                                <td><a asp-controller="Release" asp-action="Display" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a></td>
                                 <td>@r.Version.ToFullString()</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
+                                <td>@r.TokenSetName</td>
                                 <td>
-                                    <button data-deploy="1" data-e="@h.Name" data-r="@r.ReleaseId">Deploy</button>
+                                    <button data-deploy="1" data-e="@e.EnvironmentName" data-r="@r.ReleaseId">Deploy</button>
                                     @if (r.IsDeployed)
                                     {
                                         <span class="badge rounded-pill bg-success">Deployed</span>
@@ -89,7 +91,7 @@ $(document).ready(function() {
                         }
                     </table>
                 }
-                <a asp-controller="Release", asp-action="Edit" asp-route-sectionName="@Model.Name" asp-route-environmentName="@h.Name">Add</a>
+                <a asp-controller="Release", asp-action="Add" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName">Add</a>
             </td>
         </tr>
     }

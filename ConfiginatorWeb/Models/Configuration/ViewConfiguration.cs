@@ -6,7 +6,7 @@ namespace ConfiginatorWeb.Models.Configuration;
 public class ViewConfiguration
 {
     [Key]
-    public string Name { get; set; }
+    public string SectionName { get; set; }
     
     [Required]
     public string Path { get; set; }
@@ -24,7 +24,7 @@ public class ViewSchema
 
 public class ViewEnvironment
 {
-    public string Name { get; set; }
+    public string EnvironmentName { get; set; }
     
     public List<ViewRelease> Releases { get; set; }
     
@@ -39,4 +39,6 @@ public class ViewRelease
     public DateTime CreateDate { get; set; }
     
     public bool IsDeployed { get; set; }
+    
+    public string TokenSetName { get; set; }
 }

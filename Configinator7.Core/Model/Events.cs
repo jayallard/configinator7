@@ -22,7 +22,7 @@ public record ReleaseCreatedEvent(
     long ReleaseId,
     string SectionName,
     string EnvironmentName,
-    SemanticVersion Version,
+    ConfigurationSchema Schema,
     JObject ModelValue,
     JObject ResolvedValue,
     TokenSet Tokens) : EventBase;
