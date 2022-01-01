@@ -23,7 +23,7 @@ public class ConfigurationController : Controller
     // GET
     public IActionResult Index()
     {
-        return View(_projections.GetConfigurationSections());
+        return View(_projections.GetSections());
     }
 
     public IActionResult Create()
@@ -33,19 +33,19 @@ public class ConfigurationController : Controller
 
     public IActionResult Display(string name)
     {
-        var configurationSection = _aggregate.TemporaryExposure[name];
+        var section = _aggregate.TemporaryExposure[name];
         var view = new ViewConfiguration
         {
-            Name = configurationSection.Id.Name,
-            Path = configurationSection.Path,
-            Schemas = configurationSection.Schemas.Select(s => new ViewSchema
+            Name = section.Id.Name,
+            Path = section.Path,
+            Schemas = section.Schemas.Select(s => new ViewSchema
             {
                 Text = s.Schema.ToJson(),
                 Version = s.Version
             }).ToList(),
-            Habitats = configurationSection.Habitats.Select(h => new ViewHabitat
+            Environments = section.Environments.Select(h => new ViewEnvironment
             {
-                Name = h.HabitatId.Name,
+                Name = h.EnvironmentId.Name,
                 Releases = h.Releases.Select(r => new ViewRelease
                 {
                     ReleaseId = r.ReleaseId,
@@ -67,7 +67,7 @@ public class ConfigurationController : Controller
 
         try
         {
-            _aggregate.CreateConfigurationSection(config.Name, null, config.Path, null);
+            _aggregate.CreateSection(config.Name, null, config.Path, null);
         }
         catch (JsonReaderException ex)
         {

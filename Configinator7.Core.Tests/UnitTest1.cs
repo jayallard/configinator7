@@ -51,41 +51,41 @@ public class UnitTest1
     private static Task<ConfigurationSchema> GetSchemaTest3() => GetSchema("test3.json");
 
     [Fact]
-    public async Task AddHabitatFailsIfAlreadyExists()
+    public async Task AddEnvironmentFailsIfAlreadyExists()
     {
         // arrange
         var agg = new SuperAggregate();
-        agg.CreateConfigurationSection("section1", await GetSchemaTest1(), "/something", null);
-        agg.AddHabitat("section1", "habitat1");
+        agg.CreateSection("section1", await GetSchemaTest1(), "/something", null);
+        agg.AddEnvironment("section1", "env1");
 
         // act
         // add it again. boom.
-        var test = () => agg.AddHabitat("section1", "habitat1");
+        var test = () => agg.AddEnvironment("section1", "env1");
         
         // assert
-        test.Should().ThrowExactly<InvalidOperationException>().WithMessage("The habitat already exists: habitat1");
+        test.Should().ThrowExactly<InvalidOperationException>().WithMessage("The environment already exists: env1");
     }
 
     [Fact]
-    public async Task AddHabitat()
+    public async Task AddEnvironment()
     {
         // arrange
         var agg = new SuperAggregate();
-        agg.CreateConfigurationSection("section1", await GetSchemaTest1(), "/something", null);
+        agg.CreateSection("section1", await GetSchemaTest1(), "/something", null);
         
         // act
-        agg.AddHabitat("section1", "habitat1");
+        agg.AddEnvironment("section1", "env1");
         
         // assert
-        agg.TemporaryExposure.Values.Single().Habitats.Single().HabitatId.Name.Should().Be("habitat1");
+        agg.TemporaryExposure.Values.Single().Environments.Single().EnvironmentId.Name.Should().Be("env1");
     }
 
     [Fact]
     public async Task SetValue()
     {
         var agg = new SuperAggregate();
-        agg.CreateConfigurationSection("section1", await GetSchemaTest1(), "path", null);
-        agg.AddHabitat("section1", "dev1");
+        agg.CreateSection("section1", await GetSchemaTest1(), "path", null);
+        agg.AddEnvironment("section1", "dev1");
 
         agg.TemporaryExposure["section1"].Schemas.Single().Schema.Should().NotBeNull();
     }

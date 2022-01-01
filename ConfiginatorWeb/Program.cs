@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // working in memory... set it up for demo/testing
 var agg = new SuperAggregate();
-agg.CreateConfigurationSection("abc", null, "/a/b/c", null);
-agg.CreateConfigurationSection("xyz", null, "/x/y/z", null);
+agg.CreateSection("abc", null, "/a/b/c", null);
+agg.CreateSection("xyz", null, "/x/y/z", null);
 
 var schema1 = File.ReadAllText((Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "2.0.0.json")));
 agg.AddSchema("abc",
@@ -20,10 +20,10 @@ agg.AddSchema("abc",
     new ConfigurationSchema(new SemanticVersion(1, 0, 2), await JsonSchema.FromJsonAsync("{ _version: \"1.0.2\" }")));
 agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync(schema1)));
 
-agg.AddHabitat("abc", "dev");
-agg.AddHabitat("abc", "dev-jay");
-agg.AddHabitat("abc", "staging");
-agg.AddHabitat("abc", "production");
+agg.AddEnvironment("abc", "dev");
+agg.AddEnvironment("abc", "dev-jay");
+agg.AddEnvironment("abc", "staging");
+agg.AddEnvironment("abc", "production");
 
 await agg.CreateReleaseAsync("abc", "dev", new SemanticVersion(2, 0, 0),
     (JObject) JToken.FromObject(new {firstName = "Like", lastName = "Skywalker"}));

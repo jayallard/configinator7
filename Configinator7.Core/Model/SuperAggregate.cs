@@ -9,22 +9,22 @@ public class SuperAggregate
 {
     #region Temporary
 
-    public Dictionary<string, ConfigurationSection> TemporaryExposure => _configurationSections;
+    public Dictionary<string, Section> TemporaryExposure => _sections;
 
     #endregion
 
     // key = Configuration Section Name
-    private readonly Dictionary<string, ConfigurationSection> _configurationSections = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, Section> _sections = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Dictionary<string, JToken>> _tokenSets = new(StringComparer.OrdinalIgnoreCase);
 
     private void Play(IEvent evt)
     {
         switch (evt)
         {
-            case ConfigurationSectionCreatedEvent(var configurationSectionName, var path, var schema, var tokenSetName):
+            case SectionCreatedEvent(var sectionName, var path, var schema, var tokenSetName):
             {
-                var id = new ConfigurationSectionId(configurationSectionName);
-                var configurationSection = new ConfigurationSection
+                var id = new SectionId(sectionName);
+                var section = new Section
                 {
                     Path = path,
                     Id = id,
@@ -33,32 +33,32 @@ public class SuperAggregate
                 
                 if (schema != null)
                 {
-                    configurationSection.Schemas.Add(schema);
+                    section.Schemas.Add(schema);
                 }
 
-                _configurationSections.Add(configurationSectionName, configurationSection);
+                _sections.Add(sectionName, section);
                 break;
             }
-            case HabitatAddedToConfigurationSectionEvent(var habitatName, var configurationSectionName):
+            case EnvironmentAddedToSectionEvent(var environmentName, var sectionName):
             {
-                var configurationSection = GetConfigurationSection(configurationSectionName);
-                configurationSection.Habitats.Add(new Habitat
+                var section = GetSection(sectionName);
+                section.Environments.Add(new ConfigurationEnvironment
                 {
-                    HabitatId = new HabitatId(habitatName),
+                    EnvironmentId = new ConfigurationEnvironmentId(environmentName),
                 });
                 break;
             }
-            case SchemaAddedToConfigurationSection(var configurationSectionName, var schema):
+            case SchemaAddedToSection(var sectionName, var schema):
             {
                 // make a copy of the configuration section and increment the version.
                 // add the configuratioi section to the history list.
-                GetConfigurationSection(configurationSectionName).Schemas.Add(schema);
+                GetSection(sectionName).Schemas.Add(schema);
                 break;
             }
             case ReleaseCreatedEvent resolved:
             {
-                var (_, schema) = GetSchema(resolved.ConfigurationSectionName, resolved.Version);
-                var (_, habitat) = GetHabitat(resolved.ConfigurationSectionName, resolved.HabitatName);
+                var (_, schema) = GetSchema(resolved.SectionName, resolved.Version);
+                var (_, environment) = GetEnvironment(resolved.SectionName, resolved.EnvironmentName);
                 var release = new Release(
                     resolved.ReleaseId,
                     resolved.ModelValue,
@@ -67,7 +67,7 @@ public class SuperAggregate
                     resolved.Version,
                     resolved.EventDate,
                     null);
-                habitat.Releases.Add(release);
+                environment.Releases.Add(release);
                 break;
             }
             case TokenSetCreatedEvent created:
@@ -77,14 +77,14 @@ public class SuperAggregate
             }
             case ReleaseDeployed deployed:
             {
-                var (_, _, release) = GetRelease(deployed.ConfigurationSectionName, deployed.HabitatName, deployed.ReleaseId);
+                var (_, _, release) = GetRelease(deployed.SectionName, deployed.EnvironmentName, deployed.ReleaseId);
                 release.Deployments.Add(new Deployment(deployed.EventDate, DeploymentAction.Set, string.Empty));
                 release.IsDeployed = true;
                 break;
             }
             case ReleaseUndeployed undeployed:
             {
-                var (_, _, release) = GetRelease(undeployed.ConfigurationSectionName, undeployed.HabitatName, undeployed.ReleaseId);
+                var (_, _, release) = GetRelease(undeployed.SectionName, undeployed.EnvironmentName, undeployed.ReleaseId);
                 release.Deployments.Add(new Deployment(undeployed.EventDate, DeploymentAction.Removed, undeployed.Reason));
                 release.IsDeployed = false;
                 break;
@@ -94,27 +94,27 @@ public class SuperAggregate
         }
     }
 
-    public ConfigurationSectionId CreateConfigurationSection(
-        string configurationSectionName,
+    public SectionId CreateSection(
+        string sectionName,
         ConfigurationSchema? schema,
         string? path,
         string? tokenSetName)
     {
-        EnsureConfigurationSectionDoesntExist(configurationSectionName);
+        EnsureSectionDoesntExist(sectionName);
         EnsureTokenSetExists(tokenSetName);
-        Play(new ConfigurationSectionCreatedEvent(configurationSectionName, path, schema, tokenSetName));
-        return _configurationSections[configurationSectionName].Id;
+        Play(new SectionCreatedEvent(sectionName, path, schema, tokenSetName));
+        return _sections[sectionName].Id;
     }
 
-    public void AddSchema(string configurationSectionName, ConfigurationSchema schema)
+    public void AddSchema(string sectionName, ConfigurationSchema schema)
     {
-        var configurationSection = GetConfigurationSection(configurationSectionName);
-        if (configurationSection.Schemas.Any(s => s.Version == schema.Version))
+        var section = GetSection(sectionName);
+        if (section.Schemas.Any(s => s.Version == schema.Version))
         {
             throw new InvalidOperationException("Schema already exists. Version=" + schema.Version);
         }
 
-        Play(new SchemaAddedToConfigurationSection(configurationSectionName, schema));
+        Play(new SchemaAddedToSection(sectionName, schema));
     }
 
     private ICollection<ValidationError> Validate(JObject value, JsonSchema schema) => schema.Validate(value);
@@ -127,12 +127,12 @@ public class SuperAggregate
     }
 
     public async Task CreateReleaseAsync(
-        string configurationSectionName,
-        string habitatName,
+        string sectionName,
+        string environmentName,
         SemanticVersion schemaVersion,
         JObject value)
     {
-        var (_, schema) = GetSchema(configurationSectionName, schemaVersion);
+        var (_, schema) = GetSchema(sectionName, schemaVersion);
         var resolved = await JsonUtility.ResolveAsync(value, new Dictionary<string, JToken>());
         var results = Validate(resolved, schema.Schema);
         if (results.Any())
@@ -140,79 +140,78 @@ public class SuperAggregate
             throw new SchemaValidationFailedException(results);
         }
 
-        var habitat = GetHabitat(configurationSectionName, habitatName);
-        
-        var releaseId = (_configurationSections
+        GetEnvironment(sectionName, environmentName);
+        var releaseId = (_sections
             .Values
-            .SelectMany(s => s.Habitats.SelectMany(h => h.Releases))
+            .SelectMany(s => s.Environments.SelectMany(h => h.Releases))
             .Max(r => r.ReleaseId as long?) ?? 0) + 1;
-        Play(new ReleaseCreatedEvent(releaseId, configurationSectionName, habitatName, schemaVersion, value, resolved, null));
+        Play(new ReleaseCreatedEvent(releaseId, sectionName, environmentName, schemaVersion, value, resolved, null));
     }
 
-    private (ConfigurationSection ConfigurationSection, ConfigurationSchema Schemaa) GetSchema(string configurationSectionName, SemanticVersion version)
+    private (Section Section, ConfigurationSchema Schemaa) GetSchema(string sectionName, SemanticVersion version)
     {
-        var configurationSection = GetConfigurationSection(configurationSectionName);
-        var schema = configurationSection.Schemas.SingleOrDefault(s => s.Version == version);
+        var section = GetSection(sectionName);
+        var schema = section.Schemas.SingleOrDefault(s => s.Version == version);
         if (schema == null)
             throw new InvalidOperationException(
-                $"Schema doesnt' exist. Configuration Section Name={configurationSectionName}, Version={version.ToFullString()}");
-        return new(configurationSection, schema);
+                $"Schema doesnt' exist. Configuration Section Name={sectionName}, Version={version.ToFullString()}");
+        return new(section, schema);
     }
 
-    public void AddHabitat(string configurationSectionName, string habitatName)
+    public void AddEnvironment(string sectionName, string environmentName)
     {
-        EnsureHabitatDoesntExist(configurationSectionName, habitatName);
-        GetConfigurationSection(configurationSectionName);
-        Play(new HabitatAddedToConfigurationSectionEvent(habitatName, configurationSectionName));
+        EnsureEnvironmentDoesntExist(sectionName, environmentName);
+        GetSection(sectionName);
+        Play(new EnvironmentAddedToSectionEvent(environmentName, sectionName));
     }
 
-    public void Deploy(string configurationSectioName, string habitatName, long releaseId)
+    public void Deploy(string sectionName, string environmentName, long releaseId)
     {
-        var (_, habitat, _) = GetRelease(configurationSectioName, habitatName, releaseId);
+        var (_, environment, _) = GetRelease(sectionName, environmentName, releaseId);
         
         // if a release is already deployed, then set it to undeployed
-        var released = habitat.Releases.SingleOrDefault(r => r.IsDeployed && r.ReleaseId != releaseId);
+        var released = environment.Releases.SingleOrDefault(r => r.IsDeployed && r.ReleaseId != releaseId);
         if (released != null)
         {
-            Play(new ReleaseUndeployed(configurationSectioName, habitatName, released.ReleaseId, $"Overwritten by Release #{releaseId}"));
+            Play(new ReleaseUndeployed(sectionName, environmentName, released.ReleaseId, $"Overwritten by Release #{releaseId}"));
         }
 
         // set the new release to deployed
-        Play(new ReleaseDeployed(configurationSectioName, habitatName, releaseId));
+        Play(new ReleaseDeployed(sectionName, environmentName, releaseId));
     }
 
-    private ConfigurationSection GetConfigurationSection(string configurationSectionName)
+    private Section GetSection(string sectionName)
     {
-        EnureConfigurationSectionExists(configurationSectionName);
-        return _configurationSections[configurationSectionName];
+        EnsureSectionExists(sectionName);
+        return _sections[sectionName];
     }
 
-    private (ConfigurationSection ConfigurationSection, Habitat Habitat) GetHabitat(string configurationSectionName, string habitatName)
+    private (Section Section, ConfigurationEnvironment Environment) GetEnvironment(string sectionName, string environmentName)
     {
-        var configurationSection = GetConfigurationSection(configurationSectionName);
-        var habitat = configurationSection
-            .Habitats
-            .Single(h => h.HabitatId.Name.Equals(habitatName, StringComparison.OrdinalIgnoreCase));
-        return new(configurationSection, habitat);
+        var section = GetSection(sectionName);
+        var environment = section
+            .Environments
+            .Single(h => h.EnvironmentId.Name.Equals(environmentName, StringComparison.OrdinalIgnoreCase));
+        return new(section, environment);
     }
 
-    private (ConfigurationSection ConfigurationSection, Habitat Habitat, Release Release) GetRelease(string configurationSectionName, string habitatName,
+    private (Section Section, ConfigurationEnvironment Environment, Release Release) GetRelease(string sectionName, string environmentName,
         long releaseId)
     {
-        var (configurationSection, habitat) = GetHabitat(configurationSectionName, habitatName);
-        var release = habitat.Releases.SingleOrDefault(r => r.ReleaseId == releaseId);
+        var (section, environment) = GetEnvironment(sectionName, environmentName);
+        var release = environment.Releases.SingleOrDefault(r => r.ReleaseId == releaseId);
         if (release == null)
         {
             throw new InvalidOperationException("Release does not exist");
         }
 
-        return new ValueTuple<ConfigurationSection, Habitat, Release>(configurationSection, habitat, release);
+        return new ValueTuple<Section, ConfigurationEnvironment, Release>(section, environment, release);
     }
     
-    private void EnureConfigurationSectionExists(string configurationSectionName)
+    private void EnsureSectionExists(string sectionName)
     {
-        if (!_configurationSections.ContainsKey(configurationSectionName))
-            throw new InvalidOperationException("Configuration Section does not exist: " + configurationSectionName);
+        if (!_sections.ContainsKey(sectionName))
+            throw new InvalidOperationException("Configuration Section does not exist: " + sectionName);
     }
 
     private void EnsureTokenSetDoesntExist(string tokenSetName)
@@ -228,18 +227,18 @@ public class SuperAggregate
             throw new InvalidOperationException("Token set doesn't exist: " + tokenSetName);
     }
 
-    private void EnsureConfigurationSectionDoesntExist(string configurationSectionName)
+    private void EnsureSectionDoesntExist(string sectionName)
     {
-        if (_configurationSections.ContainsKey(configurationSectionName))
-            throw new InvalidOperationException("Configuration Section already exists: " + configurationSectionName);
+        if (_sections.ContainsKey(sectionName))
+            throw new InvalidOperationException("Configuration Section already exists: " + sectionName);
     }
 
-    private void EnsureHabitatDoesntExist(string configurationSectionName, string habitatName)
+    private void EnsureEnvironmentDoesntExist(string sectionName, string environmentName)
     {
-        var configurationSection = GetConfigurationSection(configurationSectionName);
-        if (configurationSection.Habitats.Select(h => h.HabitatId.Name).Contains(habitatName, StringComparer.OrdinalIgnoreCase))
+        var section = GetSection(sectionName);
+        if (section.Environments.Select(h => h.EnvironmentId.Name).Contains(environmentName, StringComparer.OrdinalIgnoreCase))
         {
-            throw new InvalidOperationException("The habitat already exists: " + habitatName);
+            throw new InvalidOperationException("The environment already exists: " + environmentName);
         }
     }
 }

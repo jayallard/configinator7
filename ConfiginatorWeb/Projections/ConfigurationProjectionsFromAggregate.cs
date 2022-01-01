@@ -11,10 +11,10 @@ public class ConfigurationProjectionsFromAggregate : IConfigurationProjections
         _aggregate = aggregate;
     }
 
-    public IEnumerable<ConfigurationItemView> GetConfigurationSections() =>
+    public IEnumerable<ConfigurationItemView> GetSections() =>
         _aggregate.TemporaryExposure.Values.Select(v => new ConfigurationItemView
         {
-            ConfigurationSectionId = v.Id,
+            SectionId = v.Id,
             Name = v.Id.Name,
             Path = v.Path
         });

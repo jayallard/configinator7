@@ -8,11 +8,11 @@
 </script>
 
 <script type="text/javascript">
-function deploy(habitatName, releaseId) {
+function deploy(environmenName, releaseId) {
             const requestDto = {
-                 ConfigurationSectionName: '@Model.Name',
-                 HabitatName: habitatName,
-                 releaseId: releaseId
+                 SectionName: '@Model.Name',
+                 EnvironmentName: environmenName,
+                 ReleaseId: releaseId
             };
             $.post('/Release/Deploy', requestDto)
             .done(function(data) {
@@ -28,9 +28,9 @@ $(document).ready(function() {
     .filter("[data-deploy='1']");
     deployButtons
     .click(function (e) {
-        const habitat = $(this).data('h');
+        const environment = $(this).data('e');
         const releaseId = $(this).data('r');
-        deploy(habitat, releaseId);
+        deploy(environment, releaseId);
      });
  });
 </script>
@@ -52,12 +52,12 @@ $(document).ready(function() {
         <th>Releases</th>
     </tr>
     </thead>
-    @foreach (var h in Model.Habitats)
+    @foreach (var h in Model.Environments)
     {
         <tr>
             <td>@h.Name
                 <br/>
-                <a asp-controller="release" asp-action="history" asp-route-configurationSectionName="@Model.Name" asp-route-habitatName="@h.Name">Release History</a>
+                <a asp-controller="release" asp-action="history" asp-route-sectionName="@Model.Name" asp-route-environmentName="@h.Name">Release History</a>
                 
             </td>
             <td>
@@ -79,7 +79,7 @@ $(document).ready(function() {
                                 <td>@r.Version.ToFullString()</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                                 <td>
-                                    <button data-deploy="1" data-h="@h.Name" data-r="@r.ReleaseId">Deploy</button>
+                                    <button data-deploy="1" data-e="@h.Name" data-r="@r.ReleaseId">Deploy</button>
                                     @if (r.IsDeployed)
                                     {
                                         <span class="badge rounded-pill bg-success">Deployed</span>
@@ -89,7 +89,7 @@ $(document).ready(function() {
                         }
                     </table>
                 }
-                <a asp-controller="Release", asp-action="Edit" asp-route-configurationSectionName="@Model.Name" asp-route-habitatName="@h.Name">Add</a>
+                <a asp-controller="Release", asp-action="Edit" asp-route-sectionName="@Model.Name" asp-route-environmentName="@h.Name">Add</a>
             </td>
         </tr>
     }

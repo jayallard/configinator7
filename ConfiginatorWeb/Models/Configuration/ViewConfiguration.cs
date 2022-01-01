@@ -13,7 +13,7 @@ public class ViewConfiguration
     
     public List<ViewSchema> Schemas { get; set; }
     
-    public List<ViewHabitat> Habitats { get; set; }
+    public List<ViewEnvironment> Environments { get; set; }
 }
 
 public class ViewSchema
@@ -22,7 +22,7 @@ public class ViewSchema
     public string Text { get; set; }
 }
 
-public class ViewHabitat
+public class ViewEnvironment
 {
     public string Name { get; set; }
     

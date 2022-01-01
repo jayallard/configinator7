@@ -16,13 +16,13 @@ public class ReleaseController : Controller
     }
 
     // GET
-    public IActionResult Edit(string configurationSectionName, string habitatName)
+    public IActionResult Edit(string sectionName, string environmentName)
     {
         var v = new ViewEditRelease
         {
-            HabitatName = habitatName,
-            ConfigurationSectionName = configurationSectionName,
-            Schemas = _aggregate.TemporaryExposure[configurationSectionName]
+            EnvironmentName = environmentName,
+            SectionName = sectionName,
+            Schemas = _aggregate.TemporaryExposure[sectionName]
                 .Schemas
                 .OrderByDescending(s => s.Version)
                 .Select(s => new ViewSchema(
@@ -35,12 +35,12 @@ public class ReleaseController : Controller
     }
 
     [HttpPost]
-    public async Task<CreateResponse> Create(string configurationSectionName, string habitatName, string version, string value)
+    public async Task<CreateResponse> Create(string sectionName, string environmentName, string version, string value)
     {
         try
         {
             var json = JObject.Parse(value);
-            await _aggregate.CreateReleaseAsync(configurationSectionName, habitatName, SemanticVersion.Parse(version), json);
+            await _aggregate.CreateReleaseAsync(sectionName, environmentName, SemanticVersion.Parse(version), json);
             return new CreateResponse(true, new List<string>());
         }
         catch (SchemaValidationFailedException vex)
@@ -54,26 +54,26 @@ public class ReleaseController : Controller
     }
 
     [HttpPost]
-    public async Task<DeployResponse> Deploy(string configurationSectionName, string habitatName, long releaseId)
+    public async Task<DeployResponse> Deploy(string sectionName, string environmentName, long releaseId)
     {
-        _aggregate.Deploy(configurationSectionName, habitatName, releaseId);
+        _aggregate.Deploy(sectionName, environmentName, releaseId);
         return new DeployResponse();
     }
     
-    public IActionResult History(string configurationSectionName, string habitatName)
+    public IActionResult History(string sectionName, string environmentName)
     {
-        var h2 = _aggregate.TemporaryExposure[configurationSectionName]
-            .Habitats
-            .SingleOrDefault(h => string.Equals(habitatName, h.HabitatId.Name, StringComparison.OrdinalIgnoreCase))
+        var h2 = _aggregate.TemporaryExposure[sectionName]
+            .Environments
+            .SingleOrDefault(h => string.Equals(environmentName, h.EnvironmentId.Name, StringComparison.OrdinalIgnoreCase))
             .Releases
             .SelectMany(r => r.Deployments.Select(d => new HistoryItem(d.DeploymentDate, d.Action == DeploymentAction.Set, d.Reason, r.SchemaVersion, r.ReleaseId)))
             .OrderBy(h => h.Date)
             .ToList();
-        var view = new HistoryView(configurationSectionName, habitatName, h2.ToList());
+        var view = new HistoryView(sectionName, environmentName, h2.ToList());
         return View(view);
     }
 
-    public record HistoryView(string ConfigurationSectionName, string HabitatName, List<HistoryItem> History);
+    public record HistoryView(string SectionName, string EnvironmentName, List<HistoryItem> History);
     public record HistoryItem(DateTime Date, bool IsDeploymentAction, string Reason, SemanticVersion SchemaVersion, long ReleaseId);
     public record DeployResponse;
 

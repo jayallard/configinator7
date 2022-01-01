@@ -5,27 +5,27 @@ using NuGet.Versioning;
 
 namespace Configinator7.Core.Model;
 
-public record ConfigurationSectionId(string Name);
+public record SectionId(string Name);
 
-public record ConfigurationSection
+public record Section
 {
-    public ConfigurationSectionId Id { get; set; }
+    public SectionId Id { get; set; }
     public string Path { get; set; }
 
     public List<ConfigurationSchema> Schemas { get; } = new();
 
-    public List<Habitat> Habitats = new();
+    public List<ConfigurationEnvironment> Environments = new();
     
     public string TokenSetName { get; set; }
 }
 
 public record ConfigurationSchema(SemanticVersion Version, JsonSchema Schema);
 
-public record HabitatId(string Name);
+public record ConfigurationEnvironmentId(string Name);
 
-public class Habitat
+public class ConfigurationEnvironment
 {
-    public HabitatId HabitatId { get; set; }
+    public ConfigurationEnvironmentId EnvironmentId { get; set; }
     
     public List<Release> Releases { get; } = new();
 }
