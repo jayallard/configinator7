@@ -12,9 +12,9 @@ public class ConfigurationProjectionsFromAggregate : IConfigurationProjections
     }
 
     public IEnumerable<ConfigurationItemView> GetConfigurationSections() =>
-        _aggregate.TemporarySecretExposure.Values.Select(v => new ConfigurationItemView
+        _aggregate.TemporaryExposure.Values.Select(v => new ConfigurationItemView
         {
-            SecretId = v.Id,
+            ConfigurationSectionId = v.Id,
             Name = v.Id.Name,
             Path = v.Path
         });

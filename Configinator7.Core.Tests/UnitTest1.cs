@@ -55,12 +55,12 @@ public class UnitTest1
     {
         // arrange
         var agg = new SuperAggregate();
-        agg.CreateSecret("secret", await GetSchemaTest1(), "/something", null);
-        agg.AddHabitat("secret", "habitat1");
+        agg.CreateConfigurationSection("section1", await GetSchemaTest1(), "/something", null);
+        agg.AddHabitat("section1", "habitat1");
 
         // act
         // add it again. boom.
-        var test = () => agg.AddHabitat("secret", "habitat1");
+        var test = () => agg.AddHabitat("section1", "habitat1");
         
         // assert
         test.Should().ThrowExactly<InvalidOperationException>().WithMessage("The habitat already exists: habitat1");
@@ -71,22 +71,22 @@ public class UnitTest1
     {
         // arrange
         var agg = new SuperAggregate();
-        agg.CreateSecret("secret", await GetSchemaTest1(), "/something", null);
+        agg.CreateConfigurationSection("section1", await GetSchemaTest1(), "/something", null);
         
         // act
-        agg.AddHabitat("secret", "habitat1");
+        agg.AddHabitat("section1", "habitat1");
         
         // assert
-        agg.TemporarySecretExposure.Values.Single().Habitats.Single().HabitatId.Name.Should().Be("habitat1");
+        agg.TemporaryExposure.Values.Single().Habitats.Single().HabitatId.Name.Should().Be("habitat1");
     }
 
     [Fact]
     public async Task SetValue()
     {
         var agg = new SuperAggregate();
-        agg.CreateSecret("secret", await GetSchemaTest1(), "path", null);
-        agg.AddHabitat("secret", "dev1");
+        agg.CreateConfigurationSection("section1", await GetSchemaTest1(), "path", null);
+        agg.AddHabitat("section1", "dev1");
 
-        agg.TemporarySecretExposure["secret"].Schemas.Single().Schema.Should().NotBeNull();
+        agg.TemporaryExposure["section1"].Schemas.Single().Schema.Should().NotBeNull();
     }
 }

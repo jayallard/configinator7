@@ -12,15 +12,15 @@ public record EventBase : IEvent
     public DateTime EventDate { get; set; } = DateTime.Now;
 }
 
-public record SecretCreatedEvent(string SecretName, string? Path, ConfigurationSchema? Schema, string? TokenSetName) : EventBase;
+public record ConfigurationSectionCreatedEvent(string ConfigurationSectionName, string? Path, ConfigurationSchema? Schema, string? TokenSetName) : EventBase;
 
-public record HabitatAddedToSecretEvent(string HabitatName, string SecretName) : EventBase;
+public record HabitatAddedToConfigurationSectionEvent(string HabitatName, string ConfigurationSectionName) : EventBase;
 
-public record SchemaAddedToSecret(string SecretName, ConfigurationSchema Schema) : EventBase;
+public record SchemaAddedToConfigurationSection(string ConfigurationSectionName, ConfigurationSchema Schema) : EventBase;
 
 public record ReleaseCreatedEvent(
     long ReleaseId,
-    string SecretName,
+    string ConfigurationSectionName,
     string HabitatName,
     SemanticVersion Version,
     JObject ModelValue,
@@ -32,12 +32,12 @@ public record TokenSetCreatedEvent(
     Dictionary<string, JToken> Tokens) : EventBase;
 
 public record ReleaseDeployed(
-    string SecretName,
+    string ConfigurationSectionName,
     string HabitatName,
     long ReleaseId): EventBase;
 
 public record ReleaseUndeployed(
-    string SecretName,
+    string ConfigurationSectionName,
     string HabitatName,
     long ReleaseId,
     string Reason) : EventBase;

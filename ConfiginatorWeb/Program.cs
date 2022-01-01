@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // working in memory... set it up for demo/testing
 var agg = new SuperAggregate();
-agg.CreateSecret("abc", null, "/a/b/c", null);
-agg.CreateSecret("xyz", null, "/x/y/z", null);
+agg.CreateConfigurationSection("abc", null, "/a/b/c", null);
+agg.CreateConfigurationSection("xyz", null, "/x/y/z", null);
 
 var schema1 = File.ReadAllText((Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "2.0.0.json")));
 agg.AddSchema("abc",

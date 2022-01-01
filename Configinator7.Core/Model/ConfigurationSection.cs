@@ -5,11 +5,11 @@ using NuGet.Versioning;
 
 namespace Configinator7.Core.Model;
 
-public record SecretId(string Name);
+public record ConfigurationSectionId(string Name);
 
-public record Secret
+public record ConfigurationSection
 {
-    public SecretId Id { get; set; }
+    public ConfigurationSectionId Id { get; set; }
     public string Path { get; set; }
 
     public List<ConfigurationSchema> Schemas { get; } = new();

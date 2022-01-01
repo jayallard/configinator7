@@ -9,55 +9,56 @@ public class SuperAggregate
 {
     #region Temporary
 
-    public Dictionary<string, Secret> TemporarySecretExposure => _secrets;
+    public Dictionary<string, ConfigurationSection> TemporaryExposure => _configurationSections;
 
     #endregion
 
-    // key = SecretModelName.
-    private readonly Dictionary<string, Secret> _secrets = new(StringComparer.OrdinalIgnoreCase);
+    // key = Configuration Section Name
+    private readonly Dictionary<string, ConfigurationSection> _configurationSections = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Dictionary<string, JToken>> _tokenSets = new(StringComparer.OrdinalIgnoreCase);
 
     private void Play(IEvent evt)
     {
         switch (evt)
         {
-            case SecretCreatedEvent(var secretName, var path, var schema, var tokenSetName):
+            case ConfigurationSectionCreatedEvent(var configurationSectionName, var path, var schema, var tokenSetName):
             {
-                var id = new SecretId(secretName);
-                var secret = new Secret
+                var id = new ConfigurationSectionId(configurationSectionName);
+                var configurationSection = new ConfigurationSection
                 {
                     Path = path,
                     Id = id,
                     TokenSetName = tokenSetName
                 };
+                
                 if (schema != null)
                 {
-                    secret.Schemas.Add(schema);
+                    configurationSection.Schemas.Add(schema);
                 }
 
-                _secrets.Add(secretName, secret);
+                _configurationSections.Add(configurationSectionName, configurationSection);
                 break;
             }
-            case HabitatAddedToSecretEvent(var habitatName, var secretName):
+            case HabitatAddedToConfigurationSectionEvent(var habitatName, var configurationSectionName):
             {
-                var secret = GetSecret(secretName);
-                secret.Habitats.Add(new Habitat
+                var configurationSection = GetConfigurationSection(configurationSectionName);
+                configurationSection.Habitats.Add(new Habitat
                 {
                     HabitatId = new HabitatId(habitatName),
                 });
                 break;
             }
-            case SchemaAddedToSecret(var secretName, var schema):
+            case SchemaAddedToConfigurationSection(var configurationSectionName, var schema):
             {
-                // make a copy of the secret and increment the version.
-                // add the secret to the history list.
-                GetSecret(secretName).Schemas.Add(schema);
+                // make a copy of the configuration section and increment the version.
+                // add the configuratioi section to the history list.
+                GetConfigurationSection(configurationSectionName).Schemas.Add(schema);
                 break;
             }
             case ReleaseCreatedEvent resolved:
             {
-                var (_, schema) = GetSchema(resolved.SecretName, resolved.Version);
-                var (_, habitat) = GetHabitat(resolved.SecretName, resolved.HabitatName);
+                var (_, schema) = GetSchema(resolved.ConfigurationSectionName, resolved.Version);
+                var (_, habitat) = GetHabitat(resolved.ConfigurationSectionName, resolved.HabitatName);
                 var release = new Release(
                     resolved.ReleaseId,
                     resolved.ModelValue,
@@ -76,14 +77,14 @@ public class SuperAggregate
             }
             case ReleaseDeployed deployed:
             {
-                var (_, _, release) = GetRelease(deployed.SecretName, deployed.HabitatName, deployed.ReleaseId);
+                var (_, _, release) = GetRelease(deployed.ConfigurationSectionName, deployed.HabitatName, deployed.ReleaseId);
                 release.Deployments.Add(new Deployment(deployed.EventDate, DeploymentAction.Set, string.Empty));
                 release.IsDeployed = true;
                 break;
             }
             case ReleaseUndeployed undeployed:
             {
-                var (_, _, release) = GetRelease(undeployed.SecretName, undeployed.HabitatName, undeployed.ReleaseId);
+                var (_, _, release) = GetRelease(undeployed.ConfigurationSectionName, undeployed.HabitatName, undeployed.ReleaseId);
                 release.Deployments.Add(new Deployment(undeployed.EventDate, DeploymentAction.Removed, undeployed.Reason));
                 release.IsDeployed = false;
                 break;
@@ -93,26 +94,27 @@ public class SuperAggregate
         }
     }
 
-    public SecretId CreateSecret(string secretName,
+    public ConfigurationSectionId CreateConfigurationSection(
+        string configurationSectionName,
         ConfigurationSchema? schema,
         string? path,
         string? tokenSetName)
     {
-        EnsureSecretDoesntExist(secretName);
+        EnsureConfigurationSectionDoesntExist(configurationSectionName);
         EnsureTokenSetExists(tokenSetName);
-        Play(new SecretCreatedEvent(secretName, path, schema, tokenSetName));
-        return _secrets[secretName].Id;
+        Play(new ConfigurationSectionCreatedEvent(configurationSectionName, path, schema, tokenSetName));
+        return _configurationSections[configurationSectionName].Id;
     }
 
-    public void AddSchema(string secretName, ConfigurationSchema schema)
+    public void AddSchema(string configurationSectionName, ConfigurationSchema schema)
     {
-        var secret = GetSecret(secretName);
-        if (secret.Schemas.Any(s => s.Version == schema.Version))
+        var configurationSection = GetConfigurationSection(configurationSectionName);
+        if (configurationSection.Schemas.Any(s => s.Version == schema.Version))
         {
             throw new InvalidOperationException("Schema already exists. Version=" + schema.Version);
         }
 
-        Play(new SchemaAddedToSecret(secretName, schema));
+        Play(new SchemaAddedToConfigurationSection(configurationSectionName, schema));
     }
 
     private ICollection<ValidationError> Validate(JObject value, JsonSchema schema) => schema.Validate(value);
@@ -125,12 +127,12 @@ public class SuperAggregate
     }
 
     public async Task CreateReleaseAsync(
-        string secretName,
+        string configurationSectionName,
         string habitatName,
         SemanticVersion schemaVersion,
         JObject value)
     {
-        var (_, schema) = GetSchema(secretName, schemaVersion);
+        var (_, schema) = GetSchema(configurationSectionName, schemaVersion);
         var resolved = await JsonUtility.ResolveAsync(value, new Dictionary<string, JToken>());
         var results = Validate(resolved, schema.Schema);
         if (results.Any())
@@ -138,85 +140,79 @@ public class SuperAggregate
             throw new SchemaValidationFailedException(results);
         }
 
-        var habitat = GetHabitat(secretName, habitatName);
+        var habitat = GetHabitat(configurationSectionName, habitatName);
         
-        var releaseId = (_secrets
+        var releaseId = (_configurationSections
             .Values
             .SelectMany(s => s.Habitats.SelectMany(h => h.Releases))
             .Max(r => r.ReleaseId as long?) ?? 0) + 1;
-        Play(new ReleaseCreatedEvent(releaseId, secretName, habitatName, schemaVersion, value, resolved, null));
+        Play(new ReleaseCreatedEvent(releaseId, configurationSectionName, habitatName, schemaVersion, value, resolved, null));
     }
 
-    private (Secret Secret, ConfigurationSchema Schemaa) GetSchema(string secretName, SemanticVersion version)
+    private (ConfigurationSection ConfigurationSection, ConfigurationSchema Schemaa) GetSchema(string configurationSectionName, SemanticVersion version)
     {
-        var secret = GetSecret(secretName);
-        var schema = secret.Schemas.SingleOrDefault(s => s.Version == version);
+        var configurationSection = GetConfigurationSection(configurationSectionName);
+        var schema = configurationSection.Schemas.SingleOrDefault(s => s.Version == version);
         if (schema == null)
             throw new InvalidOperationException(
-                $"Schema doesnt' exist. Secret={secretName}, Version={version.ToFullString()}");
-        return new(secret, schema);
+                $"Schema doesnt' exist. Configuration Section Name={configurationSectionName}, Version={version.ToFullString()}");
+        return new(configurationSection, schema);
     }
 
-    public void AddHabitat(string secretName, string habitatName)
+    public void AddHabitat(string configurationSectionName, string habitatName)
     {
-        EnsureHabitatDoesntExist(secretName, habitatName);
-        var secret = GetSecret(secretName);
-        //var value = (JObject) secretValue.DeepClone();
-
-        // resolve value against the schema
-        // if it fails, can't assign
-        // var errors = secret.sc.Validate(value.ToString());
-        // if (errors.Any()) throw new InvalidOperationException("Value is invalid. Can't be assigned.");
-        Play(new HabitatAddedToSecretEvent(habitatName, secretName));
+        EnsureHabitatDoesntExist(configurationSectionName, habitatName);
+        GetConfigurationSection(configurationSectionName);
+        Play(new HabitatAddedToConfigurationSectionEvent(habitatName, configurationSectionName));
     }
 
-    public void Deploy(string secretName, string habitatName, long releaseId)
+    public void Deploy(string configurationSectioName, string habitatName, long releaseId)
     {
-        var (_, habitat, _) = GetRelease(secretName, habitatName, releaseId);
+        var (_, habitat, _) = GetRelease(configurationSectioName, habitatName, releaseId);
         
         // if a release is already deployed, then set it to undeployed
         var released = habitat.Releases.SingleOrDefault(r => r.IsDeployed && r.ReleaseId != releaseId);
         if (released != null)
         {
-            Play(new ReleaseUndeployed(secretName, habitatName, released.ReleaseId, $"Overwritten by Release #{releaseId}"));
+            Play(new ReleaseUndeployed(configurationSectioName, habitatName, released.ReleaseId, $"Overwritten by Release #{releaseId}"));
         }
 
         // set the new release to deployed
-        Play(new ReleaseDeployed(secretName, habitatName, releaseId));
+        Play(new ReleaseDeployed(configurationSectioName, habitatName, releaseId));
     }
 
-    private Secret GetSecret(string secretName)
+    private ConfigurationSection GetConfigurationSection(string configurationSectionName)
     {
-        EnsureSecretExists(secretName);
-        return _secrets[secretName];
+        EnureConfigurationSectionExists(configurationSectionName);
+        return _configurationSections[configurationSectionName];
     }
 
-    private (Secret Secret, Habitat Habitat) GetHabitat(string secretName, string habitatName)
+    private (ConfigurationSection ConfigurationSection, Habitat Habitat) GetHabitat(string configurationSectionName, string habitatName)
     {
-        var secret = GetSecret(secretName);
-        var habitat = secret
+        var configurationSection = GetConfigurationSection(configurationSectionName);
+        var habitat = configurationSection
             .Habitats
             .Single(h => h.HabitatId.Name.Equals(habitatName, StringComparison.OrdinalIgnoreCase));
-        return new(secret, habitat);
+        return new(configurationSection, habitat);
     }
 
-    private (Secret Secret, Habitat Habitat, Release Release) GetRelease(string secretName, string habitatName,
+    private (ConfigurationSection ConfigurationSection, Habitat Habitat, Release Release) GetRelease(string configurationSectionName, string habitatName,
         long releaseId)
     {
-        var (secret, habitat) = GetHabitat(secretName, habitatName);
+        var (configurationSection, habitat) = GetHabitat(configurationSectionName, habitatName);
         var release = habitat.Releases.SingleOrDefault(r => r.ReleaseId == releaseId);
         if (release == null)
         {
             throw new InvalidOperationException("Release does not exist");
         }
 
-        return new ValueTuple<Secret, Habitat, Release>(secret, habitat, release);
+        return new ValueTuple<ConfigurationSection, Habitat, Release>(configurationSection, habitat, release);
     }
     
-    private void EnsureSecretExists(string secretName)
+    private void EnureConfigurationSectionExists(string configurationSectionName)
     {
-        if (!_secrets.ContainsKey(secretName))
-            throw new InvalidOperationException("Secret does not exist: " + secretName);
+        if (!_configurationSections.ContainsKey(configurationSectionName))
+            throw new InvalidOperationException("Configuration Section does not exist: " + configurationSectionName);
     }
 
     private void EnsureTokenSetDoesntExist(string tokenSetName)
@@ -232,16 +228,16 @@ public class SuperAggregate
             throw new InvalidOperationException("Token set doesn't exist: " + tokenSetName);
     }
 
-    private void EnsureSecretDoesntExist(string secretName)
+    private void EnsureConfigurationSectionDoesntExist(string configurationSectionName)
     {
-        if (_secrets.ContainsKey(secretName))
-            throw new InvalidOperationException("Secret already exists: " + secretName);
+        if (_configurationSections.ContainsKey(configurationSectionName))
+            throw new InvalidOperationException("Configuration Section already exists: " + configurationSectionName);
     }
 
-    private void EnsureHabitatDoesntExist(string secretName, string habitatName)
+    private void EnsureHabitatDoesntExist(string configurationSectionName, string habitatName)
     {
-        var secret = GetSecret(secretName);
-        if (secret.Habitats.Select(h => h.HabitatId.Name).Contains(habitatName, StringComparer.OrdinalIgnoreCase))
+        var configurationSection = GetConfigurationSection(configurationSectionName);
+        if (configurationSection.Habitats.Select(h => h.HabitatId.Name).Contains(habitatName, StringComparer.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("The habitat already exists: " + habitatName);
         }

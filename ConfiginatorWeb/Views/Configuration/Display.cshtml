@@ -10,7 +10,7 @@
 <script type="text/javascript">
 function deploy(habitatName, releaseId) {
             const requestDto = {
-                 SecretName: '@Model.Name',
+                 ConfigurationSectionName: '@Model.Name',
                  HabitatName: habitatName,
                  releaseId: releaseId
             };
@@ -57,7 +57,7 @@ $(document).ready(function() {
         <tr>
             <td>@h.Name
                 <br/>
-                <a asp-controller="release" asp-action="history" asp-route-secretName="@Model.Name" asp-route-habitatName="@h.Name">Release History</a>
+                <a asp-controller="release" asp-action="history" asp-route-configurationSectionName="@Model.Name" asp-route-habitatName="@h.Name">Release History</a>
                 
             </td>
             <td>
@@ -89,7 +89,7 @@ $(document).ready(function() {
                         }
                     </table>
                 }
-                <a asp-controller="Release", asp-action="Edit" asp-route-secretName="@Model.Name" asp-route-habitatName="@h.Name">Add</a>
+                <a asp-controller="Release", asp-action="Edit" asp-route-configurationSectionName="@Model.Name" asp-route-habitatName="@h.Name">Add</a>
             </td>
         </tr>
     }

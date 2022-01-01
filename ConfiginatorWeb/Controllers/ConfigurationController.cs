@@ -33,17 +33,17 @@ public class ConfigurationController : Controller
 
     public IActionResult Display(string name)
     {
-        var secret = _aggregate.TemporarySecretExposure[name];
+        var configurationSection = _aggregate.TemporaryExposure[name];
         var view = new ViewConfiguration
         {
-            Name = secret.Id.Name,
-            Path = secret.Path,
-            Schemas = secret.Schemas.Select(s => new ViewSchema
+            Name = configurationSection.Id.Name,
+            Path = configurationSection.Path,
+            Schemas = configurationSection.Schemas.Select(s => new ViewSchema
             {
                 Text = s.Schema.ToJson(),
                 Version = s.Version
             }).ToList(),
-            Habitats = secret.Habitats.Select(h => new ViewHabitat
+            Habitats = configurationSection.Habitats.Select(h => new ViewHabitat
             {
                 Name = h.HabitatId.Name,
                 Releases = h.Releases.Select(r => new ViewRelease
@@ -67,7 +67,7 @@ public class ConfigurationController : Controller
 
         try
         {
-            _aggregate.CreateSecret(config.Name, null, config.Path, null);
+            _aggregate.CreateConfigurationSection(config.Name, null, config.Path, null);
         }
         catch (JsonReaderException ex)
         {

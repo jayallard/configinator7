@@ -4,7 +4,7 @@ namespace ConfiginatorWeb.Projections;
 
 public class ConfigurationItemView
 {
-    public SecretId SecretId { get; set; }
+    public ConfigurationSectionId ConfigurationSectionId { get; set; }
     public string Name { get; set; }
     public string Path { get; set; }
 }

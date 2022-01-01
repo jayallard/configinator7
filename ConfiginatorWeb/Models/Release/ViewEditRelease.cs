@@ -4,7 +4,7 @@ namespace ConfiginatorWeb.Models.Release;
 
 public class ViewEditRelease
 {
-    public string SecretName { get; set; }
+    public string ConfigurationSectionName { get; set; }
     public string HabitatName { get; set; }
     public List<ViewSchema> Schemas { get; set; }
 }
