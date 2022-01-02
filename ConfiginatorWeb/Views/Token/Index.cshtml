@@ -24,7 +24,7 @@
     <tr>
         <th>Token Name</th>
         <th>Value</th>
-        <th>Parent Value</th>
+        <th>Parent Values</th>
     </tr>
     </thead>
     @foreach (var t in Tokens())
@@ -53,18 +53,28 @@
                 }
             </td>
             <td>
-                @if (t.Resolution == Resolution.Inherited)
+                @if (t.Resolution is Resolution.Inherited or Resolution.Override)
                 {
+                    // crawl up the parents and make a list
+                    // reverse and print the list
+                    // this results in the info starting at the top base
+                    // class, then down the stack
+                    var items = new List<TokenResolved>();
                     var current = t.Parent;
                     while (current != null)
                     {
-                        <span>
-                            Token Set: @current.SourceTokenSet<br/>
-                            Json Type: @current.Value.Type<br/>
-                            <pre class="border border-2">@current.Value</pre>
-                        </span>
-
+                        items.Add(current);
                         current = current.Parent;
+                    }
+
+                    items.Reverse();
+                    foreach (var i in items)
+                    {
+                        <span>
+                            Token Set: @i.SourceTokenSet<br/>
+                            Json Type: @i.Value.Type<br/>
+                            <pre class="border border-2">@i.Value</pre>
+                        </span>
                     }
                 }
             </td>

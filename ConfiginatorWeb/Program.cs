@@ -20,15 +20,17 @@ agg.AddSchema("abc",
     new ConfigurationSchema(new SemanticVersion(1, 0, 2), await JsonSchema.FromJsonAsync("{ _version: \"1.0.2\" }")));
 agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync(schema1)));
 
-agg.AddTokenSet("Tokens0", new() {
+agg.AddTokenSet("Tokens0", new()
+{
     {"ShoeSize", 8.322},
-    {"SomethingCool", "abc"}
+    {"SomethingCool", "abc"},
+    {"t1", 17}
 });
 agg.AddTokenSet("Tokens1", new()
 {
     {"FavoriteColor", "Clear"},
     {"ShoeSize", 7.7998732}
-},"Tokens0");
+}, "Tokens0");
 agg.AddTokenSet("Tokens2", new Dictionary<string, JToken>
 {
     {"FavoriteColor", "Red"},

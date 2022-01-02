@@ -78,6 +78,25 @@ public class TokenSetResolver
             bottomValues[key] = newValue;
         }
 
+        // remove doubles
+        // each time a layer is resolved, it gets a new node
+        // for every token.
+        // GIVEN TS2 inherits from TS1 inherits from TS0
+        // GIVEN TS0 defines a value A, with no overrides.
+        //  TS0 resolves to     a=value, parent=null
+        //  TS1 resolves to     a=value, parent=ts0   value is inherited
+        //  TS2 resolves to     a=value, parent=ts1   value is inherited
+        //  So, the value of ts2 links to ts1 which links to ts0
+        //  This reduces it to: ts2 -> ts0
+        foreach (var v in bottomValues.Values
+                     .Where(v => v.Parent?.Parent != null))
+        {
+            if (string.Equals(v.Parent.SourceTokenSet, v.Parent.Parent.SourceTokenSet, StringComparison.OrdinalIgnoreCase))
+            {
+                v.Parent = v.Parent.Parent;
+            }
+        }
+        
         return new TokenSetResolved
         {
             Base = bottom.Base,
