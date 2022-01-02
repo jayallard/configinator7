@@ -23,7 +23,7 @@ public class ConfigurationProjectionsFromAggregate : IConfigurationProjections
         _aggregate.TemporaryExposureTokenSets.Select(s => new TokenSetView
         {
             Tokens = s.Value.Tokens.ToDictionary(t => t.Key, t => t.Value.DeepClone()),
-            TokenSetName = s.Value.Name,
+            TokenSetName = s.Value.TokenSetName,
             Base = s.Value.Base
         });
 }

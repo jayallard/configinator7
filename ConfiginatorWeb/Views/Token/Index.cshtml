@@ -1,0 +1,73 @@
+﻿@model ConfiginatorWeb.Controllers.EditTokenSetView
+@using System.Linq;
+@using Configinator7.Core
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+@functions
+{
+    IEnumerable<TokenResolved> Tokens()
+    {
+        return Model.Resolved.Tokens.Values
+            .OrderBy(t => string.Equals(t.SourceTokenSet, Model.Resolved.TokenSetName, StringComparison.OrdinalIgnoreCase) ? 1 : 0)
+            .ThenBy(t => t.SourceTokenSet)
+            .ThenBy(t => t.Name);
+    }
+}
+
+<h2>Token Set: @Model.Resolved.TokenSetName</h2>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Token Name</th>
+        <th>Value</th>
+        <th>Parent Value</th>
+    </tr>
+    </thead>
+    @foreach (var t in Tokens())
+    {
+        <tr>
+            <td>
+                @t.Name
+            </td>
+            <td>
+                @if (t.Resolution == Resolution.Inherited)
+                {
+                    <pre class="border border-2">@t.Value</pre>
+                    <span class="badge rounded-pill bg-info">Inherited</span>
+                }
+                else
+                {
+                    <span>
+                        Token Set: @t.SourceTokenSet<br/>
+                        Json Type: @t.Value.Type<br/>
+                        <pre class="border border-2">@t.Value</pre>
+                    </span>
+                    @if (t.Resolution == Resolution.Override)
+                    {
+                        <span class="badge rounded-pill bg-success">Overridden</span>
+                    }
+                }
+            </td>
+            <td>
+                @if (t.Resolution == Resolution.Inherited)
+                {
+                    var current = t.Parent;
+                    while (current != null)
+                    {
+                        <span>
+                            Token Set: @current.SourceTokenSet<br/>
+                            Json Type: @current.Value.Type<br/>
+                            <pre class="border border-2">@current.Value</pre>
+                        </span>
+
+                        current = current.Parent;
+                    }
+                }
+            </td>
+        </tr>
+    }
+</table>

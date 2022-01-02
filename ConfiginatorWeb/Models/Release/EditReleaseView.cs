@@ -15,7 +15,7 @@ public record EditSchemaView(string Id, string Version, string Schema);
 
 public class DisplayView
 {
-    public string SectioName { get; set; }
+    public string SectionName { get; set; }
     public string EnviornmentName { get; set; }
     public long ReleaseId { get; set; }
     

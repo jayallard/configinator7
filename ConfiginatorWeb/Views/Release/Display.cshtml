@@ -5,12 +5,35 @@
     Layout = "_Layout";
 }
 
-<p>Section: @Model.SectioName</p>
+<p>Section: <a asp-controller="Configuration" asp-action="Display" asp-route-name="@Model.SectionName">@Model.SectionName</a></p>
 <p>Environment:@Model.EnviornmentName</p>
 <p>Release Id:@Model.ReleaseId</p>
 
 <h2>Token Set</h2>
-<p>To do</p>
+@if (Model.Release.TokenSet != null)
+{
+    <p>Name: @Model.Release.TokenSet.TokenSetName</p>
+    <p>Base: @(Model.Release.TokenSet.Base ?? "none")</p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Source</th>
+            <th>Resolution</th>
+            <th>Value</th>
+        </tr>
+        </thead>
+        @foreach (var t in Model.Release.TokenSet.Tokens.Values.OrderBy(v => v.Name))
+        {
+            <tr>
+                <td>@t.Name</td>
+                <td>@t.SourceTokenSet</td>
+                <td>@t.Resolution</td>
+                <td><pre>@t.Value</pre></td>
+            </tr>
+        }
+    </table>
+}
 
 <h2>Schema</h2>
 <pre>@Model.Release.Schema.Schema.ToJson()</pre>

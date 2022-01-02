@@ -55,11 +55,7 @@ $(document).ready(function() {
     @foreach (var e in Model.Environments)
     {
         <tr>
-            <td>@e.EnvironmentName
-                <br/>
-                <a asp-controller="Release" asp-action="History" asp-route-environmentName="@e.EnvironmentName" asp-route-sectionName="@Model.SectionName" >Deploy History</a>
-                
-            </td>
+            <td>@e.EnvironmentName</td>
             <td>
                 @if (e.Releases.Any())
                 {
@@ -76,7 +72,9 @@ $(document).ready(function() {
                         @foreach (var r in e.Releases)
                         {
                             <tr>
-                                <td><a asp-controller="Release" asp-action="Display" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a></td>
+                                <td>
+                                    <a asp-controller="Release" asp-action="Display" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a>
+                                </td>
                                 <td>@r.Version.ToFullString()</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                                 <td>@r.TokenSetName</td>
@@ -92,6 +90,13 @@ $(document).ready(function() {
                     </table>
                 }
                 <a asp-controller="Release", asp-action="Add" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName">Add</a>
+                @if (e.Releases.Any())
+                {
+                    <span>
+                        &nbsp;|
+                        <a asp-controller="Release" asp-action="History" asp-route-environmentName="@e.EnvironmentName" asp-route-sectionName="@Model.SectionName">Deploy History</a>
+                    </span>
+                }
             </td>
         </tr>
     }

@@ -24,7 +24,7 @@ public class ReleaseController : Controller
         
         // set the value to the last of the most recent release.
         var value = env.Releases.LastOrDefault()?.ResolvedValue.ToString();
-        var ts = env.Releases.LastOrDefault()?.TokenSet?.Name;
+        var ts = env.Releases.LastOrDefault()?.TokenSet?.TokenSetName;
         var v = new EditReleaseView
         {
             EnvironmentName = environmentName,
@@ -99,7 +99,7 @@ public class ReleaseController : Controller
         var v = new DisplayView
         {
             EnviornmentName = environmentName,
-            SectioName = sectionName,
+            SectionName = sectionName,
             ReleaseId = releaseId,
             Release = release
         };

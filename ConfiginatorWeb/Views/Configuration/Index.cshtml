@@ -22,7 +22,7 @@
     @foreach (var t in Model.TokenSets.OrderBy(kv => kv.TokenSetName))
     {
         <tr>
-            <td>@t.TokenSetName</td>
+            <td><a asp-controller="Token" asp-action="Index" asp-route-tokenSetName="@t.TokenSetName">@t.TokenSetName</a></td>
         </tr>
     }
 </table>

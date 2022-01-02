@@ -34,7 +34,7 @@ public record Release(
     long ReleaseId,
     JObject ModelValue,
     JObject ResolvedValue,
-    TokenSet? TokenSet,
+    TokenSetResolved? TokenSet,
     ConfigurationSchema Schema,
     DateTime CreateDate,
     ICollection<ValidationError>? Errors

@@ -31,7 +31,7 @@ public class SuperAggregate
                     Id = id,
                     TokenSetName = tokenSetName
                 };
-                
+
                 if (schema != null)
                 {
                     section.Schemas.Add(schema);
@@ -70,36 +70,41 @@ public class SuperAggregate
                 environment.Releases.Add(release);
                 break;
             }
-            case TokenSetCreatedEvent(var name, var tokens):
+            case TokenSetCreatedEvent(var name, var tokens, var baseTokenSetName):
             {
                 _tokenSets[name] = new TokenSet
                 {
-                    Name = name,
-                    Tokens = tokens
+                    TokenSetName = name,
+                    Tokens = tokens,
+                    Base = baseTokenSetName
                 };
                 break;
             }
             case ReleaseDeployed deployed:
             {
-                var (_, environment, release) = GetRelease(deployed.SectionName, deployed.EnvironmentName, deployed.ReleaseId);
-                
-                
+                var (_, environment, release) =
+                    GetRelease(deployed.SectionName, deployed.EnvironmentName, deployed.ReleaseId);
+
+
                 // set all of the deployments to NOT DEPLOYED
                 // TODO: this is business logic - shouldn't be here. this is wrong.
-                foreach (var d in environment.Releases.SelectMany(r =>r.Deployments))
+                foreach (var d in environment.Releases.SelectMany(r => r.Deployments))
                 {
                     d.IsDeployed = false;
                 }
 
                 // set this deployment to DEPLOYED
-                release.Deployments.Add(new Deployment(deployed.EventDate, DeploymentAction.Deployed, string.Empty) {IsDeployed = true});
+                release.Deployments.Add(new Deployment(deployed.EventDate, DeploymentAction.Deployed, string.Empty)
+                    {IsDeployed = true});
                 release.IsDeployed = true;
                 break;
             }
             case ReleaseUndeployed undeployed:
             {
-                var (_, _, release) = GetRelease(undeployed.SectionName, undeployed.EnvironmentName, undeployed.ReleaseId);
-                release.Deployments.Add(new Deployment(undeployed.EventDate, DeploymentAction.Removed, undeployed.Reason));
+                var (_, _, release) =
+                    GetRelease(undeployed.SectionName, undeployed.EnvironmentName, undeployed.ReleaseId);
+                release.Deployments.Add(new Deployment(undeployed.EventDate, DeploymentAction.Removed,
+                    undeployed.Reason));
                 release.IsDeployed = false;
                 break;
             }
@@ -115,7 +120,7 @@ public class SuperAggregate
         string? tokenSetName)
     {
         EnsureSectionDoesntExist(sectionName);
-        EnsureTokenSetExists(tokenSetName);
+        EnsureTokenSetExistsIfNotNull(tokenSetName);
         Play(new SectionCreatedEvent(sectionName, path, schema, tokenSetName));
         return _sections[sectionName].Id;
     }
@@ -133,11 +138,12 @@ public class SuperAggregate
 
     private ICollection<ValidationError> Validate(JObject value, JsonSchema schema) => schema.Validate(value);
 
-    public void AddTokenSet(string name, Dictionary<string, JToken> tokens)
+    public void AddTokenSet(string name, Dictionary<string, JToken> tokens, string baseTokenSet = null)
     {
+        EnsureTokenSetExistsIfNotNull(baseTokenSet);
         EnsureTokenSetDoesntExist(name);
-        tokens = tokens.ToDictionary(t => t.Key, t => t.Value?.DeepClone());
-        Play(new TokenSetCreatedEvent(name, tokens));
+        tokens = tokens.ToDictionary(t => t.Key, t => t.Value.DeepClone(), StringComparer.OrdinalIgnoreCase);
+        Play(new TokenSetCreatedEvent(name, tokens, baseTokenSet));
     }
 
     public async Task CreateReleaseAsync(
@@ -148,7 +154,18 @@ public class SuperAggregate
         JObject value)
     {
         var (_, schema) = GetSchema(sectionName, schemaVersion);
-        var resolved = await JsonUtility.ResolveAsync(value, new Dictionary<string, JToken>());
+        
+        // get the tokens, if there are any.
+        // if not, use an empty dictionary.
+        var resolvedTokens = ResolveTokenSet(tokenSetName);
+        var tokens = resolvedTokens == null
+            ? new Dictionary<string, JToken>()
+            : resolvedTokens
+                .Tokens
+                .Values
+                .ToDictionary(t => t.Name, t => t.Value, StringComparer.OrdinalIgnoreCase);
+        
+        var resolved = await JsonUtility.ResolveAsync(value, tokens);
         var results = Validate(resolved, schema.Schema);
         if (results.Any())
         {
@@ -156,18 +173,28 @@ public class SuperAggregate
         }
 
         GetEnvironment(sectionName, environmentName);
-        
+
         var releaseId = (_sections
             .Values
             .SelectMany(s => s.Environments.SelectMany(h => h.Releases))
             .Max(r => r.ReleaseId as long?) ?? 0) + 1;
-        var ts = tokenSetName == null ? null : _tokenSets[tokenSetName];
-        Play(new ReleaseCreatedEvent(releaseId, sectionName, environmentName, schema, value, resolved, ts));
+
+
+        var ts = tokenSetName == null
+            ? null
+            : new TokenSetResolver(_tokenSets.Values).Resolve(tokenSetName);
+        Play(new ReleaseCreatedEvent(releaseId, sectionName, environmentName, schema, value, resolved, resolvedTokens));
+    }
+
+    public TokenSetResolved? ResolveTokenSet(string? tokenSetName)
+    {
+        if (tokenSetName == null) return null;
+        return new TokenSetResolver(_tokenSets.Values).Resolve(tokenSetName);
     }
 
     private TokenSet GetTokenSet(string name)
     {
-        EnsureTokenSetExists(name);
+        EnsureTokenSetExistsIfNotNull(name);
         return _tokenSets[name];
     }
 
@@ -191,12 +218,13 @@ public class SuperAggregate
     public void Deploy(string sectionName, string environmentName, long releaseId)
     {
         var (_, environment, _) = GetRelease(sectionName, environmentName, releaseId);
-        
+
         // if a release is already deployed, then set it to undeployed
         var released = environment.Releases.SingleOrDefault(r => r.IsDeployed && r.ReleaseId != releaseId);
         if (released != null)
         {
-            Play(new ReleaseUndeployed(sectionName, environmentName, released.ReleaseId, $"Overwritten by Release #{releaseId}"));
+            Play(new ReleaseUndeployed(sectionName, environmentName, released.ReleaseId,
+                $"Overwritten by Release #{releaseId}"));
         }
 
         // set the new release to deployed
@@ -210,7 +238,8 @@ public class SuperAggregate
         return _sections[sectionName];
     }
 
-    private (Section Section, ConfigurationEnvironment Environment) GetEnvironment(string sectionName, string environmentName)
+    private (Section Section, ConfigurationEnvironment Environment) GetEnvironment(string sectionName,
+        string environmentName)
     {
         var section = GetSection(sectionName);
         var environment = section
@@ -219,7 +248,8 @@ public class SuperAggregate
         return new(section, environment);
     }
 
-    private (Section Section, ConfigurationEnvironment Environment, Release Release) GetRelease(string sectionName, string environmentName,
+    private (Section Section, ConfigurationEnvironment Environment, Release Release) GetRelease(string sectionName,
+        string environmentName,
         long releaseId)
     {
         var (section, environment) = GetEnvironment(sectionName, environmentName);
@@ -231,7 +261,7 @@ public class SuperAggregate
 
         return new ValueTuple<Section, ConfigurationEnvironment, Release>(section, environment, release);
     }
-    
+
     private void EnsureSectionExists(string sectionName)
     {
         if (!_sections.ContainsKey(sectionName))
@@ -244,7 +274,7 @@ public class SuperAggregate
             throw new InvalidOperationException("Token set already exists: " + tokenSetName);
     }
 
-    private void EnsureTokenSetExists(string? tokenSetName)
+    private void EnsureTokenSetExistsIfNotNull(string? tokenSetName)
     {
         if (tokenSetName == null) return;
         if (!_tokenSets.ContainsKey(tokenSetName))
@@ -256,11 +286,12 @@ public class SuperAggregate
         if (_sections.ContainsKey(sectionName))
             throw new InvalidOperationException("Configuration Section already exists: " + sectionName);
     }
-    
+
     private void EnsureEnvironmentDoesntExist(string sectionName, string environmentName)
     {
         var section = GetSection(sectionName);
-        if (section.Environments.Select(h => h.EnvironmentId.Name).Contains(environmentName, StringComparer.OrdinalIgnoreCase))
+        if (section.Environments.Select(h => h.EnvironmentId.Name)
+            .Contains(environmentName, StringComparer.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("The environment already exists: " + environmentName);
         }

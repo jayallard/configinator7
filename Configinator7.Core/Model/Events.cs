@@ -25,11 +25,12 @@ public record ReleaseCreatedEvent(
     ConfigurationSchema Schema,
     JObject ModelValue,
     JObject ResolvedValue,
-    TokenSet Tokens) : EventBase;
+    TokenSetResolved? Tokens) : EventBase;
 
 public record TokenSetCreatedEvent(
     string TokenSetName,
-    Dictionary<string, JToken> Tokens) : EventBase;
+    Dictionary<string, JToken> Tokens,
+    string BaseTokenSetName) : EventBase;
 
 public record ReleaseDeployed(
     string SectionName,

@@ -20,8 +20,24 @@ agg.AddSchema("abc",
     new ConfigurationSchema(new SemanticVersion(1, 0, 2), await JsonSchema.FromJsonAsync("{ _version: \"1.0.2\" }")));
 agg.AddSchema("abc", new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync(schema1)));
 
-agg.AddTokenSet("boo", new());
-agg.AddTokenSet("boo2", new());
+agg.AddTokenSet("Tokens0", new() {
+    {"ShoeSize", 8.322},
+    {"SomethingCool", "abc"}
+});
+agg.AddTokenSet("Tokens1", new()
+{
+    {"FavoriteColor", "Clear"},
+    {"ShoeSize", 7.7998732}
+},"Tokens0");
+agg.AddTokenSet("Tokens2", new Dictionary<string, JToken>
+{
+    {"FavoriteColor", "Red"},
+    {"t1", 99},
+    {"t2", "string"},
+    {"t3", JToken.Parse("{ \"hello\": \"galaxy\" }")},
+    {"FirstName", "Han"},
+    {"LastName", "Solo"}
+}, "Tokens1");
 
 agg.AddEnvironment("abc", "dev");
 agg.AddEnvironment("abc", "dev-jay");
@@ -30,11 +46,10 @@ agg.AddEnvironment("abc", "production");
 
 await agg.CreateReleaseAsync("abc", "dev", null, new SemanticVersion(1, 0, 1), JObject.Parse("{}"));
 await agg.CreateReleaseAsync("abc", "dev", null, new SemanticVersion(1, 0, 0), JObject.Parse("{}"));
-await agg.CreateReleaseAsync("abc", "dev", "boo2", new SemanticVersion(2, 0, 0),
-    (JObject) JToken.FromObject(new {firstName = "Luke", lastName = "Skywalker"}));
+await agg.CreateReleaseAsync("abc", "dev", "Tokens2", new SemanticVersion(2, 0, 0),
+    (JObject) JToken.FromObject(new {firstName = "$$FirstName$$", lastName = "$$LastName$$"}));
 
 agg.Deploy("abc", "dev", 1);
-
 
 
 // Add services to the container.
@@ -54,7 +69,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRouting();   
+app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
