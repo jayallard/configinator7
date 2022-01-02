@@ -23,7 +23,7 @@ public class ReleaseController : Controller
             string.Equals(e.EnvironmentId.Name, environmentName, StringComparison.OrdinalIgnoreCase));
         
         // set the value to the last of the most recent release.
-        var value = env.Releases.LastOrDefault()?.ResolvedValue.ToString();
+        var value = env.Releases.LastOrDefault()?.ModelValue.ToString();
         var ts = env.Releases.LastOrDefault()?.TokenSet?.TokenSetName;
         var v = new EditReleaseView
         {
@@ -45,12 +45,12 @@ public class ReleaseController : Controller
     }
 
     [HttpPost]
-    public async Task<CreateResponse> Create(string sectionName, string environmentName, string version, string value)
+    public async Task<CreateResponse> Create(string sectionName, string environmentName, string version, string value, string? tokenSetName)
     {
         try
         {
             var json = JObject.Parse(value);
-            await _aggregate.CreateReleaseAsync(sectionName, environmentName, null, SemanticVersion.Parse(version), json);
+            await _aggregate.CreateReleaseAsync(sectionName, environmentName, tokenSetName, SemanticVersion.Parse(version), json);
             return new CreateResponse(true, new List<string>());
         }
         catch (SchemaValidationFailedException vex)
