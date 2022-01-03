@@ -36,9 +36,7 @@ public record Release(
     JObject ResolvedValue,
     TokenSetResolved? TokenSet,
     ConfigurationSchema Schema,
-    DateTime CreateDate,
-    ICollection<ValidationError>? Errors
-)
+    DateTime CreateDate)
 {
     public List<Deployment> Deployments { get; } = new();
     public bool IsDeployed { get; set; }

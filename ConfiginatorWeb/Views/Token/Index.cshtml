@@ -36,6 +36,7 @@
     <thead>
     <tr>
         <th>Token Name</th>
+        <th></th>
         <th>Value</th>
         <th>Parent Values</th>
     </tr>
@@ -47,7 +48,12 @@
                 @t.Name
             </td>
             <td>
-                <pre>@t.Value</pre>
+               <a asp-action="EditValue" asp-route-tokenSetName="@Model.Resolved.TokenSetName" asp-route-key="@t.Name">Edit</a>
+                @if (t.Resolution != Resolution.Inherited)
+                {
+                    <span>&nbsp;|&nbsp;<a href="#">Delete</a></span>
+                }
+                <br/>
                 @switch (t.Resolution)
                 {
                     case Resolution.Inherited:
@@ -56,12 +62,10 @@
                     case Resolution.Override:
                         <span class="badge rounded-pill bg-success">Overridden</span><br/>
                         break;
-                }
-                <a asp-action="EditValue" asp-route-tokenSetName="@Model.Resolved.TokenSetName" asp-route-key="@t.Name">Edit</a>
-                @if (t.Resolution != Resolution.Inherited)
-                {
-                    <span>&nbsp;|&nbsp;<a href="#">Delete</a></span>
-                }
+                }            
+            </td>
+            <td>
+                <pre>@t.Value</pre>
             </td>
             <td>
                 @if (t.Resolution is Resolution.Inherited or Resolution.Override)

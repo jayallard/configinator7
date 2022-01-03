@@ -17,9 +17,11 @@ public class SuperAggregate
     // key = Configuration Section Name
     private readonly Dictionary<string, Section> _sections = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, TokenSet> _tokenSets = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<IEvent> _events = new();
 
     private void Play(IEvent evt)
     {
+        _events.Add(evt);
         switch (evt)
         {
             case SectionCreatedEvent(var sectionName, var path, var schema, var tokenSetName):
@@ -65,8 +67,7 @@ public class SuperAggregate
                     resolved.ResolvedValue,
                     resolved.Tokens,
                     resolved.Schema,
-                    resolved.EventDate,
-                    null);
+                    resolved.EventDate);
                 environment.Releases.Add(release);
                 break;
             }
@@ -148,8 +149,48 @@ public class SuperAggregate
 
     public void SetTokenValue(string tokenSetName, string key, JToken value)
     {
-        EnsureTokenSetExists(tokenSetName);
+        var tokenSet = GetTokenSet(tokenSetName);
+        if (tokenSet.Tokens.ContainsKey(key))
+        {
+            var existing = tokenSet.Tokens[key];
+            if (JToken.DeepEquals(value, existing))
+            {
+                // value didn't change. do nothing.
+                return;
+            }
+        }
+
         Play(new TokenValueSet(tokenSetName, key, value));
+
+        // find all current deployments using the tokenset
+        var outOfDate = _sections
+            .Values
+            .SelectMany(s => s.Environments.SelectMany(
+                e => e.Releases.Where(r =>
+                        r.IsDeployed && string.Equals(r.TokenSet?.TokenSetName, tokenSetName,
+                            StringComparison.OrdinalIgnoreCase))
+                    .Select(r => new
+                    {
+                        Release = r,
+                        Section = s,
+                        Environment = e
+                    })))
+            
+            // filter down to those using the specific token
+            .Where(r =>
+            {
+                // todo
+                var tokensUsedByRelease = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                return tokensUsedByRelease.Contains(key);
+            })
+            .ToList();
+        foreach (var o in outOfDate)
+        {
+            // TODO: mark ALL releases as out of date
+            // mark the ENVIRONMENT out of date if the DEPLOYED release is out of date
+        }
+        
+
     }
 
     private ICollection<ValidationError> Validate(JObject value, JsonSchema schema) => schema.Validate(value);
@@ -174,7 +215,7 @@ public class SuperAggregate
         JObject value)
     {
         var (_, schema) = GetSchema(sectionName, schemaVersion);
-        
+
         // get the tokens, if there are any.
         // if not, use an empty dictionary.
         var resolvedTokens = ResolveTokenSet(tokenSetName);
@@ -184,7 +225,7 @@ public class SuperAggregate
                 .Tokens
                 .Values
                 .ToDictionary(t => t.Name, t => t.Value, StringComparer.OrdinalIgnoreCase);
-        
+
         var resolved = await JsonUtility.ResolveAsync(value, tokens);
         var results = Validate(resolved, schema.Schema);
         if (results.Any())
@@ -299,7 +340,7 @@ public class SuperAggregate
         if (!_tokenSets.ContainsKey(tokenSetName))
             throw new InvalidOperationException("Token set doesn't exist: " + tokenSetName);
     }
-    
+
     private void EnsureSectionDoesntExist(string sectionName)
     {
         if (_sections.ContainsKey(sectionName))
