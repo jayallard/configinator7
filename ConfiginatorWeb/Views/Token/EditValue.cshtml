@@ -1,0 +1,41 @@
+﻿@using Microsoft.AspNetCore.Hosting
+@model ConfiginatorWeb.Controllers.EditValueView
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h1>Token Set: @Model.TokenSetName</h1>
+<h2>Key: @Model.Key</h2>
+
+<form asp-action="SaveValue" method="post">
+    <textarea id="value" name="value" style="width:400px;height: 200px;">@Model.SelectedToken</textarea>
+    <input type="hidden" name="tokenSetName" value="@Model.TokenSetName"/>
+    <input type="hidden" name="key" value="@Model.Key"/>
+    <br/>
+    <button type="submit">Save</button>
+</form>
+
+<h1>Resolved Tokens</h1>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Key</th>
+        <th>Token Set</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <!-- .Where(t => string.Equals(Model.TokenSetName, t.Value.SourceTokenSet, StringComparison.OrdinalIgnoreCase)) -->
+    @foreach (var t in Model.TokensResolved.Tokens)
+    {
+        <tr class="@(string.Equals(t.Value.Name, Model.Key, StringComparison.OrdinalIgnoreCase) ? "bg-info" : "")">
+            <td>@t.Value.Name</td>
+            <td>@t.Value.SourceTokenSet</td>
+            <td>
+                <pre>@t.Value.Value.ToString()</pre>
+            </td>
+        </tr>
+    }
+</table>

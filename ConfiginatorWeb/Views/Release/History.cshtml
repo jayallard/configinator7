@@ -31,7 +31,7 @@
                 }
             </td>
             <td>@h.SchemaVersion</td>
-            <td>@h.ReleaseId</td>
+            <td><a asp-action="Display" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@Model.EnvironmentName" asp-route-releaseId="@h.ReleaseId">@h.ReleaseId</a></td>
             <td>@h.Reason</td>
         </tr>
     }

@@ -47,8 +47,8 @@ public class TokenSetResolverTests
         var aResolved = resolver.Resolve("a");
         aResolved.Tokens.Count.Should().Be(5);
 
-        // c1 is defined in c, overridden in b
-        aResolved.Tokens["c1"].Resolution.Should().Be(Resolution.Override);
+        // c1 is defined in c, overridden in b, inherited by a
+        aResolved.Tokens["c1"].Resolution.Should().Be(Resolution.Inherited);
         aResolved.Tokens["c1"].SourceTokenSet.Should().Be("b");
         aResolved.Tokens["c1"].Value.ToString().Should().Be("b1");
         
@@ -57,13 +57,13 @@ public class TokenSetResolverTests
         aResolved.Tokens["c2"].SourceTokenSet.Should().Be("a");
         aResolved.Tokens["c2"].Value.ToString().Should().Be("99");
         
-        // c3 is defined in c, overridden in b
-        aResolved.Tokens["c3"].Resolution.Should().Be(Resolution.Override);
+        // c3 is defined in c, overridden in b, inherited by a
+        aResolved.Tokens["c3"].Resolution.Should().Be(Resolution.Inherited);
         aResolved.Tokens["c3"].SourceTokenSet.Should().Be("b");
         JToken.DeepEquals(aResolved.Tokens["c3"].Value, JToken.Parse("{ \"hello\": \"sun\" }")).Should().BeTrue();
         
-        // c4 is defined in b, not overridden
-        aResolved.Tokens["c4"].Resolution.Should().Be(Resolution.Addition);
+        // c4 is defined in b, not overridden, inherited by a
+        aResolved.Tokens["c4"].Resolution.Should().Be(Resolution.Inherited);
         aResolved.Tokens["c4"].SourceTokenSet.Should().Be("b");
         JToken.DeepEquals(aResolved.Tokens["c4"].Value, JToken.Parse("{ \"new\": \"guy\" }")).Should().BeTrue();
         

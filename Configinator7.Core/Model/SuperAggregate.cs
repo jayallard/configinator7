@@ -99,13 +99,19 @@ public class SuperAggregate
                 release.IsDeployed = true;
                 break;
             }
-            case ReleaseUndeployed undeployed:
+            case ReleaseRemoved removed:
             {
                 var (_, _, release) =
-                    GetRelease(undeployed.SectionName, undeployed.EnvironmentName, undeployed.ReleaseId);
-                release.Deployments.Add(new Deployment(undeployed.EventDate, DeploymentAction.Removed,
-                    undeployed.Reason));
+                    GetRelease(removed.SectionName, removed.EnvironmentName, removed.ReleaseId);
+                release.Deployments.Add(new Deployment(removed.EventDate, DeploymentAction.Removed,
+                    removed.Reason));
                 release.IsDeployed = false;
+                break;
+            }
+            case TokenValueSet(var tokenSetName, var key, var value):
+            {
+                var tokenSet = GetTokenSet(tokenSetName);
+                tokenSet.Tokens[key] = value;
                 break;
             }
             default:
@@ -120,7 +126,11 @@ public class SuperAggregate
         string? tokenSetName)
     {
         EnsureSectionDoesntExist(sectionName);
-        EnsureTokenSetExistsIfNotNull(tokenSetName);
+        if (tokenSetName != null)
+        {
+            EnsureTokenSetExists(tokenSetName);
+        }
+
         Play(new SectionCreatedEvent(sectionName, path, schema, tokenSetName));
         return _sections[sectionName].Id;
     }
@@ -136,11 +146,21 @@ public class SuperAggregate
         Play(new SchemaAddedToSection(sectionName, schema));
     }
 
+    public void SetTokenValue(string tokenSetName, string key, JToken value)
+    {
+        EnsureTokenSetExists(tokenSetName);
+        Play(new TokenValueSet(tokenSetName, key, value));
+    }
+
     private ICollection<ValidationError> Validate(JObject value, JsonSchema schema) => schema.Validate(value);
 
     public void AddTokenSet(string name, Dictionary<string, JToken> tokens, string baseTokenSet = null)
     {
-        EnsureTokenSetExistsIfNotNull(baseTokenSet);
+        if (baseTokenSet != null)
+        {
+            EnsureTokenSetExists(baseTokenSet);
+        }
+
         EnsureTokenSetDoesntExist(name);
         tokens = tokens.ToDictionary(t => t.Key, t => t.Value.DeepClone(), StringComparer.OrdinalIgnoreCase);
         Play(new TokenSetCreatedEvent(name, tokens, baseTokenSet));
@@ -192,10 +212,10 @@ public class SuperAggregate
         return new TokenSetResolver(_tokenSets.Values).Resolve(tokenSetName);
     }
 
-    private TokenSet GetTokenSet(string name)
+    private TokenSet GetTokenSet(string tokenSetName)
     {
-        EnsureTokenSetExistsIfNotNull(name);
-        return _tokenSets[name];
+        EnsureTokenSetExists(tokenSetName);
+        return _tokenSets[tokenSetName];
     }
 
     private (Section Section, ConfigurationSchema Schemaa) GetSchema(string sectionName, SemanticVersion version)
@@ -219,11 +239,11 @@ public class SuperAggregate
     {
         var (_, environment, _) = GetRelease(sectionName, environmentName, releaseId);
 
-        // if a release is already deployed, then set it to undeployed
+        // if a release is already deployed, then set it to removed
         var released = environment.Releases.SingleOrDefault(r => r.IsDeployed && r.ReleaseId != releaseId);
         if (released != null)
         {
-            Play(new ReleaseUndeployed(sectionName, environmentName, released.ReleaseId,
+            Play(new ReleaseRemoved(sectionName, environmentName, released.ReleaseId,
                 $"Overwritten by Release #{releaseId}"));
         }
 
@@ -274,13 +294,12 @@ public class SuperAggregate
             throw new InvalidOperationException("Token set already exists: " + tokenSetName);
     }
 
-    private void EnsureTokenSetExistsIfNotNull(string? tokenSetName)
+    private void EnsureTokenSetExists(string? tokenSetName)
     {
-        if (tokenSetName == null) return;
         if (!_tokenSets.ContainsKey(tokenSetName))
             throw new InvalidOperationException("Token set doesn't exist: " + tokenSetName);
     }
-
+    
     private void EnsureSectionDoesntExist(string sectionName)
     {
         if (_sections.ContainsKey(sectionName))

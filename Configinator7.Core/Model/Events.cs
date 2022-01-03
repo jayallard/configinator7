@@ -12,7 +12,8 @@ public record EventBase : IEvent
     public DateTime EventDate { get; set; } = DateTime.Now;
 }
 
-public record SectionCreatedEvent(string SectionName, string? Path, ConfigurationSchema? Schema, string? TokenSetName) : EventBase;
+public record SectionCreatedEvent
+    (string SectionName, string? Path, ConfigurationSchema? Schema, string? TokenSetName) : EventBase;
 
 public record EnvironmentAddedToSectionEvent(string EnvironmentName, string SectionName) : EventBase;
 
@@ -35,11 +36,15 @@ public record TokenSetCreatedEvent(
 public record ReleaseDeployed(
     string SectionName,
     string EnvironmentName,
-    long ReleaseId): EventBase;
+    long ReleaseId) : EventBase;
 
-public record ReleaseUndeployed(
+public record ReleaseRemoved(
     string SectionName,
     string EnvironmentName,
     long ReleaseId,
     string Reason) : EventBase;
-    
+
+public record TokenValueSet(
+    string TokenSetName,
+    string Key,
+    JToken Value) : EventBase;

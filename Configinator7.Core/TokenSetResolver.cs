@@ -146,7 +146,7 @@ public class BaseValue
 
 public class TokenSetResolved
 {
-    public string Base { get; set; }
+    public string? Base { get; set; }
     public string TokenSetName { get; set; }
     public Dictionary<string, TokenResolved> Tokens { get; set; }
 }
