@@ -17,6 +17,8 @@ public record Section
     public List<ConfigurationEnvironment> Environments = new();
     
     public string TokenSetName { get; set; }
+
+    public bool DeployedIsOutOfDate => Environments.Any(e => e.DeployedIsOutOfDate);
 }
 
 public record ConfigurationSchema(SemanticVersion Version, JsonSchema Schema);
@@ -28,6 +30,8 @@ public class ConfigurationEnvironment
     public ConfigurationEnvironmentId EnvironmentId { get; set; }
     
     public List<Release> Releases { get; } = new();
+
+    public bool DeployedIsOutOfDate => Releases.Any(r => r.IsDeployed && r.IsOutOfDate);
 }
 
 public record Release(
@@ -35,11 +39,14 @@ public record Release(
     JObject ModelValue,
     JObject ResolvedValue,
     TokenSetResolved? TokenSet,
+    HashSet<string> UsedTokens,
     ConfigurationSchema Schema,
     DateTime CreateDate)
 {
     public List<Deployment> Deployments { get; } = new();
     public bool IsDeployed { get; set; }
+    
+    public bool IsOutOfDate { get; set; }
 }
 
 public record Deployment(DateTime DeploymentDate, DeploymentAction Action, string Reason)

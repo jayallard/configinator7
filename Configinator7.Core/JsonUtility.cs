@@ -1,10 +1,50 @@
-﻿using System.Collections.Immutable;
+﻿using System.Text.Json.Nodes;
 using Newtonsoft.Json.Linq;
 
 namespace Configinator7.Core;
 
 public static class JsonUtility
 {
+    public static IEnumerable<string> GetTokenNamesDeep(JObject value, IDictionary<string, JToken> tokenElements)
+    {
+        var x = new Dictionary<string, ISet<string>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var e in tokenElements)
+        {
+            if (x.ContainsKey(e.Key))
+            {
+                // already processed this one
+                continue;
+            }
+            
+            if (e.Value.Type == JTokenType.Object)
+            {
+                var tokens = GetTokenNames((JObject) e.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                x.Add(e.Key, tokens);
+                continue;
+            }
+            
+            x.Add(e.Key, new HashSet<string>());
+        }
+        
+        var names = new HashSet<string>();
+        foreach (var token in GetTokenNames(value))
+        {
+            Add(token);
+        }
+
+        return names;
+
+        void Add(string name)
+        {
+            names.Add(name);
+            var children = x[name];
+            foreach (var child in children)
+            {
+                Add(child);
+            }
+        }
+    }
+
     public static Task<JObject> ResolveAsync(
         JObject model,
         IDictionary<string, JToken> tokens,
@@ -47,8 +87,22 @@ public static class JsonUtility
         }
     }
 
+    public static ISet<string> GetTokenNames(JObject json) => GetTokens(json)
+        .Select(t => t.TokenName)
+        .Distinct()
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-    private static IEnumerable<(string TokenName, string Path)> GetTokens(JObject json)
+    public static IEnumerable<(string TokenName, string Path)> GetTokens(JObject json) =>
+        json
+            .Descendants()
+            .OfType<JProperty>()
+            .Where(p => p.Value.Type == JTokenType.String)
+            .Where(p => p.Value.Value<string>().StartsWith(
+                            "$$", StringComparison.OrdinalIgnoreCase)
+                        && p.Value.Value<string>().EndsWith("$$", StringComparison.OrdinalIgnoreCase))
+            .Select(p => new ValueTuple<string, string>(p.Value.Value<string>().Trim('$').Trim('$'), p.Path));
+
+    public static IEnumerable<(string TokenName, string Path)> GetTokensOLD(JObject json)
     {
         // todo: should be able to do this with SelectTokens
         List<(string TokenName, string Path)> tokens = new();

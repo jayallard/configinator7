@@ -40,5 +40,7 @@ public class ViewRelease
     
     public bool IsDeployed { get; set; }
     
+    public bool IsOutOfDate { get; set; }
+    
     public string TokenSetName { get; set; }
 }

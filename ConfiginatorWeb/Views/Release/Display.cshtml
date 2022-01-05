@@ -19,14 +19,14 @@
         <tr>
             <th>Name</th>
             <th>Source</th>
-            <th>Resolution</th>
+            <th></th>
             <th>Value</th>
         </tr>
         </thead>
         @foreach (var t in Model.Release.TokenSet.Tokens.Values.OrderBy(v => v.Name))
         {
             <tr>
-                <td>@t.Name</td>
+                <td style="@(Model.Release.UsedTokens.Contains(t.Name) ? "font-weight: bold; background-color: lightblue;" : "")">@t.Name</td>
                 <td>@t.SourceTokenSet</td>
                 <td>@t.Resolution</td>
                 <td><pre>@t.Value</pre></td>
@@ -66,6 +66,11 @@
                 @if (d.IsDeployed)
                 {
                     <span class="badge rounded-pill bg-success">Deployed</span>
+                }
+                
+                @if (Model.Release.IsOutOfDate)
+                {
+                    <span class="badge rounded-pill bg-warning">Out of Date</span>
                 }
             </td>
             <td>@d.Action.ToString()</td>

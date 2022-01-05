@@ -84,7 +84,10 @@ $(document).ready(function() {
                                     {
                                         <span class="badge rounded-pill bg-success">Deployed</span>
                                     }
-                                </td>
+                                    @if (r.IsOutOfDate)
+                                    {
+                                        <span class="badge rounded-pill bg-warning">Out of Date</span>
+                                    }                                </td>
                             </tr>
                         }
                     </table>

@@ -29,6 +29,10 @@
                 {
                     <span class="badge rounded-pill bg-success">Deployed</span>
                 }
+                @if (h.IsOutOrDate)
+                {
+                    <span class="badge rounded-pill bg-warning">Out of Date</span>
+                }
             </td>
             <td>@h.SchemaVersion</td>
             <td><a asp-action="Display" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@Model.EnvironmentName" asp-route-releaseId="@h.ReleaseId">@h.ReleaseId</a></td>

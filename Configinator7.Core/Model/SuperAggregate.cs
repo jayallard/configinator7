@@ -66,6 +66,7 @@ public class SuperAggregate
                     resolved.ModelValue,
                     resolved.ResolvedValue,
                     resolved.Tokens,
+                    resolved.TokensInUse,
                     resolved.Schema,
                     resolved.EventDate);
                 environment.Releases.Add(release);
@@ -162,35 +163,28 @@ public class SuperAggregate
 
         Play(new TokenValueSet(tokenSetName, key, value));
 
-        // find all current deployments using the tokenset
+        // find all releases using the token set
         var outOfDate = _sections
             .Values
             .SelectMany(s => s.Environments.SelectMany(
-                e => e.Releases.Where(r =>
-                        r.IsDeployed && string.Equals(r.TokenSet?.TokenSetName, tokenSetName,
-                            StringComparison.OrdinalIgnoreCase))
+                e => e.Releases.Where(r => string.Equals(r.TokenSet?.TokenSetName, tokenSetName,
+                        StringComparison.OrdinalIgnoreCase))
                     .Select(r => new
                     {
                         Release = r,
                         Section = s,
                         Environment = e
                     })))
-            
+
             // filter down to those using the specific token
-            .Where(r =>
-            {
-                // todo
-                var tokensUsedByRelease = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                return tokensUsedByRelease.Contains(key);
-            })
-            .ToList();
+            .Where(r => r.Release.UsedTokens.Contains(key));
+        // todo: hack. convert to event.
         foreach (var o in outOfDate)
         {
-            // TODO: mark ALL releases as out of date
-            // mark the ENVIRONMENT out of date if the DEPLOYED release is out of date
+            o.Release.IsOutOfDate = true;
         }
-        
 
+        Console.WriteLine();
     }
 
     private ICollection<ValidationError> Validate(JObject value, JsonSchema schema) => schema.Validate(value);
@@ -240,11 +234,18 @@ public class SuperAggregate
             .SelectMany(s => s.Environments.SelectMany(h => h.Releases))
             .Max(r => r.ReleaseId as long?) ?? 0) + 1;
 
+        TokenSetResolved? ts;
+        HashSet<string>? inUse = null;
+        if (tokenSetName != null)
+        {
+            ts = new TokenSetResolver(_tokenSets.Values).Resolve(tokenSetName);
+            var t2 = ts.Tokens.ToDictionary(k => k.Key, v => v.Value.Value, StringComparer.OrdinalIgnoreCase);
+            inUse = JsonUtility.GetTokenNamesDeep(value, t2)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
 
-        var ts = tokenSetName == null
-            ? null
-            : new TokenSetResolver(_tokenSets.Values).Resolve(tokenSetName);
-        Play(new ReleaseCreatedEvent(releaseId, sectionName, environmentName, schema, value, resolved, resolvedTokens));
+        Play(new ReleaseCreatedEvent(releaseId, sectionName, environmentName, schema, value, resolved, resolvedTokens,
+            inUse ?? new HashSet<string>()));
     }
 
     public TokenSetResolved? ResolveTokenSet(string? tokenSetName)

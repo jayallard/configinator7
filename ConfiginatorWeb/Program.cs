@@ -36,7 +36,7 @@ agg.AddTokenSet("Tokens2", new Dictionary<string, JToken>
     {"FavoriteColor", "Red"},
     {"t1", 99},
     {"t2", "string"},
-    {"t3", JToken.Parse("{ \"hello\": \"galaxy\" }")},
+    {"t3", JToken.Parse("{ \"hello\": \"galaxy\", \"FavoriteColor\": \"$$FavoriteColor$$\", \"AwesomeNumber\": \"$$t1$$\", \"FFF\": \"$$firstname$$\", \"LLL\": \"$$LastName$$\" }")},
     {"FirstName", "Han"},
     {"LastName", "Solo"}
 }, "Tokens1");
@@ -49,7 +49,7 @@ agg.AddEnvironment("abc", "production");
 await agg.CreateReleaseAsync("abc", "dev", null, new SemanticVersion(1, 0, 1), JObject.Parse("{}"));
 await agg.CreateReleaseAsync("abc", "dev", null, new SemanticVersion(1, 0, 0), JObject.Parse("{}"));
 await agg.CreateReleaseAsync("abc", "dev", "Tokens2", new SemanticVersion(2, 0, 0),
-    (JObject) JToken.FromObject(new {firstName = "$$FirstName$$", lastName = "$$LastName$$"}));
+    (JObject) JToken.FromObject(new {firstName = "$$FirstName$$", lastName = "$$LastName$$", whatever="$$t3$$" }));
 
 agg.Deploy("abc", "dev", 1);
 

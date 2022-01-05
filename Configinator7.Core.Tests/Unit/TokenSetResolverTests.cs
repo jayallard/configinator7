@@ -1,13 +1,43 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Configinator7.Core.Model;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using NJsonSchema.Generation;
 using Xunit;
 
 namespace Configinator7.Core.Tests.Unit;
 
 public class TokenSetResolverTests
 {
+    [Fact]
+    public void JsonPath()
+    {
+        // language = json
+        var json = @"{
+  ""firstname"": ""$$firstname$$"",
+  ""lastname"": ""$$lastname$$"",
+  ""stuff"": {
+    ""firstName"": ""$$firstName$$"",
+    ""stuff2"": {
+      ""x"": ""$$xx$$"",
+      ""y"": ""$$yy$$"",
+      ""z"": {
+        ""z1"": ""$$z1$$"",
+        ""z2"": ""$$z2$$"",
+        ""z3"": ""$$z3$$""
+      }
+    }
+  }
+}";
+
+        var j = (JObject)JToken.Parse(json);
+        var tokens = JsonUtility.GetTokens(j).ToList();
+        tokens.Count.Should().Be(8);
+    }
+
     [Fact]
     public void Blah()
     {
@@ -51,22 +81,22 @@ public class TokenSetResolverTests
         aResolved.Tokens["c1"].Resolution.Should().Be(Resolution.Inherited);
         aResolved.Tokens["c1"].SourceTokenSet.Should().Be("b");
         aResolved.Tokens["c1"].Value.ToString().Should().Be("b1");
-        
+
         // c2 is defined in c, overridden in a
         aResolved.Tokens["c2"].Resolution.Should().Be(Resolution.Override);
         aResolved.Tokens["c2"].SourceTokenSet.Should().Be("a");
         aResolved.Tokens["c2"].Value.ToString().Should().Be("99");
-        
+
         // c3 is defined in c, overridden in b, inherited by a
         aResolved.Tokens["c3"].Resolution.Should().Be(Resolution.Inherited);
         aResolved.Tokens["c3"].SourceTokenSet.Should().Be("b");
         JToken.DeepEquals(aResolved.Tokens["c3"].Value, JToken.Parse("{ \"hello\": \"sun\" }")).Should().BeTrue();
-        
+
         // c4 is defined in b, not overridden, inherited by a
         aResolved.Tokens["c4"].Resolution.Should().Be(Resolution.Inherited);
         aResolved.Tokens["c4"].SourceTokenSet.Should().Be("b");
         JToken.DeepEquals(aResolved.Tokens["c4"].Value, JToken.Parse("{ \"new\": \"guy\" }")).Should().BeTrue();
-        
+
         // c5 is defined in a, not overridden
         aResolved.Tokens["c5"].Resolution.Should().Be(Resolution.Addition);
         aResolved.Tokens["c5"].SourceTokenSet.Should().Be("a");

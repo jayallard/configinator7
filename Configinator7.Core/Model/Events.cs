@@ -26,7 +26,8 @@ public record ReleaseCreatedEvent(
     ConfigurationSchema Schema,
     JObject ModelValue,
     JObject ResolvedValue,
-    TokenSetResolved? Tokens) : EventBase;
+    TokenSetResolved? Tokens,
+    HashSet<string> TokensInUse) : EventBase;
 
 public record TokenSetCreatedEvent(
     string TokenSetName,

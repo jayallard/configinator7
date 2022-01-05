@@ -57,6 +57,7 @@ public class ConfigurationController : Controller
                     Version = r.Schema.Version,
                     CreateDate = r.CreateDate,
                     IsDeployed = r.IsDeployed,
+                    IsOutOfDate = r.IsOutOfDate,
                     TokenSetName = r.TokenSet?.TokenSetName
                 })
                     .OrderByDescending(r => r.ReleaseId)

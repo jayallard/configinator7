@@ -76,7 +76,7 @@ public class ReleaseController : Controller
             .Environments
             .SingleOrDefault(h => string.Equals(environmentName, h.EnvironmentId.Name, StringComparison.OrdinalIgnoreCase))
             .Releases
-            .SelectMany(r => r.Deployments.Select(d => new HistoryItem(d.DeploymentDate, d.Action == DeploymentAction.Deployed, d.Reason, r.Schema.Version, r.ReleaseId)
+            .SelectMany(r => r.Deployments.Select(d => new HistoryItem(d.DeploymentDate, d.Action == DeploymentAction.Deployed, d.Reason, r.Schema.Version, r.ReleaseId, r.IsOutOfDate)
             {
                 IsDeployed = d.IsDeployed
             }))
@@ -114,7 +114,8 @@ public class ReleaseController : Controller
         bool IsDeploymentAction, 
         string Reason, 
         SemanticVersion SchemaVersion,
-        long ReleaseId)
+        long ReleaseId,
+        bool IsOutOrDate)
     {
         public bool IsDeployed { get; set; }   
     }
