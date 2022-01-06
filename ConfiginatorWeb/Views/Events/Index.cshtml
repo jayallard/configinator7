@@ -1,0 +1,23 @@
+﻿@using Newtonsoft.Json
+@model IEnumerable<Allard.Configinator.Core.Model.IEvent>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Events</h2>
+<p>These are the underlying event-sourcing events, not publicly published domain events.</p>
+
+<table class="table table-bordered">
+@foreach (var e in Model)
+{
+    <tr>
+        <td>@e.EventDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
+        <td>@e.GetType().Name</td>
+        <td>
+            <pre>@JsonConvert.SerializeObject(e)</pre>
+        </td>
+    </tr>
+}
+</table>

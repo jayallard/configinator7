@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace Configinator7.Core.Model;
+namespace Allard.Json;
 
 public class TokenSet
 {

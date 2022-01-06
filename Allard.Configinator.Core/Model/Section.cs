@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Allard.Json;
+using Newtonsoft.Json.Linq;
 using NJsonSchema;
-using NJsonSchema.Validation;
 using NuGet.Versioning;
 
-namespace Configinator7.Core.Model;
+namespace Allard.Configinator.Core.Model;
 
 public record SectionId(string Name);
 

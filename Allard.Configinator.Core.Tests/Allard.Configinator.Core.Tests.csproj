@@ -36,7 +36,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Configinator7.Core\Configinator7.Core.csproj" />
+      <ProjectReference Include="..\Allard.Configinator.Core\Allard.Configinator.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Unit" />
     </ItemGroup>
 
 </Project>

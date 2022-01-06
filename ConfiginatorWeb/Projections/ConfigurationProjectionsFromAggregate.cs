@@ -1,4 +1,4 @@
-﻿using Configinator7.Core.Model;
+﻿using Allard.Configinator.Core.Model;
 
 namespace ConfiginatorWeb.Projections;
 
@@ -16,7 +16,8 @@ public class ConfigurationProjectionsFromAggregate : IConfigurationProjections
         {
             SectionId = v.Id,
             Name = v.Id.Name,
-            Path = v.Path
+            Path = v.Path, 
+            DeployedIsOutOfDate = v.DeployedIsOutOfDate
         });
 
     public IEnumerable<TokenSetView> GetTokenSets() =>

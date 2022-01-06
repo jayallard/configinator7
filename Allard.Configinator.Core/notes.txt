@@ -1,0 +1,9 @@
+﻿
+        
+        
+ADR
+    using json.net, because
+        mutability
+        deepequals
+        
+        

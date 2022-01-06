@@ -28,8 +28,8 @@
             <tr>
                 <td style="@(Model.Release.UsedTokens.Contains(t.Name) ? "font-weight: bold; background-color: lightblue;" : "")">@t.Name</td>
                 <td>@t.SourceTokenSet</td>
-                <td>@t.Resolution</td>
-                <td><pre>@t.Value</pre></td>
+                <td>@t.TokenValueOrigin</td>
+                <td><pre>@t.Token</pre></td>
             </tr>
         }
     </table>

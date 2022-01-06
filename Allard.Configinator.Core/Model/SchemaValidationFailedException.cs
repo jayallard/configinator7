@@ -1,6 +1,6 @@
 ﻿using NJsonSchema.Validation;
 
-namespace Configinator7.Core.Model;
+namespace Allard.Configinator.Core.Model;
 
 public class SchemaValidationFailedException : Exception
 {

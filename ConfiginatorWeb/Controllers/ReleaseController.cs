@@ -1,4 +1,4 @@
-﻿using Configinator7.Core.Model;
+﻿using Allard.Configinator.Core.Model;
 using ConfiginatorWeb.Models.Release;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;

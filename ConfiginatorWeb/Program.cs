@@ -1,4 +1,4 @@
-using Configinator7.Core.Model;
+using Allard.Configinator.Core.Model;
 using ConfiginatorWeb.Projections;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;

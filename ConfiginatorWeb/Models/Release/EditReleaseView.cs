@@ -19,6 +19,6 @@ public class DisplayView
     public string EnviornmentName { get; set; }
     public long ReleaseId { get; set; }
     
-    public Configinator7.Core.Model.Release Release { get; set; }
+    public Allard.Configinator.Core.Model.Release Release { get; set; }
 }
 

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Configinator7.Core.Model;
+using Allard.Configinator.Core.Model;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
@@ -10,7 +10,7 @@ using NuGet.Versioning;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Configinator7.Core.Tests;
+namespace Allard.Configinator.Core.Tests;
 
 public class UnitTest1
 {

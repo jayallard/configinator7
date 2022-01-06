@@ -1,9 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Allard.Json;
+using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NJsonSchema.Validation;
 using NuGet.Versioning;
 
-namespace Configinator7.Core.Model;
+namespace Allard.Configinator.Core.Model;
 
 public class SuperAggregate
 {
@@ -11,6 +12,7 @@ public class SuperAggregate
 
     public Dictionary<string, Section> TemporaryExposureSections => _sections;
     public Dictionary<string, TokenSet> TemporaryExposureTokenSets => _tokenSets;
+    public List<IEvent> TemporaryExposureEvents => _events;
 
     #endregion
 
@@ -178,10 +180,41 @@ public class SuperAggregate
 
             // filter down to those using the specific token
             .Where(r => r.Release.UsedTokens.Contains(key));
+
         // todo: hack. convert to event.
+        var resolved = ResolveTokenSet(tokenSetName);
         foreach (var o in outOfDate)
         {
             o.Release.IsOutOfDate = true;
+
+            // compare current resolved tokens with the resolved
+            // tokens of the release. if any changes, it's out of date.
+            // change to drive off the release Inuse so that only
+            // the relevant tokens are considered
+
+            // o.Release.IsOutOfDate = false;
+            // if (o.Release.TokenSet == null)
+            // {
+            //     continue;
+            // }
+            //
+            // if (resolved.Tokens.Count != o.Release.TokenSet.Tokens.Count)
+            // {
+            //     o.Release.IsOutOfDate = true;
+            //     continue;
+            // }
+            //
+            // foreach (var r in resolved.Tokens)
+            // {
+            //     if (o.Release.TokenSet.Tokens.TryGetValue(r.Key, out var v))
+            //     {
+            //         if (!JToken.DeepEquals(v.Value, r.Value.Value))
+            //         {
+            //             o.Release.IsOutOfDate = true;
+            //             break;
+            //         }
+            //     }
+            // }
         }
 
         Console.WriteLine();
@@ -218,7 +251,7 @@ public class SuperAggregate
             : resolvedTokens
                 .Tokens
                 .Values
-                .ToDictionary(t => t.Name, t => t.Value, StringComparer.OrdinalIgnoreCase);
+                .ToDictionary(t => t.Name, t => t.Token, StringComparer.OrdinalIgnoreCase);
 
         var resolved = await JsonUtility.ResolveAsync(value, tokens);
         var results = Validate(resolved, schema.Schema);
@@ -238,8 +271,8 @@ public class SuperAggregate
         HashSet<string>? inUse = null;
         if (tokenSetName != null)
         {
-            ts = new TokenSetResolver(_tokenSets.Values).Resolve(tokenSetName);
-            var t2 = ts.Tokens.ToDictionary(k => k.Key, v => v.Value.Value, StringComparer.OrdinalIgnoreCase);
+            ts = new TokenSetComposer(_tokenSets.Values).Compose(tokenSetName);
+            var t2 = ts.Tokens.ToDictionary(k => k.Key, v => v.Value.Token, StringComparer.OrdinalIgnoreCase);
             inUse = JsonUtility.GetTokenNamesDeep(value, t2)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
@@ -248,11 +281,10 @@ public class SuperAggregate
             inUse ?? new HashSet<string>()));
     }
 
-    public TokenSetResolved? ResolveTokenSet(string? tokenSetName)
-    {
-        if (tokenSetName == null) return null;
-        return new TokenSetResolver(_tokenSets.Values).Resolve(tokenSetName);
-    }
+    public TokenSetResolved? ResolveTokenSet(string? tokenSetName) =>
+        tokenSetName == null
+            ? null
+            : new TokenSetComposer(_tokenSets.Values).Compose(tokenSetName);
 
     private TokenSet GetTokenSet(string tokenSetName)
     {

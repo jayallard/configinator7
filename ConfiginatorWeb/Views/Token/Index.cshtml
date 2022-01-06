@@ -1,6 +1,6 @@
 ﻿@model ConfiginatorWeb.Controllers.EditTokenSetView
 @using System.Linq;
-@using Configinator7.Core
+@using Allard.Json
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
@@ -8,7 +8,7 @@
 
 @functions
 {
-    IEnumerable<TokenResolved> Tokens()
+    IEnumerable<TokenComposed> Tokens()
     {
         return Model.Resolved.Tokens.Values.OrderBy(t => t.Name);
     // .OrderBy(t => string.Equals(t.SourceTokenSet, Model.Resolved.TokenSetName, StringComparison.OrdinalIgnoreCase) ? 1 : 0)
@@ -49,37 +49,37 @@
             </td>
             <td>
                <a asp-action="EditValue" asp-route-tokenSetName="@Model.Resolved.TokenSetName" asp-route-key="@t.Name">Edit</a>
-                @if (t.Resolution != Resolution.Inherited)
+                @if (t.TokenValueOrigin != TokenValueOrigin.Inherited)
                 {
                     <span>&nbsp;|&nbsp;<a href="#">Delete</a></span>
                 }
                 <br/>
-                @switch (t.Resolution)
+                @switch (t.TokenValueOrigin)
                 {
-                    case Resolution.Inherited:
+                    case TokenValueOrigin.Inherited:
                         <div class="badge rounded-pill bg-info">Inherited</div><br/>
                         break;
-                    case Resolution.Override:
+                    case TokenValueOrigin.Override:
                         <span class="badge rounded-pill bg-success">Overridden</span><br/>
                         break;
                 }            
             </td>
             <td>
-                <pre>@t.Value</pre>
+                <pre>@t.Token</pre>
             </td>
             <td>
-                @if (t.Resolution is Resolution.Inherited or Resolution.Override)
+                @if (t.TokenValueOrigin is TokenValueOrigin.Inherited or TokenValueOrigin.Override)
                 {
                     // crawl up the parents and make a list
                     // reverse and print the list
                     // this results in the info starting at the top base
                     // class, then down the stack
-                    var items = new List<TokenResolved>();
-                    var current = t.Parent;
+                    var items = new List<TokenComposed>();
+                    var current = t.BaseToken;
                     while (current != null)
                     {
                         items.Add(current);
-                        current = current.Parent;
+                        current = current.BaseToken;
                     }
 
                     items.Reverse();
@@ -87,7 +87,7 @@
                     {
                         <span>
                             Token Set: @i.SourceTokenSet<br/>
-                            <pre>@i.Value</pre>
+                            <pre>@i.Token</pre>
                         </span>
                     }
                 }

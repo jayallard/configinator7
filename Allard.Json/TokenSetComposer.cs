@@ -1,13 +1,12 @@
-﻿using Configinator7.Core.Model;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
-namespace Configinator7.Core;
+namespace Allard.Json;
 
-public class TokenSetResolver
+public class TokenSetComposer
 {
     private readonly Dictionary<string, TokenSet> _tokenSets;
 
-    public TokenSetResolver(IEnumerable<TokenSet> tokenSets)
+    public TokenSetComposer(IEnumerable<TokenSet> tokenSets)
     {
         _tokenSets = tokenSets.ToDictionary(t => t.TokenSetName, t => t, StringComparer.OrdinalIgnoreCase);
     }
@@ -18,7 +17,7 @@ public class TokenSetResolver
         throw new InvalidOperationException("Token set doesn't exist: " + tokenSetName);
     }
 
-    public TokenSetResolved Resolve(string tokenSetName)
+    public TokenSetResolved Compose(string tokenSetName)
     {
         var bottom = GetTokenSet(tokenSetName);
         if (bottom.Base == null)
@@ -26,27 +25,27 @@ public class TokenSetResolver
             return new TokenSetResolved
             {
                 TokenSetName = bottom.TokenSetName,
-                Tokens = bottom.Tokens.ToDictionary(b => b.Key, b => new TokenResolved
+                Tokens = bottom.Tokens.ToDictionary(b => b.Key, b => new TokenComposed
                 {
                     Name = b.Key,
-                    Value = b.Value.DeepClone(),
+                    Token = b.Value.DeepClone(),
                     SourceTokenSet = bottom.TokenSetName,
-                    Resolution = Resolution.Addition,
-                    Parent = null
+                    TokenValueOrigin = TokenValueOrigin.Addition,
+                    BaseToken = null
                 }, StringComparer.OrdinalIgnoreCase)
             };
         }
 
-        var bottomValues = new Dictionary<string, TokenResolved>();
+        var bottomValues = new Dictionary<string, TokenComposed>();
 
         // initialize BOTTOM with all of the values from BASE.
         // All values are defaulted to INHERITED.
-        var baseValues = Resolve(bottom.Base).Tokens;
+        var baseValues = Compose(bottom.Base).Tokens;
         foreach (var (k, v) in baseValues)
         {
             var copy = v.Clone();
-            copy.Resolution = Resolution.Inherited;
-            copy.Parent = v;
+            copy.TokenValueOrigin = TokenValueOrigin.Inherited;
+            copy.BaseToken = v;
             bottomValues[k] = copy;
         }
         
@@ -58,12 +57,12 @@ public class TokenSetResolver
         // things in CHILD only are added.
         foreach (var (key, value) in bottom.Tokens)
         {
-            var newValue = new TokenResolved
+            var newValue = new TokenComposed
             {
                 Name = key,
-                Value = value,
+                Token = value,
                 SourceTokenSet = bottom.TokenSetName,
-                Resolution = Resolution.Addition
+                TokenValueOrigin = TokenValueOrigin.Addition
             };
 
             // it was provided by the BASE, but child wins.
@@ -71,8 +70,8 @@ public class TokenSetResolver
             {
                 // if it already exists, then it's in
                 // the parent. so, this is an override.
-                newValue.Resolution = Resolution.Override;
-                newValue.Parent = bottomValues[key].Parent;
+                newValue.TokenValueOrigin = TokenValueOrigin.Override;
+                newValue.BaseToken = bottomValues[key].BaseToken;
             }
 
             bottomValues[key] = newValue;
@@ -89,11 +88,11 @@ public class TokenSetResolver
         //  So, the value of ts2 links to ts1 which links to ts0
         //  This reduces it to: ts2 -> ts0
         foreach (var v in bottomValues.Values
-                     .Where(v => v.Parent?.Parent != null))
+                     .Where(v => v.BaseToken?.BaseToken != null))
         {
-            if (string.Equals(v.Parent.SourceTokenSet, v.Parent.Parent.SourceTokenSet, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(v.BaseToken.SourceTokenSet, v.BaseToken.BaseToken.SourceTokenSet, StringComparison.OrdinalIgnoreCase))
             {
-                v.Parent = v.Parent.Parent;
+                v.BaseToken = v.BaseToken.BaseToken;
             }
         }
         
@@ -104,35 +103,6 @@ public class TokenSetResolver
             Tokens = bottomValues
         };
     }
-}
-
-public enum Resolution
-{
-    Addition,
-    Override,
-    Inherited
-}
-
-public class TokenResolved
-{
-    public JToken Value { get; set; }
-
-    public string Name { get; set; }
-
-    public string SourceTokenSet { get; set; }
-
-    public Resolution Resolution { get; set; }
-
-    public TokenResolved? Parent { get; set; }
-
-    public TokenResolved Clone() => new()
-    {
-        Value = Value.DeepClone(),
-        Name = Name,
-        SourceTokenSet = SourceTokenSet,
-        Resolution = Resolution,
-        Parent = Parent
-    };
 }
 
 public class BaseValue
@@ -148,5 +118,5 @@ public class TokenSetResolved
 {
     public string? Base { get; set; }
     public string TokenSetName { get; set; }
-    public Dictionary<string, TokenResolved> Tokens { get; set; }
+    public Dictionary<string, TokenComposed> Tokens { get; set; }
 }

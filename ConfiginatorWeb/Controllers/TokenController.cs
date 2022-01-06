@@ -1,5 +1,5 @@
-﻿using Configinator7.Core;
-using Configinator7.Core.Model;
+﻿using Allard.Configinator.Core.Model;
+using Allard.Json;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

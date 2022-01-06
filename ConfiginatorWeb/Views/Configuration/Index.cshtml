@@ -10,7 +10,14 @@
     @foreach (var i in Model.ConfigurationSections)
     {
         <tr>
-            <td><a asp-action="Display" asp-route-name="@i.Name">@i.Name</a></td>
+            <td>
+                <a asp-action="Display" asp-route-name="@i.Name">@i.Name</a>
+                @if (i.DeployedIsOutOfDate)
+                {
+                    <span class="badge rounded-pill bg-warning">Out of Date</span>
+                }
+
+            </td>
             <td>@i.Path</td>
         </tr>
     }
@@ -22,7 +29,9 @@
     @foreach (var t in Model.TokenSets.OrderBy(kv => kv.TokenSetName))
     {
         <tr>
-            <td><a asp-controller="Token" asp-action="Index" asp-route-tokenSetName="@t.TokenSetName">@t.TokenSetName</a></td>
+            <td>
+                <a asp-controller="Token" asp-action="Index" asp-route-tokenSetName="@t.TokenSetName">@t.TokenSetName</a>
+            </td>
         </tr>
     }
 </table>
