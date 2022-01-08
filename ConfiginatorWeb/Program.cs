@@ -1,4 +1,10 @@
+using Allard.Configinator.Core.Integrators;
 using Allard.Configinator.Core.Model;
+using Allard.Configinator.Core.Model.State;
+using Allard.Configinator.Core.Queries;
+using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Services;
+using Allard.Configinator.Infrastructure;
 using ConfiginatorWeb.Projections;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
@@ -7,6 +13,7 @@ using NuGet.Versioning;
 var builder = WebApplication.CreateBuilder(args);
 
 // working in memory... set it up for demo/testing
+/*
 var agg = new SuperAggregate();
 agg.CreateSection("abc", null, "/a/b/c", null);
 agg.CreateSection("xyz", null, "/x/y/z", null);
@@ -52,13 +59,24 @@ await agg.CreateReleaseAsync("abc", "dev", "Tokens2", new SemanticVersion(2, 0, 
     (JObject) JToken.FromObject(new {firstName = "$$FirstName$$", lastName = "$$LastName$$", whatever="$$t3$$" }));
 
 agg.Deploy("abc", "dev", 1);
-
+*/
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton(agg);
-builder.Services.AddTransient<IConfigurationProjections, ConfigurationProjectionsFromAggregate>();
-var app = builder.Build();
+//builder.Services.AddSingleton(agg);
+//builder.Services.AddTransient<IConfigurationProjections, ConfigurationProjectionsFromAggregate>();
+
+
+builder.Services.AddScoped<CreateSectionInteractor>();
+builder.Services.AddScoped<ISectionRepository, SectionRepositoryMemory>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWorkMemory>();
+builder.Services.AddSingleton<IIdService, IdServiceMemory>();
+builder.Services.AddTransient<ISectionQueries, SectionQueriesMemory>();
+builder.Services.AddScoped<IDomainServices, DomainServicesMemory>();
+builder.Services.AddSingleton<DatabaseMemory>();
+
+var 
+    app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -78,4 +96,28 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+
+var db = app.Services.GetRequiredService<DatabaseMemory>();
+
+await CreateSection("abc", "/a/b/c");
+await CreateSection("xyz", "/x/y/z");
+
+var schema1 = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "2.0.0.json"));
+var schema = new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync(schema1));
+await CreateSchema("abc", schema)
+
+async Task CreateSection(string name, string path)
+{
+    using var scope = app.Services.CreateScope();
+    var interactor = scope.ServiceProvider.GetRequiredService<CreateSectionInteractor>();
+    await interactor.CreateSection(new CreateSectionRequest(name, path));
+    Console.WriteLine();
+}
+
+async Task CreateSchema(string sectionName, ConfigurationSchema schema)
+{
+    
+}
+
 app.Run();
+

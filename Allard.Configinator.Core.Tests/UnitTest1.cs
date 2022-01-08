@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Allard.Configinator.Core.Model;
+using Allard.Configinator.Core.Model.State;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;

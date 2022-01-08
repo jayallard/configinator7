@@ -1,5 +1,4 @@
 ﻿using Allard.Configinator.Core.Model;
-using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Models.Configuration;
 using ConfiginatorWeb.Projections;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +40,7 @@ public class ConfigurationController : Controller
         var section = _aggregate.TemporaryExposureSections[name];
         var view = new ViewConfiguration
         {
-            SectionName = section.Id.Name,
+            SectionName = section.Name,
             Path = section.Path,
             Schemas = section.Schemas.Select(s => new ViewSchema
             {

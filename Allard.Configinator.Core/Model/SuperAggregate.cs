@@ -1,4 +1,5 @@
-﻿using Allard.Json;
+﻿using Allard.Configinator.Core.Model.State;
+using Allard.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NJsonSchema.Validation;
@@ -26,7 +27,7 @@ public class SuperAggregate
         _events.Add(evt);
         switch (evt)
         {
-            case SectionCreatedEvent(var sectionName, var path, var schema, var tokenSetName):
+            /*case SectionCreatedEvent(var sectionName, var path, var schema, var tokenSetName):
             {
                 var id = new SectionId(sectionName);
                 var section = new Section
@@ -56,7 +57,7 @@ public class SuperAggregate
             case SchemaAddedToSection(var sectionName, var schema):
             {
                 // make a copy of the configuration section and increment the version.
-                // add the configuratioi section to the history list.
+                // add the configuration section to the history list.
                 GetSection(sectionName).Schemas.Add(schema);
                 break;
             }
@@ -74,17 +75,7 @@ public class SuperAggregate
                 environment.Releases.Add(release);
                 break;
             }
-            case TokenSetCreatedEvent(var name, var tokens, var baseTokenSetName):
-            {
-                _tokenSets[name] = new TokenSet
-                {
-                    TokenSetName = name,
-                    Tokens = tokens,
-                    Base = baseTokenSetName
-                };
-                break;
-            }
-            case ReleaseDeployed deployed:
+            case ReleaseDeployedEvent deployed:
             {
                 var (_, environment, release) =
                     GetRelease(deployed.SectionName, deployed.EnvironmentName, deployed.ReleaseId);
@@ -103,7 +94,7 @@ public class SuperAggregate
                 release.IsDeployed = true;
                 break;
             }
-            case ReleaseRemoved removed:
+            case ReleaseRemovedEvent removed:
             {
                 var (_, _, release) =
                     GetRelease(removed.SectionName, removed.EnvironmentName, removed.ReleaseId);
@@ -111,11 +102,21 @@ public class SuperAggregate
                     removed.Reason));
                 release.IsDeployed = false;
                 break;
-            }
-            case TokenValueSet(var tokenSetName, var key, var value):
+            }*/
+            case TokenValueSetEvent(var tokenSetName, var key, var value):
             {
                 var tokenSet = GetTokenSet(tokenSetName);
                 tokenSet.Tokens[key] = value;
+                break;
+            }
+            case TokenSetCreatedEvent(var name, var tokens, var baseTokenSetName):
+            {
+                _tokenSets[name] = new TokenSet
+                {
+                    TokenSetName = name,
+                    Tokens = tokens,
+                    Base = baseTokenSetName
+                };
                 break;
             }
             default:
@@ -123,7 +124,7 @@ public class SuperAggregate
         }
     }
 
-    public SectionId CreateSection(
+    public long CreateSection(
         string sectionName,
         ConfigurationSchema? schema,
         string? path,
@@ -135,7 +136,7 @@ public class SuperAggregate
             EnsureTokenSetExists(tokenSetName);
         }
 
-        Play(new SectionCreatedEvent(sectionName, path, schema, tokenSetName));
+        Play(new SectionCreatedEvent(0, sectionName, path, schema, tokenSetName));
         return _sections[sectionName].Id;
     }
 
@@ -147,7 +148,7 @@ public class SuperAggregate
             throw new InvalidOperationException("Schema already exists. Version=" + schema.Version);
         }
 
-        Play(new SchemaAddedToSection(sectionName, schema));
+        Play(new SchemaAddedToSection(section.Id, schema));
     }
 
     public void SetTokenValue(string tokenSetName, string key, JToken value)
@@ -163,7 +164,7 @@ public class SuperAggregate
             }
         }
 
-        Play(new TokenValueSet(tokenSetName, key, value));
+        Play(new TokenValueSetEvent(tokenSetName, key, value));
 
         // find all releases using the token set
         var outOfDate = _sections
@@ -317,12 +318,12 @@ public class SuperAggregate
         var released = environment.Releases.SingleOrDefault(r => r.IsDeployed && r.ReleaseId != releaseId);
         if (released != null)
         {
-            Play(new ReleaseRemoved(sectionName, environmentName, released.ReleaseId,
+            Play(new ReleaseRemovedEvent(sectionName, environmentName, released.ReleaseId,
                 $"Overwritten by Release #{releaseId}"));
         }
 
         // set the new release to deployed
-        Play(new ReleaseDeployed(sectionName, environmentName, releaseId));
+        Play(new ReleaseDeployedEvent(sectionName, environmentName, releaseId));
     }
 
 

@@ -15,7 +15,7 @@ public class ConfigurationProjectionsFromAggregate : IConfigurationProjections
         _aggregate.TemporaryExposureSections.Values.Select(v => new ConfigurationSectionView
         {
             SectionId = v.Id,
-            Name = v.Id.Name,
+            Name = v.Name,
             Path = v.Path, 
             DeployedIsOutOfDate = v.DeployedIsOutOfDate
         });
