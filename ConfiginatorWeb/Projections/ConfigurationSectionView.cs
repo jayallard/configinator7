@@ -1,13 +1,27 @@
-﻿using Allard.Configinator.Core.Model;
-using Allard.Configinator.Core.Model.State;
+﻿using Allard.Configinator.Core.Repositories;
 
 namespace ConfiginatorWeb.Projections;
 
-public class ConfigurationSectionView
+public interface ISectionsProjections
 {
-    public long SectionId { get; set; }
-    public string Name { get; set; }
-    public string Path { get; set; }
-    
-    public bool DeployedIsOutOfDate { get; set; }
+    Task<IEnumerable<SectionView>> GetSectionsListAsync(CancellationToken cancellationToken = default);
+}
+
+public record SectionView(long SectionId, string Name, string Path, string TokenSetName);
+
+public class SectionsProjectionsRepository : ISectionsProjections
+{
+    private readonly ISectionRepository _repository;
+
+    public SectionsProjectionsRepository(ISectionRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<IEnumerable<SectionView>> GetSectionsListAsync(CancellationToken cancellationToken = default)
+    {
+        return (await _repository.GetSectionsAsync(cancellationToken))
+            .Select(s => new SectionView(s.Id.Id, s.Name, s.Path, s.TokenSetName))
+            .ToList();
+    }
 }

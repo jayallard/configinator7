@@ -17,12 +17,12 @@ public class SectionEntity : EntityBase<SectionEntity, SectionId>, IAggregateRoo
     public string? TokenSetName { get; internal set; }
     public EnvironmentEntity GetEnvironment(string name) => throw new NotImplementedException();
 
-    public SectionEntity(SectionId id, string name, string path) : base(id)
+    public SectionEntity(SectionId id, string name, string path, ConfigurationSchema? schema = null, string? tokenSetName = null) : base(id)
     {
         Guards.NotDefault(id, nameof(id));
         Guards.HasValue(path, nameof(name));
         Guards.HasValue(path, nameof(path));
-        Play(new SectionCreatedEvent(id, name, path, null, null));
+        Play(new SectionCreatedEvent(id, name, path, null,  tokenSetName));
     }
 
     public SectionEntity(IEnumerable<IEvent> events) : base(new SectionId(3))

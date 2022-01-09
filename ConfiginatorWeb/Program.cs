@@ -63,17 +63,14 @@ agg.Deploy("abc", "dev", 1);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-//builder.Services.AddSingleton(agg);
-//builder.Services.AddTransient<IConfigurationProjections, ConfigurationProjectionsFromAggregate>();
 
 
-builder.Services.AddScoped<CreateSectionInteractor>();
 builder.Services.AddScoped<ISectionRepository, SectionRepositoryMemory>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWorkMemory>();
 builder.Services.AddSingleton<IIdService, IdServiceMemory>();
-builder.Services.AddTransient<ISectionQueries, SectionQueriesMemory>();
-builder.Services.AddScoped<IDomainServices, DomainServicesMemory>();
 builder.Services.AddSingleton<DatabaseMemory>();
+builder.Services.AddScoped<ISectionsProjections, SectionsProjectionsRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWorkMemory>();
 
 var 
     app = builder.Build();
@@ -97,27 +94,17 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
-var db = app.Services.GetRequiredService<DatabaseMemory>();
 
-await CreateSection("abc", "/a/b/c");
-await CreateSection("xyz", "/x/y/z");
+var section1 = new SectionEntity(new SectionId(1), "abc", "/abc");
+var section2 = new SectionEntity(new SectionId(2), "xyz", "/xyz");
 
-var schema1 = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "2.0.0.json"));
-var schema = new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync(schema1));
-await CreateSchema("abc", schema);
 
-async Task CreateSection(string name, string path)
-{
-    using var scope = app.Services.CreateScope();
-    var interactor = scope.ServiceProvider.GetRequiredService<CreateSectionInteractor>();
-    await interactor.CreateSection(new CreateSectionRequest(name, path));
-    Console.WriteLine();
-}
+using var scope = app.Services.CreateScope();
+var db = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+await db.Sections.AddSectionAsync(section1);
+await db.Sections.AddSectionAsync(section2);
+await db.SaveAsync();
 
-Task CreateSchema(string sectionName, ConfigurationSchema schema)
-{
-    return Task.CompletedTask;
-}
 
 app.Run();
 

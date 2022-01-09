@@ -2,7 +2,7 @@
 
 public interface IUnitOfWork
 {
-    ISectionRepository SectionRepository { get; }
+    ISectionRepository Sections { get; }
 
     Task SaveAsync();
 }

@@ -1,32 +1,26 @@
-﻿using Allard.Configinator.Core.Model;
+﻿using Allard.Configinator.Core;
+using Allard.Configinator.Core.Repositories;
 using ConfiginatorWeb.Models.Configuration;
 using ConfiginatorWeb.Projections;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace ConfiginatorWeb.Controllers;
 
 public class ConfigurationController : Controller
 {
-    private readonly SuperAggregate _aggregate;
-    private readonly IConfigurationProjections _projections;
+    private readonly ISectionsProjections _sectionsProjections;
 
     public ConfigurationController(
-        SuperAggregate aggregate,
-        IConfigurationProjections projections)
+        ISectionsProjections projections)
     {
-        _aggregate = aggregate;
-        _projections = projections;
+        _sectionsProjections = Guards.NotDefault(projections, nameof(projections));
     }
 
     // GET
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        var view = new IndexView
-        {
-            ConfigurationSections = _projections.GetSections(),
-            TokenSets = _projections.GetTokenSets()
-        };
+        var sections = await _sectionsProjections.GetSectionsListAsync();
+        var view = new IndexView(sections.ToList());
         return View(view);
     }
 
@@ -37,6 +31,7 @@ public class ConfigurationController : Controller
 
     public IActionResult Display(string name)
     {
+        /*
         var section = _aggregate.TemporaryExposureSections[name];
         var view = new ViewConfiguration
         {
@@ -62,13 +57,14 @@ public class ConfigurationController : Controller
                     .OrderByDescending(r => r.ReleaseId)
                     .ToList()
             }).ToList()
-        };
-        return View(view);
+        };*/
+        return View(null);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateConfiguration config)
     {
+        /*
         if (!ModelState.IsValid) return View();
 
         try
@@ -84,8 +80,10 @@ public class ConfigurationController : Controller
         {
             ModelState.AddModelError("error", ex.Message);
             return View();
-        }
+        }*/
 
         return RedirectToAction("Index");
     }
 }
+
+public record IndexView(List<SectionView> Sections);

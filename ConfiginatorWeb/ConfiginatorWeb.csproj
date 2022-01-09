@@ -23,4 +23,9 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Projections\IConfigurationProjections.cs" />
+      <Compile Remove="Projections\ConfigurationProjectionsFromAggregate.cs" />
+    </ItemGroup>
+
 </Project>

@@ -26,7 +26,7 @@ public class CreateSectionInteractor
         var id = await _idService.GetNextIdAsync("section");
         var section = new SectionEntity(new SectionId(id), sectionName, path);
         if (schema != null) section.AddSchema(schema);
-        await _uow.SectionRepository.AddSectionAsync(section);
+        await _uow.Sections.AddSectionAsync(section);
         await _uow.SaveAsync();
     }
 }

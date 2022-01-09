@@ -12,29 +12,29 @@ public class SectionRepositoryMemory : ISectionRepository
         _database = database;
     }
 
-    public Task<SectionEntity> GetSectionAsync(SectionId id)
+    public Task<SectionEntity?> GetSectionAsync(SectionId id, CancellationToken cancellationToken)
     {
-        if (_database.Sections.TryGetValue(id, out var section))
-        {
-            return Task.FromResult(section);
-        }
-
-        throw new InvalidOperationException("doesn't exist");
-    }
-
-    public Task<SectionEntity?> GetSectionAsync(long id)
-    {
-        throw new NotImplementedException();
+        var section = (SectionEntity?)_database.Sections[id];
+        return Task.FromResult(section);
     }
 
     public Task<SectionEntity?> GetSectionAsync(string sectionName)
     {
-        throw new NotImplementedException();
+        var section =
+            _database.Sections.Values.SingleOrDefault(s =>
+                s.Name.Equals(sectionName, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(section);
     }
 
     public Task AddSectionAsync(SectionEntity section)
     {
         _database.Sections.Add(section.Id, section);
         return Task.CompletedTask;
+    }
+
+    public Task<IEnumerable<SectionEntity>> GetSectionsAsync(CancellationToken cancellationToken)
+    {
+        var sections = _database.Sections.Values.AsEnumerable();
+        return Task.FromResult(sections);
     }
 }

@@ -4,11 +4,11 @@ namespace Allard.Configinator.Infrastructure;
 
 public class UnitOfWorkMemory : IUnitOfWork
 {
-    public ISectionRepository SectionRepository { get; }
+    public ISectionRepository Sections { get; }
 
     public UnitOfWorkMemory(ISectionRepository sectionRepository)
     {
-        SectionRepository = sectionRepository;
+        Sections = sectionRepository;
     }
 
     public Task SaveAsync()
