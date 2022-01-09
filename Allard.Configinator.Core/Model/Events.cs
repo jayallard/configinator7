@@ -18,21 +18,22 @@ public interface IEvent
 /// <param name="Schema"></param>
 /// <param name="TokenSetName"></param>
 public record SectionCreatedEvent
-    (long SectionId, string SectionName, string? Path, ConfigurationSchema? Schema, string? TokenSetName) : EventBase;
+(SectionId SectionId, string SectionName, string? Path, ConfigurationSchema? Schema,
+    string? TokenSetName) : EventBase;
 
 /// <summary>
 /// An environment was added to a configuration section.
 /// </summary>
 /// <param name="EnvironmentName"></param>
 /// <param name="SectionName"></param>
-public record EnvironmentAddedToSectionEvent(string EnvironmentName, string SectionName) : EventBase;
+public record EnvironmentAddedToSectionEvent(EnvironmentId EnvironmentId, SectionId SectionId, string Name) : EventBase;
 
 /// <summary>
 /// A schema was added to a configuration section.
 /// </summary>
 /// <param name="SectionId"></param>
 /// <param name="Schema"></param>
-public record SchemaAddedToSection(long SectionId, ConfigurationSchema Schema) : EventBase;
+public record SchemaAddedToSection(SectionId Id, ConfigurationSchema Schema) : EventBase;
 
 /// <summary>
 /// A release was created.
@@ -75,7 +76,7 @@ public record TokenSetCreatedEvent(
 public record ReleaseDeployedEvent(
     string SectionName,
     string EnvironmentName,
-    long ReleaseId) : EventBase;
+    ReleaseId ReleaseId) : EventBase;
 
 /// <summary>
 /// A deployed release is no longer deployed.
@@ -87,7 +88,7 @@ public record ReleaseDeployedEvent(
 public record ReleaseRemovedEvent(
     string SectionName,
     string EnvironmentName,
-    long ReleaseId,
+    ReleaseId ReleaseId,
     string Reason) : EventBase;
 
 /// <summary>

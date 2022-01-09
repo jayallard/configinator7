@@ -1,4 +1,4 @@
-using Allard.Configinator.Core.Integrators;
+using Allard.Configinator.Core.Interactors;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Model.State;
 using Allard.Configinator.Core.Queries;
@@ -104,7 +104,7 @@ await CreateSection("xyz", "/x/y/z");
 
 var schema1 = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "2.0.0.json"));
 var schema = new ConfigurationSchema(new SemanticVersion(2, 0, 0), await JsonSchema.FromJsonAsync(schema1));
-await CreateSchema("abc", schema)
+await CreateSchema("abc", schema);
 
 async Task CreateSection(string name, string path)
 {
@@ -114,9 +114,9 @@ async Task CreateSection(string name, string path)
     Console.WriteLine();
 }
 
-async Task CreateSchema(string sectionName, ConfigurationSchema schema)
+Task CreateSchema(string sectionName, ConfigurationSchema schema)
 {
-    
+    return Task.CompletedTask;
 }
 
 app.Run();

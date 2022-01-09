@@ -1,4 +1,4 @@
-namespace Allard.Configinator.Core.Model;
+namespace Allard.Configinator.Core.Model.State;
 
 public record Deployment(DateTime DeploymentDate, DeploymentAction Action, string Reason)
 {

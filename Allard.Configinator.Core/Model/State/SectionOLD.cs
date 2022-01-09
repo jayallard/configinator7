@@ -3,7 +3,7 @@ using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.Model.State;
 
-public record Section
+public record SectionOLD
 {
     public long Id { get; set; }
     

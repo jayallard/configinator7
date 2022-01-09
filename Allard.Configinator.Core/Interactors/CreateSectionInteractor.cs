@@ -3,7 +3,7 @@ using Allard.Configinator.Core.Model.State;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Services;
 
-namespace Allard.Configinator.Core.Integrators;
+namespace Allard.Configinator.Core.Interactors;
 
 public class CreateSectionInteractor
 {
@@ -24,7 +24,7 @@ public class CreateSectionInteractor
         await _domainServices.EnsureSectionDoesntExistAsync(sectionName);
 
         var id = await _idService.GetNextIdAsync("section");
-        var section = new SectionAggregate(id, sectionName, path);
+        var section = new SectionEntity(new SectionId(id), sectionName, path);
         if (schema != null) section.AddSchema(schema);
         await _uow.SectionRepository.AddSectionAsync(section);
         await _uow.SaveAsync();

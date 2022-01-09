@@ -39,8 +39,4 @@
       <ProjectReference Include="..\Allard.Configinator.Core\Allard.Configinator.Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Unit" />
-    </ItemGroup>
-
 </Project>

@@ -4,9 +4,9 @@ namespace Allard.Configinator.Core.Repositories;
 
 public interface ISectionRepository
 {
-    Task<SectionAggregate?> GetSectionAsync(long id);
+    Task<SectionEntity?> GetSectionAsync(SectionId id);
 
-    Task<SectionAggregate?> GetSectionAsync(string sectionName);
+    Task<SectionEntity?> GetSectionAsync(string sectionName);
 
-    Task AddSectionAsync(SectionAggregate section);
+    Task AddSectionAsync(SectionEntity section);
 }

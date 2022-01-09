@@ -11,14 +11,14 @@ public class SuperAggregate
 {
     #region Temporary
 
-    public Dictionary<string, Section> TemporaryExposureSections => _sections;
+    public Dictionary<string, SectionOLD> TemporaryExposureSections => _sections;
     public Dictionary<string, TokenSet> TemporaryExposureTokenSets => _tokenSets;
     public List<IEvent> TemporaryExposureEvents => _events;
 
     #endregion
 
     // key = Configuration Section Name
-    private readonly Dictionary<string, Section> _sections = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, SectionOLD> _sections = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, TokenSet> _tokenSets = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<IEvent> _events = new();
 
@@ -136,7 +136,7 @@ public class SuperAggregate
             EnsureTokenSetExists(tokenSetName);
         }
 
-        Play(new SectionCreatedEvent(0, sectionName, path, schema, tokenSetName));
+        Play(new SectionCreatedEvent(new SectionId(0), sectionName, path, schema, tokenSetName));
         return _sections[sectionName].Id;
     }
 
@@ -148,7 +148,7 @@ public class SuperAggregate
             throw new InvalidOperationException("Schema already exists. Version=" + schema.Version);
         }
 
-        Play(new SchemaAddedToSection(section.Id, schema));
+        //Play(new SchemaAddedToSection(section.Id, schema));
     }
 
     public void SetTokenValue(string tokenSetName, string key, JToken value)
@@ -293,7 +293,7 @@ public class SuperAggregate
         return _tokenSets[tokenSetName];
     }
 
-    private (Section Section, ConfigurationSchema Schemaa) GetSchema(string sectionName, SemanticVersion version)
+    private (SectionOLD Section, ConfigurationSchema Schemaa) GetSchema(string sectionName, SemanticVersion version)
     {
         var section = GetSection(sectionName);
         var schema = section.Schemas.SingleOrDefault(s => s.Version == version);
@@ -307,33 +307,33 @@ public class SuperAggregate
     {
         EnsureEnvironmentDoesntExist(sectionName, environmentName);
         GetSection(sectionName);
-        Play(new EnvironmentAddedToSectionEvent(environmentName, sectionName));
+        //Play(new EnvironmentAddedToSectionEvent(environmentName, sectionName));
     }
 
-    public void Deploy(string sectionName, string environmentName, long releaseId)
+    public void Deploy(string sectionName, string environmentName, ReleaseId releaseId)
     {
-        var (_, environment, _) = GetRelease(sectionName, environmentName, releaseId);
-
-        // if a release is already deployed, then set it to removed
-        var released = environment.Releases.SingleOrDefault(r => r.IsDeployed && r.ReleaseId != releaseId);
-        if (released != null)
-        {
-            Play(new ReleaseRemovedEvent(sectionName, environmentName, released.ReleaseId,
-                $"Overwritten by Release #{releaseId}"));
-        }
-
-        // set the new release to deployed
-        Play(new ReleaseDeployedEvent(sectionName, environmentName, releaseId));
+        // var (_, environment, _) = GetRelease(sectionName, environmentName, releaseId);
+        //
+        // // if a release is already deployed, then set it to removed
+        // var released = environment.Releases.SingleOrDefault(r => r.IsDeployed && r.ReleaseId != releaseId);
+        // if (released != null)
+        // {
+        //     Play(new ReleaseRemovedEvent(sectionName, environmentName, released.ReleaseId,
+        //         $"Overwritten by Release #{releaseId}"));
+        // }
+        //
+        // // set the new release to deployed
+        // Play(new ReleaseDeployedEvent(sectionName, environmentName, releaseId));
     }
 
 
-    private Section GetSection(string sectionName)
+    private SectionOLD GetSection(string sectionName)
     {
         EnsureSectionExists(sectionName);
         return _sections[sectionName];
     }
 
-    private (Section Section, ConfigurationEnvironment Environment) GetEnvironment(string sectionName,
+    private (SectionOLD Section, ConfigurationEnvironment Environment) GetEnvironment(string sectionName,
         string environmentName)
     {
         var section = GetSection(sectionName);
@@ -343,7 +343,7 @@ public class SuperAggregate
         return new(section, environment);
     }
 
-    private (Section Section, ConfigurationEnvironment Environment, Release Release) GetRelease(string sectionName,
+    private (SectionOLD Section, ConfigurationEnvironment Environment, Release Release) GetRelease(string sectionName,
         string environmentName,
         long releaseId)
     {
@@ -354,7 +354,7 @@ public class SuperAggregate
             throw new InvalidOperationException("Release does not exist");
         }
 
-        return new ValueTuple<Section, ConfigurationEnvironment, Release>(section, environment, release);
+        return new ValueTuple<SectionOLD, ConfigurationEnvironment, Release>(section, environment, release);
     }
 
     private void EnsureSectionExists(string sectionName)

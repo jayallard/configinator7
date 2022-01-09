@@ -15,10 +15,11 @@ public class SectionQueriesMemory : ISectionQueries
 
     public Task<long?> GetSectionId(string sectionName)
     {
-        var id = _database
-            .Sections
-            .Values
-            .SingleOrDefault(s => s.Name.Equals(sectionName, StringComparison.OrdinalIgnoreCase))?.SectionId;
-        return Task.FromResult(id);
+        return Task.FromResult((long?)0);
+        // var id = _database
+        //     .Sections
+        //     .Values
+        //     .SingleOrDefault(s => s.Name.Equals(sectionName, StringComparison.OrdinalIgnoreCase))?.SectionId;
+        // return Task.FromResult(id);
     }
 }

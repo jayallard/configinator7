@@ -1,4 +1,5 @@
 ﻿using Allard.Configinator.Core.Model;
+using Allard.Configinator.Core.Model.State;
 using ConfiginatorWeb.Models.Release;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -66,7 +67,7 @@ public class ReleaseController : Controller
     [HttpPost]
     public async Task<DeployResponse> Deploy(string sectionName, string environmentName, long releaseId)
     {
-        _aggregate.Deploy(sectionName, environmentName, releaseId);
+        _aggregate.Deploy(sectionName, environmentName, new ReleaseId(releaseId));
         return new DeployResponse();
     }
     

@@ -1,8 +1,7 @@
-﻿using Allard.Configinator.Core.Model.State;
-using Allard.Json;
+﻿using Allard.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Allard.Configinator.Core.Model;
+namespace Allard.Configinator.Core.Model.State;
 
 public record Release(
     long ReleaseId,

@@ -12,7 +12,7 @@ public class SectionRepositoryMemory : ISectionRepository
         _database = database;
     }
 
-    public Task<SectionAggregate> GetSectionAsync(long id)
+    public Task<SectionEntity> GetSectionAsync(SectionId id)
     {
         if (_database.Sections.TryGetValue(id, out var section))
         {
@@ -22,9 +22,19 @@ public class SectionRepositoryMemory : ISectionRepository
         throw new InvalidOperationException("doesn't exist");
     }
 
-    public Task AddSectionAsync(SectionAggregate section)
+    public Task<SectionEntity?> GetSectionAsync(long id)
     {
-        _database.Sections.Add(section.SectionId, section);
+        throw new NotImplementedException();
+    }
+
+    public Task<SectionEntity?> GetSectionAsync(string sectionName)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task AddSectionAsync(SectionEntity section)
+    {
+        _database.Sections.Add(section.Id, section);
         return Task.CompletedTask;
     }
 }

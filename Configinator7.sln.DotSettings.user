@@ -1,20 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=49834e78_002D174c_002D430e_002Db881_002D3bad5195dd16/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Test1 #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Or&gt;&#xD;
-    &lt;Project Location="C:\Users\jay\projects\Configinator7\Configinator7.Core.Tests" Presentation="&amp;lt;Configinator7.Core.Tests&amp;gt;" /&gt;&#xD;
-    &lt;TestAncestor&gt;&#xD;
-      &lt;TestId&gt;xUnit::C89A78A4-869C-4C5D-844E-A3F4FD02DF12::net6.0::Allard.Json.Tests.Unit.JsonUtilityTests.GetTokenNamesDeep&lt;/TestId&gt;&#xD;
-    &lt;/TestAncestor&gt;&#xD;
-  &lt;/Or&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=751983f7_002D5bc7_002D4150_002Db1a0_002D497361a5f101/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Or&gt;&#xD;
-    &lt;Project Location="C:\Users\jay\projects\Configinator7\Configinator7.Core.Tests" Presentation="&amp;lt;Configinator7.Core.Tests&amp;gt;" /&gt;&#xD;
-    &lt;TestAncestor&gt;&#xD;
-      &lt;TestId&gt;xUnit::C89A78A4-869C-4C5D-844E-A3F4FD02DF12::net6.0::Allard.Json.Tests.Unit.JsonUtilityTests.GetTokenNamesDeep&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::C89A78A4-869C-4C5D-844E-A3F4FD02DF12::net6.0::Allard.Json.Tests.Unit.JsonUtilityTests.GetTokenNames&lt;/TestId&gt;&#xD;
-      &lt;TestId&gt;xUnit::C89A78A4-869C-4C5D-844E-A3F4FD02DF12::net6.0::Allard.Json.Tests.Unit.JsonUtilityTests.GetTokens&lt;/TestId&gt;&#xD;
-    &lt;/TestAncestor&gt;&#xD;
-    &lt;ProjectFolder&gt;C89A78A4-869C-4C5D-844E-A3F4FD02DF12/d:Unit&lt;/ProjectFolder&gt;&#xD;
-  &lt;/Or&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=58cf41b1_002Dff4c_002D430e_002D94c0_002D19861537cb6b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CreateSection" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::55DA2A35-615B-4B70-830C-535A3EFABBB0::net6.0::Allard.Configinator.Core.Tests.Unit.Model.SectionEntityTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
