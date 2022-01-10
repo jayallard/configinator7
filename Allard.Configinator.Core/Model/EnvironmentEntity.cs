@@ -1,6 +1,6 @@
 ﻿namespace Allard.Configinator.Core.Model;
 
-public class EnvironmentEntity : EntityBase<EnvironmentEntity, EnvironmentId>
+public class EnvironmentEntity : EntityBase<EnvironmentId>
 {
     public EnvironmentEntity(EnvironmentId id, string name) : base(id)
     {

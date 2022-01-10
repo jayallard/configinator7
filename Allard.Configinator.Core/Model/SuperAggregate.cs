@@ -13,16 +13,16 @@ public class SuperAggregate
 
     public Dictionary<string, SectionOLD> TemporaryExposureSections => _sections;
     public Dictionary<string, TokenSet> TemporaryExposureTokenSets => _tokenSets;
-    public List<IEvent> TemporaryExposureEvents => _events;
+    public List<ISourceEvent> TemporaryExposureEvents => _events;
 
     #endregion
 
     // key = Configuration Section Name
     private readonly Dictionary<string, SectionOLD> _sections = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, TokenSet> _tokenSets = new(StringComparer.OrdinalIgnoreCase);
-    private readonly List<IEvent> _events = new();
+    private readonly List<ISourceEvent> _events = new();
 
-    private void Play(IEvent evt)
+    private void Play(ISourceEvent evt)
     {
         _events.Add(evt);
         switch (evt)
@@ -103,13 +103,13 @@ public class SuperAggregate
                 release.IsDeployed = false;
                 break;
             }*/
-            case TokenValueSetEvent(var tokenSetName, var key, var value):
+            case TokenValueSetSourceEvent(var tokenSetName, var key, var value):
             {
                 var tokenSet = GetTokenSet(tokenSetName);
                 tokenSet.Tokens[key] = value;
                 break;
             }
-            case TokenSetCreatedEvent(var name, var tokens, var baseTokenSetName):
+            case TokenSetCreatedSourceEvent(var name, var tokens, var baseTokenSetName):
             {
                 _tokenSets[name] = new TokenSet
                 {
@@ -136,7 +136,7 @@ public class SuperAggregate
             EnsureTokenSetExists(tokenSetName);
         }
 
-        Play(new SectionCreatedEvent(new SectionId(0), sectionName, path, schema, tokenSetName));
+        Play(new SectionCreatedSourceEvent(new SectionId(0), sectionName, path, schema, tokenSetName));
         return _sections[sectionName].Id;
     }
 
@@ -164,7 +164,7 @@ public class SuperAggregate
             }
         }
 
-        Play(new TokenValueSetEvent(tokenSetName, key, value));
+        Play(new TokenValueSetSourceEvent(tokenSetName, key, value));
 
         // find all releases using the token set
         var outOfDate = _sections
@@ -232,7 +232,7 @@ public class SuperAggregate
 
         EnsureTokenSetDoesntExist(name);
         tokens = tokens.ToDictionary(t => t.Key, t => t.Value.DeepClone(), StringComparer.OrdinalIgnoreCase);
-        Play(new TokenSetCreatedEvent(name, tokens, baseTokenSet));
+        Play(new TokenSetCreatedSourceEvent(name, tokens, baseTokenSet));
     }
 
     public async Task CreateReleaseAsync(
@@ -278,7 +278,7 @@ public class SuperAggregate
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
-        Play(new ReleaseCreatedEvent(releaseId, sectionName, environmentName, schema, value, resolved, resolvedTokens,
+        Play(new ReleaseCreatedSourceEvent(releaseId, sectionName, environmentName, schema, value, resolved, resolvedTokens,
             inUse ?? new HashSet<string>()));
     }
 

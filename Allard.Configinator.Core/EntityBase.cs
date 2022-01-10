@@ -1,8 +1,16 @@
-﻿namespace Allard.Configinator.Core;
+﻿using Allard.Configinator.Core.Model;
 
-public abstract class EntityBase<T, TId> : IEntity<T, TId>
+namespace Allard.Configinator.Core;
+
+public abstract class EntityBase<TIdentity> : IEntity<TIdentity> where TIdentity : IIdentity
 {
-    public TId Id { get; }
+    private readonly List<ISourceEvent> _sourceEvents = new();
+    private readonly List<IDomainEvent> _domainEvents = new();
 
-    protected EntityBase(TId id) => Id = id;
+    public IEnumerable<ISourceEvent> SourceEvents => _sourceEvents.AsReadOnly();
+    public IEnumerable<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+
+    public TIdentity Id { get; }
+
+    protected EntityBase(TIdentity id) => Id = id;
 }

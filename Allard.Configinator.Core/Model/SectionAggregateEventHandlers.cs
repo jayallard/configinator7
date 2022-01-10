@@ -2,14 +2,14 @@ namespace Allard.Configinator.Core.Model;
 
 internal static class SectionAggregateEventHandlers
 {
-    public static void Play(SectionEntity section, IEvent evt)
+    public static void Play(SectionEntity section, ISourceEvent evt)
     {
         switch (evt)
         {
-            case SectionCreatedEvent create:
+            case SectionCreatedSourceEvent create:
                 CreateSection(section, create);
                 break;
-            case EnvironmentAddedToSectionEvent environmentAdded:
+            case EnvironmentAddedToSectionSourceEvent environmentAdded:
                 AddEnvironment(section, environmentAdded);
                 break;
             case SchemaAddedToSection schemaAdded:
@@ -18,10 +18,10 @@ internal static class SectionAggregateEventHandlers
             // case ReleaseCreatedEvent releaseCreated:
             //     AddRelease(section, releaseCreated);
             //     break;
-            case ReleaseDeployedEvent deployed:
+            case ReleaseDeployedSourceEvent deployed:
                 AddDeployed(section, deployed);
                 break;
-            case ReleaseRemovedEvent removed:
+            case ReleaseRemovedSourceEvent removed:
                 RemoveDeployed(section, removed);
                 break;
             default:
@@ -29,7 +29,7 @@ internal static class SectionAggregateEventHandlers
         }
     }
 
-    public static void CreateSection(SectionEntity section, SectionCreatedEvent evt)
+    public static void CreateSection(SectionEntity section, SectionCreatedSourceEvent evt)
     {
         section.Path = evt.Path;
         section.Id = evt.SectionId;
@@ -41,7 +41,7 @@ internal static class SectionAggregateEventHandlers
         }
     }
 
-    public static void AddEnvironment(SectionEntity section, EnvironmentAddedToSectionEvent evt)
+    public static void AddEnvironment(SectionEntity section, EnvironmentAddedToSectionSourceEvent evt)
     {
         section.InternalEnvironments.Add(new EnvironmentEntity(evt.EnvironmentId, evt.Name));
     }
@@ -66,7 +66,7 @@ internal static class SectionAggregateEventHandlers
     //     env._releases.Add(release);
     // }
 
-    private static void AddDeployed(SectionEntity section, ReleaseDeployedEvent evt)
+    private static void AddDeployed(SectionEntity section, ReleaseDeployedSourceEvent evt)
     {
         var env = section.GetEnvironment(evt.EnvironmentName);
         var release = env.GetRelease(evt.ReleaseId);
@@ -82,7 +82,7 @@ internal static class SectionAggregateEventHandlers
         // release.IsDeployed = true;
     }
 
-    private static void RemoveDeployed(SectionEntity section, ReleaseRemovedEvent evt)
+    private static void RemoveDeployed(SectionEntity section, ReleaseRemovedSourceEvent evt)
     {
         var release = section.GetEnvironment(evt.EnvironmentName).GetRelease(evt.ReleaseId);
         // release.Deployments.Add(new Deployment(evt.EventDate, DeploymentAction.Removed, evt.Reason));

@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Allard.Configinator.Core.Model;
 
-public interface IEvent
+public interface ISourceEvent
 {
     DateTime EventDate { get; }
 };
@@ -17,23 +17,23 @@ public interface IEvent
 /// <param name="Path"></param>
 /// <param name="Schema"></param>
 /// <param name="TokenSetName"></param>
-public record SectionCreatedEvent
+public record SectionCreatedSourceEvent
 (SectionId SectionId, string SectionName, string? Path, ConfigurationSchema? Schema,
-    string? TokenSetName) : EventBase;
+    string? TokenSetName) : SourceEventBase;
 
 /// <summary>
 /// An environment was added to a configuration section.
 /// </summary>
 /// <param name="EnvironmentName"></param>
 /// <param name="SectionName"></param>
-public record EnvironmentAddedToSectionEvent(EnvironmentId EnvironmentId, SectionId SectionId, string Name) : EventBase;
+public record EnvironmentAddedToSectionSourceEvent(EnvironmentId EnvironmentId, SectionId SectionId, string Name) : SourceEventBase;
 
 /// <summary>
 /// A schema was added to a configuration section.
 /// </summary>
 /// <param name="SectionId"></param>
 /// <param name="Schema"></param>
-public record SchemaAddedToSection(SectionId Id, ConfigurationSchema Schema) : EventBase;
+public record SchemaAddedToSection(SectionId Id, ConfigurationSchema Schema) : SourceEventBase;
 
 /// <summary>
 /// A release was created.
@@ -46,7 +46,7 @@ public record SchemaAddedToSection(SectionId Id, ConfigurationSchema Schema) : E
 /// <param name="ResolvedValue"></param>
 /// <param name="Tokens"></param>
 /// <param name="TokensInUse"></param>
-public record ReleaseCreatedEvent(
+public record ReleaseCreatedSourceEvent(
     long ReleaseId,
     string SectionName,
     string EnvironmentName,
@@ -54,7 +54,7 @@ public record ReleaseCreatedEvent(
     JObject ModelValue,
     JObject ResolvedValue,
     TokenSetResolved? Tokens,
-    HashSet<string> TokensInUse) : EventBase;
+    HashSet<string> TokensInUse) : SourceEventBase;
 
 /// <summary>
 /// A token set was created.
@@ -62,10 +62,10 @@ public record ReleaseCreatedEvent(
 /// <param name="TokenSetName"></param>
 /// <param name="Tokens"></param>
 /// <param name="BaseTokenSetName"></param>
-public record TokenSetCreatedEvent(
+public record TokenSetCreatedSourceEvent(
     string TokenSetName,
     Dictionary<string, JToken> Tokens,
-    string BaseTokenSetName) : EventBase;
+    string BaseTokenSetName) : SourceEventBase;
 
 /// <summary>
 /// A release was deployed.
@@ -73,10 +73,10 @@ public record TokenSetCreatedEvent(
 /// <param name="SectionName"></param>
 /// <param name="EnvironmentName"></param>
 /// <param name="ReleaseId"></param>
-public record ReleaseDeployedEvent(
+public record ReleaseDeployedSourceEvent(
     string SectionName,
     string EnvironmentName,
-    ReleaseId ReleaseId) : EventBase;
+    ReleaseId ReleaseId) : SourceEventBase;
 
 /// <summary>
 /// A deployed release is no longer deployed.
@@ -85,11 +85,11 @@ public record ReleaseDeployedEvent(
 /// <param name="EnvironmentName"></param>
 /// <param name="ReleaseId"></param>
 /// <param name="Reason"></param>
-public record ReleaseRemovedEvent(
+public record ReleaseRemovedSourceEvent(
     string SectionName,
     string EnvironmentName,
     ReleaseId ReleaseId,
-    string Reason) : EventBase;
+    string Reason) : SourceEventBase;
 
 /// <summary>
 /// The value of a token changed.
@@ -97,7 +97,7 @@ public record ReleaseRemovedEvent(
 /// <param name="TokenSetName"></param>
 /// <param name="Key"></param>
 /// <param name="Value"></param>
-public record TokenValueSetEvent(
+public record TokenValueSetSourceEvent(
     string TokenSetName,
     string Key,
-    JToken Value) : EventBase;
+    JToken Value) : SourceEventBase;

@@ -2,13 +2,13 @@
 
 namespace Allard.Configinator.Core.Model;
 
-public class SectionEntity : EntityBase<SectionEntity, SectionId>, IAggregateRoot
+public class SectionEntity : EntityBase<SectionId>, IAggregateRoot
 {
-    private readonly List<IEvent> _events = new();
+    private readonly List<ISourceEvent> _events = new();
     internal List<ConfigurationSchema> InternalSchemas { get; } = new();
     internal List<EnvironmentEntity> InternalEnvironments { get; }= new();
     
-    public IEnumerable<IEvent> Events => _events.AsReadOnly();
+    public IEnumerable<ISourceEvent> Events => _events.AsReadOnly();
     public IEnumerable<ConfigurationSchema> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public SectionId Id { get; internal set; }
@@ -22,17 +22,17 @@ public class SectionEntity : EntityBase<SectionEntity, SectionId>, IAggregateRoo
         Guards.NotDefault(id, nameof(id));
         Guards.HasValue(path, nameof(name));
         Guards.HasValue(path, nameof(path));
-        Play(new SectionCreatedEvent(id, name, path, null,  tokenSetName));
+        Play(new SectionCreatedSourceEvent(id, name, path, null,  tokenSetName));
     }
 
-    public SectionEntity(IEnumerable<IEvent> events) : base(new SectionId(3))
+    public SectionEntity(IEnumerable<ISourceEvent> events) : base(new SectionId(3))
     {
         Guards.NotDefault(events, nameof(events));
         foreach (var evt in events) Play(evt);
         _events.Clear();
     }
 
-    private void Play(IEvent evt)
+    private void Play(ISourceEvent evt)
     {
         SectionAggregateEventHandlers.Play(this, evt);
         _events.Add(evt);
@@ -55,6 +55,6 @@ public class SectionEntity : EntityBase<SectionEntity, SectionId>, IAggregateRoo
             throw new InvalidOperationException("Environment already exists. Name=" + name);
         }
         
-        Play(new EnvironmentAddedToSectionEvent(id, Id, name));
+        Play(new EnvironmentAddedToSectionSourceEvent(id, Id, name));
     }
 }

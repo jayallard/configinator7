@@ -1,6 +1,10 @@
-﻿namespace Allard.Configinator.Core;
+﻿using Allard.Configinator.Core.Model;
 
-public interface IEntity<T, TId>
+namespace Allard.Configinator.Core;
+
+public interface IEntity<TIdentity> where TIdentity : IIdentity
 {
-    public TId Id { get; }
+    TIdentity Id { get; }
+    IEnumerable<ISourceEvent> SourceEvents { get; }
+    IEnumerable<IDomainEvent> DomainEvents { get; }
 }
