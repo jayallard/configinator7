@@ -1,9 +1,9 @@
 ﻿using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Model.State;
 using Allard.Configinator.Core.Repositories;
-using Allard.Configinator.Core.Services;
+using Allard.Configinator.Core.Services.Revisit;
 
-namespace Allard.Configinator.Core.Interactors;
+namespace ConfiginatorWeb.Interactors;
 
 public class CreateSectionInteractor
 {

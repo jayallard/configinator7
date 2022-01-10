@@ -21,7 +21,7 @@ public class SectionsProjectionsRepository : ISectionsProjections
     public async Task<IEnumerable<SectionView>> GetSectionsListAsync(CancellationToken cancellationToken = default)
     {
         return (await _repository.GetSectionsAsync(cancellationToken))
-            .Select(s => new SectionView(s.Id.Id, s.Name, s.Path, s.TokenSetName))
+            .Select(s => new SectionView(s.Id.Id, s.SectionName, s.Path, s.TokenSetName))
             .ToList();
     }
 }

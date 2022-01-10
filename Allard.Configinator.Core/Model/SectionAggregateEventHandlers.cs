@@ -15,9 +15,9 @@ internal static class SectionAggregateEventHandlers
             case SchemaAddedToSection schemaAdded:
                 AddSchema(section, schemaAdded);
                 break;
-            // case ReleaseCreatedEvent releaseCreated:
-            //     AddRelease(section, releaseCreated);
-            //     break;
+            case ReleaseCreatedSourceEvent releaseCreated:
+                AddRelease(section, releaseCreated);
+                break;
             case ReleaseDeployedSourceEvent deployed:
                 AddDeployed(section, deployed);
                 break;
@@ -33,7 +33,7 @@ internal static class SectionAggregateEventHandlers
     {
         section.Path = evt.Path;
         section.Id = evt.SectionId;
-        section.Name = evt.SectionName;
+        section.SectionName = evt.SectionName;
         section.TokenSetName = evt.TokenSetName;
         if (evt.Schema != null)
         {
@@ -41,30 +41,24 @@ internal static class SectionAggregateEventHandlers
         }
     }
 
-    public static void AddEnvironment(SectionEntity section, EnvironmentAddedToSectionSourceEvent evt)
-    {
-        section.InternalEnvironments.Add(new EnvironmentEntity(evt.EnvironmentId, evt.Name));
-    }
+    public static void AddEnvironment(SectionEntity section, EnvironmentAddedToSectionSourceEvent evt) =>
+        section.InternalEnvironments.Add(new EnvironmentEntity(section, evt.EnvironmentId, evt.Name));
 
-    public static void AddSchema(SectionEntity section, SchemaAddedToSection evt)
-    {
+    public static void AddSchema(SectionEntity section, SchemaAddedToSection evt) =>
         section.InternalSchemas.Add(evt.Schema);
-    }
 
-    // public static void AddRelease(SectionAggregate section, ReleaseCreatedEvent evt)
-    // {
-    //     var env = section.GetEnvironment(evt.EnvironmentName);
-    //     var release = new ReleaseEntity();
-    //     // (
-    //     //     evt.ReleaseId,
-    //     //     evt.ModelValue,
-    //     //     evt.ResolvedValue,
-    //     //     evt.Tokens,
-    //     //     evt.TokensInUse,
-    //     //     evt.Schema,
-    //     //     evt.EventDate);
-    //     env._releases.Add(release);
-    // }
+    public static void AddRelease(SectionEntity section, ReleaseCreatedSourceEvent evt)
+    {
+        var env = section.GetEnvironment(evt.EnvironmentName);
+        var release = new ReleaseEntity(
+            env,
+            evt.ReleaseId,
+            evt.Schema,
+            evt.ModelValue,
+            evt.ResolvedValue,
+            evt.Tokens);
+        env.InternalReleases.Add(release);
+    }
 
     private static void AddDeployed(SectionEntity section, ReleaseDeployedSourceEvent evt)
     {

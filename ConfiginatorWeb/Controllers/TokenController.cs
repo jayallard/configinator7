@@ -23,7 +23,7 @@ public class TokenController : Controller
 
         var v = new EditTokenSetView
         {
-            Resolved = tokens
+            Composed = tokens
         };
         return View(v);
     }
@@ -48,7 +48,7 @@ public class TokenController : Controller
             TokenSetName = tokenSetName,
             Key = key,
             SelectedToken = token,
-            TokensResolved = resolved
+            TokensComposed = resolved
         });
     }
 
@@ -76,7 +76,7 @@ public class TokenController : Controller
 
 public class EditTokenSetView
 {
-    public TokenSetResolved Resolved { get; set; }
+    public TokenSetComposed Composed { get; set; }
 }
 
 public class EditValueView
@@ -87,7 +87,7 @@ public class EditValueView
 
     public JToken SelectedToken { get; set; }
     
-    public TokenSetResolved TokensResolved { get; set; }
+    public TokenSetComposed TokensComposed { get; set; }
 }
 
 public class SaveTokenValue

@@ -4,5 +4,5 @@ public interface IUnitOfWork
 {
     ISectionRepository Sections { get; }
 
-    Task SaveAsync();
+    Task SaveAsync(CancellationToken cancellationToken = default);
 }

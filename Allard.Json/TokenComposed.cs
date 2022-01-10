@@ -14,17 +14,17 @@ public class TokenComposed
     /// <summary>
     /// Gets or sets the token.
     /// </summary>
-    public JToken? Token { get; set; }
+    public JToken Token { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the token.
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the TokenSet that defined this token.
     /// </summary>
-    public string? SourceTokenSet { get; set; }
+    public string SourceTokenSet { get; set; }
 
     /// <summary>
     /// Gets or sets the origin of the value.
@@ -43,7 +43,7 @@ public class TokenComposed
     /// <returns></returns>
     public TokenComposed Clone() => new()
     {
-        Token = Token?.DeepClone(),
+        Token = Token.DeepClone(),
         Name = Name,
         SourceTokenSet = SourceTokenSet,
         TokenValueOrigin = TokenValueOrigin,

@@ -268,7 +268,7 @@ public class SuperAggregate
             .SelectMany(s => s.Environments.SelectMany(h => h.Releases))
             .Max(r => r.ReleaseId as long?) ?? 0) + 1;
 
-        TokenSetResolved? ts;
+        TokenSetComposed? ts;
         HashSet<string>? inUse = null;
         if (tokenSetName != null)
         {
@@ -278,11 +278,11 @@ public class SuperAggregate
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
-        Play(new ReleaseCreatedSourceEvent(releaseId, sectionName, environmentName, schema, value, resolved, resolvedTokens,
+        Play(new ReleaseCreatedSourceEvent(new ReleaseId(releaseId), sectionName, environmentName, schema, value, resolved, resolvedTokens,
             inUse ?? new HashSet<string>()));
     }
 
-    public TokenSetResolved? ResolveTokenSet(string? tokenSetName) =>
+    public TokenSetComposed? ResolveTokenSet(string? tokenSetName) =>
         tokenSetName == null
             ? null
             : new TokenSetComposer(_tokenSets.Values).Compose(tokenSetName);

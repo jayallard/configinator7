@@ -1,7 +1,7 @@
 ﻿using Allard.Configinator.Core.Model.State;
 using Allard.Configinator.Core.Repositories;
 
-namespace Allard.Configinator.Core.Interactors;
+namespace ConfiginatorWeb.Interactors;
 
 public class CreateSchemaInteractor
 {

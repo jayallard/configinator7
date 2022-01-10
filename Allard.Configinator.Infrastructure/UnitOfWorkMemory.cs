@@ -21,21 +21,19 @@ public class UnitOfWorkMemory : IUnitOfWork
         _databaseMemory = databaseMemory;
     }
 
-    private Task PublishSourceEventsFrom<TEntity, TIdentity>(IEnumerable<IEntity<TIdentity>> entities) where TIdentity : IIdentity
+    private async Task PublishSourceEventsFrom<TEntity, TIdentity>(IEnumerable<IEntity<TIdentity>> entities,
+        CancellationToken token) where TIdentity : IIdentity
     {
         var type = typeof(TEntity);
         foreach (var e in entities)
         {
-            _eventSourceRepository.AppendAsync(type, e.Id.Id, e.SourceEvents);
+            await _eventSourceRepository.AppendAsync(type, e.Id.Id, e.SourceEvents, token);
+            await _domainEventPublisher.PublishAsync(e.DomainEvents, token);
         }
-
-        return Task.CompletedTask;
     }
-
-
-    public Task SaveAsync()
+    
+    public async Task SaveAsync(CancellationToken cancellationToken = default)
     {
-        PublishSourceEventsFrom<SectionEntity, SectionId>(_databaseMemory.Sections.Values.AsEnumerable());
-        return Task.CompletedTask;
+        await PublishSourceEventsFrom<SectionEntity, SectionId>(_databaseMemory.Sections.Values.AsEnumerable(), cancellationToken);
     }
 }

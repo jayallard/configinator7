@@ -47,13 +47,13 @@ public record SchemaAddedToSection(SectionId Id, ConfigurationSchema Schema) : S
 /// <param name="Tokens"></param>
 /// <param name="TokensInUse"></param>
 public record ReleaseCreatedSourceEvent(
-    long ReleaseId,
+    ReleaseId ReleaseId,
     string SectionName,
     string EnvironmentName,
     ConfigurationSchema Schema,
     JObject ModelValue,
     JObject ResolvedValue,
-    TokenSetResolved? Tokens,
+    TokenSetComposed? Tokens,
     HashSet<string> TokensInUse) : SourceEventBase;
 
 /// <summary>

@@ -1,9 +1,9 @@
-using Allard.Configinator.Core.Interactors;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Model.State;
 using Allard.Configinator.Core.Queries;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Services;
+using Allard.Configinator.Core.Services.Revisit;
 using Allard.Configinator.Infrastructure;
 using ConfiginatorWeb.Projections;
 using Newtonsoft.Json.Linq;

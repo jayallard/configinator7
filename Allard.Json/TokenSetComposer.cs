@@ -17,12 +17,12 @@ public class TokenSetComposer
         throw new InvalidOperationException("Token set doesn't exist: " + tokenSetName);
     }
 
-    public TokenSetResolved Compose(string tokenSetName)
+    public TokenSetComposed Compose(string tokenSetName)
     {
         var bottom = GetTokenSet(tokenSetName);
         if (bottom.Base == null)
         {
-            return new TokenSetResolved
+            return new TokenSetComposed
             {
                 TokenSetName = bottom.TokenSetName,
                 Tokens = bottom.Tokens.ToDictionary(b => b.Key, b => new TokenComposed
@@ -96,7 +96,7 @@ public class TokenSetComposer
             }
         }
         
-        return new TokenSetResolved
+        return new TokenSetComposed
         {
             Base = bottom.Base,
             TokenSetName = bottom.TokenSetName,
@@ -114,8 +114,11 @@ public class BaseValue
     public BaseValue Parent { get; set; }
 }
 
-public class TokenSetResolved
+public class TokenSetComposed
 {
+    // TODO: add token sets
+    
+    
     public string? Base { get; set; }
     public string TokenSetName { get; set; }
     public Dictionary<string, TokenComposed> Tokens { get; set; }

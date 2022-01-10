@@ -10,7 +10,7 @@
 {
     IEnumerable<TokenComposed> Tokens()
     {
-        return Model.Resolved.Tokens.Values.OrderBy(t => t.Name);
+        return Model.Composed.Tokens.Values.OrderBy(t => t.Name);
     // .OrderBy(t => string.Equals(t.SourceTokenSet, Model.Resolved.TokenSetName, StringComparison.OrdinalIgnoreCase) ? 1 : 0)
     // .ThenBy(t => t.SourceTokenSet)
     // .ThenBy(t => t.Name);
@@ -26,10 +26,10 @@
         color: blue;
     }
 </style>
-<h2>Token Set: @Model.Resolved.TokenSetName</h2>
-@if (Model.Resolved.Base != null)
+<h2>Token Set: @Model.Composed.TokenSetName</h2>
+@if (Model.Composed.Base != null)
 {
-    <h2>Base: @Model.Resolved.Base</h2>
+    <h2>Base: @Model.Composed.Base</h2>
 }
 
 <table class="table table-bordered">
@@ -48,7 +48,7 @@
                 @t.Name
             </td>
             <td>
-               <a asp-action="EditValue" asp-route-tokenSetName="@Model.Resolved.TokenSetName" asp-route-key="@t.Name">Edit</a>
+               <a asp-action="EditValue" asp-route-tokenSetName="@Model.Composed.TokenSetName" asp-route-key="@t.Name">Edit</a>
                 @if (t.TokenValueOrigin != TokenValueOrigin.Inherited)
                 {
                     <span>&nbsp;|&nbsp;<a href="#">Delete</a></span>

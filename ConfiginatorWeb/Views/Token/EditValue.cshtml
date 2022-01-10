@@ -28,7 +28,7 @@
     </tr>
     </thead>
     <!-- .Where(t => string.Equals(Model.TokenSetName, t.Value.SourceTokenSet, StringComparison.OrdinalIgnoreCase)) -->
-    @foreach (var t in Model.TokensResolved.Tokens)
+    @foreach (var t in Model.TokensComposed.Tokens)
     {
         <tr class="@(string.Equals(t.Value.Name, Model.Key, StringComparison.OrdinalIgnoreCase) ? "bg-info" : "")">
             <td>@t.Value.Name</td>

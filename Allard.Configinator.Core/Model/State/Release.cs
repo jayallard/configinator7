@@ -7,7 +7,7 @@ public record Release(
     long ReleaseId,
     JObject ModelValue,
     JObject ResolvedValue,
-    TokenSetResolved? TokenSet,
+    TokenSetComposed? TokenSet,
     HashSet<string> UsedTokens,
     ConfigurationSchema Schema,
     DateTime CreateDate)

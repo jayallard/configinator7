@@ -1,4 +1,4 @@
-﻿namespace Allard.Configinator.Core.Services;
+﻿namespace Allard.Configinator.Core.Services.Revisit;
 
 public interface IIdService
 {

@@ -22,7 +22,7 @@ public class SectionRepositoryMemory : ISectionRepository
     {
         var section =
             _database.Sections.Values.SingleOrDefault(s =>
-                s.Name.Equals(sectionName, StringComparison.OrdinalIgnoreCase));
+                s.SectionName.Equals(sectionName, StringComparison.OrdinalIgnoreCase));
         return Task.FromResult(section);
     }
 

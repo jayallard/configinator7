@@ -4,5 +4,5 @@ namespace Allard.Configinator.Infrastructure;
 
 public class DatabaseMemory
 {
-    public Dictionary<SectionId, SectionEntity> Sections { get; } = new();
+    public IDictionary<SectionId, SectionEntity> Sections { get; } = new Dictionary<SectionId, SectionEntity>();
 }
