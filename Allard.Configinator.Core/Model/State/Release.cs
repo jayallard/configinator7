@@ -9,7 +9,7 @@ public record Release(
     JObject ResolvedValue,
     TokenSetComposed? TokenSet,
     HashSet<string> UsedTokens,
-    ConfigurationSchema Schema,
+    SchemaEntity Schema,
     DateTime CreateDate)
 {
     // todo: make properties immutable

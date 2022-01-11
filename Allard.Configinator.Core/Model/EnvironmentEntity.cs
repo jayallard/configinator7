@@ -22,14 +22,14 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
 
     public async Task<ReleaseEntity> CreateReleaseAsync(ReleaseId releaseId,
         TokenSetComposed? tokens,
-        SemanticVersion schemaVersion,
+        SchemaId schemaId,
         JObject value,
         CancellationToken cancellationToken = default)
     {
         if (InternalReleases.Any(r => r.Id == releaseId))
             throw new InvalidOperationException("Release id already exists: " + releaseId.Id);
         
-        var schema = ParentSection.GetSchema(schemaVersion);
+        var schema = ParentSection.GetSchema(schemaId);
         var tokenValues = tokens?.ToValueDictionary() ?? new Dictionary<string, JToken>();
 
         var resolvedValue = await JsonUtility.ResolveAsync(value, tokenValues, cancellationToken);
@@ -37,9 +37,9 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
         var tokensInUse = JsonUtility.GetTokenNamesDeep(value, tokenValues).ToHashSet();
         var evt = new ReleaseCreatedSourceEvent(
             releaseId,
-            ParentSection.SectionName,
-            EnvironmentName,
-            schema,
+            Id,
+            ParentSection.Id,
+            schemaId,
             (JObject) value.DeepClone(),
             resolvedValue,
             tokens,

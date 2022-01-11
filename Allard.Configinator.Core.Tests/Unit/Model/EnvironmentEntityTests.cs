@@ -18,7 +18,7 @@ public class EnvironmentEntityTests
 
         // act
         var release = await environment1.CreateReleaseAsync(
-            ReleaseId(0),
+            NewReleaseId(0),
             null,
             Schema1Id,
             JObject.Parse("{}"));
@@ -35,7 +35,7 @@ public class EnvironmentEntityTests
 
         // act
         var release = await environment1.CreateReleaseAsync(
-            ReleaseId(0),
+            NewReleaseId(0),
             null,
             Schema1Id,
             JObject.Parse("{}"));
@@ -43,7 +43,7 @@ public class EnvironmentEntityTests
         var test = () =>
         {
             environment1.CreateReleaseAsync(
-                    ReleaseId(0),
+                    NewReleaseId(0),
                     null,
                     Schema1Id,
                     JObject.Parse("{}"))

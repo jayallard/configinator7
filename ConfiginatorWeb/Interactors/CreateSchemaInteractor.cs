@@ -1,4 +1,5 @@
-﻿using Allard.Configinator.Core.Model.State;
+﻿using Allard.Configinator.Core.Model;
+using Allard.Configinator.Core.Model.State;
 using Allard.Configinator.Core.Repositories;
 
 namespace ConfiginatorWeb.Interactors;
@@ -21,4 +22,4 @@ public class CreateSchemaInteractor
     }
 }
 
-public record CreateSchemaRequest(string SectionName, ConfigurationSchema Schema);
+public record CreateSchemaRequest(string SectionName, SchemaEntity Schema);

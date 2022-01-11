@@ -2,13 +2,13 @@
 
 namespace Allard.Configinator.Core.Model;
 
-public class DeploymentEntity : EntityBase<DeploymentId>
+public class DeploymentHistoryEntity : EntityBase<DeploymentId>
 {
     public ReleaseEntity ParentRelease { get; }
     public DateTime DeploymentDate { get; }
     public DeploymentAction Action { get; private set; }
     public string? Reason { get; }
-    public DeploymentEntity(
+    public DeploymentHistoryEntity(
         DeploymentId id, 
         ReleaseEntity parentRelease,
         DateTime deploymentDate, 
@@ -22,6 +22,5 @@ public class DeploymentEntity : EntityBase<DeploymentId>
     }
 
     public bool IsDeployed => Action == DeploymentAction.Deployed;
-    internal void SetDeployed() => Action = DeploymentAction.Deployed;
     internal void SetRemoved() => Action  = DeploymentAction.Removed;
 }

@@ -31,4 +31,4 @@ public class CreateSectionInteractor
     }
 }
 
-public record CreateSectionRequest(string SectionName, string Path, ConfigurationSchema? Schema = null);
+public record CreateSectionRequest(string SectionName, string Path, SchemaEntity? Schema = null);

@@ -7,52 +7,52 @@ namespace Allard.Configinator.Core.Model;
 public class ReleaseEntity : EntityBase<ReleaseId>
 {
     // todo: make properties immutable
-    internal List<DeploymentEntity> InternalDeployments { get; } = new();
-    public IEnumerable<DeploymentEntity> Deployments => InternalDeployments.AsReadOnly();
+    internal List<DeploymentHistoryEntity> InternalDeployments { get; } = new();
+    public IEnumerable<DeploymentHistoryEntity> Deployments => InternalDeployments.AsReadOnly();
     public EnvironmentEntity ParentEnvironment { get; }
     public JObject ModelValue { get; }
     public JObject ResolvedValue { get; }
     public TokenSetComposed? TokenSet { get; }
-    public ConfigurationSchema Schema { get; }
+    public SchemaEntity Schema { get; }
 
-    public DeploymentEntity SetDeployed(DeploymentId deploymentId, DateTime deploymentDate)
+    public DeploymentHistoryEntity SetDeployed(DeploymentId deploymentId, DateTime deploymentDate)
     {
         var section = ParentEnvironment.ParentSection;
-        var environmentName = ParentEnvironment.EnvironmentName;
 
         if (Deployments.Any(d => d.Id.Equals(deploymentId)))
             throw new InvalidOperationException("Deployment already exists. Id=" + deploymentId.Id);
 
         // if an active deployment exists, remove it
-        // var deployed = Deployments.SingleOrDefault(d => d.IsDeployed);
-        // if (deployed != null)
-        // {
-        //     var removedEvent = new ReleaseRemovedSourceEvent(
-        //         section.SectionName,
-        //         environmentName,
-        //         Id,
-        //         "Replaced by Deployment Id=" + Id.Id);
-        //     section.PlaySourceEvent(removedEvent);
-        // }
+        var deployed = Deployments.SingleOrDefault(d => d.IsDeployed);
+        if (deployed != null && deployed.Id != deploymentId)
+        {
+            var removedEvent = new DeploymentRemovedSourceEvent(
+                deployed.Id,
+                section.Id,
+                ParentEnvironment.Id,
+                Id,
+                "Replaced by Deployment Id=" + Id.Id);
+            section.PlaySourceEvent(removedEvent);
+        }
 
         // create the new deployment.
         var deployedEvt = new ReleaseDeployedSourceEvent(
             deploymentId,
             deploymentDate,
-            section.SectionName,
-            environmentName,
+            section.Id,
+            ParentEnvironment.Id,
             Id);
         section.PlaySourceEvent(deployedEvt);
         return GetDeployment(deploymentId);
     }
 
-    public DeploymentEntity GetDeployment(DeploymentId deploymentId) =>
+    public DeploymentHistoryEntity GetDeployment(DeploymentId deploymentId) =>
         InternalDeployments.Single(d => d.Id.Equals(deploymentId));
 
     public ReleaseEntity(
         ReleaseId id,
         EnvironmentEntity parent,
-        ConfigurationSchema schema,
+        SchemaEntity schema,
         JObject modelValue,
         JObject resolvedValue,
         TokenSetComposed? tokenSet) : base(id)

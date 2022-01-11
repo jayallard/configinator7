@@ -126,7 +126,7 @@ public class SuperAggregate
 
     public long CreateSection(
         string sectionName,
-        ConfigurationSchema? schema,
+        SchemaEntity? schema,
         string? path,
         string? tokenSetName)
     {
@@ -140,7 +140,7 @@ public class SuperAggregate
         return _sections[sectionName].Id;
     }
 
-    public void AddSchema(string sectionName, ConfigurationSchema schema)
+    public void AddSchema(string sectionName, SchemaEntity schema)
     {
         var section = GetSection(sectionName);
         if (section.Schemas.Any(s => s.Version == schema.Version))
@@ -278,8 +278,8 @@ public class SuperAggregate
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
-        Play(new ReleaseCreatedSourceEvent(new ReleaseId(releaseId), sectionName, environmentName, schema, value, resolved, resolvedTokens,
-            inUse ?? new HashSet<string>()));
+        // Play(new ReleaseCreatedSourceEvent(new ReleaseId(releaseId), sectionName, environmentName, schema, value, resolved, resolvedTokens,
+        //     inUse ?? new HashSet<string>()));
     }
 
     public TokenSetComposed? ResolveTokenSet(string? tokenSetName) =>
@@ -293,14 +293,15 @@ public class SuperAggregate
         return _tokenSets[tokenSetName];
     }
 
-    private (SectionOLD Section, ConfigurationSchema Schemaa) GetSchema(string sectionName, SemanticVersion version)
+    private (SectionOLD Section, SchemaEntity Schemaa) GetSchema(string sectionName, SemanticVersion version)
     {
-        var section = GetSection(sectionName);
-        var schema = section.Schemas.SingleOrDefault(s => s.Version == version);
-        if (schema == null)
-            throw new InvalidOperationException(
-                $"Schema doesnt' exist. Configuration Section Name={sectionName}, Version={version.ToFullString()}");
-        return new(section, schema);
+        // var section = GetSection(sectionName);
+        // var schema = section.Schemas.SingleOrDefault(s => s.Version == version);
+        // if (schema == null)
+        //     throw new InvalidOperationException(
+        //         $"Schema doesnt' exist. Configuration Section Name={sectionName}, Version={version.ToFullString()}");
+        // return new(section, schema);
+        return new(null, null);
     }
 
     public void AddEnvironment(string sectionName, string environmentName)

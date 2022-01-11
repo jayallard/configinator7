@@ -8,14 +8,15 @@ namespace Allard.Configinator.Core.Tests;
 
 public static class ModelTestUtility
 {
-    public static readonly SemanticVersion Schema1Id = new(1, 0, 0);
+    public static readonly SchemaId Schema1Id = NewSchemaId(0);
+    public static readonly SemanticVersion Schema1Version = new(1, 0, 0);
 
     public static SectionEntity CreateTestSection()
     {
         {
-            var schema = new ConfigurationSchema(Schema1Id, JsonSchema.CreateAnySchema());
-            var section = new SectionEntity(SectionId(0), "s", "p", schema);
-            section.AddEnvironment(EnvironmentId(0), "test1");
+            var schema = new SchemaEntity(Schema1Id, Schema1Version, JsonSchema.CreateAnySchema());
+            var section = new SectionEntity(NewSectionId(0), "s", "p", schema);
+            section.AddEnvironment(NewEnvironmentId(0), "test1");
             return section;
         }
     }

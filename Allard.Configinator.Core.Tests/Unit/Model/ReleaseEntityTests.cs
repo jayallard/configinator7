@@ -18,11 +18,11 @@ public class ReleaseEntityTests
         // arrange
         var section = CreateTestSection();
         var env = section.Environments.Single();
-        var release = await env.CreateReleaseAsync(ReleaseId(0), null, Schema1Id, JObject.Parse("{}"));
+        var release = await env.CreateReleaseAsync(NewReleaseId(0), null, Schema1Id, JObject.Parse("{}"));
         var date = DateTime.Now;
         
         // act
-        var deployment = release.SetDeployed(DeploymentId(0), date);
+        var deployment = release.SetDeployed(NewDeploymentId(0), date);
 
         // assert
         release.Deployments.Single().Should().Be(deployment);

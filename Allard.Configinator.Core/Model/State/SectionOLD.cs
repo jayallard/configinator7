@@ -1,5 +1,4 @@
-﻿using NJsonSchema;
-using NuGet.Versioning;
+﻿using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.Model.State;
 
@@ -10,9 +9,9 @@ public record SectionOLD
     public string Name { get; set; }
     public string? Path { get; set; }
 
-    public List<ConfigurationSchema> Schemas { get; } = new();
+    public List<SchemaEntity> Schemas { get; } = new();
 
-    public ConfigurationSchema GetSchema(SemanticVersion version) => Schemas.Single(s => s.Version == version);
+    //public SchemaEntity GetSchema(SemanticVersion version) => Schemas.Single(s => s.Version == version);
 
     public List<ConfigurationEnvironment> Environments = new();
 
@@ -23,8 +22,6 @@ public record SectionOLD
     public ConfigurationEnvironment GetEnvironment(string name) =>
         Environments.Single(e => e.EnvironmentId.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 }
-
-public record ConfigurationSchema(SemanticVersion Version, JsonSchema Schema);
 
 public record ConfigurationEnvironmentId(string Name);
 

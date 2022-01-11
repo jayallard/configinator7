@@ -15,7 +15,7 @@ public class SectionEntityTests
     public void CreateSection()
     {
         // arrange, act
-        var schema = new ConfigurationSchema(new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
+        var schema = new SchemaEntity(Schema1Id, Schema1Version, JsonSchema.CreateAnySchema());
         var section = new SectionEntity(new SectionId(0), "name", "path", schema);
 
         // assert
@@ -29,7 +29,7 @@ public class SectionEntityTests
     {
         // arrange
         var section = new SectionEntity(new SectionId(0), "name", "path");
-        var schema = new ConfigurationSchema(new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
+        var schema = new SchemaEntity(new SchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
 
         // act
         section.AddSchema(schema);
@@ -39,12 +39,12 @@ public class SectionEntityTests
     }
 
     [Fact]
-    public void AddSchemaThrowsExceptionIfAlreadyExists()
+    public void AddSchemaThrowsExceptionIfVersionAlreadyExists()
     {
         // arrange
-        var section = new SectionEntity(new SectionId(0), "name", "path");
-        var schema1 = new ConfigurationSchema(new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
-        var schema2 = new ConfigurationSchema(new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
+        var section = new SectionEntity(NewSectionId(0), "name", "path");
+        var schema1 = new SchemaEntity(new SchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
+        var schema2 = new SchemaEntity(new SchemaId(1), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
 
         // act
         section.AddSchema(schema1);
@@ -57,6 +57,25 @@ public class SectionEntityTests
             .WithMessage("Schema already exists. Version=1.0.0");
     }
 
+    [Fact]
+    public void AddSchemaThrowsExceptionIdAlreadyExists()
+    {
+        // arrange
+        var section = new SectionEntity(NewSectionId(0), "name", "path");
+        var schema1 = new SchemaEntity(new SchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
+        var schema2 = new SchemaEntity(new SchemaId(0), new SemanticVersion(1, 1, 0), JsonSchema.CreateAnySchema());
+
+        // act
+        section.AddSchema(schema1);
+        var test = () => section.AddSchema(schema2);
+
+        // assert
+        test
+            .Should()
+            .ThrowExactly<InvalidOperationException>()
+            .WithMessage("Schema already exists. Id=0");
+    }
+    
     [Fact]
     public void AddEnvironment()
     {

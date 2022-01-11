@@ -1,5 +1,4 @@
-﻿using Allard.Configinator.Core.Model.State;
-using Allard.Json;
+﻿using Allard.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Allard.Configinator.Core.Model;
@@ -17,40 +16,47 @@ public interface ISourceEvent
 /// <param name="Path"></param>
 /// <param name="Schema"></param>
 /// <param name="TokenSetName"></param>
-public record SectionCreatedSourceEvent
-(SectionId SectionId, string SectionName, string? Path, ConfigurationSchema? Schema,
+public record SectionCreatedSourceEvent(
+    SectionId SectionId,
+    string SectionName,
+    string? Path,
+    SchemaEntity? Schema,
     string? TokenSetName) : SourceEventBase;
 
 /// <summary>
 /// An environment was added to a configuration section.
 /// </summary>
+/// <param name="EnvironmentId"></param>
+/// <param name="SectionId"></param>
 /// <param name="EnvironmentName"></param>
-/// <param name="SectionName"></param>
-public record EnvironmentAddedToSectionSourceEvent(EnvironmentId EnvironmentId, SectionId SectionId, string Name) : SourceEventBase;
+public record EnvironmentAddedToSectionSourceEvent(
+    EnvironmentId EnvironmentId, 
+    SectionId SectionId,
+    string EnvironmentName) : SourceEventBase;
 
 /// <summary>
 /// A schema was added to a configuration section.
 /// </summary>
 /// <param name="SectionId"></param>
 /// <param name="Schema"></param>
-public record SchemaAddedToSection(SectionId Id, ConfigurationSchema Schema) : SourceEventBase;
+public record SchemaAddedToSection(SectionId SectionId, SchemaEntity Schema) : SourceEventBase;
 
 /// <summary>
 /// A release was created.
 /// </summary>
 /// <param name="ReleaseId"></param>
-/// <param name="SectionName"></param>
-/// <param name="EnvironmentName"></param>
-/// <param name="Schema"></param>
+/// <param name="EnvironmentId"></param>
+/// <param name="SectionId"></param>
+/// <param name="SchemaId"></param>
 /// <param name="ModelValue"></param>
 /// <param name="ResolvedValue"></param>
 /// <param name="Tokens"></param>
 /// <param name="TokensInUse"></param>
 public record ReleaseCreatedSourceEvent(
     ReleaseId ReleaseId,
-    string SectionName,
-    string EnvironmentName,
-    ConfigurationSchema Schema,
+    EnvironmentId EnvironmentId,
+    SectionId SectionId,
+    SchemaId SchemaId,
     JObject ModelValue,
     JObject ResolvedValue,
     TokenSetComposed? Tokens,
@@ -70,26 +76,30 @@ public record TokenSetCreatedSourceEvent(
 /// <summary>
 /// A release was deployed.
 /// </summary>
-/// <param name="SectionName"></param>
-/// <param name="EnvironmentName"></param>
+/// <param name="DeploymentId"></param>
+/// <param name="deploymentDate"></param>
+/// <param name="SectionId"></param>
+/// <param name="EnvironmentId"></param>
 /// <param name="ReleaseId"></param>
 public record ReleaseDeployedSourceEvent(
     DeploymentId DeploymentId,
     DateTime deploymentDate,
-    string SectionName,
-    string EnvironmentName,
+    SectionId SectionId,
+    EnvironmentId EnvironmentId,
     ReleaseId ReleaseId) : SourceEventBase;
 
 /// <summary>
 /// A deployed release is no longer deployed.
 /// </summary>
-/// <param name="SectionName"></param>
-/// <param name="EnvironmentName"></param>
+/// <param name="DeploymentId"></param>
+/// <param name="SectionId"></param>
+/// <param name="EnvironmentId"></param>
 /// <param name="ReleaseId"></param>
 /// <param name="Reason"></param>
-public record ReleaseRemovedSourceEvent(
-    string SectionName,
-    string EnvironmentName,
+public record DeploymentRemovedSourceEvent(
+    DeploymentId DeploymentId,
+    SectionId SectionId,
+    EnvironmentId EnvironmentId,
     ReleaseId ReleaseId,
     string Reason) : SourceEventBase;
 
