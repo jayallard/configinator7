@@ -76,13 +76,13 @@ public record TokenSetCreatedSourceEvent(
 /// <summary>
 /// A release was deployed.
 /// </summary>
-/// <param name="DeploymentId"></param>
+/// <param name="DeploymentHistoryId"></param>
 /// <param name="deploymentDate"></param>
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentId"></param>
 /// <param name="ReleaseId"></param>
 public record ReleaseDeployedSourceEvent(
-    DeploymentId DeploymentId,
+    DeploymentHistoryId DeploymentHistoryId,
     DateTime deploymentDate,
     SectionId SectionId,
     EnvironmentId EnvironmentId,
@@ -91,13 +91,13 @@ public record ReleaseDeployedSourceEvent(
 /// <summary>
 /// A deployed release is no longer deployed.
 /// </summary>
-/// <param name="DeploymentId"></param>
+/// <param name="DeploymentHistoryId"></param>
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentId"></param>
 /// <param name="ReleaseId"></param>
 /// <param name="Reason"></param>
 public record DeploymentRemovedSourceEvent(
-    DeploymentId DeploymentId,
+    DeploymentHistoryId DeploymentHistoryId,
     SectionId SectionId,
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId,

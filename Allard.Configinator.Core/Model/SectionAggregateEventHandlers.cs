@@ -68,7 +68,7 @@ internal static class SectionAggregateEventHandlers
         var env = section.GetEnvironment(evt.EnvironmentId);
         var release = env.GetRelease(evt.ReleaseId);
         release.InternalDeployments.Add(new DeploymentHistoryEntity(
-            evt.DeploymentId, 
+            evt.DeploymentHistoryId, 
             release, 
             evt.deploymentDate, 
             DeploymentAction.Deployed, 
@@ -80,7 +80,7 @@ internal static class SectionAggregateEventHandlers
         var deployment = section
             .GetEnvironment(evt.EnvironmentId)
             .GetRelease(evt.ReleaseId)
-            .GetDeployment(evt.DeploymentId);
+            .GetDeployment(evt.DeploymentHistoryId);
         deployment.SetRemoved();
     }
 }

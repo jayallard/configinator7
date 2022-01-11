@@ -28,4 +28,14 @@
       <Compile Remove="Projections\ConfigurationProjectionsFromAggregate.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Remove="Views\Release\Add.cshtml" />
+      <Content Remove="Views\Release\Display.cshtml" />
+      <Content Remove="Views\Release\History.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Views\Release" />
+    </ItemGroup>
+
 </Project>

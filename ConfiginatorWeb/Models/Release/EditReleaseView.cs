@@ -1,4 +1,6 @@
-﻿namespace ConfiginatorWeb.Models.Release;
+﻿using Allard.Configinator.Core.Model;
+
+namespace ConfiginatorWeb.Models.Release;
 
 public class EditReleaseView
 {
@@ -19,6 +21,6 @@ public class DisplayView
     public string EnviornmentName { get; set; }
     public long ReleaseId { get; set; }
     
-    public Allard.Configinator.Core.Model.State.Release Release { get; set; }
+    public ReleaseEntity Release { get; set; }
 }
 

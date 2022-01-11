@@ -2,18 +2,18 @@
 
 namespace Allard.Configinator.Core.Model;
 
-public class DeploymentHistoryEntity : EntityBase<DeploymentId>
+public class DeploymentHistoryEntity : EntityBase<DeploymentHistoryId>
 {
     public ReleaseEntity ParentRelease { get; }
     public DateTime DeploymentDate { get; }
     public DeploymentAction Action { get; private set; }
     public string? Reason { get; }
     public DeploymentHistoryEntity(
-        DeploymentId id, 
+        DeploymentHistoryId historyId, 
         ReleaseEntity parentRelease,
         DateTime deploymentDate, 
         DeploymentAction action, 
-        string? reason) : base(id)
+        string? reason) : base(historyId)
     {
         ParentRelease = parentRelease;
         DeploymentDate = deploymentDate;

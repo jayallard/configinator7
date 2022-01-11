@@ -15,16 +15,16 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     public TokenSetComposed? TokenSet { get; }
     public SchemaEntity Schema { get; }
 
-    public DeploymentHistoryEntity SetDeployed(DeploymentId deploymentId, DateTime deploymentDate)
+    public DeploymentHistoryEntity SetDeployed(DeploymentHistoryId deploymentHistoryId, DateTime deploymentDate)
     {
         var section = ParentEnvironment.ParentSection;
 
-        if (Deployments.Any(d => d.Id.Equals(deploymentId)))
-            throw new InvalidOperationException("Deployment already exists. Id=" + deploymentId.Id);
+        if (Deployments.Any(d => d.Id.Equals(deploymentHistoryId)))
+            throw new InvalidOperationException("Deployment already exists. Id=" + deploymentHistoryId.Id);
 
         // if an active deployment exists, remove it
         var deployed = Deployments.SingleOrDefault(d => d.IsDeployed);
-        if (deployed != null && deployed.Id != deploymentId)
+        if (deployed != null && deployed.Id != deploymentHistoryId)
         {
             var removedEvent = new DeploymentRemovedSourceEvent(
                 deployed.Id,
@@ -37,17 +37,17 @@ public class ReleaseEntity : EntityBase<ReleaseId>
 
         // create the new deployment.
         var deployedEvt = new ReleaseDeployedSourceEvent(
-            deploymentId,
+            deploymentHistoryId,
             deploymentDate,
             section.Id,
             ParentEnvironment.Id,
             Id);
         section.PlaySourceEvent(deployedEvt);
-        return GetDeployment(deploymentId);
+        return GetDeployment(deploymentHistoryId);
     }
 
-    public DeploymentHistoryEntity GetDeployment(DeploymentId deploymentId) =>
-        InternalDeployments.Single(d => d.Id.Equals(deploymentId));
+    public DeploymentHistoryEntity GetDeployment(DeploymentHistoryId deploymentHistoryId) =>
+        InternalDeployments.Single(d => d.Id.Equals(deploymentHistoryId));
 
     public ReleaseEntity(
         ReleaseId id,

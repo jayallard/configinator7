@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Allard.Configinator.Core.Model;
-using Allard.Configinator.Core.Model.State;
 using FluentAssertions;
 using NJsonSchema;
 using NuGet.Versioning;
