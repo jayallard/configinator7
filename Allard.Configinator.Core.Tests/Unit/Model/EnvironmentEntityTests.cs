@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
@@ -21,7 +22,7 @@ public class EnvironmentEntityTests
             NewReleaseId(0),
             null,
             Schema1Id,
-            JObject.Parse("{}"));
+            JsonDocument.Parse("{}"));
 
         // assert
         environment1.Releases.Single().Should().Be(release);
@@ -38,7 +39,7 @@ public class EnvironmentEntityTests
             NewReleaseId(0),
             null,
             Schema1Id,
-            JObject.Parse("{}"));
+            JsonDocument.Parse("{}"));
 
         var test = () =>
         {
@@ -46,7 +47,7 @@ public class EnvironmentEntityTests
                     NewReleaseId(0),
                     null,
                     Schema1Id,
-                    JObject.Parse("{}"))
+                    JsonDocument.Parse("{}"))
                 // TODO: how do we test an exception async?
                 .Wait();
         };

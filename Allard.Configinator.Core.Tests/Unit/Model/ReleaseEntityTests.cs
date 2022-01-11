@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
@@ -18,7 +19,7 @@ public class ReleaseEntityTests
         // arrange
         var section = CreateTestSection();
         var env = section.Environments.Single();
-        var release = await env.CreateReleaseAsync(NewReleaseId(0), null, Schema1Id, JObject.Parse("{}"));
+        var release = await env.CreateReleaseAsync(NewReleaseId(0), null, Schema1Id, JsonDocument.Parse("{}"));
         var date = DateTime.Now;
         
         // act

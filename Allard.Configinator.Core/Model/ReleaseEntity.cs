@@ -1,6 +1,5 @@
-﻿using Allard.Configinator.Core.Model.State;
+﻿using System.Text.Json;
 using Allard.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Allard.Configinator.Core.Model;
 
@@ -10,8 +9,8 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     internal List<DeploymentHistoryEntity> InternalDeployments { get; } = new();
     public IEnumerable<DeploymentHistoryEntity> Deployments => InternalDeployments.AsReadOnly();
     public EnvironmentEntity ParentEnvironment { get; }
-    public JObject ModelValue { get; }
-    public JObject ResolvedValue { get; }
+    public JsonDocument ModelValue { get; }
+    public JsonDocument ResolvedValue { get; }
     public TokenSetComposed? TokenSet { get; }
     public SchemaEntity Schema { get; }
 
@@ -53,8 +52,8 @@ public class ReleaseEntity : EntityBase<ReleaseId>
         ReleaseId id,
         EnvironmentEntity parent,
         SchemaEntity schema,
-        JObject modelValue,
-        JObject resolvedValue,
+        JsonDocument modelValue,
+        JsonDocument resolvedValue,
         TokenSetComposed? tokenSet) : base(id)
     {
         ParentEnvironment = parent;

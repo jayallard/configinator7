@@ -1,6 +1,4 @@
-﻿using Allard.Configinator.Core.Model;
-
-namespace Allard.Configinator.Core;
+﻿namespace Allard.Configinator.Core.Model;
 
 public record SchemaId : IdBase<SchemaEntity>
 {

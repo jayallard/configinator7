@@ -1,8 +1,7 @@
-﻿using Allard.Json;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
+using Allard.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
-using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.Model;
 
@@ -23,7 +22,7 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
     public async Task<ReleaseEntity> CreateReleaseAsync(ReleaseId releaseId,
         TokenSetComposed? tokens,
         SchemaId schemaId,
-        JObject value,
+        JsonDocument value,
         CancellationToken cancellationToken = default)
     {
         if (InternalReleases.Any(r => r.Id == releaseId))
@@ -32,15 +31,23 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
         var schema = ParentSection.GetSchema(schemaId);
         var tokenValues = tokens?.ToValueDictionary() ?? new Dictionary<string, JToken>();
 
-        var resolvedValue = await JsonUtility.ResolveAsync(value, tokenValues, cancellationToken);
-        ValidateAgainstSchema(resolvedValue, schema.Schema);
-        var tokensInUse = JsonUtility.GetTokenNamesDeep(value, tokenValues).ToHashSet();
+        // System.Text.Json is immutable, which we like.
+        // - NJsonSchema requires newtonsoft.
+        // - Resolve requires mutable objects.
+        // so, using System.Text.Json as much as possible.
+        // but here we need to convert to JsonNet, then back.
+        var newtonValue = value.ToJsonNetJson();
+        var newtonResolvedValue = await JsonUtility.ResolveAsync(newtonValue, tokenValues, cancellationToken);
+        
+        ValidateAgainstSchema(newtonResolvedValue, schema.Schema);
+        var resolvedValue = newtonResolvedValue.ToSystemTextJson();
+        var tokensInUse = JsonUtility.GetTokenNamesDeep(newtonValue, tokenValues).ToHashSet();
         var evt = new ReleaseCreatedSourceEvent(
             releaseId,
             Id,
             ParentSection.Id,
             schemaId,
-            (JObject) value.DeepClone(),
+            value,
             resolvedValue,
             tokens,
             tokensInUse);

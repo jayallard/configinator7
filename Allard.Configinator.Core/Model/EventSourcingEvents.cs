@@ -1,4 +1,5 @@
-﻿using Allard.Json;
+﻿using System.Text.Json;
+using Allard.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Allard.Configinator.Core.Model;
@@ -57,8 +58,8 @@ public record ReleaseCreatedSourceEvent(
     EnvironmentId EnvironmentId,
     SectionId SectionId,
     SchemaId SchemaId,
-    JObject ModelValue,
-    JObject ResolvedValue,
+    JsonDocument ModelValue,
+    JsonDocument ResolvedValue,
     TokenSetComposed? Tokens,
     HashSet<string> TokensInUse) : SourceEventBase;
 
