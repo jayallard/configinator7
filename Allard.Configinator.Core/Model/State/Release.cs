@@ -12,8 +12,9 @@ public record Release(
     ConfigurationSchema Schema,
     DateTime CreateDate)
 {
+    // todo: make properties immutable
+    
     public List<Deployment> Deployments { get; } = new();
     public bool IsDeployed { get; set; }
-    
     public bool IsOutOfDate { get; set; }
 }

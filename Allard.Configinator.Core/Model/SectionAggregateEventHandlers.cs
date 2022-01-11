@@ -1,3 +1,5 @@
+using Allard.Configinator.Core.Model.State;
+
 namespace Allard.Configinator.Core.Model;
 
 internal static class SectionAggregateEventHandlers
@@ -51,8 +53,8 @@ internal static class SectionAggregateEventHandlers
     {
         var env = section.GetEnvironment(evt.EnvironmentName);
         var release = new ReleaseEntity(
-            env,
             evt.ReleaseId,
+            env,
             evt.Schema,
             evt.ModelValue,
             evt.ResolvedValue,
@@ -64,16 +66,12 @@ internal static class SectionAggregateEventHandlers
     {
         var env = section.GetEnvironment(evt.EnvironmentName);
         var release = env.GetRelease(evt.ReleaseId);
-
-        // set all of the deployments to NOT DEPLOYED
-        // foreach (var d in env.Releases.SelectMany(r => r.Deployments))
-        // {
-        //     d.IsDeployed = false;
-        // }
-        //
-        // release.Deployments.Add(new Deployment(evt.EventDate, DeploymentAction.Deployed, string.Empty)
-        //     {IsDeployed = true});
-        // release.IsDeployed = true;
+        release.InternalDeployments.Add(new DeploymentEntity(
+            evt.DeploymentId, 
+            release, 
+            evt.deploymentDate, 
+            DeploymentAction.Deployed, 
+            null));
     }
 
     private static void RemoveDeployed(SectionEntity section, ReleaseRemovedSourceEvent evt)

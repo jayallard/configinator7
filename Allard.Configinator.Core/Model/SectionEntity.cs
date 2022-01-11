@@ -53,19 +53,19 @@ public class SectionEntity : EntityBase<SectionId>, IAggregateRoot
     public ConfigurationSchema GetSchema(SemanticVersion schemaVersion) =>
         InternalSchemas.Single(s => s.Version == schemaVersion);
 
-    public EnvironmentEntity AddEnvironment(EnvironmentId id, string name)
+    public EnvironmentEntity AddEnvironment(EnvironmentId environmentId, string name)
     {
         if (InternalEnvironments.Any(s => s.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase)))
         {
             throw new InvalidOperationException("Environment already exists. Name=" + name);
         }
         
-        if (InternalEnvironments.Any(s => s.Id == id))
+        if (InternalEnvironments.Any(s => s.Id == environmentId))
         {
-            throw new InvalidOperationException("Environment already exists. Id=" + id.Id);
+            throw new InvalidOperationException("Environment already exists. Id=" + environmentId.Id);
         }
         
-        PlaySourceEvent(new EnvironmentAddedToSectionSourceEvent(id, Id, name));
+        PlaySourceEvent(new EnvironmentAddedToSectionSourceEvent(environmentId, Id, name));
         return GetEnvironment(name);
     }
 }

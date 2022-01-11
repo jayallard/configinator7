@@ -74,6 +74,8 @@ public record TokenSetCreatedSourceEvent(
 /// <param name="EnvironmentName"></param>
 /// <param name="ReleaseId"></param>
 public record ReleaseDeployedSourceEvent(
+    DeploymentId DeploymentId,
+    DateTime deploymentDate,
     string SectionName,
     string EnvironmentName,
     ReleaseId ReleaseId) : SourceEventBase;

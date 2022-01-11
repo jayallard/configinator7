@@ -57,8 +57,7 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
         }
     }
 
-    [JsonIgnore]
-    private SectionEntity ParentSection { get; }
+    public SectionEntity ParentSection { get; }
 
     public string EnvironmentName { get; }
 }
