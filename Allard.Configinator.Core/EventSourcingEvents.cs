@@ -1,8 +1,9 @@
 ﻿using System.Text.Json;
+using Allard.Configinator.Core.Model;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Allard.Configinator.Core.Model;
+namespace Allard.Configinator.Core;
 
 public interface ISourceEvent
 {

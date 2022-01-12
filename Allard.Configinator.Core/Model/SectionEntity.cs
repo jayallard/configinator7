@@ -1,14 +1,9 @@
-﻿using Allard.Configinator.Core.Model.State;
-using NuGet.Versioning;
-
-namespace Allard.Configinator.Core.Model;
+﻿namespace Allard.Configinator.Core.Model;
 
 public class SectionEntity : EntityBase<SectionId>, IAggregateRoot
 {
-    private readonly List<ISourceEvent> _events = new();
     internal List<SchemaEntity> InternalSchemas { get; } = new();
     internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
-    public IEnumerable<ISourceEvent> Events => _events.AsReadOnly();
     public IEnumerable<SchemaEntity> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public SectionId Id { get; internal set; }
@@ -20,7 +15,7 @@ public class SectionEntity : EntityBase<SectionId>, IAggregateRoot
         InternalEnvironments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
 
     public EnvironmentEntity GetEnvironment(EnvironmentId environmentId) =>
-        InternalEnvironments.Single(e => e.Id == environmentId);
+        InternalEnvironments.GetEnvironment(environmentId);
 
 
     public SectionEntity(SectionId id, string name, string path, SchemaEntity? schema = null,
@@ -36,27 +31,18 @@ public class SectionEntity : EntityBase<SectionId>, IAggregateRoot
     {
         Guards.NotDefault(events, nameof(events));
         foreach (var evt in events) PlaySourceEvent(evt);
-        _events.Clear();
+        InternalSourceEvents.Clear();
     }
 
     internal void PlaySourceEvent(ISourceEvent evt)
     {
         SectionAggregateEventHandlers.Play(this, evt);
-        _events.Add(evt);
+        InternalSourceEvents.Add(evt);
     }
 
     public void AddSchema(SchemaEntity schema)
     {
-        if (InternalSchemas.Any(s => s.Version == schema.Version))
-        {
-            throw new InvalidOperationException("Schema already exists. Version=" + schema.Version);
-        }
-
-        if (InternalSchemas.Any(s => s.Id == schema.Id))
-        {
-            throw new InvalidOperationException("Schema already exists. Id=" + schema.Id.Id);
-        }
-
+        InternalSchemas.EnsureDoesntExist(schema.Id, schema.Version);
         PlaySourceEvent(new SchemaAddedToSection(Id, schema));
     }
 
@@ -65,16 +51,7 @@ public class SectionEntity : EntityBase<SectionId>, IAggregateRoot
 
     public EnvironmentEntity AddEnvironment(EnvironmentId environmentId, string name)
     {
-        if (InternalEnvironments.Any(s => s.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase)))
-        {
-            throw new InvalidOperationException("Environment already exists. Name=" + name);
-        }
-
-        if (InternalEnvironments.Any(s => s.Id == environmentId))
-        {
-            throw new InvalidOperationException("Environment already exists. Id=" + environmentId.Id);
-        }
-
+        InternalEnvironments.EnsureEnvironmentDoesntExist(environmentId, name);
         PlaySourceEvent(new EnvironmentAddedToSectionSourceEvent(environmentId, Id, name));
         return GetEnvironment(name);
     }

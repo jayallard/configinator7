@@ -6,21 +6,21 @@ public class DeploymentHistoryEntity : EntityBase<DeploymentHistoryId>
 {
     public ReleaseEntity ParentRelease { get; }
     public DateTime DeploymentDate { get; }
-    public DeploymentAction Action { get; private set; }
+    public DeploymentStatus Status { get; private set; }
     public string? Reason { get; }
     public DeploymentHistoryEntity(
         DeploymentHistoryId historyId, 
         ReleaseEntity parentRelease,
         DateTime deploymentDate, 
-        DeploymentAction action, 
+        DeploymentStatus status, 
         string? reason) : base(historyId)
     {
         ParentRelease = parentRelease;
         DeploymentDate = deploymentDate;
-        Action = action;
+        Status = status;
         Reason = reason;
     }
 
-    public bool IsDeployed => Action == DeploymentAction.Deployed;
-    internal void SetRemoved() => Action  = DeploymentAction.Removed;
+    public bool IsDeployed => Status == DeploymentStatus.Deployed;
+    internal void SetRemoved() => Status  = DeploymentStatus.Removed;
 }

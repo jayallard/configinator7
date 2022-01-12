@@ -4,12 +4,12 @@ namespace Allard.Configinator.Core;
 
 public abstract class EntityBase<TIdentity> : IEntity<TIdentity> where TIdentity : IIdentity
 {
-    private readonly List<ISourceEvent> _sourceEvents = new();
-    private readonly List<IDomainEvent> _domainEvents = new();
+    protected List<ISourceEvent> InternalSourceEvents { get; } = new();
+    protected List<IDomainEvent> InternalDomainEvents { get; }= new();
 
     public TIdentity Id { get; }
-    public IEnumerable<ISourceEvent> SourceEvents => _sourceEvents.AsReadOnly();
-    public IEnumerable<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+    public IEnumerable<ISourceEvent> SourceEvents => InternalSourceEvents.AsReadOnly();
+    public IEnumerable<IDomainEvent> DomainEvents => InternalDomainEvents.AsReadOnly();
     
-    protected EntityBase(TIdentity id) => Id = id;
+    protected EntityBase(TIdentity id) => Id = Guards.NotDefault(id, nameof(id));
 }

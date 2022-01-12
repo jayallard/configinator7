@@ -57,6 +57,6 @@ public class EnvironmentEntityTests
             .Should()
             .ThrowExactly<AggregateException>()
             .WithInnerException<InvalidOperationException>()
-            .WithMessage("Release id already exists: 0");
+            .WithMessage("Release already exists. Id=0");
     }
 }

@@ -17,7 +17,7 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
         ParentSection = Guards.NotDefault(parent, nameof(parent));
     }
 
-    public ReleaseEntity GetRelease(ReleaseId releaseId) => InternalReleases.Single(r => r.Id == releaseId);
+    public ReleaseEntity GetRelease(ReleaseId releaseId) => InternalReleases.GetRelease(releaseId);
 
     public async Task<ReleaseEntity> CreateReleaseAsync(ReleaseId releaseId,
         TokenSetComposed? tokens,
@@ -25,9 +25,7 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
         JsonDocument value,
         CancellationToken cancellationToken = default)
     {
-        if (InternalReleases.Any(r => r.Id == releaseId))
-            throw new InvalidOperationException("Release id already exists: " + releaseId.Id);
-        
+        InternalReleases.EnsureReleaseDoesntExist(releaseId);
         var schema = ParentSection.GetSchema(schemaId);
         var tokenValues = tokens?.ToValueDictionary() ?? new Dictionary<string, JToken>();
 
