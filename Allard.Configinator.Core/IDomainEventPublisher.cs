@@ -2,5 +2,5 @@
 
 public interface IDomainEventPublisher
 {
-    Task PublishAsync(IEnumerable<IDomainEvent> events, CancellationToken cancellationToken = default);
+    Task PublishAsync(IEnumerable<ISourceEvent> events, CancellationToken cancellationToken = default);
 }

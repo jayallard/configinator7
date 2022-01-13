@@ -1,6 +1,6 @@
 ﻿namespace Allard.Configinator.Core.Model;
 
-public class SectionEntity : EntityBase<SectionId>, IAggregateRoot
+public class SectionEntity : AggregateBase<SectionId>
 {
     internal List<SchemaEntity> InternalSchemas { get; } = new();
     internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
