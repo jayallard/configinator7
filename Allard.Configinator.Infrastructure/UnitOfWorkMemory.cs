@@ -6,17 +6,17 @@ namespace Allard.Configinator.Infrastructure;
 
 public class UnitOfWorkMemory : IUnitOfWork
 {
-    private readonly IDomainEventPublisher _domainEventPublisher;
+    private readonly IEventPublisher _eventPublisher;
     private readonly IEventSourceRepository _eventSourceRepository;
     private readonly DatabaseMemory _databaseMemory;
 
     public ISectionRepository Sections { get; }
 
-    public UnitOfWorkMemory(ISectionRepository sectionRepository, IDomainEventPublisher domainEventPublisher,
+    public UnitOfWorkMemory(ISectionRepository sectionRepository, IEventPublisher eventPublisher,
         IEventSourceRepository eventSourceRepository, DatabaseMemory databaseMemory)
     {
         Sections = sectionRepository;
-        _domainEventPublisher = domainEventPublisher;
+        _eventPublisher = eventPublisher;
         _eventSourceRepository = eventSourceRepository;
         _databaseMemory = databaseMemory;
     }
@@ -29,7 +29,8 @@ public class UnitOfWorkMemory : IUnitOfWork
         foreach (var e in entities)
         {
             await _eventSourceRepository.AppendAsync(type, e.Id.Id, e.SourceEvents, token);
-            await _domainEventPublisher.PublishAsync(e.SourceEvents, token);
+            await _eventPublisher.PublishAsync(e.SourceEvents, token);
+            e.ClearEvents();
         }
     }
 

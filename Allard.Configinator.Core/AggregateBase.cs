@@ -9,4 +9,9 @@ public abstract class AggregateBase<TIdentity> : EntityBase<TIdentity>, IAggrega
 
     protected List<ISourceEvent> InternalSourceEvents { get; } = new();
     public IEnumerable<ISourceEvent> SourceEvents => InternalSourceEvents.AsReadOnly();
+    public void ClearEvents()
+    {
+        // TODO: see the notes on the interface
+        InternalSourceEvents.Clear();
+    }
 }

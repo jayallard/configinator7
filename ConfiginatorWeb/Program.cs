@@ -1,15 +1,7 @@
 using Allard.Configinator.Core.Model;
-using Allard.Configinator.Core.Model.State;
-using Allard.Configinator.Core.Queries;
 using Allard.Configinator.Core.Repositories;
-using Allard.Configinator.Core.Services;
-using Allard.Configinator.Core.Services.Revisit;
 using Allard.Configinator.Infrastructure;
 using ConfiginatorWeb.Projections;
-using Newtonsoft.Json.Linq;
-using NJsonSchema;
-using NuGet.Versioning;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // working in memory... set it up for demo/testing
@@ -67,7 +59,6 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<ISectionRepository, SectionRepositoryMemory>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWorkMemory>();
-builder.Services.AddSingleton<IIdService, IdServiceMemory>();
 builder.Services.AddSingleton<DatabaseMemory>();
 builder.Services.AddScoped<ISectionsProjections, SectionsProjectionsRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWorkMemory>();

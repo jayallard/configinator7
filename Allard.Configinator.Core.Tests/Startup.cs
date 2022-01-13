@@ -1,6 +1,4 @@
 ﻿using Allard.Configinator.Core.Repositories;
-using Allard.Configinator.Core.Services;
-using Allard.Configinator.Core.Services.Revisit;
 using Allard.Configinator.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +10,6 @@ public class Startup
     {
         services.AddScoped<ISectionRepository, SectionRepositoryMemory>();
         services.AddScoped<IUnitOfWork, UnitOfWorkMemory>();
-        services.AddSingleton<IIdService, IdServiceMemory>();
         services.AddSingleton<DatabaseMemory>();
         services.AddScoped<IUnitOfWork, UnitOfWorkMemory>();
     }
