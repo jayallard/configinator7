@@ -9,8 +9,7 @@ public class UnitOfWorkMemory : IUnitOfWork
     private readonly IEventPublisher _eventPublisher;
     private readonly IEventSourceRepository _eventSourceRepository;
     private readonly DatabaseMemory _databaseMemory;
-
-    public ISectionRepository Sections { get; }
+    private ISectionRepository Sections { get; }
 
     public UnitOfWorkMemory(ISectionRepository sectionRepository, IEventPublisher eventPublisher,
         IEventSourceRepository eventSourceRepository, DatabaseMemory databaseMemory)

@@ -2,7 +2,7 @@
 
 public interface IUnitOfWork
 {
-    ISectionRepository Sections { get; }
+    //ISectionRepository Sections { get; }
 
     Task SaveAsync(CancellationToken cancellationToken = default);
 }
