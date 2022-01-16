@@ -41,7 +41,7 @@ public class ReleaseEntity : EntityBase<ReleaseId>
         SetActiveDeploymentToRemoved(deploymentHistoryId, section);
 
         // create the new deployment.
-        var deployedEvt = new ReleaseDeployedSourceEvent(
+        var deployedEvt = new ReleaseDeployedEvent(
             deploymentHistoryId,
             deploymentDate,
             section.Id,
@@ -55,7 +55,7 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     {
         var deployed = Deployments.SingleOrDefault(d => d.IsDeployed);
         if (deployed == null || deployed.Id == deploymentHistoryId) return;
-        var removedEvent = new DeploymentRemovedSourceEvent(
+        var removedEvent = new DeploymentRemovedEvent(
             deployed.Id,
             section.Id,
             ParentEnvironment.Id,

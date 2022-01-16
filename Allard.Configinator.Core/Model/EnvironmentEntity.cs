@@ -40,7 +40,7 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
         ValidateAgainstSchema(newtonResolvedValue, schema.Schema);
         var resolvedValue = newtonResolvedValue.ToSystemTextJson();
         var tokensInUse = JsonUtility.GetTokenNamesDeep(newtonValue, tokenValues).ToHashSet();
-        var evt = new ReleaseCreatedSourceEvent(
+        var evt = new ReleaseCreatedEvent(
             releaseId,
             Id,
             ParentSection.Id,

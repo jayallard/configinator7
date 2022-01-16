@@ -4,5 +4,5 @@ namespace Allard.Configinator.Core.Repositories;
 
 public interface IEventSourceRepository
 {
-    Task AppendAsync(Type type, long entityId, IEnumerable<ISourceEvent> events, CancellationToken cancellationToken = default);
+    Task AppendAsync(Type type, long entityId, IEnumerable<IDomainEvent> events, CancellationToken cancellationToken = default);
 }

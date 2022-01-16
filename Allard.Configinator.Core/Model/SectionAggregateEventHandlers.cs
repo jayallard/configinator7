@@ -4,26 +4,26 @@ namespace Allard.Configinator.Core.Model;
 
 internal static class SectionAggregateEventHandlers
 {
-    public static void Play(SectionEntity section, ISourceEvent evt)
+    public static void Play(SectionEntity section, IDomainEvent evt)
     {
         switch (evt)
         {
-            case SectionCreatedSourceEvent create:
+            case SectionCreatedEvent create:
                 CreateSection(section, create);
                 break;
-            case EnvironmentAddedToSectionSourceEvent environmentAdded:
+            case EnvironmentAddedToSectionEvent environmentAdded:
                 AddEnvironment(section, environmentAdded);
                 break;
-            case SchemaAddedToSection schemaAdded:
+            case SchemaAddedToSectionEvent schemaAdded:
                 AddSchema(section, schemaAdded);
                 break;
-            case ReleaseCreatedSourceEvent releaseCreated:
+            case ReleaseCreatedEvent releaseCreated:
                 AddRelease(section, releaseCreated);
                 break;
-            case ReleaseDeployedSourceEvent deployed:
+            case ReleaseDeployedEvent deployed:
                 AddDeployed(section, deployed);
                 break;
-            case DeploymentRemovedSourceEvent removed:
+            case DeploymentRemovedEvent removed:
                 RemoveDeployed(section, removed);
                 break;
             default:
@@ -31,7 +31,7 @@ internal static class SectionAggregateEventHandlers
         }
     }
 
-    public static void CreateSection(SectionEntity section, SectionCreatedSourceEvent evt)
+    public static void CreateSection(SectionEntity section, SectionCreatedEvent evt)
     {
         section.Path = evt.Path;
         section.Id = evt.SectionId;
@@ -43,13 +43,13 @@ internal static class SectionAggregateEventHandlers
         }
     }
 
-    public static void AddEnvironment(SectionEntity section, EnvironmentAddedToSectionSourceEvent evt) =>
+    public static void AddEnvironment(SectionEntity section, EnvironmentAddedToSectionEvent evt) =>
         section.InternalEnvironments.Add(new EnvironmentEntity(section, evt.EnvironmentId, evt.EnvironmentName));
 
-    public static void AddSchema(SectionEntity section, SchemaAddedToSection evt) =>
+    public static void AddSchema(SectionEntity section, SchemaAddedToSectionEvent evt) =>
         section.InternalSchemas.Add(evt.Schema);
 
-    public static void AddRelease(SectionEntity section, ReleaseCreatedSourceEvent evt)
+    public static void AddRelease(SectionEntity section, ReleaseCreatedEvent evt)
     {
         var env = section.GetEnvironment(evt.EnvironmentId);
         var schema = section.GetSchema(evt.SchemaId);
@@ -63,7 +63,7 @@ internal static class SectionAggregateEventHandlers
         env.InternalReleases.Add(release);
     }
 
-    private static void AddDeployed(SectionEntity section, ReleaseDeployedSourceEvent evt)
+    private static void AddDeployed(SectionEntity section, ReleaseDeployedEvent evt)
     {
         var env = section.GetEnvironment(evt.EnvironmentId);
         var release = env.GetRelease(evt.ReleaseId);
@@ -75,7 +75,7 @@ internal static class SectionAggregateEventHandlers
             null));
     }
 
-    private static void RemoveDeployed(SectionEntity section, DeploymentRemovedSourceEvent evt)
+    private static void RemoveDeployed(SectionEntity section, DeploymentRemovedEvent evt)
     {
         var deployment = section
             .GetEnvironment(evt.EnvironmentId)

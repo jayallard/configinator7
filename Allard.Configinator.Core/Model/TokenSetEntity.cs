@@ -8,20 +8,20 @@ public class TokenSetEntity : AggregateBase<TokenSetId>
     
     public TokenSetEntity(TokenSetId id, string name, string? baseTokenSet = null) : base(id)
     {
-        Play(new TokenSetCreatedSourceEvent(id, name, null, baseTokenSet));
+        Play(new TokenSetCreatedEvent(id, name, null, baseTokenSet));
     }
 
-    private void Play(ISourceEvent evt)
+    private void Play(IDomainEvent evt)
     {
         switch (evt)
         {
-            case TokenSetCreatedSourceEvent created:
+            case TokenSetCreatedEvent created:
             {
                 _tokenSet.TokenSetName = created.TokenSetName;
                 _tokenSet.Base = created.BaseTokenSetName;
                 break;
             }
-            case TokenValueSetSourceEvent setter:
+            case TokenValueSetEvent setter:
             {
                 _tokenSet.Tokens[setter.Key] = setter.Value;
                 break;
@@ -42,6 +42,6 @@ public class TokenSetEntity : AggregateBase<TokenSetId>
     public void SetValue(string key, JToken value)
     {
         Guards.NotDefault(value, nameof(value));
-        Play(new TokenValueSetSourceEvent(_tokenSet.TokenSetName, key, value));
+        Play(new TokenValueSetEvent(_tokenSet.TokenSetName, key, value));
     }
 }

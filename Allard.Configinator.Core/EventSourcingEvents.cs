@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Allard.Configinator.Core;
 
-public interface ISourceEvent
+public interface IDomainEvent
 {
     DateTime EventDate { get; }
 };
@@ -18,12 +18,12 @@ public interface ISourceEvent
 /// <param name="Path"></param>
 /// <param name="Schema"></param>
 /// <param name="TokenSetName"></param>
-public record SectionCreatedSourceEvent(
+public record SectionCreatedEvent(
     SectionId SectionId,
     string SectionName,
     string? Path,
     SchemaEntity? Schema,
-    string? TokenSetName) : SourceEventBase;
+    string? TokenSetName) : DomainEventBase;
 
 /// <summary>
 /// An environment was added to a configuration section.
@@ -31,17 +31,17 @@ public record SectionCreatedSourceEvent(
 /// <param name="EnvironmentId"></param>
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentName"></param>
-public record EnvironmentAddedToSectionSourceEvent(
+public record EnvironmentAddedToSectionEvent(
     EnvironmentId EnvironmentId, 
     SectionId SectionId,
-    string EnvironmentName) : SourceEventBase;
+    string EnvironmentName) : DomainEventBase;
 
 /// <summary>
 /// A schema was added to a configuration section.
 /// </summary>
 /// <param name="SectionId"></param>
 /// <param name="Schema"></param>
-public record SchemaAddedToSection(SectionId SectionId, SchemaEntity Schema) : SourceEventBase;
+public record SchemaAddedToSectionEvent(SectionId SectionId, SchemaEntity Schema) : DomainEventBase;
 
 /// <summary>
 /// A release was created.
@@ -54,7 +54,7 @@ public record SchemaAddedToSection(SectionId SectionId, SchemaEntity Schema) : S
 /// <param name="ResolvedValue"></param>
 /// <param name="Tokens"></param>
 /// <param name="TokensInUse"></param>
-public record ReleaseCreatedSourceEvent(
+public record ReleaseCreatedEvent(
     ReleaseId ReleaseId,
     EnvironmentId EnvironmentId,
     SectionId SectionId,
@@ -62,7 +62,7 @@ public record ReleaseCreatedSourceEvent(
     JsonDocument ModelValue,
     JsonDocument ResolvedValue,
     TokenSetComposed? Tokens,
-    HashSet<string> TokensInUse) : SourceEventBase;
+    HashSet<string> TokensInUse) : DomainEventBase;
 
 /// <summary>
 /// A token set was created.
@@ -70,11 +70,11 @@ public record ReleaseCreatedSourceEvent(
 /// <param name="TokenSetName"></param>
 /// <param name="Tokens"></param>
 /// <param name="BaseTokenSetName"></param>
-public record TokenSetCreatedSourceEvent(
+public record TokenSetCreatedEvent(
     TokenSetId TokenSetId,
     string TokenSetName,
     Dictionary<string, JToken>? Tokens,
-    string? BaseTokenSetName) : SourceEventBase;
+    string? BaseTokenSetName) : DomainEventBase;
 
 /// <summary>
 /// A release was deployed.
@@ -84,12 +84,12 @@ public record TokenSetCreatedSourceEvent(
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentId"></param>
 /// <param name="ReleaseId"></param>
-public record ReleaseDeployedSourceEvent(
+public record ReleaseDeployedEvent(
     DeploymentHistoryId DeploymentHistoryId,
     DateTime deploymentDate,
     SectionId SectionId,
     EnvironmentId EnvironmentId,
-    ReleaseId ReleaseId) : SourceEventBase;
+    ReleaseId ReleaseId) : DomainEventBase;
 
 /// <summary>
 /// A deployed release is no longer deployed.
@@ -99,12 +99,12 @@ public record ReleaseDeployedSourceEvent(
 /// <param name="EnvironmentId"></param>
 /// <param name="ReleaseId"></param>
 /// <param name="Reason"></param>
-public record DeploymentRemovedSourceEvent(
+public record DeploymentRemovedEvent(
     DeploymentHistoryId DeploymentHistoryId,
     SectionId SectionId,
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId,
-    string Reason) : SourceEventBase;
+    string Reason) : DomainEventBase;
 
 /// <summary>
 /// The value of a token changed.
@@ -112,7 +112,7 @@ public record DeploymentRemovedSourceEvent(
 /// <param name="TokenSetName"></param>
 /// <param name="Key"></param>
 /// <param name="Value"></param>
-public record TokenValueSetSourceEvent(
+public record TokenValueSetEvent(
     string TokenSetName,
     string Key,
-    JToken Value) : SourceEventBase;
+    JToken Value) : DomainEventBase;

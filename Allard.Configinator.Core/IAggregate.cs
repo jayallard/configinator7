@@ -2,7 +2,7 @@
 
 public interface IAggregate<TIdentity> : IEntity<TIdentity> where TIdentity : IIdentity
 {
-    IEnumerable<ISourceEvent> SourceEvents { get; }
+    IEnumerable<IDomainEvent> SourceEvents { get; }
 
     // TODO: this could be a problem. if something calls it that shouldn't, then
     // the events are lost. as long as the aggregate is populated from events,

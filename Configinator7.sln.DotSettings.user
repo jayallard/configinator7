@@ -1,12 +1,4 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e2051c4b_002Da6fd_002D4d06_002D8910_002D124da62c77f8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="EnvironmentEntityTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::55DA2A35-615B-4B70-830C-535A3EFABBB0::net6.0::Allard.Configinator.Core.Tests.Unit.Model.EnvironmentEntityTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::C89A78A4-869C-4C5D-844E-A3F4FD02DF12::net6.0::Allard.Json.Tests.Unit.JsonUtilityTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::55DA2A35-615B-4B70-830C-535A3EFABBB0::net6.0::Allard.Configinator.Core.Tests.Unit.Model.ReleaseEntityTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::55DA2A35-615B-4B70-830C-535A3EFABBB0::net6.0::Allard.Configinator.Core.Tests.Unit.Model.SectionEntityTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::C89A78A4-869C-4C5D-844E-A3F4FD02DF12::net6.0::Allard.Json.Tests.Unit.TokenSetComposerTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::EA2C956A-E0A7-4C3C-AFE2-B3C3948BDE1A::net6.0::Allard.Configinator.Infrastructure.Tests.UnitTest1.Test1&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::1F237E24-209C-43B7-B05C-5E97CB6CB815::net6.0::Allard.Bus.Tests.UnitTest1.Test1&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c2897599_002D3219_002D4a92_002Db861_002D8598b5638d65/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
