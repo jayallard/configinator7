@@ -9,4 +9,5 @@ public static class IdUtility
     public static ReleaseId NewReleaseId(long id) => new(id);
     public static DeploymentHistoryId NewDeploymentId(long id) => new(id);
     public static SchemaId NewSchemaId(long id) => new(id);
+    public static TokenSetId NewTokenSetId(long id) => new(id);
 }

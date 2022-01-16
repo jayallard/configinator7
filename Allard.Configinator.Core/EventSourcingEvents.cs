@@ -71,9 +71,10 @@ public record ReleaseCreatedSourceEvent(
 /// <param name="Tokens"></param>
 /// <param name="BaseTokenSetName"></param>
 public record TokenSetCreatedSourceEvent(
+    TokenSetId TokenSetId,
     string TokenSetName,
-    Dictionary<string, JToken> Tokens,
-    string BaseTokenSetName) : SourceEventBase;
+    Dictionary<string, JToken>? Tokens,
+    string? BaseTokenSetName) : SourceEventBase;
 
 /// <summary>
 /// A release was deployed.

@@ -1,6 +1,6 @@
 ﻿namespace Allard.Configinator.Core;
 
-public record IdBase<TEntity> : IIdentity
+public record IdBase : IIdentity
 {
     public long Id { get; }
 
