@@ -1,5 +1,4 @@
 ﻿using Allard.Configinator.Core.Model;
-using Allard.Configinator.Core.Model.State;
 using NJsonSchema;
 using NuGet.Versioning;
 using static Allard.Configinator.Core.IdUtility;

@@ -1,4 +1,4 @@
-namespace Allard.Configinator.Core.Model.State;
+namespace Allard.Configinator.Core.Model;
 
 public enum DeploymentStatus
 {

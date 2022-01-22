@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Allard.Bus\Allard.Bus.csproj" />
       <ProjectReference Include="..\Allard.Configinator.Core\Allard.Configinator.Core.csproj" />
     </ItemGroup>
 

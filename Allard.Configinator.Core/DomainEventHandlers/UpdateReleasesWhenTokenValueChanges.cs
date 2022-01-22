@@ -1,4 +1,6 @@
-﻿namespace Allard.Configinator.Core.DomainEventHandlers;
+﻿using Allard.DomainDrivenDesign;
+
+namespace Allard.Configinator.Core.DomainEventHandlers;
 
 public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEvent>
 {

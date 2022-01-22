@@ -1,6 +1,7 @@
 ﻿using Allard.Configinator.Core;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
+using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Infrastructure;
 

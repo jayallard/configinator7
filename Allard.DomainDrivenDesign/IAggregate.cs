@@ -1,4 +1,4 @@
-﻿namespace Allard.Configinator.Core;
+﻿namespace Allard.DomainDrivenDesign;
 
 public interface IAggregate<TIdentity> : IEntity<TIdentity> where TIdentity : IIdentity
 {

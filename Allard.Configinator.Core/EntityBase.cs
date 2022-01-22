@@ -1,4 +1,6 @@
-﻿namespace Allard.Configinator.Core;
+﻿using Allard.DomainDrivenDesign;
+
+namespace Allard.Configinator.Core;
 
 public abstract class EntityBase<TIdentity> : IEntity<TIdentity> where TIdentity : IIdentity
 {

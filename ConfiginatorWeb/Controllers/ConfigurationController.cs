@@ -1,25 +1,25 @@
 ﻿using Allard.Configinator.Core;
 using Allard.Configinator.Core.Repositories;
 using ConfiginatorWeb.Models.Configuration;
-using ConfiginatorWeb.Projections;
+using ConfiginatorWeb.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConfiginatorWeb.Controllers;
 
 public class ConfigurationController : Controller
 {
-    private readonly ISectionsProjections _sectionsProjections;
+    private readonly ISectionQueries _sectionQueries;
 
     public ConfigurationController(
-        ISectionsProjections projections)
+        ISectionQueries projections)
     {
-        _sectionsProjections = Guards.NotDefault(projections, nameof(projections));
+        _sectionQueries = Guards.NotDefault(projections, nameof(projections));
     }
 
     // GET
     public async Task<IActionResult> Index()
     {
-        var sections = await _sectionsProjections.GetSectionsListAsync();
+        var sections = await _sectionQueries.GetSectionsListAsync();
         var view = new IndexView(sections.ToList());
         return View(view);
     }

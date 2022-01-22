@@ -1,6 +1,4 @@
-﻿using Allard.Configinator.Core.Model.State;
-
-namespace Allard.Configinator.Core.Model;
+﻿namespace Allard.Configinator.Core.Model;
 
 public class DeploymentHistoryEntity : EntityBase<DeploymentHistoryId>
 {

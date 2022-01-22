@@ -1,14 +1,11 @@
 ﻿using Allard.Configinator.Core.Model;
+using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Repositories;
 
 public interface ISectionRepository
 {
-    Task<SectionEntity?> GetSectionAsync(SectionId id, CancellationToken cancellationToken);
+    Task<SectionEntity?> GetAsync(SectionId id, CancellationToken cancellationToken);
 
-    Task<SectionEntity?> GetSectionAsync(string sectionName);
-
-    Task AddSectionAsync(SectionEntity section);
-
-    Task<IEnumerable<SectionEntity>> GetSectionsAsync(CancellationToken cancellationToken);
+    Task<IEnumerable<SectionEntity>> Find(ISpecification<SectionEntity> specification);
 }

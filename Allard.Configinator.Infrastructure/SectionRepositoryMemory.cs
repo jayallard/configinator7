@@ -1,5 +1,6 @@
 ﻿using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
+using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Infrastructure;
 
@@ -12,29 +13,14 @@ public class SectionRepositoryMemory : ISectionRepository
         _database = database;
     }
 
-    public Task<SectionEntity?> GetSectionAsync(SectionId id, CancellationToken cancellationToken)
+    public Task<SectionEntity?> GetAsync(SectionId id, CancellationToken cancellationToken)
     {
         var section = (SectionEntity?)_database.Sections[id];
         return Task.FromResult(section);
     }
 
-    public Task<SectionEntity?> GetSectionAsync(string sectionName)
+    public Task<IEnumerable<SectionEntity>> Find(ISpecification<SectionEntity> specification)
     {
-        var section =
-            _database.Sections.Values.SingleOrDefault(s =>
-                s.SectionName.Equals(sectionName, StringComparison.OrdinalIgnoreCase));
-        return Task.FromResult(section);
-    }
-
-    public Task AddSectionAsync(SectionEntity section)
-    {
-        _database.Sections.Add(section.Id, section);
-        return Task.CompletedTask;
-    }
-
-    public Task<IEnumerable<SectionEntity>> GetSectionsAsync(CancellationToken cancellationToken)
-    {
-        var sections = _database.Sections.Values.AsEnumerable();
-        return Task.FromResult(sections);
+        return Task.FromResult(_database.Sections.Values.Where(specification.IsSatisfied));
     }
 }

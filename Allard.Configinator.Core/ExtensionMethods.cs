@@ -1,4 +1,5 @@
 ﻿using Allard.Configinator.Core.Model;
+using Allard.DomainDrivenDesign;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Versioning;

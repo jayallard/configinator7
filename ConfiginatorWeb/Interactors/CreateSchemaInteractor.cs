@@ -1,6 +1,5 @@
-﻿using Allard.Configinator.Core.Model;
-using Allard.Configinator.Core.Model.State;
-using Allard.Configinator.Core.Repositories;
+﻿using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Specifications;
 
 namespace ConfiginatorWeb.Interactors;
 
@@ -15,11 +14,8 @@ public class CreateSchemaInteractor
 
     public async Task CreateSchemaAsync(CreateSchemaRequest request)
     {
-        var section = await _repository.GetSectionAsync(request.SectionName);
+        var section = (await _repository.Find(new SectionByName(request.SectionName))).SingleOrDefault();
         if (section == null) throw new InvalidOperationException("Section doesn't exist");
         section.AddSchema(request.Schema);
-        
     }
 }
-
-public record CreateSchemaRequest(string SectionName, SchemaEntity Schema);

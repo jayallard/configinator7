@@ -25,7 +25,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Allard.Bus\Allard.Bus.csproj" />
       <ProjectReference Include="..\Allard.Configinator.Infrastructure\Allard.Configinator.Infrastructure.csproj" />
     </ItemGroup>
 

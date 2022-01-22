@@ -1,4 +1,4 @@
-﻿namespace Allard.Configinator.Core;
+﻿namespace Allard.DomainDrivenDesign;
 
 public record IdBase : IIdentity
 {

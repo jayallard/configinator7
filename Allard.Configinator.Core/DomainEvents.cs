@@ -5,11 +5,6 @@ using Newtonsoft.Json.Linq;
 
 namespace Allard.Configinator.Core;
 
-public interface IDomainEvent
-{
-    DateTime EventDate { get; }
-};
-
 /// <summary>
 /// A configuration section was created.
 /// </summary>

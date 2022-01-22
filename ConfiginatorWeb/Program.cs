@@ -1,7 +1,8 @@
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Infrastructure;
-using ConfiginatorWeb.Projections;
+using ConfiginatorWeb.Queries;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // working in memory... set it up for demo/testing
@@ -60,7 +61,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ISectionRepository, SectionRepositoryMemory>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWorkMemory>();
 builder.Services.AddSingleton<DatabaseMemory>();
-builder.Services.AddScoped<ISectionsProjections, SectionsProjectionsRepository>();
+builder.Services.AddScoped<ISectionQueries, SectionQueriesDatabase>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWorkMemory>();
 
 var 

@@ -12,7 +12,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Allard.DomainDrivenDesign\Allard.DomainDrivenDesign.csproj" />
       <ProjectReference Include="..\Allard.Json\Allard.Json.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="DomainServices" />
     </ItemGroup>
 
 </Project>

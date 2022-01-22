@@ -1,4 +1,4 @@
-using Allard.Configinator.Core.Model.State;
+using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Model;
 

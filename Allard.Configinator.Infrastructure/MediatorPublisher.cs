@@ -1,4 +1,5 @@
 ﻿using Allard.Configinator.Core;
+using Allard.DomainDrivenDesign;
 using MediatR;
 
 namespace Allard.Configinator.Infrastructure;

@@ -1,12 +1,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Allard.Configinator.Core;
+using Allard.Configinator.Infrastructure;
+using Allard.DomainDrivenDesign;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Allard.Configinator.Infrastructure.Tests;
+namespace Allard.Configinator.Instrastructure.Tests;
 
 public class UnitTest1
 {
