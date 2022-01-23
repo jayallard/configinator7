@@ -47,7 +47,7 @@ internal static class SectionAggregateEventHandlers
         section.InternalEnvironments.Add(new EnvironmentEntity(section, evt.EnvironmentId, evt.EnvironmentName));
 
     public static void AddSchema(SectionEntity section, SchemaAddedToSectionEvent evt) =>
-        section.InternalSchemas.Add(evt.Schema);
+        section.InternalSchemas.Add(new SchemaEntity(evt.SchemaId, evt.SchemaVersion, evt.Schema));
 
     public static void AddRelease(SectionEntity section, ReleaseCreatedEvent evt)
     {

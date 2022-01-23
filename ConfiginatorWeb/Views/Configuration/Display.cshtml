@@ -1,4 +1,4 @@
-﻿@model ConfiginatorWeb.Models.Configuration.ViewConfiguration
+﻿@model ConfiginatorWeb.Queries.SectionView
 
 @{
     ViewBag.Title = "title";
@@ -8,10 +8,10 @@
 </script>
 
 <script type="text/javascript">
-function deploy(environmenName, releaseId) {
+function deploy(environmentName, releaseId) {
             const requestDto = {
                  SectionName: '@Model.SectionName',
-                 EnvironmentName: environmenName,
+                 EnvironmentName: environmentName,
                  ReleaseId: releaseId
             };
             $.post('/Release/Deploy', requestDto)
@@ -75,7 +75,7 @@ $(document).ready(function() {
                                 <td>
                                     <a asp-controller="Release" asp-action="Display" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a>
                                 </td>
-                                <td>@r.Version.ToFullString()</td>
+                                <td>@r.SchemaVersion.ToFullString()</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                                 <td>@r.TokenSetName</td>
                                 <td>

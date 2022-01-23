@@ -10,8 +10,7 @@ public class ConfigurationController : Controller
 {
     private readonly ISectionQueries _sectionQueries;
 
-    public ConfigurationController(
-        ISectionQueries projections)
+    public ConfigurationController(ISectionQueries projections)
     {
         _sectionQueries = Guards.NotDefault(projections, nameof(projections));
     }
@@ -29,36 +28,10 @@ public class ConfigurationController : Controller
         return View();
     }
 
-    public IActionResult Display(string name)
+    public async Task<IActionResult> Display(long sectionId)
     {
-        /*
-        var section = _aggregate.TemporaryExposureSections[name];
-        var view = new ViewConfiguration
-        {
-            SectionName = section.Name,
-            Path = section.Path,
-            Schemas = section.Schemas.Select(s => new ViewSchema
-            {
-                Text = s.Schema.ToJson(),
-                Version = s.Version
-            }).ToList(),
-            Environments = section.Environments.Select(h => new ViewEnvironment
-            {
-                EnvironmentName = h.EnvironmentId.Name,
-                Releases = h.Releases.Select(r => new ViewRelease
-                {
-                    ReleaseId = r.ReleaseId,
-                    Version = r.Schema.Version,
-                    CreateDate = r.CreateDate,
-                    IsDeployed = r.IsDeployed,
-                    IsOutOfDate = r.IsOutOfDate,
-                    TokenSetName = r.TokenSet?.TokenSetName
-                })
-                    .OrderByDescending(r => r.ReleaseId)
-                    .ToList()
-            }).ToList()
-        };*/
-        return View(null);
+        var section = await _sectionQueries.GetSectionAsync(sectionId);
+        return View(section);
     }
 
     [HttpPost]
@@ -86,4 +59,4 @@ public class ConfigurationController : Controller
     }
 }
 
-public record IndexView(List<SectionView> Sections);
+public record IndexView(List<SectionListItemView> Sections);

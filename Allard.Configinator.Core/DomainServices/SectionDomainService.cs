@@ -15,7 +15,7 @@ public class SectionDomainService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<SectionEntity> CreateSection(string name, string path)
+    public async Task<SectionEntity> CreateSectionAsync(string name, string path)
     {
         // make sure section doesn't already exist
         if (await _unitOfWork.Exists(new SectionNameIs(name)))

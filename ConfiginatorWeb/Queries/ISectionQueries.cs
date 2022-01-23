@@ -2,5 +2,7 @@
 
 public interface ISectionQueries
 {
-    Task<List<SectionView>> GetSectionsListAsync(CancellationToken cancellationToken = default);
+    Task<List<SectionListItemView>> GetSectionsListAsync(CancellationToken cancellationToken = default);
+
+    Task<SectionView> GetSectionAsync(long id, CancellationToken cancellationToken = default);
 }

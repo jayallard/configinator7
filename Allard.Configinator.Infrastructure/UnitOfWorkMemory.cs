@@ -11,7 +11,6 @@ public class UnitOfWorkMemory : IUnitOfWork
     private readonly ISectionRepository _sectionRepository;
     private readonly List<SectionEntity> _sections = new();
 
-
     public UnitOfWorkMemory(
         ISectionRepository sectionRepositoryRepository, 
         IEventPublisher eventPublisher)
@@ -19,6 +18,9 @@ public class UnitOfWorkMemory : IUnitOfWork
         _sectionRepository = sectionRepositoryRepository;
         _eventPublisher = eventPublisher;
     }
+
+    public async Task<bool> Exists(ISpecification<SectionEntity> specification)
+        => _sections.Any(specification.IsSatisfied) || await _sectionRepository.Exists(specification);
 
     private async Task PublishSourceEventsFrom<TEntity, TIdentity>(IEnumerable<IAggregate<TIdentity>> entities,
         CancellationToken token)
@@ -61,7 +63,4 @@ public class UnitOfWorkMemory : IUnitOfWork
 
         _sections.Clear();
     }
-
-    public async Task<bool> Exists(ISpecification<SectionEntity> specification)
-        => _sections.Any(specification.IsSatisfied) || await _sectionRepository.Exists(specification);
 }

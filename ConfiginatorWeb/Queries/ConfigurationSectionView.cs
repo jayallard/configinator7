@@ -1,3 +1,3 @@
 ﻿namespace ConfiginatorWeb.Queries;
 
-public record SectionView(long SectionId, string Name, string Path, string? TokenSetName);
+public record SectionListItemView(long SectionId, string Name, string Path, string? TokenSetName);

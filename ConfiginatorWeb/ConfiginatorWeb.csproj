@@ -35,8 +35,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Projections" />
       <Folder Include="Views\Release" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     </ItemGroup>
 
 </Project>

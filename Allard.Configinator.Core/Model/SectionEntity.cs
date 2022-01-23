@@ -1,4 +1,6 @@
 ﻿using Allard.DomainDrivenDesign;
+using NJsonSchema;
+using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.Model;
 
@@ -42,10 +44,11 @@ public class SectionEntity : AggregateBase<SectionId>
         InternalSourceEvents.Add(evt);
     }
 
-    public void AddSchema(SchemaEntity schema)
+    public SchemaEntity AddSchema(SchemaId schemaId, SemanticVersion schemaVersion, JsonSchema schema)
     {
-        InternalSchemas.EnsureDoesntExist(schema.Id, schema.Version);
-        PlaySourceEvent(new SchemaAddedToSectionEvent(Id, schema));
+        InternalSchemas.EnsureDoesntExist(schemaId, schemaVersion);
+        PlaySourceEvent(new SchemaAddedToSectionEvent(Id, schemaId, schemaVersion, schema));
+        return GetSchema(schemaId);
     }
 
     public SchemaEntity GetSchema(SchemaId schemaId) =>

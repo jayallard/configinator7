@@ -2,6 +2,8 @@
 using Allard.Configinator.Core.Model;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
+using NJsonSchema;
+using NuGet.Versioning;
 
 namespace Allard.Configinator.Core;
 
@@ -36,7 +38,11 @@ public record EnvironmentAddedToSectionEvent(
 /// </summary>
 /// <param name="SectionId"></param>
 /// <param name="Schema"></param>
-public record SchemaAddedToSectionEvent(SectionId SectionId, SchemaEntity Schema) : DomainEventBase;
+public record SchemaAddedToSectionEvent(
+    SectionId SectionId,
+    SchemaId SchemaId, 
+    SemanticVersion SchemaVersion, 
+    JsonSchema Schema) : DomainEventBase;
 
 /// <summary>
 /// A release was created.

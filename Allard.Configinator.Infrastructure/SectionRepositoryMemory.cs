@@ -6,9 +6,9 @@ namespace Allard.Configinator.Infrastructure;
 
 public class SectionRepositoryMemory : ISectionRepository
 {
-    private readonly DatabaseMemory _database;
+    private readonly IDatabase _database;
 
-    public SectionRepositoryMemory(DatabaseMemory database)
+    public SectionRepositoryMemory(IDatabase database)
     {
         _database = database;
     }
