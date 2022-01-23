@@ -15,9 +15,11 @@
       <ProjectReference Include="..\Allard.DomainDrivenDesign\Allard.DomainDrivenDesign.csproj" />
       <ProjectReference Include="..\Allard.Json\Allard.Json.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <Folder Include="DomainServices" />
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Allard.Configinator.Core.Tests</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 
 </Project>

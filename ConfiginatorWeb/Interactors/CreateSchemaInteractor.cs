@@ -5,17 +5,18 @@ namespace ConfiginatorWeb.Interactors;
 
 public class CreateSchemaInteractor
 {
-    private readonly ISectionRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateSchemaInteractor(ISectionRepository repository)
+    public CreateSchemaInteractor(IUnitOfWork unitOfWork)
     {
-        _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
-    public async Task CreateSchemaAsync(CreateSchemaRequest request)
+    public Task CreateSchemaAsync(CreateSchemaRequest request)
     {
-        var section = (await _repository.Find(new SectionByName(request.SectionName))).SingleOrDefault();
-        if (section == null) throw new InvalidOperationException("Section doesn't exist");
-        section.AddSchema(request.Schema);
+        // var section = (await _repository.Find(new SectionByName(request.SectionName))).SingleOrDefault();
+        // if (section == null) throw new InvalidOperationException("Section doesn't exist");
+        // section.AddSchema(request.Schema);
+        return Task.CompletedTask;
     }
 }

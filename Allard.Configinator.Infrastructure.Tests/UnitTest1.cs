@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Allard.Configinator.Instrastructure.Tests;
+namespace Allard.Configinator.Infrastructure.Tests;
 
 public class UnitTest1
 {

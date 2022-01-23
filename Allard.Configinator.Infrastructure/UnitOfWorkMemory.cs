@@ -1,6 +1,6 @@
-﻿using Allard.Configinator.Core;
-using Allard.Configinator.Core.Model;
+﻿using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Specifications;
 using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Infrastructure;
@@ -8,17 +8,16 @@ namespace Allard.Configinator.Infrastructure;
 public class UnitOfWorkMemory : IUnitOfWork
 {
     private readonly IEventPublisher _eventPublisher;
-    private readonly IEventSourceRepository _eventSourceRepository;
-    private readonly DatabaseMemory _databaseMemory;
-    private ISectionRepository Sections { get; }
+    private readonly ISectionRepository _sectionRepository;
+    private readonly List<SectionEntity> _sections = new();
 
-    public UnitOfWorkMemory(ISectionRepository sectionRepository, IEventPublisher eventPublisher,
-        IEventSourceRepository eventSourceRepository, DatabaseMemory databaseMemory)
+
+    public UnitOfWorkMemory(
+        ISectionRepository sectionRepositoryRepository, 
+        IEventPublisher eventPublisher)
     {
-        Sections = sectionRepository;
+        _sectionRepository = sectionRepositoryRepository;
         _eventPublisher = eventPublisher;
-        _eventSourceRepository = eventSourceRepository;
-        _databaseMemory = databaseMemory;
     }
 
     private async Task PublishSourceEventsFrom<TEntity, TIdentity>(IEnumerable<IAggregate<TIdentity>> entities,
@@ -28,15 +27,41 @@ public class UnitOfWorkMemory : IUnitOfWork
         var type = typeof(TEntity);
         foreach (var e in entities)
         {
-            await _eventSourceRepository.AppendAsync(type, e.Id.Id, e.SourceEvents, token);
+            //await _eventSourceRepository.AppendAsync(type, e.Id.Id, e.SourceEvents, token);
             await _eventPublisher.PublishAsync(e.SourceEvents, token);
             e.ClearEvents();
         }
     }
 
-    public async Task SaveAsync(CancellationToken cancellationToken = default)
+    public async Task<List<SectionEntity>> GetSectionsAsync(ISpecification<SectionEntity> specification)
     {
-        var entities = _databaseMemory.Sections.Values.AsEnumerable();
-        await PublishSourceEventsFrom<SectionEntity, SectionId>(entities, cancellationToken);
+        // get from the db only those not already in memory.
+        var notAlreadyInMemory = new SectionIdNotIn(_sections.Select(s => s.Id));
+        var fromDb = await _sectionRepository.FindAsync(notAlreadyInMemory.And(specification));
+
+        // add the new ones to memory.
+        _sections.AddRange(fromDb);
+
+        // execute the query against memory, which now has everything we need
+        return _sections.Where(specification.IsSatisfied).ToList();
     }
+
+    public Task AddSectionAsync(SectionEntity section)
+    {
+        _sections.Add(section);
+        return Task.CompletedTask;
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var section in _sections)
+        {
+            await _sectionRepository.SaveAsync(section);
+        }
+
+        _sections.Clear();
+    }
+
+    public async Task<bool> Exists(ISpecification<SectionEntity> specification)
+        => _sections.Any(specification.IsSatisfied) || await _sectionRepository.Exists(specification);
 }

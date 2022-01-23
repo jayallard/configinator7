@@ -87,15 +87,15 @@ app.MapControllerRoute(
 
 
 
-var section1 = new SectionEntity(new SectionId(1), "abc", "/abc");
-var section2 = new SectionEntity(new SectionId(2), "xyz", "/xyz");
+//var section1 = new SectionEntity(new SectionId(1), "abc", "/abc");
+//var section2 = new SectionEntity(new SectionId(2), "xyz", "/xyz");
 
 
 using var scope = app.Services.CreateScope();
 var db = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 // await db.Sections.AddSectionAsync(section1);
 // await db.Sections.AddSectionAsync(section2);
-await db.SaveAsync();
+await db.SaveChangesAsync();
 
 
 app.Run();

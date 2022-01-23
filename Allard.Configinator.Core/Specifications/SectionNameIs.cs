@@ -3,10 +3,10 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Specifications;
 
-public class SectionByName : ISpecification<SectionEntity>
+public class SectionNameIs : ISpecification<SectionEntity>
 {
     public string Name { get; }
-    public SectionByName(string name)
+    public SectionNameIs(string name)
     {
         Name = name;
     }

@@ -20,7 +20,7 @@ public class SectionEntity : AggregateBase<SectionId>
         InternalEnvironments.GetEnvironment(environmentId);
 
 
-    public SectionEntity(SectionId id, string name, string path, SchemaEntity? schema = null,
+    internal SectionEntity(SectionId id, string name, string path, SchemaEntity? schema = null,
         string? tokenSetName = null) : base(id)
     {
         Guards.NotDefault(id, nameof(id));

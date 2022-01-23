@@ -1,8 +1,15 @@
-﻿namespace Allard.Configinator.Core.Repositories;
+﻿using Allard.Configinator.Core.Model;
+using Allard.DomainDrivenDesign;
+
+namespace Allard.Configinator.Core.Repositories;
 
 public interface IUnitOfWork
 {
-    //ISectionRepository Sections { get; }
+    Task<List<SectionEntity>> GetSectionsAsync(ISpecification<SectionEntity> specification);
 
-    Task SaveAsync(CancellationToken cancellationToken = default);
+    Task AddSectionAsync(SectionEntity section);
+    
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
+
+    Task<bool> Exists(ISpecification<SectionEntity> specification);
 }

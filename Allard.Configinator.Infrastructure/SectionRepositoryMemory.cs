@@ -19,8 +19,19 @@ public class SectionRepositoryMemory : ISectionRepository
         return Task.FromResult(section);
     }
 
-    public Task<IEnumerable<SectionEntity>> Find(ISpecification<SectionEntity> specification)
+    public Task<IEnumerable<SectionEntity>> FindAsync(ISpecification<SectionEntity> specification)
     {
         return Task.FromResult(_database.Sections.Values.Where(specification.IsSatisfied));
+    }
+
+    public Task<bool> Exists(ISpecification<SectionEntity> specification)
+    {
+        return Task.FromResult(_database.Sections.Values.Any(specification.IsSatisfied));
+    }
+
+    public Task SaveAsync(SectionEntity section)
+    {
+        _database.Sections[section.Id] = section;
+        return Task.CompletedTask;
     }
 }
