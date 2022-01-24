@@ -1,34 +1,28 @@
 ﻿using Allard.Configinator.Core.Model;
-using Allard.Configinator.Infrastructure;
+using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Specifications;
 using ConfiginatorWeb.Models;
 
 namespace ConfiginatorWeb.Queries;
 
 public class SectionQueriesDatabase : ISectionQueries
 {
-    private readonly IDatabase _db;
+    private readonly ISectionRepository _repository;
 
-    public SectionQueriesDatabase(IDatabase db)
+    public SectionQueriesDatabase(ISectionRepository repository)
     {
-        _db = db;
+        _repository = repository;
     }
 
-    public Task<List<SectionListItemView>> GetSectionsListAsync(CancellationToken cancellationToken = default)
-    {
-        var results = _db
-            .Sections
-            .Values
+    public async Task<List<SectionListItemView>> GetSectionsListAsync(CancellationToken cancellationToken = default)
+        => (await _repository
+                .FindAsync(new AllSections()))
             .Select(s => new SectionListItemView(s.Id.Id, s.SectionName, s.Path, s.TokenSetName))
             .ToList();
-        return Task.FromResult(results);
-    }
 
-    public Task<SectionView> GetSectionAsync(long id, CancellationToken cancellationToken = default) =>
-        Task.FromResult(_db.Sections[new SectionId(id)].ToOutputDto());
+    public async Task<SectionView?> GetSectionAsync(long id, CancellationToken cancellationToken = default) =>
+        (await _repository.GetAsync(new SectionId(id), cancellationToken))?.ToOutputDto();
 
-    public Task<SectionView> GetSectionAsync(string name, CancellationToken cancellationToken = default)
-    {
-        var section = _db.Sections.Values.Single(s => s.SectionName.Equals(name, StringComparison.OrdinalIgnoreCase));
-        return Task.FromResult(section.ToOutputDto());
-    }
+    public async Task<SectionView?> GetSectionAsync(string name, CancellationToken cancellationToken = default) =>
+        (await _repository.FindAsync(new SectionNameIs(name), cancellationToken)).SingleOrDefault()?.ToOutputDto();
 }

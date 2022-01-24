@@ -5,13 +5,8 @@ namespace Allard.Configinator.Core.Repositories;
 
 public interface IUnitOfWork
 {
-    Task<List<SectionEntity>> GetSectionsAsync(ISpecification<SectionEntity> specification);
+    UnitOfWorkDataset<SectionEntity, SectionId> Sections { get; }
+    UnitOfWorkDataset<TokenSetEntity, TokenSetId> TokenSets { get; }
 
-    Task AddSectionAsync(SectionEntity section);
-    
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
-
-    Task<bool> Exists(ISpecification<SectionEntity> specification);
-
-    Task<bool> Exists(ISpecification<TokenSetEntity> specification);
 }

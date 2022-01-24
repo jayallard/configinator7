@@ -19,12 +19,12 @@ public class SectionDomainService
     public async Task<SectionEntity> CreateSectionAsync(string sectionName, string path)
     {
         // make sure section doesn't already exist
-        if (await _unitOfWork.Exists(new SectionNameIs(sectionName)))
+        if (await _unitOfWork.Sections.Exists(new SectionNameIs(sectionName)))
         {
             throw new InvalidOperationException("Section already exists: " + sectionName);
         }
 
-        if (await _unitOfWork.Exists(new PathIs(path)))
+        if (await _unitOfWork.Sections.Exists(new PathIs(path)))
         {
             throw new InvalidOperationException("The path is already in use by another section");
         }
@@ -33,23 +33,9 @@ public class SectionDomainService
 
         var id = await _identityService.GetId<SectionId>();
         var section = new SectionEntity(id, sectionName, path, null, null);
-        await _unitOfWork.AddSectionAsync(section);
+        await _unitOfWork.Sections.AddAsync(section);
         return section;
     }
 
-    public async Task<TokenSetEntity> CreateTokenSetAsync(string tokenSetName, string? baseTokenSetName)
-    {
-        if (await _unitOfWork.Exists(new TokenSetNameIs(tokenSetName)))
-        {
-            throw new InvalidOperationException("TokenSet already exists: " + tokenSetName);
-        }
 
-        if (baseTokenSetName is not null && !(await _unitOfWork.Exists(new TokenSetNameIs(baseTokenSetName))))
-        {
-            throw new InvalidOperationException("Base TokenSet doesn't exist: " + baseTokenSetName);
-        }
-
-        var id = await _identityService.GetId<TokenSetId>();
-        return new TokenSetEntity(id, tokenSetName, baseTokenSetName);
-    }
 }

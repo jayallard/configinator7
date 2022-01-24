@@ -59,6 +59,16 @@ public static class ExtensionMethods
             throw new InvalidOperationException("Environment already exists. Name=" + name);
     }
 
+    /// <summary>
+    /// Get an entity from a list of entities, by id.
+    /// </summary>
+    /// <param name="entities"></param>
+    /// <param name="id"></param>
+    /// <param name="name"></param>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TIdentity"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     private static TEntity GetEntity<TEntity, TIdentity>(this IEnumerable<TEntity> entities, TIdentity id,
         string name) where TIdentity : IIdentity
         where TEntity : IEntity<TIdentity>

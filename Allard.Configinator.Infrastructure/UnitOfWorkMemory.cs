@@ -2,71 +2,63 @@
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
 using Allard.DomainDrivenDesign;
-using Allard.Json;
 
 namespace Allard.Configinator.Infrastructure;
 
 public class UnitOfWorkMemory : IUnitOfWork
 {
-    private readonly IEventPublisher _eventPublisher;
-    private readonly ISectionRepository _sectionRepository;
-    private readonly ITokenSetRepository _tokenSetRepository;
-    private readonly List<SectionEntity> _sections = new();
-    private readonly List<TokenSetEntity> _tokenSets = new();
-
     public UnitOfWorkMemory(
-        ISectionRepository sectionRepositoryRepository, 
-        IEventPublisher eventPublisher)
+        ISectionRepository sectionRepository, 
+        ITokenSetRepository tokenSetRepository)
     {
-        _sectionRepository = sectionRepositoryRepository;
-        _eventPublisher = eventPublisher;
+        Sections = new UnitOfWorkDataset<SectionEntity, SectionId>(sectionRepository);
+        TokenSets = new UnitOfWorkDataset<TokenSetEntity, TokenSetId>(tokenSetRepository);
     }
+    
+    public UnitOfWorkDataset<SectionEntity, SectionId> Sections { get; } 
+    public UnitOfWorkDataset<TokenSetEntity, TokenSetId> TokenSets { get; } 
 
-    public async Task<bool> Exists(ISpecification<SectionEntity> specification)
-        => _sections.Any(specification.IsSatisfied) || await _sectionRepository.ExistsAsync(specification);
+    // // public async Task<bool> Exists(ISpecification<SectionEntity> specification)
+    // //     => _sections.Any(specification.IsSatisfied) || await _sectionRepository.ExistsAsync(specification);
+    // //
+    // // public async Task<bool> Exists(ISpecification<TokenSetEntity> specification)
+    //     => _tokenSets.Any(specification.IsSatisfied) || await _tokenSetRepository.ExistsAsync(specification);
 
-    public async Task<bool> Exists(ISpecification<TokenSetEntity> specification)
-        => _tokenSets.Any(specification.IsSatisfied) || await _tokenSetRepository.ExistsAsync(specification);
+    // private async Task PublishSourceEventsFrom<TEntity, TIdentity>(IEnumerable<IAggregate<TIdentity>> entities,
+    //     CancellationToken token)
+    //     where TIdentity : IIdentity
+    // {
+    //     //var type = typeof(TEntity);
+    //     foreach (var e in entities)
+    //     {
+    //         //await _eventSourceRepository.AppendAsync(type, e.Id.Id, e.SourceEvents, token);
+    //         await _eventPublisher.PublishAsync(e.SourceEvents, token);
+    //         e.ClearEvents();
+    //     }
+    // }
 
-    private async Task PublishSourceEventsFrom<TEntity, TIdentity>(IEnumerable<IAggregate<TIdentity>> entities,
-        CancellationToken token)
-        where TIdentity : IIdentity
-    {
-        var type = typeof(TEntity);
-        foreach (var e in entities)
-        {
-            //await _eventSourceRepository.AppendAsync(type, e.Id.Id, e.SourceEvents, token);
-            await _eventPublisher.PublishAsync(e.SourceEvents, token);
-            e.ClearEvents();
-        }
-    }
-
-    public async Task<List<SectionEntity>> GetSectionsAsync(ISpecification<SectionEntity> specification)
-    {
-        // get from the db only those not already in memory.
-        var notAlreadyInMemory = new SectionIdNotIn(_sections.Select(s => s.Id));
-        var fromDb = await _sectionRepository.FindAsync(notAlreadyInMemory.And(specification));
-
-        // add the new ones to memory.
-        _sections.AddRange(fromDb);
-
-        // execute the query against memory, which now has everything we need
-        return _sections.Where(specification.IsSatisfied).ToList();
-    }
-
-    public Task AddSectionAsync(SectionEntity section)
-    {
-        _sections.Add(section);
-        return Task.CompletedTask;
-    }
+    // public async Task<List<SectionEntity>> GetSectionsAsync(ISpecification<SectionEntity> specification)
+    // {
+    //     // get from the db only those not already in memory.
+    //     var notAlreadyInMemory = new SectionIdNotIn(_sections.Select(s => s.Id));
+    //     var fromDb = await _sectionRepository.FindAsync(notAlreadyInMemory.And(specification));
+    //
+    //     // add the new ones to memory.
+    //     _sections.AddRange(fromDb);
+    //
+    //     // execute the query against memory, which now has everything we need
+    //     return _sections.Where(specification.IsSatisfied).ToList();
+    // }
+    //
+    // public Task AddSectionAsync(SectionEntity section)
+    // {
+    //     _sections.Add(section);
+    //     return Task.CompletedTask;
+    // }
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        foreach (var section in _sections)
-        {
-            await _sectionRepository.SaveAsync(section);
-        }
-
-        _sections.Clear();
+        await Sections.SaveChangesAsync(cancellationToken);
+        await TokenSets.SaveChangesAsync(cancellationToken);
     }
 }

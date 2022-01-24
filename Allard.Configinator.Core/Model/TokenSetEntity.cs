@@ -40,6 +40,13 @@ public class TokenSetEntity : AggregateBase<TokenSetId>
 
     public string? Base => _tokenSet.Base;
 
+    public TokenSet ToTokenSet() => new()
+    {
+        Base = Base,
+        TokenSetName = TokenSetName,
+        Tokens = _tokenSet.Tokens.ToDictionary(kv => kv.Key, kv => kv.Value.DeepClone())
+    };
+
     public void SetValue(string key, JToken value)
     {
         Guards.NotDefault(value, nameof(value));

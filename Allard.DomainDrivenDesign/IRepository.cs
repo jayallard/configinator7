@@ -4,7 +4,7 @@ public interface IRepository<TEntity, in TIdentity> where TEntity : IAggregate<T
 {
     Task<TEntity?> GetAsync(TIdentity id, CancellationToken cancellationToken);
 
-    Task<IEnumerable<TEntity>> FindAsync(ISpecification<TEntity> specification);
+    Task<IEnumerable<TEntity>> FindAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsAsync(ISpecification<TEntity> specification);
     

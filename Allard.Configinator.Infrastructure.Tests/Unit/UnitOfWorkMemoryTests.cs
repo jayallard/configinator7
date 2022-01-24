@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Specifications;
 using FluentAssertions;
 using Xunit;
 
@@ -29,7 +30,7 @@ public class UnitOfWorkMemoryTests
         var section = new SectionEntity(new SectionId(0), "name", "path");
         
         // act
-        await _unitOfWork.AddSectionAsync(section);
+        await _unitOfWork.Sections.AddAsync(section);
         
         // assert
         (await _sectionRepository.FindAsync(new AllSections())).Should().BeEmpty();
