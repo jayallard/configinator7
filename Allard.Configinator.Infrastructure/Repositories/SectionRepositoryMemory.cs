@@ -2,7 +2,7 @@
 using Allard.Configinator.Core.Repositories;
 using Allard.DomainDrivenDesign;
 
-namespace Allard.Configinator.Infrastructure;
+namespace Allard.Configinator.Infrastructure.Repositories;
 
 public class SectionRepositoryMemory : ISectionRepository
 {
@@ -24,7 +24,7 @@ public class SectionRepositoryMemory : ISectionRepository
         return Task.FromResult(_database.Sections.Values.Where(specification.IsSatisfied));
     }
 
-    public Task<bool> Exists(ISpecification<SectionEntity> specification)
+    public Task<bool> ExistsAsync(ISpecification<SectionEntity> specification)
     {
         return Task.FromResult(_database.Sections.Values.Any(specification.IsSatisfied));
     }

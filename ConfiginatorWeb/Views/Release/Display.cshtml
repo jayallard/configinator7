@@ -1,19 +1,21 @@
-﻿@model ConfiginatorWeb.Models.Release.DisplayView
+﻿@using Newtonsoft.Json
+@using Allard.Json
+@model ConfiginatorWeb.Controllers.ReleaseDisplayView
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
 
-<p>Section: <a asp-controller="Configuration" asp-action="Display" asp-route-name="@Model.SectionName">@Model.SectionName</a></p>
-<p>Environment:@Model.EnviornmentName</p>
-<p>Release Id:@Model.ReleaseId</p>
+<p>Section: <a asp-controller="Configuration" asp-action="Display" asp-route-name="@Model.Section.SectionName">@Model.Section.SectionName</a></p>
+<p>Environment: @Model.SelectedEnvironment.EnvironmentName</p>
+<p>Release Id: @Model.SelectedRelease.ReleaseId</p>
 
 <h2>Token Set</h2>
-@if (Model.Release.TokenSet != null)
+@if (Model.SelectedRelease.TokenSet != null)
 {
-    <p>Name: @Model.Release.TokenSet.TokenSetName</p>
-    <p>Base: @(Model.Release.TokenSet.Base ?? "none")</p>
+    <p>Name: @Model.SelectedRelease.TokenSet.TokenSetName</p>
+    <p>Base: @(Model.SelectedRelease.TokenSet.Base ?? "none")</p>
     <table class="table">
         <thead>
         <tr>
@@ -23,10 +25,10 @@
             <th>Value</th>
         </tr>
         </thead>
-        @foreach (var t in Model.Release.TokenSet.Tokens.Values.OrderBy(v => v.Name))
+        @foreach (var t in Model.SelectedRelease.TokenSet.Tokens.Values.OrderBy(v => v.Name))
         {
             <tr>
-                <td style="@(Model.Release.UsedTokens.Contains(t.Name) ? "font-weight: bold; background-color: lightblue;" : "")">@t.Name</td>
+                @* <td style="@(Model.SelectedRelease.UsedTokens.Contains(t.Name) ? "font-weight: bold; background-color: lightblue;" : "")">@t.Name</td> *@
                 <td>@t.SourceTokenSet</td>
                 <td>@t.TokenValueOrigin</td>
                 <td><pre>@t.Token</pre></td>
@@ -36,17 +38,17 @@
 }
 
 <h2>Schema</h2>
-<h3>Version @Model.Release.Schema.Version.ToFullString()</h3>
-<pre>@Model.Release.Schema.Schema.ToJson()</pre>
+<h3>Version @Model.SelectedRelease.Schema.Version.ToFullString()</h3>
+<pre>@Model.SelectedRelease.Schema.Schema.ToJson(Formatting.Indented)</pre>
 
 <h2>Model Value</h2>
-<pre>@Model.Release.ModelValue.ToString()</pre>
+<pre>@Model.SelectedRelease.ModelValue.PrettyPrint()</pre>
 
 <h2>Resolved Value</h2>
-<pre>@Model.Release.ResolvedValue.ToString()</pre>
+<pre>@Model.SelectedRelease.ResolvedValue.PrettyPrint()</pre>
 
 <h2>Deployment History</h2>
-@if (!Model.Release.Deployments.Any())
+@if (!Model.SelectedRelease.DeploymentHistory.Any())
 {
     <p>None</p>
 }
@@ -58,22 +60,22 @@
         <th>Reason</th>
     </tr>
     </thead>
-    @foreach (var d in Model.Release.Deployments.OrderBy(d => d.DeploymentDate))
+    @foreach (var d in Model.SelectedRelease.DeploymentHistory.OrderBy(d => d.DeploymentTime))
     {
         <tr>
             <td>
-                @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
+                @d. .DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
                 @if (d.IsDeployed)
                 {
                     <span class="badge rounded-pill bg-success">Deployed</span>
                 }
                 
-                @if (Model.Release.IsOutOfDate)
-                {
-                    <span class="badge rounded-pill bg-warning">Out of Date</span>
-                }
+                @* @if (Model.Release.IsOutOfDate) *@
+                @* { *@
+                @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
+                @* } *@
             </td>
-            <td>@d.Action.ToString()</td>
+            @* <td>@d.Action.ToString()</td> *@
             <td>@d.Reason</td>
         </tr>
     }

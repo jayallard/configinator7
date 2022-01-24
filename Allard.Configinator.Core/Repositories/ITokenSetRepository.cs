@@ -3,6 +3,6 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Repositories;
 
-public interface ISectionRepository : IRepository<SectionEntity, SectionId>
+public interface ITokenSetRepository : IRepository<TokenSetEntity, TokenSetId>
 {
 }

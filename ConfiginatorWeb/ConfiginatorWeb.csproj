@@ -29,17 +29,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Remove="Views\Release\Add.cshtml" />
-      <Content Remove="Views\Release\Display.cshtml" />
-      <Content Remove="Views\Release\History.cshtml" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Folder Include="Views\Release" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Views\Release\Add.cshtml" />
+      <Content Remove="Views\Release\History.cshtml" />
     </ItemGroup>
 
 </Project>

@@ -18,9 +18,8 @@ public record EditSchemaView(string Id, string Version, string Schema);
 public class DisplayView
 {
     public string SectionName { get; set; }
-    public string EnviornmentName { get; set; }
+    public string EnvironmentName { get; set; }
     public long ReleaseId { get; set; }
-    
     public ReleaseEntity Release { get; set; }
 }
 

@@ -75,9 +75,9 @@ $(document).ready(function() {
                                 <td>
                                     <a asp-controller="Release" asp-action="Display" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a>
                                 </td>
-                                <td>@r.SchemaVersion.ToFullString()</td>
+                                <td>@r.Schema.Version.ToFullString()</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
-                                <td>@r.TokenSetName</td>
+                                <td>@r.TokenSet?.TokenSetName</td>
                                 <td>
                                     <button data-deploy="1" data-e="@e.EnvironmentName" data-r="@r.ReleaseId">Deploy</button>
                                     @if (r.IsDeployed)

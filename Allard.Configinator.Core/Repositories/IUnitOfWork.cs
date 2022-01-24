@@ -12,4 +12,6 @@ public interface IUnitOfWork
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 
     Task<bool> Exists(ISpecification<SectionEntity> specification);
+
+    Task<bool> Exists(ISpecification<TokenSetEntity> specification);
 }

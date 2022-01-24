@@ -28,13 +28,12 @@ public class SectionEntityTests
     {
         // arrange
         var section = new SectionEntity(new SectionId(0), "name", "path");
-        var schema = new SchemaEntity(new SchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
 
         // act
-        section.AddSchema(schema);
+        section.AddSchema(new SchemaId(0), new SemanticVersion(1, 0, 0),JsonSchema.CreateAnySchema());
 
         // assert
-        section.Schemas.Single().Should().Be(schema);
+        section.Schemas.Count().Should().Be(1);
     }
 
     [Fact]
@@ -46,8 +45,8 @@ public class SectionEntityTests
         var schema2 = new SchemaEntity(new SchemaId(1), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
 
         // act
-        section.AddSchema(schema1);
-        var test = () => section.AddSchema(schema2);
+        section.AddSchema(new SchemaId(0), new SemanticVersion(1, 0, 0),JsonSchema.CreateAnySchema());
+        var test = () => section.AddSchema(new SchemaId(1), new SemanticVersion(1, 0, 0),JsonSchema.CreateAnySchema());
 
         // assert
         test
@@ -61,12 +60,10 @@ public class SectionEntityTests
     {
         // arrange
         var section = new SectionEntity(NewSectionId(0), "name", "path");
-        var schema1 = new SchemaEntity(new SchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
-        var schema2 = new SchemaEntity(new SchemaId(0), new SemanticVersion(1, 1, 0), JsonSchema.CreateAnySchema());
 
         // act
-        section.AddSchema(schema1);
-        var test = () => section.AddSchema(schema2);
+        section.AddSchema(new SchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
+        var test = () => section.AddSchema(new SchemaId(0), new SemanticVersion(1, 1, 0), JsonSchema.CreateAnySchema());
 
         // assert
         test

@@ -1,5 +1,6 @@
 ﻿using Allard.Configinator.Core.Model;
 using Allard.Configinator.Infrastructure;
+using ConfiginatorWeb.Models;
 
 namespace ConfiginatorWeb.Queries;
 
@@ -22,29 +23,12 @@ public class SectionQueriesDatabase : ISectionQueries
         return Task.FromResult(results);
     }
 
-    public Task<SectionView> GetSectionAsync(long id, CancellationToken cancellationToken = default)
-    {
-        var section = _db.Sections[new SectionId(id)];
-        var view = new SectionView
-        {
-            SectionName = section.SectionName,
-            Path = section.Path,
-            Environments = section.Environments.Select(e => new SectionEnvironmentView
-            {
-                EnvironmentName = e.EnvironmentName,
-                Releases = e.Releases.Select(r => new SectionReleaseView
-                {
-                    ReleaseId = r.Id.Id,
-                    SchemaVersion = r.Schema.Version,
-                }).ToList()
-            }).ToList(),
-            Schemas = section.Schemas.Select(s => new SectionSchemaView
-            {
-                Schema = s.Schema.ToJson(),
-                Version = s.Version
-            }).ToList()
-        };
+    public Task<SectionView> GetSectionAsync(long id, CancellationToken cancellationToken = default) =>
+        Task.FromResult(_db.Sections[new SectionId(id)].ToOutputDto());
 
-        return Task.FromResult(view);
+    public Task<SectionView> GetSectionAsync(string name, CancellationToken cancellationToken = default)
+    {
+        var section = _db.Sections.Values.Single(s => s.SectionName.Equals(name, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(section.ToOutputDto());
     }
 }

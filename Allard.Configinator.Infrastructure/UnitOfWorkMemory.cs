@@ -2,6 +2,7 @@
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
 using Allard.DomainDrivenDesign;
+using Allard.Json;
 
 namespace Allard.Configinator.Infrastructure;
 
@@ -9,7 +10,9 @@ public class UnitOfWorkMemory : IUnitOfWork
 {
     private readonly IEventPublisher _eventPublisher;
     private readonly ISectionRepository _sectionRepository;
+    private readonly ITokenSetRepository _tokenSetRepository;
     private readonly List<SectionEntity> _sections = new();
+    private readonly List<TokenSetEntity> _tokenSets = new();
 
     public UnitOfWorkMemory(
         ISectionRepository sectionRepositoryRepository, 
@@ -20,7 +23,10 @@ public class UnitOfWorkMemory : IUnitOfWork
     }
 
     public async Task<bool> Exists(ISpecification<SectionEntity> specification)
-        => _sections.Any(specification.IsSatisfied) || await _sectionRepository.Exists(specification);
+        => _sections.Any(specification.IsSatisfied) || await _sectionRepository.ExistsAsync(specification);
+
+    public async Task<bool> Exists(ISpecification<TokenSetEntity> specification)
+        => _tokenSets.Any(specification.IsSatisfied) || await _tokenSetRepository.ExistsAsync(specification);
 
     private async Task PublishSourceEventsFrom<TEntity, TIdentity>(IEnumerable<IAggregate<TIdentity>> entities,
         CancellationToken token)
