@@ -47,20 +47,20 @@ public class ReleaseEntity : EntityBase<ReleaseId>
             section.Id,
             ParentEnvironment.Id,
             Id);
-        section.PlaySourceEvent(deployedEvt);
+        section.PlayEvent(deployedEvt);
         return GetDeployment(deploymentHistoryId);
     }
 
     private void SetActiveDeploymentToRemoved(DeploymentHistoryId deploymentHistoryId, SectionEntity section)
     {
         var deployed = Deployments.SingleOrDefault(d => d.IsDeployed);
-        if (deployed == null || deployed.Id == deploymentHistoryId) return;
+        if (deployed is null || deployed.Id == deploymentHistoryId) return;
         var removedEvent = new DeploymentRemovedEvent(
             deployed.Id,
             section.Id,
             ParentEnvironment.Id,
             Id,
             "Replaced by Deployment Id=" + Id.Id);
-        section.PlaySourceEvent(removedEvent);
+        section.PlayEvent(removedEvent);
     }
 }

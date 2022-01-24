@@ -29,6 +29,7 @@
         {
             <tr>
                 @* <td style="@(Model.SelectedRelease.UsedTokens.Contains(t.Name) ? "font-weight: bold; background-color: lightblue;" : "")">@t.Name</td> *@
+                <td>@t.Name</td>
                 <td>@t.SourceTokenSet</td>
                 <td>@t.TokenValueOrigin</td>
                 <td><pre>@t.Token</pre></td>
@@ -60,11 +61,11 @@
         <th>Reason</th>
     </tr>
     </thead>
-    @foreach (var d in Model.SelectedRelease.DeploymentHistory.OrderBy(d => d.DeploymentTime))
+    @foreach (var d in Model.SelectedRelease.DeploymentHistory.OrderBy(d => d.DeploymentDate))
     {
         <tr>
             <td>
-                @d. .DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
+                @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
                 @if (d.IsDeployed)
                 {
                     <span class="badge rounded-pill bg-success">Deployed</span>

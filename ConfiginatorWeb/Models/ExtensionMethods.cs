@@ -27,7 +27,7 @@ public static class ExtensionMethods
                 {
                     DeploymentHistoryId = d.Id.Id,
                     DeploymentStatus = d.Status,
-                    DeploymentTime = d.DeploymentDate,
+                    DeploymentDate = d.DeploymentDate,
                     Reason = d.Reason,
                     IsDeployed = d.IsDeployed
                 }).ToList()

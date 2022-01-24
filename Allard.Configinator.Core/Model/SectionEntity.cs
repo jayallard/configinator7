@@ -28,17 +28,17 @@ public class SectionEntity : AggregateBase<SectionId>
         Guards.NotDefault(id, nameof(id));
         Guards.HasValue(path, nameof(name));
         Guards.HasValue(path, nameof(path));
-        PlaySourceEvent(new SectionCreatedEvent(id, name, path, schema, tokenSetName));
+        PlayEvent(new SectionCreatedEvent(id, name, path, schema, tokenSetName));
     }
 
     public SectionEntity(IEnumerable<IDomainEvent> events) : base(new SectionId(3))
     {
         Guards.NotDefault(events, nameof(events));
-        foreach (var evt in events) PlaySourceEvent(evt);
+        foreach (var evt in events) PlayEvent(evt);
         InternalSourceEvents.Clear();
     }
 
-    internal void PlaySourceEvent(IDomainEvent evt)
+    internal void PlayEvent(IDomainEvent evt)
     {
         SectionAggregateEventHandlers.Play(this, evt);
         InternalSourceEvents.Add(evt);
@@ -47,7 +47,7 @@ public class SectionEntity : AggregateBase<SectionId>
     public SchemaEntity AddSchema(SchemaId schemaId, SemanticVersion schemaVersion, JsonSchema schema)
     {
         InternalSchemas.EnsureDoesntExist(schemaId, schemaVersion);
-        PlaySourceEvent(new SchemaAddedToSectionEvent(Id, schemaId, schemaVersion, schema));
+        PlayEvent(new SchemaAddedToSectionEvent(Id, schemaId, schemaVersion, schema));
         return GetSchema(schemaId);
     }
 
@@ -57,7 +57,7 @@ public class SectionEntity : AggregateBase<SectionId>
     public EnvironmentEntity AddEnvironment(EnvironmentId environmentId, string name)
     {
         InternalEnvironments.EnsureEnvironmentDoesntExist(environmentId, name);
-        PlaySourceEvent(new EnvironmentAddedToSectionEvent(environmentId, Id, name));
+        PlayEvent(new EnvironmentAddedToSectionEvent(environmentId, Id, name));
         return GetEnvironment(name);
     }
 }

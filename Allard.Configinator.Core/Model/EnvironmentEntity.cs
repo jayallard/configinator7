@@ -49,7 +49,7 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
             resolvedValue,
             tokens,
             tokensInUse);
-        ParentSection.PlaySourceEvent(evt);
+        ParentSection.PlayEvent(evt);
         return GetRelease(releaseId);
     }
 

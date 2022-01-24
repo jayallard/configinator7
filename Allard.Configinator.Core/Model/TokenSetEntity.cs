@@ -1,4 +1,5 @@
-﻿using Allard.DomainDrivenDesign;
+﻿using System.Text.Json;
+using Allard.DomainDrivenDesign;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
 
@@ -6,11 +7,16 @@ namespace Allard.Configinator.Core.Model;
 
 public class TokenSetEntity : AggregateBase<TokenSetId>
 {
-    
-    public TokenSetEntity(TokenSetId id, string name, string? baseTokenSet = null) : base(id)
+    private readonly Dictionary<string, JToken> _tokens = new();
+
+    internal TokenSetEntity(TokenSetId id, string name, string? baseTokenSet = null) : base(id)
     {
         Play(new TokenSetCreatedEvent(id, name, null, baseTokenSet));
     }
+
+    public string TokenSetName { get; private set; }
+
+    public string? BaseTokenSetName { get; private set; }
 
     private void Play(IDomainEvent evt)
     {
@@ -18,13 +24,13 @@ public class TokenSetEntity : AggregateBase<TokenSetId>
         {
             case TokenSetCreatedEvent created:
             {
-                _tokenSet.TokenSetName = created.TokenSetName;
-                _tokenSet.Base = created.BaseTokenSetName;
+                TokenSetName = created.TokenSetName;
+                BaseTokenSetName = created.BaseTokenSetName;
                 break;
             }
             case TokenValueSetEvent setter:
             {
-                _tokenSet.Tokens[setter.Key] = setter.Value;
+                _tokens[setter.Key] = setter.Value;
                 break;
             }
             default:
@@ -32,24 +38,19 @@ public class TokenSetEntity : AggregateBase<TokenSetId>
         }
     }
 
-    private readonly TokenSet _tokenSet = new();
-    public string TokenSetName => _tokenSet.TokenSetName;
-
-    public Dictionary<string, JToken> Tokens => _tokenSet.Tokens.ToDictionary(kv => kv.Key, kv => kv.Value.DeepClone(),
+    private Dictionary<string, JToken> Tokens => _tokens.ToDictionary(kv => kv.Key, kv => kv.Value.DeepClone(),
         StringComparer.OrdinalIgnoreCase);
-
-    public string? Base => _tokenSet.Base;
 
     public TokenSet ToTokenSet() => new()
     {
-        Base = Base,
+        Base = BaseTokenSetName,
         TokenSetName = TokenSetName,
-        Tokens = _tokenSet.Tokens.ToDictionary(kv => kv.Key, kv => kv.Value.DeepClone())
+        Tokens = Tokens
     };
 
     public void SetValue(string key, JToken value)
     {
         Guards.NotDefault(value, nameof(value));
-        Play(new TokenValueSetEvent(_tokenSet.TokenSetName, key, value));
+        Play(new TokenValueSetEvent(TokenSetName, key, value));
     }
 }

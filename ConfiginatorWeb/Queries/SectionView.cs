@@ -62,7 +62,7 @@ public class SectionReleaseView
 public class SectionDeploymentHistoryView
 {
     public long DeploymentHistoryId { get; set; }
-    public DateTime DeploymentTime { get; set; }
+    public DateTime DeploymentDate { get; set; }
     public DeploymentStatus DeploymentStatus { get; set; }
     public string? Reason { get; set; }
     

@@ -9,6 +9,11 @@ public static class ExtensionMethods
     public static JsonDocument ToSystemTextJson(this JObject json) => JsonDocument.Parse(json.ToString());
     public static JObject ToJsonNetJson(this JsonDocument json) => JObject.Parse(json.RootElement.ToString());
 
+    public static JToken ToJsonNetJson(this JsonElement json)
+    {
+        return JToken.Parse(json.ToString());
+    }
+
     public static string PrettyPrint(this JsonDocument doc)
     {
         using var stream = new MemoryStream();
