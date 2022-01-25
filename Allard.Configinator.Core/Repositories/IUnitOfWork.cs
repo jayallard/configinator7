@@ -5,7 +5,7 @@ namespace Allard.Configinator.Core.Repositories;
 
 public interface IUnitOfWork
 {
-    UnitOfWorkDataset<SectionEntity, SectionId> Sections { get; }
-    UnitOfWorkDataset<TokenSetEntity, TokenSetId> TokenSets { get; }
+    IDataChangeTracker<SectionEntity, SectionId> Sections { get; }
+    IDataChangeTracker<TokenSetEntity, TokenSetId> TokenSets { get; }
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

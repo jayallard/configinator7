@@ -1,13 +1,21 @@
 ﻿namespace Allard.DomainDrivenDesign;
 
-public class UnitOfWorkDataset<TEntity, TIdentity>
+public interface IDataChangeTracker<TEntity, TIdentity> where TEntity : IAggregate<TIdentity> where TIdentity : IIdentity
+{
+    Task<bool> Exists(ISpecification<TEntity> specification);
+    Task<List<TEntity>> FindAsync(ISpecification<TEntity> specification);
+    Task AddAsync(TEntity entity);
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
+}
+
+public class DataChangeTracker<TEntity, TIdentity> : IDataChangeTracker<TEntity, TIdentity> 
     where TEntity : IAggregate<TIdentity>
     where TIdentity : IIdentity
 {
     private readonly List<TEntity> _localData = new();
     private readonly IRepository<TEntity, TIdentity> _repository;
 
-    public UnitOfWorkDataset(IRepository<TEntity, TIdentity> repository)
+    public DataChangeTracker(IRepository<TEntity, TIdentity> repository)
     {
         _repository = repository;
     }

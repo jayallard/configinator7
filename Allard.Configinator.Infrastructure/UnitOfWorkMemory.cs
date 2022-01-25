@@ -11,12 +11,12 @@ public class UnitOfWorkMemory : IUnitOfWork
         ISectionRepository sectionRepository, 
         ITokenSetRepository tokenSetRepository)
     {
-        Sections = new UnitOfWorkDataset<SectionEntity, SectionId>(sectionRepository);
-        TokenSets = new UnitOfWorkDataset<TokenSetEntity, TokenSetId>(tokenSetRepository);
+        Sections = new DataChangeTracker<SectionEntity, SectionId>(sectionRepository);
+        TokenSets = new DataChangeTracker<TokenSetEntity, TokenSetId>(tokenSetRepository);
     }
     
-    public UnitOfWorkDataset<SectionEntity, SectionId> Sections { get; } 
-    public UnitOfWorkDataset<TokenSetEntity, TokenSetId> TokenSets { get; } 
+    public DataChangeTracker<SectionEntity, SectionId> Sections { get; } 
+    public DataChangeTracker<TokenSetEntity, TokenSetId> TokenSets { get; } 
 
     // // public async Task<bool> Exists(ISpecification<SectionEntity> specification)
     // //     => _sections.Any(specification.IsSatisfied) || await _sectionRepository.ExistsAsync(specification);
