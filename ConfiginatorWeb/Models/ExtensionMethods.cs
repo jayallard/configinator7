@@ -19,6 +19,7 @@ public static class ExtensionMethods
                     Schema = r.Schema.Schema,
                     Version = r.Schema.Version
                 },
+                CreateDate = r.CreateDate,
                 ReleaseId = r.Id.Id,
                 TokenSet = r.TokenSet,
                 ModelValue = r.ModelValue,

@@ -1,7 +1,6 @@
-﻿using System.Text.Json;
-using Allard.Configinator.Core.Model;
-using Allard.Json;
+﻿using Allard.Configinator.Core.Model;
 using ConfiginatorWeb.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConfiginatorWeb.Controllers;
@@ -9,10 +8,14 @@ namespace ConfiginatorWeb.Controllers;
 public class ReleaseController : Controller
 {
     private readonly ISectionQueries _sectionQueries;
+    private readonly IMediator _mediator;
 
-    public ReleaseController(ISectionQueries sectionQueries)
+    public ReleaseController(
+        ISectionQueries sectionQueries,
+        IMediator mediator)
     {
         _sectionQueries = sectionQueries;
+        _mediator = mediator;
     }
 
     //
@@ -113,52 +116,25 @@ public class ReleaseController : Controller
 
     //
 
-    // [HttpPost]
+    [HttpPost]
+    public async Task<ReleaseDeployResponse> Deploy(ReleaseDeployRequest request, CancellationToken cancellationToken) =>
+        await _mediator.Send(request, cancellationToken);
 
-    // public async Task<DeployResponse> Deploy(string sectionName, string environmentName, long releaseId)
 
-    // {
-
-    //     _aggregate.Deploy(sectionName, environmentName, new ReleaseId(releaseId));
-
-    //     return new DeployResponse();
-
-    // }
-
-    //
-
-    // public IActionResult History(string sectionName, string environmentName)
-
-    // {
-
-    //     var h2 = _aggregate.TemporaryExposureSections[sectionName]
-
-    //         .Environments
-
-    //         .SingleOrDefault(h => string.Equals(environmentName, h.EnvironmentId.Name, StringComparison.OrdinalIgnoreCase))
-
-    //         .Releases
-
-    //         .SelectMany(r => r.Deployments.Select(d => new HistoryItem(d.DeploymentDate, d.Action == DeploymentAction.Deployed, d.Reason, r.Schema.Version, r.ReleaseId, r.IsOutOfDate)
-
-    //         {
-
-    //             IsDeployed = d.IsDeployed
-
-    //         }))
-
-    //         .OrderBy(h => h.Date)
-
-    //         .ToList();
-
-    //     var view = new HistoryView(sectionName, environmentName, h2.ToList());
-
-    //     return View(view);
-
-    // }
-
-    //
-
+    public async Task<IActionResult> History(string sectionName, string environmentName,
+        CancellationToken cancellationToken)
+    {
+        var section = await _sectionQueries.GetSectionAsync(sectionName, cancellationToken);
+        var env = section.GetEnvironment(environmentName);
+        var history = env
+            .Releases
+            .SelectMany(r =>
+                r.DeploymentHistory.Select(h => new ReleaseHistoryDeploymentPair(r, h)))
+            .OrderByDescending(r => r.History.DeploymentDate)
+            .ToList();
+        var view = new ReleaseHistoryView(section, env, history);
+        return View(view);
+    }
 
     public async Task<IActionResult> Display(string sectionName, string environmentName, long releaseId)
     {
@@ -207,3 +183,23 @@ public record ReleaseDisplayView(
     SectionEnvironmentView SelectedEnvironment,
     SectionReleaseView SelectedRelease,
     SectionSchemaView SelectedSchema);
+
+public record ReleaseHistoryView(
+    SectionView SelectedSection,
+    SectionEnvironmentView SelectedEnvironment,
+    List<ReleaseHistoryDeploymentPair> History);
+
+public record ReleaseHistoryDeploymentPair(
+    SectionReleaseView Release,
+    SectionDeploymentHistoryView History);
+
+public class ReleaseDeployRequest : IRequest<ReleaseDeployResponse>
+{
+    public string SectionName { get; set; }
+    public string EnvironmentName { get; set; }
+    public long ReleaseId { get; set; }
+}
+
+public class ReleaseDeployResponse
+{
+}

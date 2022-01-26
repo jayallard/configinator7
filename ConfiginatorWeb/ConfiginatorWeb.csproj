@@ -38,7 +38,6 @@
 
     <ItemGroup>
       <Content Remove="Views\Release\Add.cshtml" />
-      <Content Remove="Views\Release\History.cshtml" />
     </ItemGroup>
 
 </Project>

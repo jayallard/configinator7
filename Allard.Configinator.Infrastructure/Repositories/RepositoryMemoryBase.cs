@@ -4,8 +4,7 @@ namespace Allard.Configinator.Infrastructure.Repositories;
 
 public class RepositoryMemoryBase<TEntity, TIdentity> : IRepository<TEntity, TIdentity>  
     where TEntity : IAggregate<TIdentity> 
-    where TIdentity : IIdentity
-{
+    where TIdentity : IIdentity {
 
     private readonly Dictionary<TIdentity, TEntity> _database = new();
     

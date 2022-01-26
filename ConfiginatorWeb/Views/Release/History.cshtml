@@ -1,4 +1,5 @@
-﻿@model ConfiginatorWeb.Controllers.ReleaseController.HistoryView;
+﻿@using Allard.Configinator.Core.Model
+@model ConfiginatorWeb.Controllers.ReleaseHistoryView;
 
 @{
     ViewBag.Title = "title";
@@ -7,8 +8,8 @@
 
 <h2>Deploy History</h2>
 <p>
-    Configuration Name: <a asp-action="display" asp-controller="configuration" asp-route-name="@Model.SectionName">@Model.SectionName</a><br/>
-    Environment: @Model.EnvironmentName<br/>
+    Configuration Name: <a asp-action="display" asp-controller="configuration" asp-route-name="@Model.SelectedSection.SectionName">@Model.SelectedSection.SectionName</a><br/>
+    Environment: @Model.SelectedEnvironment.EnvironmentName<br/>
 </p>
 <table class="table">
     <thead>
@@ -20,23 +21,26 @@
     </tr>
     </thead>
     <!-- only showing deployments. de-deployment was ugly output, and not useful -->
-    @foreach (var h in Model.History.Where(m => m.IsDeploymentAction))
+    @foreach (var h in Model.History.Where(m => m.History.DeploymentStatus == DeploymentStatus.Deployed))
     {
         <tr>
             <td>
-                @h.Date.ToString("dddd, MMM dd yyyy HH:mm:ss")
-                @if (h.IsDeployed)
+                @h.History.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
+                @if (h.History.IsDeployed)
                 {
                     <span class="badge rounded-pill bg-success">Deployed</span>
                 }
-                @if (h.IsOutOrDate)
-                {
-                    <span class="badge rounded-pill bg-warning">Out of Date</span>
-                }
+                @* @if (h.IsOutOrDate) *@
+                @* { *@
+                @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
+                @* } *@
             </td>
-            <td>@h.SchemaVersion</td>
-            <td><a asp-action="Display" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@Model.EnvironmentName" asp-route-releaseId="@h.ReleaseId">@h.ReleaseId</a></td>
-            <td>@h.Reason</td>
+            <td>@h.Release.Schema.Version.ToFullString()</td>
+            <td></td>
+            <td>
+                <a asp-action="Display" asp-route-sectionName="@Model.SelectedSection.SectionName" asp-route-environmentName="@Model.SelectedEnvironment.EnvironmentName" asp-route-releaseId="@h.">@h.Release.ReleaseId</a>
+            </td>
+            <td>@h.History.Reason</td>
         </tr>
     }
 </table>

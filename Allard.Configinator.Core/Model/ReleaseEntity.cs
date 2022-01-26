@@ -13,6 +13,8 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     public JsonDocument ResolvedValue { get; }
     public TokenSetComposed? TokenSet { get; }
     public SchemaEntity Schema { get; }
+    
+    public DateTime CreateDate { get; }
 
     public ReleaseEntity(
         ReleaseId id,
@@ -22,11 +24,13 @@ public class ReleaseEntity : EntityBase<ReleaseId>
         JsonDocument resolvedValue,
         TokenSetComposed? tokenSet) : base(id)
     {
+        // TODO: create event
         ParentEnvironment = parent;
         Schema = schema;
         ModelValue = modelValue;
         ResolvedValue = resolvedValue;
         TokenSet = tokenSet;
+        CreateDate = DateTime.Now;
     }
 
     public DeploymentHistoryEntity GetDeployment(DeploymentHistoryId deploymentHistoryId) =>

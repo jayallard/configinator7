@@ -16,8 +16,8 @@ public class SectionView
 
     public List<SectionEnvironmentView> Environments { get; set; }
 
-    public SectionEnvironmentView GetEnvironment(string name) =>
-        Environments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
+    public SectionEnvironmentView GetEnvironment(string environmentName) =>
+        Environments.Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase));
 
     public SectionSchemaView GetSchema(SemanticVersion version) =>
         Schemas.Single(s => s.Version == version);
@@ -65,6 +65,5 @@ public class SectionDeploymentHistoryView
     public DateTime DeploymentDate { get; set; }
     public DeploymentStatus DeploymentStatus { get; set; }
     public string? Reason { get; set; }
-    
     public bool IsDeployed { get; set; }
 }
