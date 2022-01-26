@@ -57,13 +57,17 @@ public class ReleaseEntity : EntityBase<ReleaseId>
 
     private void SetActiveDeploymentToRemoved(DeploymentHistoryId deploymentHistoryId, SectionEntity section)
     {
-        var deployed = Deployments.SingleOrDefault(d => d.IsDeployed);
+        var deployed = ParentEnvironment
+            .Releases
+            .SelectMany(d => d.Deployments.Where(h => h.IsDeployed))
+            .SingleOrDefault();
+        //var deployed = Deployments.SingleOrDefault(d => d.IsDeployed);
         if (deployed is null || deployed.Id == deploymentHistoryId) return;
         var removedEvent = new DeploymentRemovedEvent(
             deployed.Id,
             section.Id,
             ParentEnvironment.Id,
-            Id,
+            deployed.ParentRelease.Id,
             "Replaced by Deployment Id=" + Id.Id);
         section.PlayEvent(removedEvent);
     }

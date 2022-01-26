@@ -21,7 +21,7 @@
     </tr>
     </thead>
     <!-- only showing deployments. de-deployment was ugly output, and not useful -->
-    @foreach (var h in Model.History)
+    @foreach (var h in Model.History.Where(h => h.History.DeploymentHistoryType == DeploymentHistoryType.Deployed))
     {
         <tr>
             <td>

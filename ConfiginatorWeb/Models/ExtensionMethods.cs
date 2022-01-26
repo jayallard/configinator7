@@ -27,7 +27,7 @@ public static class ExtensionMethods
                 DeploymentHistory = r.Deployments.Select(d => new SectionDeploymentHistoryView
                 {
                     DeploymentHistoryId = d.Id.Id,
-                    DeploymentStatus = d.Status,
+                    DeploymentHistoryType = d.HistoryType,
                     DeploymentDate = d.DeploymentDate,
                     Reason = d.Reason,
                     IsDeployed = d.IsDeployed

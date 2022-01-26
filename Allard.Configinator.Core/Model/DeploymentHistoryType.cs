@@ -1,6 +1,6 @@
 namespace Allard.Configinator.Core.Model;
 
-public enum DeploymentStatus
+public enum DeploymentHistoryType
 {
     Deployed, Removed
 }

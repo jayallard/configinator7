@@ -63,7 +63,7 @@ public class SectionDeploymentHistoryView
 {
     public long DeploymentHistoryId { get; set; }
     public DateTime DeploymentDate { get; set; }
-    public DeploymentStatus DeploymentStatus { get; set; }
+    public DeploymentHistoryType DeploymentHistoryType { get; set; }
     public string? Reason { get; set; }
     public bool IsDeployed { get; set; }
 }

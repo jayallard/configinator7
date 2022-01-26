@@ -56,6 +56,7 @@
 <table class="table">
     <thead>
     <tr>
+        <th>History Id</th>
         <th>Deployment Date</th>
         <th>Action</th>
         <th>Reason</th>
@@ -64,19 +65,20 @@
     @foreach (var d in Model.SelectedRelease.DeploymentHistory.OrderBy(d => d.DeploymentDate))
     {
         <tr>
+            <td>@d.DeploymentHistoryId</td>
             <td>
                 @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
                 @if (d.IsDeployed)
                 {
                     <span class="badge rounded-pill bg-success">Deployed</span>
                 }
-                
+
                 @* @if (Model.Release.IsOutOfDate) *@
                 @* { *@
                 @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
                 @* } *@
             </td>
-            <td>@d.DeploymentStatus.ToString()</td>
+            <td>@d.DeploymentHistoryType.ToString()</td>
             <td>@d.Reason</td>
         </tr>
     }

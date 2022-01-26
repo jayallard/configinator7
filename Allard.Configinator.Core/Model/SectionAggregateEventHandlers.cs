@@ -71,7 +71,7 @@ internal static class SectionAggregateEventHandlers
             evt.DeploymentHistoryId, 
             release, 
             evt.deploymentDate, 
-            DeploymentStatus.Deployed, 
+            DeploymentHistoryType.Deployed, 
             null));
     }
 
