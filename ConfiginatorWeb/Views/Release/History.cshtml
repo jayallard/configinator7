@@ -21,7 +21,7 @@
     </tr>
     </thead>
     <!-- only showing deployments. de-deployment was ugly output, and not useful -->
-    @foreach (var h in Model.History.Where(m => m.History.DeploymentStatus == DeploymentStatus.Deployed))
+    @foreach (var h in Model.History)
     {
         <tr>
             <td>
@@ -36,7 +36,6 @@
                 @* } *@
             </td>
             <td>@h.Release.Schema.Version.ToFullString()</td>
-            <td></td>
             <td>
                 <a asp-action="Display" asp-route-sectionName="@Model.SelectedSection.SectionName" asp-route-environmentName="@Model.SelectedEnvironment.EnvironmentName" asp-route-releaseId="@h.">@h.Release.ReleaseId</a>
             </td>

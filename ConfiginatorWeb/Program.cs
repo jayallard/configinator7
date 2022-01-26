@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services
     .AddSingleton<IEventPublisher, MediatorPublisher>()
-    .AddScoped<IIdentityService, IdentityServiceMemory>()
+    .AddSingleton<IIdentityService, IdentityServiceMemory>()
 
     // domain services
     .AddScoped<SectionDomainService>()
@@ -78,6 +78,9 @@ section1.AddSchema(await idService.GetId<SchemaId>(), new SemanticVersion(2, 0, 
 
 var release = await env1.CreateReleaseAsync(await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
 release.SetDeployed(await idService.GetId<DeploymentHistoryId>(), DateTime.Now);
+
+var release2 = await env1.CreateReleaseAsync(await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
+release2.SetDeployed(await idService.GetId<DeploymentHistoryId>(), DateTime.Now);
 
 var section2 = await sectionService.CreateSectionAsync("name2", "path2");
 await uow.SaveChangesAsync();

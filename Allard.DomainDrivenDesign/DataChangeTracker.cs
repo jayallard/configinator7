@@ -17,11 +17,17 @@ public class DataChangeTracker<TEntity, TIdentity> : IDataChangeTracker<TEntity,
 
     public async Task<List<TEntity>> FindAsync(ISpecification<TEntity> specification)
     {
-        var notAlreadyInMemory = (ISpecification<TEntity>) new IdNotIn<TIdentity>(_localData.Select(s => s.Id));
-        var fromDb = await _repository.FindAsync(notAlreadyInMemory.And(specification));
+        // TODO: couldn't get the types working for this. TIdentity is a pain. Skip for now.
+        //var notAlreadyInMemory = (ISpecification<TEntity>) new IdNotIn<TIdentity>(_localData.Select(s => s.Id));
+        var fromDb = (await _repository.FindAsync(specification)).ToList();
+
+        // inefficient. got all matches from the db, now remove those that we already 
+        // have locally.
+        var ids = _localData.Select(d => d.Id.Id).ToHashSet();
+        var withoutLocal = fromDb.Where(e => !ids.Contains(e.Id.Id));
 
         // add the new ones to memory.
-        _localData.AddRange(fromDb);
+        _localData.AddRange(withoutLocal);
 
         // execute the query against memory, which now has everything we need
         return _localData.Where(specification.IsSatisfied).ToList();
