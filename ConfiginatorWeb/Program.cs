@@ -76,11 +76,11 @@ var schema1 = section1.AddSchema(await idService.GetId<SchemaId>(), new Semantic
 section1.AddSchema(await idService.GetId<SchemaId>(), new SemanticVersion(2, 0, 0),
     await JsonSchema.FromJsonAsync("{}"));
 
-var release = await env1.CreateReleaseAsync(await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
-release.SetDeployed(await idService.GetId<DeploymentHistoryId>(), DateTime.Now);
+var release = await section1.CreateReleaseAsync(env1.Id, await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
+section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentHistoryId>(), DateTime.Now);
 
-var release2 = await env1.CreateReleaseAsync(await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
-release2.SetDeployed(await idService.GetId<DeploymentHistoryId>(), DateTime.Now);
+var release2 = await section1.CreateReleaseAsync(env1.Id, await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
+section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentHistoryId>(), DateTime.Now);
 
 var section2 = await sectionService.CreateSectionAsync("name2", "path2");
 await uow.SaveChangesAsync();

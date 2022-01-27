@@ -11,7 +11,7 @@ internal static class SectionAggregateEventHandlers
             case SectionCreatedEvent create:
                 CreateSection(section, create);
                 break;
-            case EnvironmentAddedToSectionEvent environmentAdded:
+            case EnvironmentCreatedEvent environmentAdded:
                 AddEnvironment(section, environmentAdded);
                 break;
             case SchemaAddedToSectionEvent schemaAdded:
@@ -43,8 +43,8 @@ internal static class SectionAggregateEventHandlers
         }
     }
 
-    public static void AddEnvironment(SectionEntity section, EnvironmentAddedToSectionEvent evt) =>
-        section.InternalEnvironments.Add(new EnvironmentEntity(section, evt.EnvironmentId, evt.EnvironmentName));
+    public static void AddEnvironment(SectionEntity section, EnvironmentCreatedEvent evt) =>
+        section.InternalEnvironments.Add(new EnvironmentEntity(evt.EnvironmentId, evt.EnvironmentName));
 
     public static void AddSchema(SectionEntity section, SchemaAddedToSectionEvent evt) =>
         section.InternalSchemas.Add(new SchemaEntity(evt.SchemaId, evt.SchemaVersion, evt.Schema));
@@ -55,7 +55,6 @@ internal static class SectionAggregateEventHandlers
         var schema = section.GetSchema(evt.SchemaId);
         var release = new ReleaseEntity(
             evt.ReleaseId,
-            env,
             schema,
             evt.ModelValue,
             evt.ResolvedValue,
@@ -65,22 +64,17 @@ internal static class SectionAggregateEventHandlers
 
     private static void AddDeployed(SectionEntity section, ReleaseDeployedEvent evt)
     {
-        var env = section.GetEnvironment(evt.EnvironmentId);
-        var release = env.GetRelease(evt.ReleaseId);
+        var release = section.GetRelease(evt.EnvironmentId, evt.ReleaseId);
         release.InternalDeployments.Add(new DeploymentHistoryEntity(
             evt.DeploymentHistoryId, 
-            release, 
-            evt.deploymentDate, 
+            evt.DeploymentDate, 
             DeploymentHistoryType.Deployed, 
             null));
     }
 
     private static void RemoveDeployed(SectionEntity section, DeploymentRemovedEvent evt)
     {
-        var deployment = section
-            .GetEnvironment(evt.EnvironmentId)
-            .GetRelease(evt.ReleaseId)
-            .GetDeployment(evt.DeploymentHistoryId);
+        var deployment = section.GetDeployment(evt.EnvironmentId, evt.ReleaseId, evt.DeploymentHistoryId);
         deployment.SetRemoved();
     }
 }

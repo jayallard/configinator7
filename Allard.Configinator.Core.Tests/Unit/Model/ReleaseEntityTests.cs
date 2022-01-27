@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Allard.Configinator.Core.Model;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Allard.Configinator.Core.Tests.Unit.Model;
@@ -19,11 +19,11 @@ public class ReleaseEntityTests
         // arrange
         var section = CreateTestSection();
         var env = section.Environments.Single();
-        var release = await env.CreateReleaseAsync(NewReleaseId(0), null, Schema1Id, JsonDocument.Parse("{}"));
+        var release = await section.CreateReleaseAsync(env.Id, new ReleaseId(22), null, Schema1Id, JsonDocument.Parse("{}"));
         var date = DateTime.Now;
-        
+
         // act
-        var deployment = release.SetDeployed(NewDeploymentId(0), date);
+        var deployment = section.SetDeployed(env.Id, release.Id, NewDeploymentId(0), date);
 
         // assert
         release.Deployments.Single().Should().Be(deployment);

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Allard.Configinator.Core.Model;
+using Allard.DomainDrivenDesign;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
@@ -28,7 +29,7 @@ public record SectionCreatedEvent(
 /// <param name="EnvironmentId"></param>
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentName"></param>
-public record EnvironmentAddedToSectionEvent(
+public record EnvironmentCreatedEvent(
     EnvironmentId EnvironmentId, 
     SectionId SectionId,
     string EnvironmentName) : DomainEventBase;
@@ -81,13 +82,13 @@ public record TokenSetCreatedEvent(
 /// A release was deployed.
 /// </summary>
 /// <param name="DeploymentHistoryId"></param>
-/// <param name="deploymentDate"></param>
+/// <param name="DeploymentDate"></param>
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentId"></param>
 /// <param name="ReleaseId"></param>
 public record ReleaseDeployedEvent(
     DeploymentHistoryId DeploymentHistoryId,
-    DateTime deploymentDate,
+    DateTime DeploymentDate,
     SectionId SectionId,
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId) : DomainEventBase;

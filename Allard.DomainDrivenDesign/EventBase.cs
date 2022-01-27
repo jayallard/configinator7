@@ -1,6 +1,4 @@
-using Allard.DomainDrivenDesign;
-
-namespace Allard.Configinator.Core.Model;
+namespace Allard.DomainDrivenDesign;
 
 public record DomainEventBase : IDomainEvent
 {

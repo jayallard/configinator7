@@ -15,10 +15,12 @@ public class EnvironmentEntityTests
     public async Task AddRelease()
     {
         // arrange
-        var environment1 = CreateTestSection().GetEnvironment("test1");
+        var section = CreateTestSection();
+        var environment1 = section.GetEnvironment("test1");
 
         // act
-        var release = await environment1.CreateReleaseAsync(
+        var release = await section.CreateReleaseAsync(
+            environment1.Id,
             NewReleaseId(0),
             null,
             Schema1Id,
@@ -32,10 +34,12 @@ public class EnvironmentEntityTests
     public async Task AddReleaseThrowsExceptionIfReleaseIdExists()
     {
         // arrange
-        var environment1 = CreateTestSection().GetEnvironment("test1");
+        var section = CreateTestSection();
+        var environment1 = section.GetEnvironment("test1");
 
         // act
-        var release = await environment1.CreateReleaseAsync(
+        await section.CreateReleaseAsync(
+            environment1.Id,
             NewReleaseId(0),
             null,
             Schema1Id,
@@ -43,7 +47,8 @@ public class EnvironmentEntityTests
 
         var test = () =>
         {
-            environment1.CreateReleaseAsync(
+            section.CreateReleaseAsync(
+                    environment1.Id,
                     NewReleaseId(0),
                     null,
                     Schema1Id,

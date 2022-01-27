@@ -22,11 +22,8 @@ public class ReleaseDeployCommandHandler : IRequestHandler<ReleaseDeployRequest,
     {
         var section = (await _unitOfWork.Sections.FindAsync(new SectionNameIs(request.SectionName))).Single();
         var env = section.GetEnvironment(request.EnvironmentName);
-        var release = env.GetRelease(new ReleaseId(request.ReleaseId));
-        
-        // todo: id
-        var id = await _identityService.GetId<DeploymentHistoryId>();
-        release.SetDeployed(id, DateTime.Now);
+        var deploymentHistoryId = await _identityService.GetId<DeploymentHistoryId>();
+        section.SetDeployed(env.Id, new ReleaseId(request.ReleaseId), deploymentHistoryId, DateTime.Now);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return new ReleaseDeployResponse();
     }
