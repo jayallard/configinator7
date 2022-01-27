@@ -81,13 +81,13 @@ public record TokenSetCreatedEvent(
 /// <summary>
 /// A release was deployed.
 /// </summary>
-/// <param name="DeploymentHistoryId"></param>
+/// <param name="DeploymentId"></param>
 /// <param name="DeploymentDate"></param>
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentId"></param>
 /// <param name="ReleaseId"></param>
 public record ReleaseDeployedEvent(
-    DeploymentHistoryId DeploymentHistoryId,
+    DeploymentId DeploymentId,
     DateTime DeploymentDate,
     SectionId SectionId,
     EnvironmentId EnvironmentId,
@@ -96,17 +96,17 @@ public record ReleaseDeployedEvent(
 /// <summary>
 /// A deployed release is no longer deployed.
 /// </summary>
-/// <param name="DeploymentHistoryId"></param>
+/// <param name="DeploymentId"></param>
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentId"></param>
 /// <param name="ReleaseId"></param>
-/// <param name="Reason"></param>
+/// <param name="RemoveReason"></param>
 public record DeploymentRemovedEvent(
-    DeploymentHistoryId DeploymentHistoryId,
+    DeploymentId DeploymentId,
     SectionId SectionId,
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId,
-    string Reason) : DomainEventBase;
+    string RemoveReason) : DomainEventBase;
 
 /// <summary>
 /// The value of a token changed.

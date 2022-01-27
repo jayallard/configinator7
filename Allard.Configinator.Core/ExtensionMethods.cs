@@ -36,8 +36,8 @@ public static class ExtensionMethods
     public static void EnsureExists(this IEnumerable<ReleaseEntity> releases, ReleaseId id)
         => releases.EnsureExists(id, "Release");
 
-    public static void EnsureDeploymentDoesntExist(this IEnumerable<DeploymentHistoryEntity> deployments,
-        DeploymentHistoryId id)
+    public static void EnsureDeploymentDoesntExist(this IEnumerable<DeploymentEntity> deployments,
+        DeploymentId id)
         => deployments.EnsureDoesntExist(id, "DeploymentHistory");
 
     public static void EnsureDoesntExist(this IEnumerable<SchemaEntity> schemas, SchemaId id,
@@ -86,8 +86,8 @@ public static class ExtensionMethods
         ReleaseId id)
         => entities.GetEntity(id, "Release");
 
-    public static DeploymentHistoryEntity GetDeployment(
-        this IEnumerable<DeploymentHistoryEntity> entities,
-        DeploymentHistoryId id)
+    public static DeploymentEntity GetDeployment(
+        this IEnumerable<DeploymentEntity> entities,
+        DeploymentId id)
         => entities.GetEntity(id, "Deployment");
 }

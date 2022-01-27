@@ -26,11 +26,10 @@ public static class ExtensionMethods
                 ResolvedValue = r.ResolvedValue,
                 DeploymentHistory = r.Deployments.Select(d => new SectionDeploymentHistoryView
                 {
-                    DeploymentHistoryId = d.Id.Id,
-                    DeploymentHistoryType = d.HistoryType,
+                    DeploymentId = d.Id.Id,
                     DeploymentDate = d.DeploymentDate,
-                    Reason = d.Reason,
-                    IsDeployed = d.IsDeployed
+                    RemovedDate = d.RemovedDate,
+                    RemoveReason = d.RemoveReason
                 }).ToList()
             }).ToList()
         }).ToList(),

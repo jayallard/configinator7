@@ -2,9 +2,9 @@
 
 namespace Allard.Configinator.Core.Model;
 
-public record DeploymentHistoryId : IdBase
+public record DeploymentId : IdBase
 {
-    public DeploymentHistoryId(long id) : base(id)
+    public DeploymentId(long id) : base(id)
     {
     }
 }

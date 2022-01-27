@@ -56,16 +56,16 @@
 <table class="table">
     <thead>
     <tr>
-        <th>History Id</th>
+        <th>Deployment Id</th>
         <th>Deployment Date</th>
-        <th>Action</th>
-        <th>Reason</th>
+        <th>Remove Date</th>
+        <th>Remove Reason</th>
     </tr>
     </thead>
     @foreach (var d in Model.SelectedRelease.DeploymentHistory.OrderBy(d => d.DeploymentDate))
     {
         <tr>
-            <td>@d.DeploymentHistoryId</td>
+            <td>@d.DeploymentId</td>
             <td>
                 @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
                 @if (d.IsDeployed)
@@ -78,8 +78,8 @@
                 @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
                 @* } *@
             </td>
-            <td>@d.DeploymentHistoryType.ToString()</td>
-            <td>@d.Reason</td>
+            <td>@d.RemovedDate?.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
+            <td>@d.RemoveReason</td>
         </tr>
     }
 </table>

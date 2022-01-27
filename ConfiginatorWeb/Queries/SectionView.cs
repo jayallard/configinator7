@@ -61,9 +61,9 @@ public class SectionReleaseView
 
 public class SectionDeploymentHistoryView
 {
-    public long DeploymentHistoryId { get; set; }
+    public long DeploymentId { get; set; }
     public DateTime DeploymentDate { get; set; }
-    public DeploymentHistoryType DeploymentHistoryType { get; set; }
-    public string? Reason { get; set; }
-    public bool IsDeployed { get; set; }
+    public DateTime? RemovedDate { get; set; }
+    public string? RemoveReason { get; set; }
+    public bool IsDeployed => RemovedDate is null;
 }

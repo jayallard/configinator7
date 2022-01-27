@@ -14,19 +14,26 @@
 <table class="table">
     <thead>
     <tr>
-        <th>Date</th>
-        <th>Schema Version</th>
         <th>Release Id</th>
-        <th>Reason</th>
+        <th>Deployment Id</th>
+        <th>Schema Version</th>
+        <th>Deployment Date</th>
+        <th>Remove Date</th>
+        <th>Remove Reason</th>
     </tr>
     </thead>
     <!-- only showing deployments. de-deployment was ugly output, and not useful -->
-    @foreach (var h in Model.History.Where(h => h.History.DeploymentHistoryType == DeploymentHistoryType.Deployed))
+    @foreach (var h in Model.Deployments)
     {
         <tr>
             <td>
-                @h.History.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
-                @if (h.History.IsDeployed)
+                <a asp-action="Display" asp-route-sectionName="@Model.SelectedSection.SectionName" asp-route-environmentName="@Model.SelectedEnvironment.EnvironmentName" asp-route-releaseId="@h.">@h.Release.ReleaseId</a>
+            </td>
+            <td>@h.Deployment.DeploymentId</td>
+            <td>@h.Release.Schema.Version.ToFullString()</td>
+            <td>
+                @h.Deployment.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
+                @if (h.Deployment.IsDeployed)
                 {
                     <span class="badge rounded-pill bg-success">Deployed</span>
                 }
@@ -35,11 +42,8 @@
                 @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
                 @* } *@
             </td>
-            <td>@h.Release.Schema.Version.ToFullString()</td>
-            <td>
-                <a asp-action="Display" asp-route-sectionName="@Model.SelectedSection.SectionName" asp-route-environmentName="@Model.SelectedEnvironment.EnvironmentName" asp-route-releaseId="@h.">@h.Release.ReleaseId</a>
-            </td>
-            <td>@h.History.Reason</td>
+            <td>@h.Deployment.RemovedDate?.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
+            <td>@h.Deployment.RemoveReason</td>
         </tr>
     }
 </table>

@@ -6,8 +6,8 @@ namespace Allard.Configinator.Core.Model;
 public class ReleaseEntity : EntityBase<ReleaseId>
 {
     // todo: make properties immutable
-    internal List<DeploymentHistoryEntity> InternalDeployments { get; } = new();
-    public IEnumerable<DeploymentHistoryEntity> Deployments => InternalDeployments.AsReadOnly();
+    internal List<DeploymentEntity> InternalDeployments { get; } = new();
+    public IEnumerable<DeploymentEntity> Deployments => InternalDeployments.AsReadOnly();
     public JsonDocument ModelValue { get; }
     public JsonDocument ResolvedValue { get; }
     public TokenSetComposed? TokenSet { get; }

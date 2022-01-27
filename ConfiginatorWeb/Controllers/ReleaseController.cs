@@ -1,5 +1,4 @@
-﻿using Allard.Configinator.Core.Model;
-using ConfiginatorWeb.Queries;
+﻿using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -130,7 +129,7 @@ public class ReleaseController : Controller
             .Releases
             .SelectMany(r =>
                 r.DeploymentHistory.Select(h => new ReleaseHistoryDeploymentPair(r, h)))
-            .OrderByDescending(r => r.History.DeploymentDate)
+            .OrderBy(r => r.Deployment.DeploymentDate)
             .ToList();
         var view = new ReleaseHistoryView(section, env, history);
         return View(view);
@@ -187,11 +186,11 @@ public record ReleaseDisplayView(
 public record ReleaseHistoryView(
     SectionView SelectedSection,
     SectionEnvironmentView SelectedEnvironment,
-    List<ReleaseHistoryDeploymentPair> History);
+    List<ReleaseHistoryDeploymentPair> Deployments);
 
 public record ReleaseHistoryDeploymentPair(
     SectionReleaseView Release,
-    SectionDeploymentHistoryView History);
+    SectionDeploymentHistoryView Deployment);
 
 public class ReleaseDeployRequest : IRequest<ReleaseDeployResponse>
 {

@@ -65,16 +65,12 @@ internal static class SectionAggregateEventHandlers
     private static void AddDeployed(SectionEntity section, ReleaseDeployedEvent evt)
     {
         var release = section.GetRelease(evt.EnvironmentId, evt.ReleaseId);
-        release.InternalDeployments.Add(new DeploymentHistoryEntity(
-            evt.DeploymentHistoryId, 
-            evt.DeploymentDate, 
-            DeploymentHistoryType.Deployed, 
-            null));
+        release.InternalDeployments.Add(new DeploymentEntity(
+            evt.DeploymentId,
+            evt.DeploymentDate));
     }
 
-    private static void RemoveDeployed(SectionEntity section, DeploymentRemovedEvent evt)
-    {
-        var deployment = section.GetDeployment(evt.EnvironmentId, evt.ReleaseId, evt.DeploymentHistoryId);
-        deployment.SetRemoved();
-    }
+    private static void RemoveDeployed(SectionEntity section, DeploymentRemovedEvent evt) =>
+        // todo: need a property for the date
+        section.GetDeployment(evt.EnvironmentId, evt.ReleaseId, evt.DeploymentId).RemovedDeployment(evt.EventDate, evt.RemoveReason);
 }

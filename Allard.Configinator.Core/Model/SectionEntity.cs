@@ -104,37 +104,37 @@ public class SectionEntity : AggregateBase<SectionId>
         return GetRelease(environmentId, releaseId);
     }
 
-    public DeploymentHistoryEntity SetDeployed(
+    public DeploymentEntity SetDeployed(
         EnvironmentId environmentId,
         ReleaseId releaseId,
-        DeploymentHistoryId deploymentHistoryId,
+        DeploymentId deploymentId,
         DateTime deploymentDate)
     {
         var release = GetRelease(environmentId, releaseId);
-        release.InternalDeployments.EnsureDeploymentDoesntExist(deploymentHistoryId);
+        release.InternalDeployments.EnsureDeploymentDoesntExist(deploymentId);
 
         // if an active deployment exists, remove it
-        SetActiveDeploymentToRemoved(environmentId, releaseId, deploymentHistoryId);
+        SetActiveDeploymentToRemoved(environmentId, releaseId, deploymentId);
 
         // create the new deployment.
         var deployedEvt = new ReleaseDeployedEvent(
-            deploymentHistoryId,
+            deploymentId,
             deploymentDate,
             Id,
             environmentId,
             releaseId);
         PlayEvent(deployedEvt);
-        return GetDeployment(environmentId, releaseId, deploymentHistoryId);
+        return GetDeployment(environmentId, releaseId, deploymentId);
     }
 
-    public DeploymentHistoryEntity GetDeployment(
+    public DeploymentEntity GetDeployment(
         EnvironmentId environmentId,
         ReleaseId releaseId,
-        DeploymentHistoryId deploymentHistoryId)
+        DeploymentId deploymentId)
     {
         return GetRelease(environmentId, releaseId)
             .InternalDeployments
-            .GetDeployment(deploymentHistoryId);
+            .GetDeployment(deploymentId);
     }
 
 
@@ -153,25 +153,29 @@ public class SectionEntity : AggregateBase<SectionId>
     /// </summary>
     /// <param name="environmentId"></param>
     /// <param name="releaseId"></param>
-    /// <param name="deploymentHistoryId"></param>
-    private void SetActiveDeploymentToRemoved(EnvironmentId environmentId, ReleaseId releaseId, DeploymentHistoryId deploymentHistoryId)
+    /// <param name="deploymentId"></param>
+    private void SetActiveDeploymentToRemoved(EnvironmentId environmentId, ReleaseId releaseId,
+        DeploymentId deploymentId)
     {
+        // see if any deployment for any release in the environment is
+        // currently deployed.
+        // if so, set it to removed.
         var deployed = GetEnvironment(environmentId)
             .Releases
             .SelectMany(r => r.Deployments
-                .Where(h => h.Id != deploymentHistoryId)
-                .Where(h => h.IsDeployed)
-                .Select(h => new { Release = r, Deployment = h})
+                .Where(d => d.Id != deploymentId)
+                .Where(d => d.IsDeployed)
+                .Select(d => new {Release = r, Deployment = d})
             )
             .SingleOrDefault();
-
+        
         if (deployed is null) return;
         var removedEvent = new DeploymentRemovedEvent(
             deployed.Deployment.Id,
             Id,
             environmentId,
             deployed.Release.Id,
-            "Replaced by Deployment Id=" + Id.Id);
+            $"Replaced by ReleaseId={deployed.Release.Id.Id}, Deployment Id={deploymentId.Id}");
         PlayEvent(removedEvent);
     }
 }
