@@ -56,7 +56,7 @@ public class SectionReleaseView
     
     public JsonDocument ResolvedValue { get; set; }
     
-    public List<SectionDeploymentHistoryView> DeploymentHistory { get; set; }
+    public List<SectionDeploymentHistoryView> Deployments { get; set; }
 }
 
 public class SectionDeploymentHistoryView

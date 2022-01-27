@@ -20,11 +20,12 @@ public static class ExtensionMethods
                     Version = r.Schema.Version
                 },
                 CreateDate = r.CreateDate,
+                IsDeployed = r.IsDeployed,
                 ReleaseId = r.Id.Id,
                 TokenSet = r.TokenSet,
                 ModelValue = r.ModelValue,
                 ResolvedValue = r.ResolvedValue,
-                DeploymentHistory = r.Deployments.Select(d => new SectionDeploymentHistoryView
+                Deployments = r.Deployments.Select(d => new SectionDeploymentHistoryView
                 {
                     DeploymentId = d.Id.Id,
                     DeploymentDate = d.DeploymentDate,

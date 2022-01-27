@@ -128,7 +128,7 @@ public class ReleaseController : Controller
         var history = env
             .Releases
             .SelectMany(r =>
-                r.DeploymentHistory.Select(h => new ReleaseHistoryDeploymentPair(r, h)))
+                r.Deployments.Select(h => new ReleaseHistoryDeploymentPair(r, h)))
             .OrderBy(r => r.Deployment.DeploymentDate)
             .ToList();
         var view = new ReleaseHistoryView(section, env, history);

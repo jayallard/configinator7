@@ -49,7 +49,7 @@
 <pre>@Model.SelectedRelease.ResolvedValue.PrettyPrint()</pre>
 
 <h2>Deployment History</h2>
-@if (!Model.SelectedRelease.DeploymentHistory.Any())
+@if (!Model.SelectedRelease.Deployments.Any())
 {
     <p>None</p>
 }
@@ -62,7 +62,7 @@
         <th>Remove Reason</th>
     </tr>
     </thead>
-    @foreach (var d in Model.SelectedRelease.DeploymentHistory.OrderBy(d => d.DeploymentDate))
+    @foreach (var d in Model.SelectedRelease.Deployments.OrderBy(d => d.DeploymentDate))
     {
         <tr>
             <td>@d.DeploymentId</td>

@@ -12,8 +12,11 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     public JsonDocument ResolvedValue { get; }
     public TokenSetComposed? TokenSet { get; }
     public SchemaEntity Schema { get; }
-    
     public DateTime CreateDate { get; }
+    
+    public bool IsDeployed { get; private set; }
+
+    internal void SetDeployed(bool isDeployed) => IsDeployed = isDeployed;
 
     public ReleaseEntity(
         ReleaseId id,
