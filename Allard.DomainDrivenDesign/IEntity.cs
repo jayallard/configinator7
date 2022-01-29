@@ -1,6 +1,6 @@
 ﻿namespace Allard.DomainDrivenDesign;
 
-public interface IEntity<TIdentity> where TIdentity : IIdentity
+public interface IEntity
 {
-    TIdentity Id { get; }
+    public long EntityId { get; }
 }

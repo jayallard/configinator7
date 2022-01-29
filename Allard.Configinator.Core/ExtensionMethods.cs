@@ -14,19 +14,19 @@ public static class ExtensionMethods
             .Values
             .ToDictionary(t => t.Name, t => t.Token, StringComparer.OrdinalIgnoreCase);
 
-    private static void EnsureDoesntExist<TIdentity>(this IEnumerable<IEntity<TIdentity>> entities, TIdentity id,
+    private static void EnsureDoesntExist<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,
         string parameterName)
         where TIdentity : IIdentity
     {
-        if (!entities.Any(e => e.Id.Equals(id))) return;
+        if (!entities.Any(e => e.EntityId.Equals(id.Id))) return;
         throw new InvalidOperationException($"{parameterName} already exists. Id={id.Id}");
     }
 
-    private static void EnsureExists<TIdentity>(this IEnumerable<IEntity<TIdentity>> entities, TIdentity id,
+    private static void EnsureExists<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,
         string parameterName)
         where TIdentity : IIdentity
     {
-        if (entities.Any(e => e.Id.Equals(id))) return;
+        if (entities.Any(e => e.EntityId.Equals(id.Id))) return;
         throw new InvalidOperationException($"{parameterName} doesn't exists. Id={id.Id}");
     }
 
@@ -71,9 +71,9 @@ public static class ExtensionMethods
     /// <exception cref="InvalidOperationException"></exception>
     private static TEntity GetEntity<TEntity, TIdentity>(this IEnumerable<TEntity> entities, TIdentity id,
         string name) where TIdentity : IIdentity
-        where TEntity : IEntity<TIdentity>
+        where TEntity : IEntity
     {
-        var entity = entities.SingleOrDefault(e => e.Id.Equals(id));
+        var entity = entities.SingleOrDefault(e => e.EntityId.Equals(id.Id));
         if (entity == null) throw new InvalidOperationException($"{name} doesn't exist. Id={id.Id}");
         return entity;
     }

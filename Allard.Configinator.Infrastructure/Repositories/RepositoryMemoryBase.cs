@@ -3,14 +3,14 @@
 namespace Allard.Configinator.Infrastructure.Repositories;
 
 public class RepositoryMemoryBase<TEntity, TIdentity> : IRepository<TEntity, TIdentity>  
-    where TEntity : IAggregate<TIdentity> 
+    where TEntity : IAggregate
     where TIdentity : IIdentity {
 
-    private readonly Dictionary<TIdentity, TEntity> _database = new();
+    private readonly Dictionary<long, TEntity> _database = new();
     
     public Task<TEntity?> GetAsync(TIdentity id, CancellationToken cancellationToken)
     {
-        var section = (TEntity?)_database[id];
+        var section = (TEntity?)_database[id.Id];
         return Task.FromResult(section);
     }
 
@@ -26,7 +26,7 @@ public class RepositoryMemoryBase<TEntity, TIdentity> : IRepository<TEntity, TId
 
     public Task SaveAsync(TEntity entity)
     {
-        _database[entity.Id] = entity;
+        _database[entity.EntityId] = entity;
         return Task.CompletedTask;
     }
 }

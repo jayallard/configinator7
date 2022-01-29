@@ -2,7 +2,7 @@
 
 namespace Allard.Configinator.Core;
 
-public abstract class AggregateBase<TIdentity> : EntityBase<TIdentity>, IAggregate<TIdentity>
+public abstract class AggregateBase<TIdentity> : EntityBase<TIdentity>, IAggregate
     where TIdentity : IIdentity
 {
     protected AggregateBase(TIdentity id) : base(id)

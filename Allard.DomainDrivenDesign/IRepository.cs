@@ -1,6 +1,8 @@
 ﻿namespace Allard.DomainDrivenDesign;
 
-public interface IRepository<TEntity, in TIdentity> where TEntity : IAggregate<TIdentity> where TIdentity : IIdentity
+public interface IRepository<TEntity, in TIdentity> 
+    where TEntity : IAggregate
+    where TIdentity : IIdentity
 {
     Task<TEntity?> GetAsync(TIdentity id, CancellationToken cancellationToken);
 

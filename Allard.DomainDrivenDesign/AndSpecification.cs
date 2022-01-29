@@ -1,15 +1,19 @@
 ﻿namespace Allard.DomainDrivenDesign;
 
-public class AndSpecification<T> : ISpecification<T>
+public class AndSpecification<TLeft, TRight> : ISpecification<TRight>
+    where TRight : TLeft
 {
-    private readonly ISpecification<T> _left;
-    private readonly ISpecification<T> _right;
+    private readonly ISpecification<TLeft> _left;
+    private readonly ISpecification<TRight> _right;
 
-    public AndSpecification(ISpecification<T> left, ISpecification<T> right)
+    public AndSpecification(ISpecification<TLeft> left, ISpecification<TRight> right)
     {
         _left = left;
         _right = right;
     }
 
-    public bool IsSatisfied(T obj) => _left.IsSatisfied(obj) && _right.IsSatisfied(obj);
+    public bool IsSatisfied(TRight obj)
+    {
+        return _left.IsSatisfied(obj) && _right.IsSatisfied(obj);
+    }
 }

@@ -1,10 +1,12 @@
 ﻿namespace Allard.DomainDrivenDesign;
 
-public interface IDataChangeTracker<TEntity, TIdentity> where TEntity : IAggregate<TIdentity> where TIdentity : IIdentity
+public interface IDataChangeTracker<TAggregate, in TIdentity> 
+    where TAggregate : IAggregate
+    where TIdentity : IIdentity
 {
-    Task<bool> Exists(ISpecification<TEntity> specification);
-    Task<List<TEntity>> FindAsync(ISpecification<TEntity> specification);
-    Task AddAsync(TEntity entity);
+    Task<bool> Exists(ISpecification<TAggregate> specification);
+    Task<List<TAggregate>> FindAsync(ISpecification<TAggregate> specification);
+    Task AddAsync(TAggregate entity);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
-    Task<TEntity?> GetAsync(TIdentity id, CancellationToken cancellationToken = default);
+    Task<TAggregate?> GetAsync(TIdentity id, CancellationToken cancellationToken = default);
 }
