@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Allard.DomainDrivenDesign;
+﻿using Allard.DomainDrivenDesign;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
 
@@ -37,15 +36,12 @@ public class TokenSetEntity : AggregateBase<TokenSetId>
                 throw new InvalidOperationException("Unhandled event: " + evt.GetType().FullName);
         }
     }
-
-    private Dictionary<string, JToken> Tokens => _tokens.ToDictionary(kv => kv.Key, kv => kv.Value.DeepClone(),
-        StringComparer.OrdinalIgnoreCase);
-
+    
     public TokenSet ToTokenSet() => new()
     {
         Base = BaseTokenSetName,
         TokenSetName = TokenSetName,
-        Tokens = Tokens
+        Tokens = _tokens.ToDictionary(kv => kv.Key, kv => kv.Value.DeepClone())
     };
 
     public void SetValue(string key, JToken value)

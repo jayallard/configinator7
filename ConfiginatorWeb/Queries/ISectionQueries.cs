@@ -2,8 +2,8 @@
 
 public interface ISectionQueries
 {
-    Task<List<SectionListItemView>> GetSectionsListAsync(CancellationToken cancellationToken = default);
+    Task<List<SectionListItemDto>> GetSectionsListAsync(CancellationToken cancellationToken = default);
 
-    Task<SectionView?> GetSectionAsync(long id, CancellationToken cancellationToken = default);
-    Task<SectionView?> GetSectionAsync(string name, CancellationToken cancellationToken = default);
+    Task<SectionDto?> GetSectionAsync(long id, CancellationToken cancellationToken = default);
+    Task<SectionDto?> GetSectionAsync(string name, CancellationToken cancellationToken = default);
 }

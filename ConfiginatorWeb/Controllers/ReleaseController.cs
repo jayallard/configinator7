@@ -178,19 +178,19 @@ public class ReleaseController : Controller
 }
 
 public record ReleaseDisplayView(
-    SectionView Section,
-    SectionEnvironmentView SelectedEnvironment,
-    SectionReleaseView SelectedRelease,
-    SectionSchemaView SelectedSchema);
+    SectionDto Section,
+    SectionEnvironmentDto SelectedEnvironment,
+    SectionReleaseDto SelectedRelease,
+    SectionSchemaDto SelectedSchema);
 
 public record ReleaseHistoryView(
-    SectionView SelectedSection,
-    SectionEnvironmentView SelectedEnvironment,
+    SectionDto SelectedSection,
+    SectionEnvironmentDto SelectedEnvironment,
     List<ReleaseHistoryDeploymentPair> Deployments);
 
 public record ReleaseHistoryDeploymentPair(
-    SectionReleaseView Release,
-    SectionDeploymentHistoryView Deployment);
+    SectionReleaseDto Release,
+    SectionDeploymentDto Deployment);
 
 public class ReleaseDeployRequest : IRequest<ReleaseDeployResponse>
 {

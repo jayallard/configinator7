@@ -27,7 +27,8 @@ builder.Services
     .AddSingleton<ISectionRepository, SectionRepositoryMemory>()
     .AddSingleton<ITokenSetRepository, TokenSetRepositoryMemory>()
     .AddScoped<IUnitOfWork, UnitOfWorkMemory>()
-    .AddScoped<ISectionQueries, SectionQueriesDatabase>()
+    .AddSingleton<ISectionQueries, SectionQueriesCoreRepository>()
+    .AddSingleton<ITokenSetQueries, TokenSetQueriesCoreRepository>()
     .AddMediatR(typeof(Program));
 
 var app = builder.Build();

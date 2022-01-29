@@ -29,8 +29,8 @@ public class SectionEntity : AggregateBase<SectionId>
         string? tokenSetName = null) : base(id)
     {
         Guards.NotDefault(id, nameof(id));
-        Guards.HasValue(path, nameof(name));
-        Guards.HasValue(path, nameof(path));
+        Guards.NotEmpty(path, nameof(name));
+        Guards.NotEmpty(path, nameof(path));
         PlayEvent(new SectionCreatedEvent(id, name, path, schema, tokenSetName));
     }
 

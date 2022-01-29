@@ -1,47 +1,46 @@
 ﻿using System.Text.Json;
-using Allard.Configinator.Core.Model;
 using Allard.Json;
 using NJsonSchema;
 using NuGet.Versioning;
 
 namespace ConfiginatorWeb.Queries;
 
-public class SectionView
+public class SectionDto
 {
     public string SectionName { get; set; }
 
     public string Path { get; set; }
 
-    public List<SectionSchemaView> Schemas { get; set; }
+    public List<SectionSchemaDto> Schemas { get; set; }
 
-    public List<SectionEnvironmentView> Environments { get; set; }
+    public List<SectionEnvironmentDto> Environments { get; set; }
 
-    public SectionEnvironmentView GetEnvironment(string environmentName) =>
+    public SectionEnvironmentDto GetEnvironment(string environmentName) =>
         Environments.Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase));
 
-    public SectionSchemaView GetSchema(SemanticVersion version) =>
+    public SectionSchemaDto GetSchema(SemanticVersion version) =>
         Schemas.Single(s => s.Version == version);
 }
 
-public class SectionSchemaView
+public class SectionSchemaDto
 {
     public SemanticVersion Version { get; set; }
     public JsonSchema Schema { get; set; }
 }
 
-public class SectionEnvironmentView
+public class SectionEnvironmentDto
 {
     public string EnvironmentName { get; set; }
 
-    public List<SectionReleaseView> Releases { get; set; }
+    public List<SectionReleaseDto> Releases { get; set; }
 
-    public SectionReleaseView GetRelease(long releaseId) =>
+    public SectionReleaseDto GetRelease(long releaseId) =>
         Releases.Single(r => r.ReleaseId == releaseId);
 }
 
-public class SectionReleaseView
+public class SectionReleaseDto
 {
-    public SectionSchemaView Schema { get; set; }
+    public SectionSchemaDto Schema { get; set; }
     public long ReleaseId { get; set; }
 
     public DateTime CreateDate { get; set; }
@@ -50,16 +49,17 @@ public class SectionReleaseView
 
     public bool IsOutOfDate { get; set; }
 
+    // TODO: switch to dto
     public TokenSetComposed? TokenSet { get; set; }
     
     public JsonDocument ModelValue { get; set; }
     
     public JsonDocument ResolvedValue { get; set; }
     
-    public List<SectionDeploymentHistoryView> Deployments { get; set; }
+    public List<SectionDeploymentDto> Deployments { get; set; }
 }
 
-public class SectionDeploymentHistoryView
+public class SectionDeploymentDto
 {
     public long DeploymentId { get; set; }
     public DateTime DeploymentDate { get; set; }

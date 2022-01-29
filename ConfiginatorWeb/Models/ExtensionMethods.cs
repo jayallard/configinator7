@@ -5,16 +5,16 @@ namespace ConfiginatorWeb.Models;
 
 public static class ExtensionMethods
 {
-    public static SectionView ToOutputDto(this SectionEntity section) => new()
+    public static SectionDto ToOutputDto(this SectionEntity section) => new()
     {
         SectionName = section.SectionName,
         Path = section.Path,
-        Environments = section.Environments.Select(e => new SectionEnvironmentView
+        Environments = section.Environments.Select(e => new SectionEnvironmentDto
         {
             EnvironmentName = e.EnvironmentName,
-            Releases = e.Releases.Select(r => new SectionReleaseView
+            Releases = e.Releases.Select(r => new SectionReleaseDto
             {
-                Schema = new SectionSchemaView
+                Schema = new SectionSchemaDto
                 {
                     Schema = r.Schema.Schema,
                     Version = r.Schema.Version
@@ -25,7 +25,7 @@ public static class ExtensionMethods
                 TokenSet = r.TokenSet,
                 ModelValue = r.ModelValue,
                 ResolvedValue = r.ResolvedValue,
-                Deployments = r.Deployments.Select(d => new SectionDeploymentHistoryView
+                Deployments = r.Deployments.Select(d => new SectionDeploymentDto
                 {
                     DeploymentId = d.Id.Id,
                     DeploymentDate = d.DeploymentDate,
@@ -34,7 +34,7 @@ public static class ExtensionMethods
                 }).ToList()
             }).ToList()
         }).ToList(),
-        Schemas = section.Schemas.Select(s => new SectionSchemaView
+        Schemas = section.Schemas.Select(s => new SectionSchemaDto
         {
             Schema = s.Schema,
             Version = s.Version

@@ -1,5 +1,4 @@
 ﻿using Allard.Configinator.Core;
-using Allard.Configinator.Core.Repositories;
 using ConfiginatorWeb.Models.Configuration;
 using ConfiginatorWeb.Queries;
 using Microsoft.AspNetCore.Mvc;
@@ -9,17 +8,22 @@ namespace ConfiginatorWeb.Controllers;
 public class ConfigurationController : Controller
 {
     private readonly ISectionQueries _sectionQueries;
+    private readonly ITokenSetQueries _tokenSetQueries;
 
-    public ConfigurationController(ISectionQueries projections)
+    public ConfigurationController(ISectionQueries projections, ITokenSetQueries tokenSetQueries)
     {
         _sectionQueries = Guards.NotDefault(projections, nameof(projections));
+        _tokenSetQueries = Guards.NotDefault(tokenSetQueries, nameof(tokenSetQueries));
     }
 
     // GET
     public async Task<IActionResult> Index()
     {
-        var sections = await _sectionQueries.GetSectionsListAsync();
-        var view = new IndexView(sections.ToList());
+        var sections = _sectionQueries.GetSectionsListAsync();
+        var tokensSets = _tokenSetQueries.GetTokenSetListAsync();
+
+        await Task.WhenAll(sections, tokensSets);
+        var view = new IndexView(await sections, await tokensSets);
         return View(view);
     }
 
@@ -59,4 +63,4 @@ public class ConfigurationController : Controller
     }
 }
 
-public record IndexView(List<SectionListItemView> Sections);
+public record IndexView(List<SectionListItemDto> Sections, List<TokenSetListItemDto> TokenSets);

@@ -1,4 +1,5 @@
-﻿using Allard.DomainDrivenDesign;
+﻿using Allard.Configinator.Core;
+using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Infrastructure;
 
@@ -11,7 +12,7 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
 
     public DataChangeTracker(IRepository<TAggregate, TIdentity> repository)
     {
-        _repository = repository;
+        _repository = Guards.NotDefault(repository, nameof(repository));
     }
 
     public async Task<bool> Exists(ISpecification<TAggregate> specification)
@@ -19,18 +20,18 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
 
     public async Task<List<TAggregate>> FindAsync(ISpecification<TAggregate> specification)
     {
+        // if it's already in memory, don't get it from the db
         var notAlreadyInMemory = new IdNotIn(_localData.Select(s => s.EntityId));
+        
+        // concat the IdNotIn with the passed-in specification.
         var a = new AndSpecification<IAggregate, TAggregate>(notAlreadyInMemory, specification);
+        
+        // execute the query
         var fromDbTask = await _repository.FindAsync(a);
         var fromDb = fromDbTask.ToList();
 
-        // inefficient. got all matches from the db, now remove those that we already 
-        // have locally.
-        var ids = _localData.Select(d => d.EntityId).ToHashSet();
-        var withoutLocal = fromDb.Where(e => !ids.Contains(e.EntityId));
-
         // add the new ones to memory.
-        _localData.AddRange(withoutLocal);
+        _localData.AddRange(fromDb);
 
         // execute the query against memory, which now has everything we need
         return _localData.Where(specification.IsSatisfied).ToList();

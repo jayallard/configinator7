@@ -2,7 +2,7 @@
 
 public static class Guards
 {
-    public static string HasValue(string? value, string name) =>
+    public static string NotEmpty(string? value, string name) =>
         string.IsNullOrWhiteSpace(value)
             ? throw new ArgumentNullException(nameof(value))
             : name;
