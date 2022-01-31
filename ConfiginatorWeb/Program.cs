@@ -65,6 +65,9 @@ var tokenSetEntity = await tokenService.CreateTokenSetAsync("tokens1");
 tokenSetEntity.SetValue("first", "Santa");
 tokenSetEntity.SetValue("last", "Claus");
 
+var tokenSet2Entity = await tokenService.CreateTokenSetAsync("tokens2", "tokens1");
+tokenSet2Entity.SetValue("first", "SANTA!!!");
+
 var modelValue = JsonDocument.Parse("{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44 }");
 var composed = new TokenSetComposer(new[] {tokenSetEntity.ToTokenSet()}).Compose("tokens1");
 

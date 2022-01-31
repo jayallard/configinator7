@@ -1,6 +1,7 @@
 ﻿using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
+using Allard.Json;
 
 namespace Allard.Configinator.Core.DomainServices;
 
@@ -11,8 +12,8 @@ public class TokenSetDomainService
 
     public TokenSetDomainService(IUnitOfWork unitOfWork, IIdentityService identityService)
     {
-        _unitOfWork = unitOfWork;
-        _identityService = identityService;
+        _unitOfWork = Guards.NotDefault(unitOfWork, nameof(unitOfWork));
+        _identityService = Guards.NotDefault(identityService, nameof(identityService));
     }
 
     public async Task<TokenSetEntity> CreateTokenSetAsync(string tokenSetName, string? baseTokenSetName = default, CancellationToken cancellationToken = default)
@@ -31,5 +32,14 @@ public class TokenSetDomainService
         var tokenSet = new TokenSetEntity(id, tokenSetName, baseTokenSetName);
         await _unitOfWork.TokenSets.AddAsync(tokenSet);
         return tokenSet;
+    }
+
+    public async Task<TokenSetComposed> GetTokenSetComposedAsync(string tokenSetName, CancellationToken cancellationToken)
+    {
+        var tokens = (await _unitOfWork.TokenSets.FindAsync(new All(), cancellationToken))
+            .Select(t => t.ToTokenSet())
+            .ToList();
+        var composer = new TokenSetComposer(tokens);
+        return composer.Compose(tokenSetName);
     }
 }

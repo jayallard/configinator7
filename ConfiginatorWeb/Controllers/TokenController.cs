@@ -1,5 +1,7 @@
-﻿using Allard.Configinator.Core.Model;
-using Allard.Json;
+﻿using Allard.Configinator.Core;
+using ConfiginatorWeb.Interactors;
+using ConfiginatorWeb.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,86 +10,71 @@ namespace ConfiginatorWeb.Controllers;
 
 public class TokenController : Controller
 {
-    // private readonly SuperAggregate _aggregate;
-    //
-    // public TokenController(SuperAggregate aggregate)
-    // {
-    //     _aggregate = aggregate;
-    // }
-    //
-    // // GET
-    // public IActionResult Index(string tokenSetName)
-    // {
-    //     var tokens = _aggregate.ResolveTokenSet(tokenSetName);
-    //     if (tokens == null) throw new ArgumentException("make me a 404!");
-    //
-    //     var v = new EditTokenSetView
-    //     {
-    //         Composed = tokens
-    //     };
-    //     return View(v);
-    // }
-    //
-    // public IActionResult EditValue(string tokenSetName, string key)
-    // {
-    //     var tokenSet = _aggregate.TemporaryExposureTokenSets[tokenSetName];
-    //     var token =
-    //         tokenSet.Tokens.ContainsKey(key)
-    //             ? tokenSet.Tokens[key]
-    //             : JToken.Parse("\"\"");
-    //     
-    //     var resolved = _aggregate.ResolveTokenSet(tokenSetName);
-    //     if (resolved == null)
-    //     {
-    //         // todo: 404
-    //         throw new NotImplementedException();
-    //     }
-    //     
-    //     return View(new EditValueView
-    //     {
-    //         TokenSetName = tokenSetName,
-    //         Key = key,
-    //         SelectedToken = token,
-    //         TokensComposed = resolved
-    //     });
-    // }
-    //
-    // [HttpPost]
-    // public IActionResult SaveValue(string tokenSetName, string key, string value)
-    // {
-    //     var jsonValue = ToToken();
-    //     _aggregate.SetTokenValue(tokenSetName, key, jsonValue);
-    //     return RedirectToAction("index", new {tokenSetName = tokenSetName});
-    //
-    //     JToken ToToken()
-    //     {
-    //         // hack - need to be explicit about type
-    //         try
-    //         {
-    //             return JToken.Parse(value);
-    //         }
-    //         catch (JsonReaderException)
-    //         {
-    //             return value;
-    //         }
-    //     }
-    // }
+    private readonly IMediator _mediator;
+
+    public TokenController(IMediator mediator)
+    {
+        _mediator = Guards.NotDefault(mediator, nameof(mediator));
+    }
+
+    // GET
+    public async Task<IActionResult> Index(string tokenSetName, CancellationToken cancellationToken)
+    {
+        var tokenSet = await _mediator.Send(new TokenSetComposedQuery(tokenSetName), cancellationToken);
+        return View(new EditTokenSetView(tokenSet.TokenSet));
+    }
+
+    public async Task<IActionResult> EditValue(string tokenSetName, string key, CancellationToken cancellationToken)
+    {
+        var tokenSet = await _mediator.Send(new TokenSetComposedQuery(tokenSetName), cancellationToken);
+        var token =
+            tokenSet.TokenSet.Tokens.ContainsKey(key)
+                ? tokenSet.TokenSet.Tokens[key].Token
+                : JToken.Parse("\"\"");
+
+        return View(new EditValueView
+        {
+            TokenSetName = tokenSetName,
+            Key = key,
+            SelectedToken = token,
+            TokensComposed = tokenSet.TokenSet
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveValue(string tokenSetName, string key, string value,
+        CancellationToken cancellationToken)
+    {
+        var command = new SetTokenValueCommand(tokenSetName, key, value);
+        await _mediator.Send(command, cancellationToken);
+        return RedirectToAction("index", new {tokenSetName = tokenSetName});
+
+        JToken ToToken()
+        {
+            // hack - need to be explicit about type
+            try
+            {
+                return JToken.Parse(value);
+            }
+            catch (JsonReaderException)
+            {
+                return value;
+            }
+        }
+    }
 }
 
-public class EditTokenSetView
-{
-    public TokenSetComposed Composed { get; set; }
-}
+public record EditTokenSetView(TokenSetComposedDto TokenSet);
 
 public class EditValueView
 {
     public string TokenSetName { get; set; }
-    
+
     public string Key { get; set; }
 
     public JToken SelectedToken { get; set; }
-    
-    public TokenSetComposed TokensComposed { get; set; }
+
+    public TokenSetComposedDto TokensComposed { get; set; }
 }
 
 public class SaveTokenValue

@@ -18,7 +18,7 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
     public async Task<bool> Exists(ISpecification<TAggregate> specification)
         => _localData.Any(specification.IsSatisfied) || await _repository.ExistsAsync(specification);
 
-    public async Task<List<TAggregate>> FindAsync(ISpecification<TAggregate> specification)
+    public async Task<List<TAggregate>> FindAsync(ISpecification<TAggregate> specification, CancellationToken cancellationToken)
     {
         // if it's already in memory, don't get it from the db
         var notAlreadyInMemory = new IdNotIn(_localData.Select(s => s.EntityId));
@@ -27,7 +27,7 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
         var a = new AndSpecification<IAggregate, TAggregate>(notAlreadyInMemory, specification);
         
         // execute the query
-        var fromDbTask = await _repository.FindAsync(a);
+        var fromDbTask = await _repository.FindAsync(a, cancellationToken);
         var fromDb = fromDbTask.ToList();
 
         // add the new ones to memory.

@@ -1,6 +1,7 @@
 ﻿@model ConfiginatorWeb.Controllers.EditTokenSetView
 @using System.Linq;
 @using Allard.Json
+@using ConfiginatorWeb.Queries
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
@@ -8,9 +9,9 @@
 
 @functions
 {
-    IEnumerable<TokenComposed> Tokens()
+    IEnumerable<TokenComposedDto> Tokens()
     {
-        return Model.Composed.Tokens.Values.OrderBy(t => t.Name);
+        return Model.TokenSet.Tokens.Values.OrderBy(t => t.Name);
     // .OrderBy(t => string.Equals(t.SourceTokenSet, Model.Resolved.TokenSetName, StringComparison.OrdinalIgnoreCase) ? 1 : 0)
     // .ThenBy(t => t.SourceTokenSet)
     // .ThenBy(t => t.Name);
@@ -26,10 +27,10 @@
         color: blue;
     }
 </style>
-<h2>Token Set: @Model.Composed.TokenSetName</h2>
-@if (Model.Composed.Base != null)
+<h2>Token Set: @Model.TokenSet.TokenSetName</h2>
+@if (Model.TokenSet.Base != null)
 {
-    <h2>Base: @Model.Composed.Base</h2>
+    <h2>Base: @Model.TokenSet.Base</h2>
 }
 
 <table class="table table-bordered">
@@ -48,7 +49,7 @@
                 @t.Name
             </td>
             <td>
-               <a asp-action="EditValue" asp-route-tokenSetName="@Model.Composed.TokenSetName" asp-route-key="@t.Name">Edit</a>
+               <a asp-action="EditValue" asp-route-tokenSetName="@Model.TokenSet.TokenSetName" asp-route-key="@t.Name">Edit</a>
                 @if (t.TokenValueOrigin != TokenValueOrigin.Inherited)
                 {
                     <span>&nbsp;|&nbsp;<a href="#">Delete</a></span>
@@ -74,7 +75,7 @@
                     // reverse and print the list
                     // this results in the info starting at the top base
                     // class, then down the stack
-                    var items = new List<TokenComposed>();
+                    var items = new List<TokenComposedDto>();
                     var current = t.BaseToken;
                     while (current != null)
                     {

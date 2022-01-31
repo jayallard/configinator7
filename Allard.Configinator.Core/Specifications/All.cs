@@ -1,6 +1,6 @@
 ﻿using Allard.DomainDrivenDesign;
 
-namespace Allard.Configinator.Infrastructure;
+namespace Allard.Configinator.Core.Specifications;
 
 public class All : ISpecification<IEntity>
 {
