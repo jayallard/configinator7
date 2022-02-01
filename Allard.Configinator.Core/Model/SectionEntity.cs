@@ -57,6 +57,9 @@ public class SectionEntity : AggregateBase<SectionId>
     public SchemaEntity GetSchema(SchemaId schemaId) =>
         InternalSchemas.Single(s => s.Id == schemaId);
 
+    public SchemaEntity GetSchema(SemanticVersion version) =>
+        InternalSchemas.Single(s => s.Version == version);
+
     public EnvironmentEntity AddEnvironment(EnvironmentId environmentId, string name)
     {
         InternalEnvironments.EnsureEnvironmentDoesntExist(environmentId, name);

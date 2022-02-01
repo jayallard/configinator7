@@ -7,17 +7,6 @@
     Layout = "_Layout";
 }
 
-@functions
-{
-    IEnumerable<TokenComposedDto> Tokens()
-    {
-        return Model.TokenSet.Tokens.Values.OrderBy(t => t.Name);
-    // .OrderBy(t => string.Equals(t.SourceTokenSet, Model.Resolved.TokenSetName, StringComparison.OrdinalIgnoreCase) ? 1 : 0)
-    // .ThenBy(t => t.SourceTokenSet)
-    // .ThenBy(t => t.Name);
-    }
-}
-
 <style>
     pre {
         background-color: white;
@@ -42,7 +31,7 @@
         <th>Parent Values</th>
     </tr>
     </thead>
-    @foreach (var t in Tokens())
+    @foreach (var t in Model.TokenSet.Tokens.Values.OrderBy(t => t.Name))
     {
         <tr>
             <td>

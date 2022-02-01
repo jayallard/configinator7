@@ -36,6 +36,4 @@ public class SectionDomainService
         await _unitOfWork.Sections.AddAsync(section);
         return section;
     }
-
-
 }

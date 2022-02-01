@@ -35,9 +35,4 @@
     <ItemGroup>
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Content Remove="Views\Release\Add.cshtml" />
-    </ItemGroup>
-
 </Project>

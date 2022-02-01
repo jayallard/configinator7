@@ -3,7 +3,6 @@ using ConfiginatorWeb.Interactors;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ConfiginatorWeb.Controllers;
@@ -42,25 +41,15 @@ public class TokenController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> SaveValue(string tokenSetName, string key, string value,
+    public async Task<IActionResult> SaveValue(
+        string tokenSetName, 
+        string key, 
+        string value,
         CancellationToken cancellationToken)
     {
         var command = new SetTokenValueCommand(tokenSetName, key, value);
         await _mediator.Send(command, cancellationToken);
         return RedirectToAction("index", new {tokenSetName = tokenSetName});
-
-        JToken ToToken()
-        {
-            // hack - need to be explicit about type
-            try
-            {
-                return JToken.Parse(value);
-            }
-            catch (JsonReaderException)
-            {
-                return value;
-            }
-        }
     }
 }
 

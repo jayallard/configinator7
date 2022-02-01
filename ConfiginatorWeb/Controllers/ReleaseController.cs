@@ -1,4 +1,6 @@
-﻿using ConfiginatorWeb.Queries;
+﻿using ConfiginatorWeb.Interactors;
+using ConfiginatorWeb.Models.Release;
+using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,117 +8,65 @@ namespace ConfiginatorWeb.Controllers;
 
 public class ReleaseController : Controller
 {
+    private readonly ITokenSetQueries _tokenSetQueries;
     private readonly ISectionQueries _sectionQueries;
     private readonly IMediator _mediator;
 
     public ReleaseController(
         ISectionQueries sectionQueries,
-        IMediator mediator)
+        IMediator mediator, ITokenSetQueries tokenSetQueries)
     {
         _sectionQueries = sectionQueries;
         _mediator = mediator;
+        _tokenSetQueries = tokenSetQueries;
     }
 
-    //
+    // GET
+    public async Task<IActionResult> Add(
+        string sectionName,
+        string environmentName,
+        CancellationToken cancellationToken)
+    {
+        var section = await _sectionQueries.GetSectionAsync(sectionName, cancellationToken);
+        if (section == null) throw new InvalidOperationException("Section doesn't exist: " + sectionName);
+        var environment = section.GetEnvironment(environmentName);
 
-    // // GET
+        // set the value to the last of the most recent release.
+        var value = environment.Releases.LastOrDefault()?.ModelValue.RootElement.ToString();
+        var tokenSetName = environment.Releases.LastOrDefault()?.TokenSet?.TokenSetName;
+        var tokenSets = (await _tokenSetQueries.GetTokenSetListAsync(cancellationToken))
+            .Select(s => s.TokenSetName)
+            .OrderBy(s => s)
+            .ToList();
 
-    // public IActionResult Add(string sectionName, string environmentName)
+        var v = new EditReleaseView
+        {
+            EnvironmentName = environmentName,
+            SectionName = sectionName,
+            Schemas = section
+                .Schemas
+                .OrderByDescending(s => s.Version)
+                .Select(s => new EditSchemaView(
+                    "schema-" + s.Version.ToFullString().Replace(".", "-"),
+                    s.Version.ToFullString(),
+                    s.Schema.ToJson()))
+                .ToList(),
 
-    // {
+            DefaultValue = value,
+            DefaultTokenSetName = tokenSetName,
+            TokenSetNames = tokenSets
+        };
 
-    //     var section = _aggregate.TemporaryExposureSections[sectionName];
-
-    //     var env = section.Environments.Single(e =>
-
-    //         string.Equals(e.EnvironmentId.Name, environmentName, StringComparison.OrdinalIgnoreCase));
-
-    //     
-
-    //     // set the value to the last of the most recent release.
-
-    //     var value = env.Releases.LastOrDefault()?.ModelValue.ToString();
-
-    //     var ts = env.Releases.LastOrDefault()?.TokenSet?.TokenSetName;
-
-    //     var v = new EditReleaseView
-
-    //     {
-
-    //         EnvironmentName = environmentName,
-
-    //         SectionName = sectionName,
-
-    //         Schemas = section
-
-    //             .Schemas
-
-    //             .OrderByDescending(s => s.Version)
-
-    //             .Select(s => new EditSchemaView(
-
-    //                 "schema-" + s.Version.ToFullString().Replace(".", "-"),
-
-    //                 s.Version.ToFullString(),
-
-    //                 s.Schema.ToJson()))
-
-    //             .ToList(),
-
-    //         DefaultValue = value,
-
-    //         DefaultTokenSetName = ts,
-
-    //         TokenSetNames = _aggregate.TemporaryExposureTokenSets.Keys.OrderBy(k => k).ToList()
-
-    //     };
-
-    //     return View(v);
-
-    // }
-
-    //
-
-    // [HttpPost]
-
-    // public async Task<CreateResponse> Create(string sectionName, string environmentName, string version, string value, string? tokenSetName)
-
-    // {
-
-    //     try
-
-    //     {
-
-    //         var json = JObject.Parse(value);
-
-    //         await _aggregate.CreateReleaseAsync(sectionName, environmentName, tokenSetName, SemanticVersion.Parse(version), json);
-
-    //         return new CreateResponse(true, new List<string>());
-
-    //     }
-
-    //     catch (SchemaValidationFailedException vex)
-
-    //     {
-
-    //         return new CreateResponse(false, vex.Errors.Select(v => v.ToString()).ToList());
-
-    //     }
-
-    //     catch (Exception ex)
-
-    //     {
-
-    //         return new CreateResponse(false, new List<string> {ex.Message});
-
-    //     }
-
-    // }
-
-    //
+        return View(v);
+    }
 
     [HttpPost]
-    public async Task<ReleaseDeployResponse> Deploy(ReleaseDeployRequest request, CancellationToken cancellationToken) =>
+    public async Task<CreateReleaseResponse> Create(CreateReleaseRequest request) =>
+        await _mediator.Send(request);
+
+    [HttpPost]
+    public async Task<ReleaseDeployResponse>
+        Deploy(ReleaseDeployRequest request, CancellationToken cancellationToken) =>
         await _mediator.Send(request, cancellationToken);
 
 
@@ -143,38 +93,6 @@ public class ReleaseController : Controller
         var schema = section.GetSchema(release.Schema.Version);
         return View(new ReleaseDisplayView(section, env, release, schema));
     }
-
-    //
-
-    // public record HistoryView(string SectionName, string EnvironmentName, List<HistoryItem> History);
-
-    //
-
-    // public record HistoryItem(
-
-    //     DateTime Date, 
-
-    //     bool IsDeploymentAction, 
-
-    //     string Reason, 
-
-    //     SemanticVersion SchemaVersion,
-
-    //     long ReleaseId,
-
-    //     bool IsOutOrDate)
-
-    // {
-
-    //     public bool IsDeployed { get; set; }   
-
-    // }
-
-    // public record DeployResponse;
-
-    //
-
-    // public record CreateResponse(bool Success, List<string> Errors);
 }
 
 public record ReleaseDisplayView(
