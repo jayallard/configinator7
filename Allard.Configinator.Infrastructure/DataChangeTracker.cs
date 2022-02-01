@@ -9,7 +9,7 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
 {
     private readonly List<TAggregate> _localData = new();
     private readonly IRepository<TAggregate, TIdentity> _repository;
-
+    
     public DataChangeTracker(IRepository<TAggregate, TIdentity> repository)
     {
         _repository = Guards.NotDefault(repository, nameof(repository));
@@ -56,4 +56,6 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
 
     public async Task<TAggregate?> GetAsync(TIdentity id, CancellationToken cancellationToken = default) =>
         await _repository.GetAsync(id, cancellationToken);
+
+    public Task<List<IDomainEvent>> GetEvents(CancellationToken cancellationToken = default) => Task.FromResult(_localData.SelectMany(d => d.SourceEvents).ToList());
 }

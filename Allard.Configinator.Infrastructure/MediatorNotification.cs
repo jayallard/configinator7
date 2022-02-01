@@ -10,8 +10,15 @@ namespace Allard.Configinator.Infrastructure;
 /// MediatorPublisher wraps each event with this.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class MediatorNotification<T> : INotification where T : IDomainEvent
+public class MediatorNotification<T> : INotification
+    where T : IDomainEvent
 {
     public MediatorNotification(T evt) => DomainEvent = evt;
     public T DomainEvent { get; }
+}
+
+
+public interface IBlahNotificationHandler<in TNotification> : INotificationHandler<TNotification>
+    where TNotification : INotification
+{
 }

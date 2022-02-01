@@ -31,6 +31,7 @@ builder.Services
     .AddSingleton<ITokenSetQueries, TokenSetQueriesCoreRepository>()
     .AddMediatR(typeof(Program));
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -50,6 +51,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 var s1File = Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "test2.json");
 var s1 = await JsonSchema.FromFileAsync(s1File);

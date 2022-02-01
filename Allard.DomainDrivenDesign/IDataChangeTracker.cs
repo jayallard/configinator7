@@ -9,4 +9,5 @@ public interface IDataChangeTracker<TAggregate, in TIdentity>
     Task AddAsync(TAggregate entity);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
     Task<TAggregate?> GetAsync(TIdentity id, CancellationToken cancellationToken = default);
+    Task<List<IDomainEvent>> GetEvents(CancellationToken cancellationToken = default);
 }

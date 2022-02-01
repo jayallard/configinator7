@@ -7,10 +7,13 @@ namespace Allard.Configinator.Infrastructure.Repositories;
 
 public class UnitOfWorkMemory : IUnitOfWork
 {
+    private readonly IEventPublisher _publisher;
     public UnitOfWorkMemory(
         ISectionRepository sectionRepository, 
-        ITokenSetRepository tokenSetRepository)
+        ITokenSetRepository tokenSetRepository, 
+        IEventPublisher publisher)
     {
+        _publisher = Guards.NotDefault(publisher, nameof(publisher));
         Sections = Guards.NotDefault(new DataChangeTracker<SectionEntity, SectionId>(sectionRepository), nameof(sectionRepository));
         TokenSets = Guards.NotDefault(new DataChangeTracker<TokenSetEntity, TokenSetId>(tokenSetRepository),nameof(tokenSetRepository));
     }
@@ -20,7 +23,20 @@ public class UnitOfWorkMemory : IUnitOfWork
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        var events =
+            (await Sections.GetEvents(cancellationToken))
+            .Union(await TokenSets.GetEvents(cancellationToken))
+            .OrderBy(e => e.EventDate);
+
+        // write the changes, then publish events.
         await Sections.SaveChangesAsync(cancellationToken);
         await TokenSets.SaveChangesAsync(cancellationToken);
+        // if db, commit here.
+        
+        // this is after the commit. if this fails, then data changed and
+        // downstream systems won't get word.
+        // alternative: publish to the db outbox before the commit,
+        // then copy from outbox to publisher.
+        await _publisher.PublishAsync(events, cancellationToken);
     }
 }
