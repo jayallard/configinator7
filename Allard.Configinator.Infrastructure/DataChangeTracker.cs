@@ -49,6 +49,7 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
         foreach (var e in _localData)
         {
             await _repository.SaveAsync(e);
+            e.ClearEvents();
         }
 
         _localData.Clear();

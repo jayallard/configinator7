@@ -54,7 +54,7 @@ public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEv
             // if the value has changed, then set the release to out of date
             foreach (var release in releases)
             {
-                section.SetOutOfDate(release.Environment.Id, release.Release.Id, true);
+                section.SetOutOfDate(release.Environment.Id, release.Release.Id);
             }
         }
     }

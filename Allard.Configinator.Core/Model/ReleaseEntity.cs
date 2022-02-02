@@ -81,7 +81,7 @@ public class ReleaseEntity : EntityBase<ReleaseId>
         TokenSet = tokenSet;
         CreateDate = DateTime.Now;
         TokensInUse = JsonUtility
-            .GetTokens(resolvedValue.ToJsonNetJson())
+            .GetTokens(modelValue.ToJsonNetJson())
             .Select(t => t.TokenName)
             .ToImmutableHashSet();
     }

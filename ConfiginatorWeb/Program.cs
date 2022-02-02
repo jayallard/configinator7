@@ -19,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services
-    .AddSingleton<IEventPublisher, MediatorPublisher>()
+    .AddScoped<IEventPublisher, MediatorPublisher>()
     .AddSingleton<IIdentityService, IdentityServiceMemory>()
 
     // domain services

@@ -148,9 +148,9 @@ public class SectionEntity : AggregateBase<SectionId>
         }
     }
 
-    internal void SetOutOfDate(EnvironmentId environmentId, ReleaseId releaseId, bool isOutOfDate)
+    internal void SetOutOfDate(EnvironmentId environmentId, ReleaseId releaseId)
     {
-        
+        PlayEvent(new ReleaseFellOutOfDate(Id, environmentId, releaseId));
     }
 
     /// <summary>
