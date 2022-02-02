@@ -30,7 +30,7 @@ public class TokenSetEntity : AggregateBase<TokenSetId>
             }
             case TokenValueSetEvent setter:
             {
-                _tokens[setter.Key] = setter.Value;
+                _tokens[setter.TokenName] = setter.Value;
                 break;
             }
             default:

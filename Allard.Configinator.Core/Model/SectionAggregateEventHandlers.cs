@@ -26,8 +26,11 @@ internal static class SectionAggregateEventHandlers
             case DeploymentRemovedEvent removed:
                 RemoveDeployed(section, removed);
                 break;
-            case ReleaseFellOutOfDate outOfDate:
+            case ReleaseValueBecameOld outOfDate:
                 OutOfDate(section, outOfDate);
+                break;
+            case ReleaseValueBecameCurrent current:
+                CurrentValue(section, current);
                 break;
             default:
                 throw new NotImplementedException("Unhandled event: " + evt.GetType().FullName);
@@ -81,6 +84,9 @@ internal static class SectionAggregateEventHandlers
         release.InternalDeployments.GetDeployment(evt.DeploymentId).RemovedDeployment(evt.EventDate, evt.RemoveReason);
     }
 
-    private static void OutOfDate(SectionEntity section, ReleaseFellOutOfDate evt) =>
+    private static void OutOfDate(SectionEntity section, ReleaseValueBecameOld evt) =>
         section.GetRelease(evt.EnvironmentId, evt.ReleaseId).SetOutOfDate(true);
+    
+    private static void CurrentValue(SectionEntity section, ReleaseValueBecameCurrent evt) =>
+        section.GetRelease(evt.EnvironmentId, evt.ReleaseId).SetOutOfDate(false);
 }

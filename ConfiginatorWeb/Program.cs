@@ -27,7 +27,7 @@ builder.Services
     .AddScoped<TokenSetDomainService>()
     
     // event handlers - HACK
-    .AddTransient<IEventHandler<TokenValueSetEvent>, UpdateReleasesWhenTokenValueChanges>()
+    .AddScoped<IEventHandler<TokenValueSetEvent>, UpdateReleasesWhenTokenValueChanges>()
     
     
     .AddScoped<IUnitOfWork, UnitOfWorkMemory>()

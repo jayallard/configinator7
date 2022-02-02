@@ -110,14 +110,19 @@ public record DeploymentRemovedEvent(
 /// The value of a token changed.
 /// </summary>
 /// <param name="TokenSetName"></param>
-/// <param name="Key"></param>
+/// <param name="TokenName"></param>
 /// <param name="Value"></param>
 public record TokenValueSetEvent(
     string TokenSetName,
-    string Key,
+    string TokenName,
     JToken Value) : DomainEventBase;
     
-public record ReleaseFellOutOfDate(
+public record ReleaseValueBecameCurrent(
+    SectionId SectionId,
+    EnvironmentId EnvironmentId,
+    ReleaseId ReleaseId) : DomainEventBase;
+    
+public record ReleaseValueBecameOld(
     SectionId SectionId,
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId) : DomainEventBase;
