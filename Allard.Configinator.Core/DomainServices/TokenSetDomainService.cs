@@ -34,12 +34,14 @@ public class TokenSetDomainService
         return tokenSet;
     }
 
-    public async Task<TokenSetComposed> GetTokenSetComposedAsync(string tokenSetName, CancellationToken cancellationToken)
+    public async Task<TokenSetComposer> GetTokenSetComposerAsync(CancellationToken cancellationToken = default)
     {
-        var tokens = (await _unitOfWork.TokenSets.FindAsync(new All(), cancellationToken))
+        var tokenSets = (await _unitOfWork.TokenSets.FindAsync(new All(), cancellationToken))
             .Select(t => t.ToTokenSet())
             .ToList();
-        var composer = new TokenSetComposer(tokens);
-        return composer.Compose(tokenSetName);
+        return new TokenSetComposer(tokenSets);
     }
+
+    public async Task<TokenSetComposed> GetTokenSetComposedAsync(string tokenSetName, CancellationToken cancellationToken = default) =>
+            (await GetTokenSetComposerAsync(cancellationToken)).Compose(tokenSetName);
 }

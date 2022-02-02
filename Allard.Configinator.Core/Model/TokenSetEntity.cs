@@ -19,6 +19,7 @@ public class TokenSetEntity : AggregateBase<TokenSetId>
 
     private void Play(IDomainEvent evt)
     {
+        InternalSourceEvents.Add(evt);
         switch (evt)
         {
             case TokenSetCreatedEvent created:

@@ -1,4 +1,6 @@
-﻿namespace Allard.Json;
+﻿using System.Runtime.Versioning;
+
+namespace Allard.Json;
 
 /// <summary>
 /// TokenSets can inherit from TokenSets, etc. It can be a deep hierarchy.
@@ -19,6 +21,27 @@ public class TokenSetComposer
         _tokenSets = tokenSets.ToDictionary(t => t.TokenSetName, t => t, StringComparer.OrdinalIgnoreCase);
     }
 
+    public IEnumerable<TokenSet> GetDescendantsAndSelf(string tokenSetName)
+    {
+        // TODO: inefficient. build a hierarchy and use it. 
+        foreach (var t in _tokenSets.Values)
+        {
+            if (string.Equals(tokenSetName, t.TokenSetName, StringComparison.OrdinalIgnoreCase)) yield return t;
+            var current = t;
+            while (current.Base != null)
+            {
+                if (current.Base.Equals(tokenSetName, StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return t;
+                    break;
+                }
+
+                current = _tokenSets[current.Base];
+            }
+        }
+    }
+    
+    
     /// <summary>
     /// Retrieve a token set by name.
     /// </summary>

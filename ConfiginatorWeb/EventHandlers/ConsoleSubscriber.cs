@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace ConfiginatorWeb;
+namespace ConfiginatorWeb.EventHandlers;
 
 public class ConsoleSubscriber<TNotification> : INotificationHandler<TNotification> 
     where TNotification : INotification

@@ -16,7 +16,6 @@ public class SectionEntity : AggregateBase<SectionId>
     public SectionId Id { get; internal set; }
     public string SectionName { get; internal set; }
     public string Path { get; internal set; }
-    public string? TokenSetName { get; internal set; }
 
     public EnvironmentEntity GetEnvironment(string name) =>
         InternalEnvironments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
@@ -25,13 +24,12 @@ public class SectionEntity : AggregateBase<SectionId>
         InternalEnvironments.GetEnvironment(environmentId);
 
 
-    internal SectionEntity(SectionId id, string name, string path, SchemaEntity? schema = null,
-        string? tokenSetName = null) : base(id)
+    internal SectionEntity(SectionId id, string name, string path, SchemaEntity? schema = null) : base(id)
     {
         Guards.NotDefault(id, nameof(id));
         Guards.NotEmpty(path, nameof(name));
         Guards.NotEmpty(path, nameof(path));
-        PlayEvent(new SectionCreatedEvent(id, name, path, schema, tokenSetName));
+        PlayEvent(new SectionCreatedEvent(id, name, path, schema));
     }
 
     public SectionEntity(IEnumerable<IDomainEvent> events) : base(new SectionId(3))
@@ -148,6 +146,11 @@ public class SectionEntity : AggregateBase<SectionId>
         {
             throw new SchemaValidationFailedException(results);
         }
+    }
+
+    internal void SetOutOfDate(EnvironmentId environmentId, ReleaseId releaseId, bool isOutOfDate)
+    {
+        
     }
 
     /// <summary>

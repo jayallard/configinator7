@@ -15,13 +15,11 @@ namespace Allard.Configinator.Core;
 /// <param name="SectionName"></param>
 /// <param name="Path"></param>
 /// <param name="Schema"></param>
-/// <param name="TokenSetName"></param>
 public record SectionCreatedEvent(
     SectionId SectionId,
     string SectionName,
     string? Path,
-    SchemaEntity? Schema,
-    string? TokenSetName) : DomainEventBase;
+    SchemaEntity? Schema) : DomainEventBase;
 
 /// <summary>
 /// An environment was added to a configuration section.
@@ -118,3 +116,8 @@ public record TokenValueSetEvent(
     string TokenSetName,
     string Key,
     JToken Value) : DomainEventBase;
+    
+public record ReleaseFellOutOfDate(
+    SectionId SectionId,
+    EnvironmentId EnvironmentId,
+    ReleaseId ReleaseId) : DomainEventBase;

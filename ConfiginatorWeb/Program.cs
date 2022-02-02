@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Allard.Configinator.Core;
+using Allard.Configinator.Core.DomainEventHandlers;
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
@@ -23,6 +25,11 @@ builder.Services
     // domain services
     .AddScoped<SectionDomainService>()
     .AddScoped<TokenSetDomainService>()
+    
+    // event handlers - HACK
+    .AddTransient<IEventHandler<TokenValueSetEvent>, UpdateReleasesWhenTokenValueChanges>()
+    
+    
     .AddScoped<IUnitOfWork, UnitOfWorkMemory>()
     .AddSingleton<ISectionRepository, SectionRepositoryMemory>()
     .AddSingleton<ITokenSetRepository, TokenSetRepositoryMemory>()
@@ -30,7 +37,6 @@ builder.Services
     .AddSingleton<ISectionQueries, SectionQueriesCoreRepository>()
     .AddSingleton<ITokenSetQueries, TokenSetQueriesCoreRepository>()
     .AddMediatR(typeof(Program));
-
 
 var app = builder.Build();
 
@@ -85,10 +91,10 @@ section1.AddSchema(await idService.GetId<SchemaId>(), new SemanticVersion(2, 0, 
 var release = await section1.CreateReleaseAsync(env1.Id, await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now);
 
-var release2 = await section1.CreateReleaseAsync(env1.Id, await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
+await section1.CreateReleaseAsync(env1.Id, await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now);
 
-var section2 = await sectionService.CreateSectionAsync("name2", "path2");
+await sectionService.CreateSectionAsync("name2", "path2");
 await uow.SaveChangesAsync();
 
 app.Run();

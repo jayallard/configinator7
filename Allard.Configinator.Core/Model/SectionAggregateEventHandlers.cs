@@ -4,7 +4,7 @@ namespace Allard.Configinator.Core.Model;
 
 internal static class SectionAggregateEventHandlers
 {
-    public static void Play(SectionEntity section, IDomainEvent evt)
+    internal static void Play(SectionEntity section, IDomainEvent evt)
     {
         switch (evt)
         {
@@ -26,30 +26,32 @@ internal static class SectionAggregateEventHandlers
             case DeploymentRemovedEvent removed:
                 RemoveDeployed(section, removed);
                 break;
+            case ReleaseFellOutOfDate outOfDate:
+                OutOfDate(section, outOfDate);
+                break;
             default:
                 throw new NotImplementedException("Unhandled event: " + evt.GetType().FullName);
         }
     }
 
-    public static void CreateSection(SectionEntity section, SectionCreatedEvent evt)
+    private static void CreateSection(SectionEntity section, SectionCreatedEvent evt)
     {
         section.Path = evt.Path;
         section.Id = evt.SectionId;
         section.SectionName = evt.SectionName;
-        section.TokenSetName = evt.TokenSetName;
         if (evt.Schema != null)
         {
             section.InternalSchemas.Add(evt.Schema);
         }
     }
 
-    public static void AddEnvironment(SectionEntity section, EnvironmentCreatedEvent evt) =>
+    private static void AddEnvironment(SectionEntity section, EnvironmentCreatedEvent evt) =>
         section.InternalEnvironments.Add(new EnvironmentEntity(evt.EnvironmentId, evt.EnvironmentName));
 
-    public static void AddSchema(SectionEntity section, SchemaAddedToSectionEvent evt) =>
+    private static void AddSchema(SectionEntity section, SchemaAddedToSectionEvent evt) =>
         section.InternalSchemas.Add(new SchemaEntity(evt.SchemaId, evt.SchemaVersion, evt.Schema));
 
-    public static void AddRelease(SectionEntity section, ReleaseCreatedEvent evt)
+    private static void AddRelease(SectionEntity section, ReleaseCreatedEvent evt)
     {
         var env = section.GetEnvironment(evt.EnvironmentId);
         var schema = section.GetSchema(evt.SchemaId);
@@ -78,4 +80,7 @@ internal static class SectionAggregateEventHandlers
         release.SetDeployed(false);
         release.InternalDeployments.GetDeployment(evt.DeploymentId).RemovedDeployment(evt.EventDate, evt.RemoveReason);
     }
+
+    private static void OutOfDate(SectionEntity section, ReleaseFellOutOfDate evt) =>
+        section.GetRelease(evt.EnvironmentId, evt.ReleaseId).SetOutOfDate(true);
 }

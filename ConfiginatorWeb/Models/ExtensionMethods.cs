@@ -21,6 +21,7 @@ public static class ExtensionMethods
                 },
                 CreateDate = r.CreateDate,
                 IsDeployed = r.IsDeployed,
+                IsOutOfDate = r.IsOutOfDate,
                 ReleaseId = r.Id.Id,
                 TokenSet = r.TokenSet,
                 ModelValue = r.ModelValue,

@@ -73,10 +73,10 @@
                     <span class="badge rounded-pill bg-success">Deployed</span>
                 }
 
-                @* @if (Model.Release.IsOutOfDate) *@
-                @* { *@
-                @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
-                @* } *@
+                @if (Model.SelectedRelease.IsOutOfDate)
+                {
+                    <span class="badge rounded-pill bg-warning">Out of Date</span>
+                }
             </td>
             <td>@d.RemovedDate?.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
             <td>@d.RemoveReason</td>

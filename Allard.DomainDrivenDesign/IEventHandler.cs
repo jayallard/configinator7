@@ -1,6 +1,6 @@
 ﻿namespace Allard.DomainDrivenDesign;
 
-public interface IEventHandler<TEvent> where TEvent : IDomainEvent
+public interface IEventHandler<in TEvent> where TEvent : IDomainEvent
 {
-    Task ExecuteAsync(TEvent evt, CancellationToken token = default);
+    Task ExecuteAsync(TEvent evt, CancellationToken cancellationToken = default);
 }

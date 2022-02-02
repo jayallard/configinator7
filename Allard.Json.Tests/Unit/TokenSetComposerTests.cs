@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -7,6 +8,49 @@ namespace Allard.Json.Tests.Unit;
 
 public class TokenSetComposerTests
 {
+    [Fact]
+    public void GetDescendantsAndSelf()
+    {
+        var tokenSets = new TokenSet[]
+        {
+            new() {TokenSetName = "a"},
+            new() {TokenSetName = "b", Base = "a"},
+            new() {TokenSetName = "c", Base = "b"},
+            new() {TokenSetName = "d1", Base = "c"},
+            new() {TokenSetName = "d2", Base = "c"},
+            new() {TokenSetName = "dd1", Base = "d1"},
+            new() {TokenSetName = "x", Base = "a"},
+            new() {TokenSetName = "y"},
+            new() {TokenSetName = "z", Base = "y"}
+        };
+
+        var composed = new TokenSetComposer(tokenSets);
+
+        // a, b, c, d1, d2, dd1, x
+        composed.GetDescendantsAndSelf("a").Count().Should().Be(7);
+
+        // b, c, d1, d2, dd1
+        composed.GetDescendantsAndSelf("b").Count().Should().Be(5);
+        
+        // c, d1, dd1, d2
+        composed.GetDescendantsAndSelf("c").Count().Should().Be(4);
+        
+        // d1, dd1
+        composed.GetDescendantsAndSelf("d1").Count().Should().Be(2);
+
+        // d2
+        composed.GetDescendantsAndSelf("d2").Count().Should().Be(1);
+        
+        // x
+        composed.GetDescendantsAndSelf("x").Count().Should().Be(1);
+
+        // y
+        composed.GetDescendantsAndSelf("y").Count().Should().Be(2);
+        
+        // z
+        composed.GetDescendantsAndSelf("z").Count().Should().Be(1);
+    }
+
     [Fact]
     public void Compose()
     {
