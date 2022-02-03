@@ -23,9 +23,3 @@ public class MediatorNotification<T> : MediatorNotificationBase
     public MediatorNotification(T evt) : base(evt) => DomainEvent = evt;
     public T DomainEvent { get; }
 }
-
-
-public interface IBlahNotificationHandler<in TNotification> : INotificationHandler<TNotification>
-    where TNotification : INotification
-{
-}

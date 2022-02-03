@@ -8,6 +8,15 @@ using Newtonsoft.Json.Linq;
 
 namespace Allard.Configinator.Core.DomainEventHandlers;
 
+/// <summary>
+/// When a token value is updated, then find all releases that use the token.
+/// Resolve the release's model value against the current versions of the token sets.
+/// If the resolved value is different than the release's resolved value, then the
+/// release is out of date.
+/// For example: When the release is created, the value of the PASSWORD token is ABC.
+/// The password token value is changed to XYZ.
+/// The existing release is now out of date because the password has changed.
+/// </summary>
 public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEvent>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -21,13 +30,12 @@ public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEv
 
     public async Task ExecuteAsync(TokenValueSetEvent evt, CancellationToken cancellationToken = default)
     {
+        Console.WriteLine("Token changed: " + evt);
+        
         // get all sections that have a release that use the token
         var composer = await _tokenSetDomainService.GetTokenSetComposerAsync(cancellationToken);
         var composedTokens = composer.Compose(evt.TokenSetName).ToValueDictionary();
-        var relatedTokenSets = composer
-            .GetDescendantsAndSelf(evt.TokenSetName)
-            .Select(t => t.TokenSetName)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var relatedTokenSets = GetRelatedTokenSetNames(evt, composer);
         
         var releases = await GetReleasesThatUseToken(evt.TokenSetName, evt.TokenName, relatedTokenSets, cancellationToken);
         foreach (var release in releases)
@@ -39,6 +47,14 @@ public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEv
             var changed = !JToken.DeepEquals(resolved, release.Release.ResolvedValue.ToJsonNetJson());
             release.Section.SetOutOfDate(release.Environment.Id, release.Release.Id, changed);
         }
+    }
+
+    private static HashSet<string> GetRelatedTokenSetNames(TokenValueSetEvent evt, TokenSetComposer composer)
+    {
+        return composer
+            .GetDescendantsAndSelf(evt.TokenSetName)
+            .Select(t => t.TokenSetName)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
     private async Task<IEnumerable<SectionEntity>> GetAffectedSections(string tokenSetName, string tokenName,

@@ -3,7 +3,7 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Infrastructure;
 
-public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggregate, TIdentity>
+public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggregate, TIdentity>, IDisposable
     where TAggregate : IAggregate
     where TIdentity : IIdentity
 {
@@ -59,4 +59,10 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
         await _repository.GetAsync(id, cancellationToken);
 
     public Task<List<IDomainEvent>> GetEvents(CancellationToken cancellationToken = default) => Task.FromResult(_localData.SelectMany(d => d.SourceEvents).ToList());
+
+
+    public void Dispose()
+    {
+        _localData.Clear();
+    }
 }

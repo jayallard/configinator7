@@ -5,7 +5,7 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Infrastructure.Repositories;
 
-public class UnitOfWorkMemory : IUnitOfWork
+public class UnitOfWorkMemory : IUnitOfWork, IDisposable
 {
     private readonly IEventPublisher _publisher;
     public UnitOfWorkMemory(
@@ -38,5 +38,11 @@ public class UnitOfWorkMemory : IUnitOfWork
         // alternative: publish to the db outbox before the commit,
         // then copy from outbox to publisher.
         await _publisher.PublishAsync(events, cancellationToken);
+    }
+
+    public void Dispose()
+    {
+        (Sections as IDisposable)?.Dispose();
+        (TokenSets as IDisposable)?.Dispose();
     }
 }
