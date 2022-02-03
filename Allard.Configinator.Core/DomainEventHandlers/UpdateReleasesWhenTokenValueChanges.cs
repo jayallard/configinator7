@@ -31,33 +31,44 @@ public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEv
     public async Task ExecuteAsync(TokenValueSetEvent evt, CancellationToken cancellationToken = default)
     {
         Console.WriteLine("Token changed: " + evt);
-        
-        // get all sections that have a release that use the token
+
+        // get the composer for all token sets
         var composer = await _tokenSetDomainService.GetTokenSetComposerAsync(cancellationToken);
         var composedTokens = composer.Compose(evt.TokenSetName).ToValueDictionary();
-        var relatedTokenSets = GetRelatedTokenSetNames(evt, composer);
-        
-        var releases = await GetReleasesThatUseToken(evt.TokenSetName, evt.TokenName, relatedTokenSets, cancellationToken);
+        var relatedTokenSets = GetRelatedTokenSetNames(evt.TokenSetName, composer);
+
+        // get all releases that use the token set and token
+        var releases =
+            await GetReleasesThatUseToken(evt.TokenSetName, evt.TokenName, relatedTokenSets, cancellationToken);
         foreach (var release in releases)
         {
             // use the release's ModelValue, and the current TokenSet values.
             // Resolve, and see if the new value is different than the release's value.
             // if so, then the release is out of date.
-            var resolved = await JsonUtility.ResolveAsync(release.Release.ModelValue.ToJsonNetJson(), composedTokens, cancellationToken);
+            var resolved = await JsonUtility.ResolveAsync(release.Release.ModelValue.ToJsonNetJson(), composedTokens,
+                cancellationToken);
             var changed = !JToken.DeepEquals(resolved, release.Release.ResolvedValue.ToJsonNetJson());
             release.Section.SetOutOfDate(release.Environment.Id, release.Release.Id, changed);
         }
     }
 
-    private static HashSet<string> GetRelatedTokenSetNames(TokenValueSetEvent evt, TokenSetComposer composer)
-    {
-        return composer
-            .GetDescendantsAndSelf(evt.TokenSetName)
+    /// <summary>
+    /// Gets the names of all token sets that are
+    /// descendants of tokenSetName, and also
+    /// the tokenSetName.
+    /// </summary>
+    /// <param name="tokenSetName"></param>
+    /// <param name="composer"></param>
+    /// <returns></returns>
+    private static HashSet<string> GetRelatedTokenSetNames(string tokenSetName, TokenSetComposer composer) =>
+        composer
+            .GetDescendantsAndSelf(tokenSetName)
             .Select(t => t.TokenSetName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
-    }
 
-    private async Task<IEnumerable<SectionEntity>> GetAffectedSections(string tokenSetName, string tokenName,
+    private async Task<IEnumerable<SectionAggregate>> GetAffectedSections(
+        string tokenSetName,
+        string tokenName,
         CancellationToken cancellationToken) =>
         (await _unitOfWork.Sections.FindAsync(new UsesToken(tokenSetName, tokenName), cancellationToken))
         .ToList();
@@ -71,7 +82,7 @@ public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEv
     /// <param name="tokenSetName"></param>
     /// <returns></returns>
     private async Task<IEnumerable<ReleaseDetails>> GetReleasesThatUseToken(
-        string tokenSetName, 
+        string tokenSetName,
         string tokenName,
         IReadOnlySet<string> relatedTokenSets,
         CancellationToken cancellationToken)
@@ -98,5 +109,5 @@ public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEv
                 ));
     }
 
-    private record ReleaseDetails(SectionEntity Section, EnvironmentEntity Environment, ReleaseEntity Release);
+    private record ReleaseDetails(SectionAggregate Section, EnvironmentEntity Environment, ReleaseEntity Release);
 }

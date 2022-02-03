@@ -8,7 +8,7 @@ public interface IRepository<TEntity, in TIdentity>
 
     Task<IEnumerable<TEntity>> FindAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsAsync(ISpecification<TEntity> specification);
+    Task<bool> ExistsAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default);
     
-    Task SaveAsync(TEntity section);
+    Task SaveAsync(TEntity section, CancellationToken cancellationToken = default);
 }

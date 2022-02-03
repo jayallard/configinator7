@@ -3,7 +3,7 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Specifications;
 
-public class PathIs : ISpecification<SectionEntity>
+public class PathIs : ISpecification<SectionAggregate>
 {
     private readonly string _path;
 
@@ -12,6 +12,6 @@ public class PathIs : ISpecification<SectionEntity>
         _path = path;
     }
 
-    public bool IsSatisfied(SectionEntity obj) =>
+    public bool IsSatisfied(SectionAggregate obj) =>
         obj.Path.Equals(_path, StringComparison.OrdinalIgnoreCase);
 }

@@ -14,24 +14,24 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
         IEventPublisher publisher)
     {
         _publisher = Guards.NotDefault(publisher, nameof(publisher));
-        Sections = Guards.NotDefault(new DataChangeTracker<SectionEntity, SectionId>(sectionRepository), nameof(sectionRepository));
-        TokenSets = Guards.NotDefault(new DataChangeTracker<TokenSetEntity, TokenSetId>(tokenSetRepository),nameof(tokenSetRepository));
+        Sections = new DataChangeTracker<SectionAggregate, SectionId>(sectionRepository);
+        TokenSets = new DataChangeTracker<TokenSetAggregate, TokenSetId>(tokenSetRepository);
     }
     
-    public IDataChangeTracker<SectionEntity, SectionId> Sections { get; } 
-    public IDataChangeTracker<TokenSetEntity, TokenSetId> TokenSets { get; } 
+    public IDataChangeTracker<SectionAggregate, SectionId> Sections { get; } 
+    public IDataChangeTracker<TokenSetAggregate, TokenSetId> TokenSets { get; } 
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var events =
             (await Sections.GetEvents(cancellationToken))
             .Union(await TokenSets.GetEvents(cancellationToken))
-            .OrderBy(e => e.EventDate);
+            .OrderBy(e => e.EventDate)
+            .ToList();
 
         // write the changes, then publish events.
         await Sections.SaveChangesAsync(cancellationToken);
         await TokenSets.SaveChangesAsync(cancellationToken);
-        // if db, commit here.
         
         // this is after the commit. if this fails, then data changed and
         // downstream systems won't get word.
@@ -40,8 +40,11 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
         await _publisher.PublishAsync(events, cancellationToken);
     }
 
+    private bool _disposed;
     public void Dispose()
     {
+        if (_disposed) throw new ObjectDisposedException(nameof(UnitOfWorkMemory));
+        _disposed = true;
         (Sections as IDisposable)?.Dispose();
         (TokenSets as IDisposable)?.Dispose();
     }

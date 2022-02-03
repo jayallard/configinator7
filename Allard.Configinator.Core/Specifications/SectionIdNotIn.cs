@@ -3,7 +3,7 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Specifications;
 
-public class SectionIdNotIn : ISpecification<SectionEntity>
+public class SectionIdNotIn : ISpecification<SectionAggregate>
 {
     private readonly ISet<long> _except;
 
@@ -12,6 +12,6 @@ public class SectionIdNotIn : ISpecification<SectionEntity>
         _except = ids.Select(id => id.Id).ToHashSet();
     }
 
-    public bool IsSatisfied(SectionEntity obj) =>
+    public bool IsSatisfied(SectionAggregate obj) =>
         !_except.Contains(obj.Id.Id);
 }

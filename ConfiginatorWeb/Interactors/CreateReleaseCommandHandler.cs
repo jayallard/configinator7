@@ -39,6 +39,7 @@ public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest,
             var env = section.GetEnvironment(request.EnvironmentName);
             var schema = section.GetSchema(SemanticVersion.Parse(request.SchemaVersion));
             await section.CreateReleaseAsync(env.Id, releaseId, tokens, schema.Id, json, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new CreateReleaseResponse(true, new List<string>());
         }
         catch (SchemaValidationFailedException vex)

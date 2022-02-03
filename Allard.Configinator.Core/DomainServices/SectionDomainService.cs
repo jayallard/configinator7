@@ -16,7 +16,7 @@ public class SectionDomainService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<SectionEntity> CreateSectionAsync(string sectionName, string path)
+    public async Task<SectionAggregate> CreateSectionAsync(string sectionName, string path)
     {
         // make sure section doesn't already exist
         if (await _unitOfWork.Sections.Exists(new SectionNameIs(sectionName)))
@@ -32,7 +32,7 @@ public class SectionDomainService
         // todo: might as well make sure the id is unique too
 
         var id = await _identityService.GetId<SectionId>();
-        var section = new SectionEntity(id, sectionName, path, null);
+        var section = new SectionAggregate(id, sectionName, path, null);
         await _unitOfWork.Sections.AddAsync(section);
         return section;
     }

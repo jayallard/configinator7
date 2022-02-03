@@ -48,7 +48,7 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
     {
         foreach (var e in _localData)
         {
-            await _repository.SaveAsync(e);
+            await _repository.SaveAsync(e, cancellationToken);
             e.ClearEvents();
         }
 
@@ -57,10 +57,7 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
 
     public async Task<TAggregate?> GetAsync(TIdentity id, CancellationToken cancellationToken = default) =>
         await _repository.GetAsync(id, cancellationToken);
-
     public Task<List<IDomainEvent>> GetEvents(CancellationToken cancellationToken = default) => Task.FromResult(_localData.SelectMany(d => d.SourceEvents).ToList());
-
-
     public void Dispose()
     {
         _localData.Clear();

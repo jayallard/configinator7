@@ -11,8 +11,8 @@ public class Demo
     [Fact]
     public void Blah()
     {
-        var tokens = new TokenSetEntity(NewTokenSetId(10), "test1");
-        var section = new SectionEntity(NewSectionId(0), "blah", "path");
+        var tokens = new TokenSetAggregate(NewTokenSetId(10), "test1");
+        var section = new SectionAggregate(NewSectionId(0), "blah", "path");
         
     }
 }

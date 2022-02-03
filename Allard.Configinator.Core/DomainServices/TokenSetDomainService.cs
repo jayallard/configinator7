@@ -16,7 +16,7 @@ public class TokenSetDomainService
         _identityService = Guards.NotDefault(identityService, nameof(identityService));
     }
 
-    public async Task<TokenSetEntity> CreateTokenSetAsync(string tokenSetName, string? baseTokenSetName = default, CancellationToken cancellationToken = default)
+    public async Task<TokenSetAggregate> CreateTokenSetAsync(string tokenSetName, string? baseTokenSetName = default, CancellationToken cancellationToken = default)
     {
         if (await _unitOfWork.TokenSets.Exists(new TokenSetNameIs(tokenSetName)))
         {
@@ -29,17 +29,18 @@ public class TokenSetDomainService
         }
 
         var id = await _identityService.GetId<TokenSetId>();
-        var tokenSet = new TokenSetEntity(id, tokenSetName, baseTokenSetName);
+        var tokenSet = new TokenSetAggregate(id, tokenSetName, baseTokenSetName);
         await _unitOfWork.TokenSets.AddAsync(tokenSet);
         return tokenSet;
     }
 
     public async Task<TokenSetComposer> GetTokenSetComposerAsync(CancellationToken cancellationToken = default)
     {
-        var tokenSets = (await _unitOfWork.TokenSets.FindAsync(new All(), cancellationToken))
+        var tokenSets = await _unitOfWork.TokenSets.FindAsync(new All(), cancellationToken);
+        var x = tokenSets
             .Select(t => t.ToTokenSet())
             .ToList();
-        return new TokenSetComposer(tokenSets);
+        return new TokenSetComposer(x);
     }
 
     public async Task<TokenSetComposed> GetTokenSetComposedAsync(string tokenSetName, CancellationToken cancellationToken = default) =>

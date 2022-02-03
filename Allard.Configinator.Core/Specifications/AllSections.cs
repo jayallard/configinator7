@@ -3,7 +3,7 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Specifications;
 
-public class AllSections : ISpecification<SectionEntity>
+public class AllSections : ISpecification<SectionAggregate>
 {
-    public bool IsSatisfied(SectionEntity obj) => true;
+    public bool IsSatisfied(SectionAggregate obj) => true;
 }

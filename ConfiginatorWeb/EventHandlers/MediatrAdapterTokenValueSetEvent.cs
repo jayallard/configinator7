@@ -5,6 +5,10 @@ using MediatR;
 
 namespace ConfiginatorWeb.EventHandlers;
 
+/// <summary>
+/// The mediator notification handler for TokenValueSetEvent.
+/// This forwards the events to all registered TokenValueSet event handlers.
+/// </summary>
 public class MediatrAdapterTokenValueSetEvent : INotificationHandler<MediatorNotification<TokenValueSetEvent>>
 {
     private readonly List<IEventHandler<TokenValueSetEvent>> _handler;
@@ -22,4 +26,3 @@ public class MediatrAdapterTokenValueSetEvent : INotificationHandler<MediatorNot
         }
     }
 }
-

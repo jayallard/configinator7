@@ -3,7 +3,7 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Specifications;
 
-public class SectionNameIs : ISpecification<SectionEntity>
+public class SectionNameIs : ISpecification<SectionAggregate>
 {
     public string Name { get; }
     public SectionNameIs(string name)
@@ -11,7 +11,7 @@ public class SectionNameIs : ISpecification<SectionEntity>
         Name = name;
     }
 
-    public bool IsSatisfied(SectionEntity obj)
+    public bool IsSatisfied(SectionAggregate obj)
     {
         return obj.SectionName.Equals(Name, StringComparison.OrdinalIgnoreCase);
     }

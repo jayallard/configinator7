@@ -106,6 +106,8 @@ public record DeploymentRemovedEvent(
     ReleaseId ReleaseId,
     string RemoveReason) : DomainEventBase;
 
+// todo: SET is too broad... create a CREATED event.
+
 /// <summary>
 /// The value of a token changed.
 /// </summary>

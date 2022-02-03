@@ -7,13 +7,12 @@ using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.Model;
 
-public class SectionEntity : AggregateBase<SectionId>
+public class SectionAggregate : AggregateBase<SectionId>
 {
     internal List<SchemaEntity> InternalSchemas { get; } = new();
     internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
     public IEnumerable<SchemaEntity> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
-    public SectionId Id { get; internal set; }
     public string SectionName { get; internal set; }
     public string Path { get; internal set; }
 
@@ -24,7 +23,7 @@ public class SectionEntity : AggregateBase<SectionId>
         InternalEnvironments.GetEnvironment(environmentId);
 
 
-    internal SectionEntity(SectionId id, string name, string path, SchemaEntity? schema = null) : base(id)
+    internal SectionAggregate(SectionId id, string name, string path, SchemaEntity? schema = null) : base(id)
     {
         Guards.NotDefault(id, nameof(id));
         Guards.NotEmpty(path, nameof(name));
@@ -32,7 +31,7 @@ public class SectionEntity : AggregateBase<SectionId>
         PlayEvent(new SectionCreatedEvent(id, name, path, schema));
     }
 
-    public SectionEntity(IEnumerable<IDomainEvent> events) : base(new SectionId(3))
+    internal SectionAggregate(List<IDomainEvent> events) : base(new SectionId(-1))
     {
         Guards.NotDefault(events, nameof(events));
         foreach (var evt in events) PlayEvent(evt);

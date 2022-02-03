@@ -7,7 +7,7 @@ namespace Allard.Configinator.Core.Specifications;
 /// Find all sections which have a release that
 /// uses the given token.
 /// </summary>
-public class UsesToken : ISpecification<SectionEntity>
+public class UsesToken : ISpecification<SectionAggregate>
 {
     public UsesToken(string tokenSetName,string tokenName)
     {
@@ -18,7 +18,7 @@ public class UsesToken : ISpecification<SectionEntity>
     public string TokenSetName { get; }
     public string TokenName { get; }
 
-    public bool IsSatisfied(SectionEntity obj) =>
+    public bool IsSatisfied(SectionAggregate obj) =>
         // any environment that has any release that's using the token
         obj.Environments.Any(
             e => e.Releases.Any(r => string.Equals(TokenSetName, r.TokenSet?.TokenSetName, StringComparison.OrdinalIgnoreCase) && r.TokensInUse.Contains(TokenName)));

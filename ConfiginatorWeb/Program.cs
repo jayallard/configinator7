@@ -59,10 +59,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
-var s1File = Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "test2.json");
-var s1 = await JsonSchema.FromFileAsync(s1File);
-
-
 using var scope = app.Services.CreateScope();
 var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
@@ -84,9 +80,8 @@ var section1 = await sectionService.CreateSectionAsync("name1", "path1");
 
 var env1 = section1.AddEnvironment(await idService.GetId<EnvironmentId>(), "dev");
 section1.AddEnvironment(await idService.GetId<EnvironmentId>(), "dev2");
-var schema1 = section1.AddSchema(await idService.GetId<SchemaId>(), new SemanticVersion(1, 0, 0), s1);
-section1.AddSchema(await idService.GetId<SchemaId>(), new SemanticVersion(2, 0, 0),
-    await JsonSchema.FromJsonAsync("{}"));
+var schema1 = section1.AddSchema(await idService.GetId<SchemaId>(), new SemanticVersion(1, 0, 0), await GetSchema("test2.json"));
+section1.AddSchema(await idService.GetId<SchemaId>(), new SemanticVersion(2, 0, 0), await GetSchema("2.0.0.json"));
 
 var release = await section1.CreateReleaseAsync(env1.Id, await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now);
@@ -98,3 +93,10 @@ await sectionService.CreateSectionAsync("name2", "path2");
 await uow.SaveChangesAsync();
 
 app.Run();
+
+async Task<JsonSchema> GetSchema(string fileName)
+{
+    var f = Path.Combine(Directory.GetCurrentDirectory(), "Schemas", fileName);
+    var json = File.ReadAllText(f);
+    return await JsonSchema.FromJsonAsync(json);
+}

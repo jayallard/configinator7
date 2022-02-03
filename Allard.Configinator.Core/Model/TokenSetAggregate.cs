@@ -4,14 +4,23 @@ using Newtonsoft.Json.Linq;
 
 namespace Allard.Configinator.Core.Model;
 
-public class TokenSetEntity : AggregateBase<TokenSetId>
+public class TokenSetAggregate : AggregateBase<TokenSetId>
 {
     private readonly Dictionary<string, JToken> _tokens = new();
 
-    internal TokenSetEntity(TokenSetId id, string name, string? baseTokenSet = null) : base(id)
+    
+    internal TokenSetAggregate(TokenSetId id, string name, string? baseTokenSet = null) : base(id)
     {
         Play(new TokenSetCreatedEvent(id, name, null, baseTokenSet));
     }
+    
+    internal TokenSetAggregate(List<IDomainEvent> events) : base(new TokenSetId(-1))
+    {
+        Guards.NotDefault(events, nameof(events));
+        foreach (var evt in events) Play(evt);
+        InternalSourceEvents.Clear();
+    }
+
 
     public string TokenSetName { get; private set; }
 
@@ -26,6 +35,7 @@ public class TokenSetEntity : AggregateBase<TokenSetId>
             {
                 TokenSetName = created.TokenSetName;
                 BaseTokenSetName = created.BaseTokenSetName;
+                Id = created.TokenSetId;
                 break;
             }
             case TokenValueSetEvent setter:

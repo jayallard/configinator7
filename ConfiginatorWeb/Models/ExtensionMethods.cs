@@ -5,7 +5,7 @@ namespace ConfiginatorWeb.Models;
 
 public static class ExtensionMethods
 {
-    public static SectionDto ToOutputDto(this SectionEntity section) => new()
+    public static SectionDto ToOutputDto(this SectionAggregate section) => new()
     {
         SectionName = section.SectionName,
         Path = section.Path,
