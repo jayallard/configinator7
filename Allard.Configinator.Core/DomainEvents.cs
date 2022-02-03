@@ -118,6 +118,13 @@ public record TokenValueSetEvent(
     string TokenSetName,
     string TokenName,
     JToken Value) : DomainEventBase;
+
+public record TokenValueCreatedEvent(
+    string TokenSetName,
+    string TokenName,
+    JToken Value) : DomainEventBase;
+
+
     
 public record ReleaseValueBecameCurrent(
     SectionId SectionId,

@@ -21,7 +21,6 @@ public class TokenSetAggregate : AggregateBase<TokenSetId>
         InternalSourceEvents.Clear();
     }
 
-
     public string TokenSetName { get; private set; }
 
     public string? BaseTokenSetName { get; private set; }
@@ -43,6 +42,11 @@ public class TokenSetAggregate : AggregateBase<TokenSetId>
                 _tokens[setter.TokenName] = setter.Value;
                 break;
             }
+            case TokenValueCreatedEvent creator:
+            {
+                _tokens[creator.TokenName] = creator.Value;
+                break;
+            }
             default:
                 throw new InvalidOperationException("Unhandled event: " + evt.GetType().FullName);
         }
@@ -58,6 +62,12 @@ public class TokenSetAggregate : AggregateBase<TokenSetId>
     public void SetValue(string key, JToken value)
     {
         Guards.NotDefault(value, nameof(value));
-        Play(new TokenValueSetEvent(TokenSetName, key, value));
+        if (_tokens.ContainsKey(key))
+        {
+            Play(new TokenValueSetEvent(TokenSetName, key, value));
+            return;
+        }
+        
+        Play(new TokenValueCreatedEvent(TokenSetName, key, value));
     }
 }

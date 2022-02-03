@@ -50,6 +50,8 @@ public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEv
             var changed = !JToken.DeepEquals(resolved, release.Release.ResolvedValue.ToJsonNetJson());
             release.Section.SetOutOfDate(release.Environment.Id, release.Release.Id, changed);
         }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>
