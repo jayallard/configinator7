@@ -16,8 +16,8 @@ public static class ExtensionMethods
             {
                 Schema = new SectionSchemaDto
                 {
-                    Schema = r.Schema.Schema,
-                    Version = r.Schema.Version
+                    Schema = r.SectionSchema.Schema,
+                    Version = r.SectionSchema.Version
                 },
                 CreateDate = r.CreateDate,
                 IsDeployed = r.IsDeployed,

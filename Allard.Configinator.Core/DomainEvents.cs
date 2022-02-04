@@ -19,7 +19,7 @@ public record SectionCreatedEvent(
     SectionId SectionId,
     string SectionName,
     string? Path,
-    SchemaEntity? Schema) : DomainEventBase;
+    SectionSchemaEntity? Schema) : DomainEventBase;
 
 /// <summary>
 /// An environment was added to a configuration section.
@@ -39,7 +39,7 @@ public record EnvironmentCreatedEvent(
 /// <param name="Schema"></param>
 public record SchemaAddedToSectionEvent(
     SectionId SectionId,
-    SchemaId SchemaId, 
+    SectionSchemaId SectionSchemaId, 
     SemanticVersion SchemaVersion, 
     JsonSchema Schema) : DomainEventBase;
 
@@ -49,7 +49,7 @@ public record SchemaAddedToSectionEvent(
 /// <param name="ReleaseId"></param>
 /// <param name="EnvironmentId"></param>
 /// <param name="SectionId"></param>
-/// <param name="SchemaId"></param>
+/// <param name="SectionSchemaId"></param>
 /// <param name="ModelValue"></param>
 /// <param name="ResolvedValue"></param>
 /// <param name="Tokens"></param>
@@ -58,7 +58,7 @@ public record ReleaseCreatedEvent(
     ReleaseId ReleaseId,
     EnvironmentId EnvironmentId,
     SectionId SectionId,
-    SchemaId SchemaId,
+    SectionSchemaId SectionSchemaId,
     JsonDocument ModelValue,
     JsonDocument ResolvedValue,
     TokenSetComposed? Tokens,

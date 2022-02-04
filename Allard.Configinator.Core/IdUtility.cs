@@ -8,6 +8,6 @@ public static class IdUtility
     public static EnvironmentId NewEnvironmentId(long id) => new(id);
     public static ReleaseId NewReleaseId(long id) => new(id);
     public static DeploymentId NewDeploymentId(long id) => new(id);
-    public static SchemaId NewSchemaId(long id) => new(id);
+    public static SectionSchemaId NewSchemaId(long id) => new(id);
     public static TokenSetId NewTokenSetId(long id) => new(id);
 }

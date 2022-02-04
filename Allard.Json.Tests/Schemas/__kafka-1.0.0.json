@@ -1,0 +1,18 @@
+﻿{
+  "$id": "kafka/1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "brokers",
+    "credentials"
+  ],
+  "properties": {
+    "brokers": {
+      "type": "string"
+    },
+    "credentials": {
+      "$ref": "credentials/1.2.3"
+    }
+  },
+  "additionalProperties": false
+}

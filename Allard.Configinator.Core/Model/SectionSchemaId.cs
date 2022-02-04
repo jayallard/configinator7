@@ -2,9 +2,9 @@
 
 namespace Allard.Configinator.Core.Model;
 
-public record SchemaId : IdBase
+public record SectionSchemaId : IdBase
 {
-    public SchemaId(long id) : base(id)
+    public SectionSchemaId(long id) : base(id)
     {
     }
 }

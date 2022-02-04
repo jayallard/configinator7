@@ -14,7 +14,7 @@ public class SectionEntityTests
     public void CreateSection()
     {
         // arrange, act
-        var schema = new SchemaEntity(Schema1Id, Schema1Version, JsonSchema.CreateAnySchema());
+        var schema = new SectionSchemaEntity(Schema1Id, Schema1Version, JsonSchema.CreateAnySchema());
         var section = new SectionAggregate(new SectionId(0), "name", "path", schema);
 
         // assert
@@ -30,7 +30,7 @@ public class SectionEntityTests
         var section = new SectionAggregate(new SectionId(0), "name", "path");
 
         // act
-        section.AddSchema(new SchemaId(0), new SemanticVersion(1, 0, 0),JsonSchema.CreateAnySchema());
+        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0),JsonSchema.CreateAnySchema());
 
         // assert
         section.Schemas.Count().Should().Be(1);
@@ -41,12 +41,12 @@ public class SectionEntityTests
     {
         // arrange
         var section = new SectionAggregate(NewSectionId(0), "name", "path");
-        var schema1 = new SchemaEntity(new SchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
-        var schema2 = new SchemaEntity(new SchemaId(1), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
+        var schema1 = new SectionSchemaEntity(new SectionSchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
+        var schema2 = new SectionSchemaEntity(new SectionSchemaId(1), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
 
         // act
-        section.AddSchema(new SchemaId(0), new SemanticVersion(1, 0, 0),JsonSchema.CreateAnySchema());
-        var test = () => section.AddSchema(new SchemaId(1), new SemanticVersion(1, 0, 0),JsonSchema.CreateAnySchema());
+        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0),JsonSchema.CreateAnySchema());
+        var test = () => section.AddSchema(new SectionSchemaId(1), new SemanticVersion(1, 0, 0),JsonSchema.CreateAnySchema());
 
         // assert
         test
@@ -62,8 +62,8 @@ public class SectionEntityTests
         var section = new SectionAggregate(NewSectionId(0), "name", "path");
 
         // act
-        section.AddSchema(new SchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
-        var test = () => section.AddSchema(new SchemaId(0), new SemanticVersion(1, 1, 0), JsonSchema.CreateAnySchema());
+        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0), JsonSchema.CreateAnySchema());
+        var test = () => section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 1, 0), JsonSchema.CreateAnySchema());
 
         // assert
         test

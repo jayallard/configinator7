@@ -40,10 +40,10 @@ public static class ExtensionMethods
         DeploymentId id)
         => deployments.EnsureDoesntExist(id, "DeploymentHistory");
 
-    public static void EnsureDoesntExist(this IEnumerable<SchemaEntity> schemas, SchemaId id,
+    public static void EnsureDoesntExist(this IEnumerable<SectionSchemaEntity> schemas, SectionSchemaId id,
         SemanticVersion? version = null)
     {
-        var schemaEntities = schemas as SchemaEntity[] ?? schemas.ToArray();
+        var schemaEntities = schemas as SectionSchemaEntity[] ?? schemas.ToArray();
         schemaEntities.EnsureDoesntExist(id, "Schema");
         if (version != null && schemaEntities.Any(s => s.Version.Equals(version)))
             throw new InvalidOperationException("Schema already exists. Version=" + version.ToFullString());

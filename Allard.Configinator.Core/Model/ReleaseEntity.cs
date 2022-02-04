@@ -31,7 +31,7 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     /// <summary>
     /// The schema used for this release.
     /// </summary>
-    public SchemaEntity Schema { get; }
+    public SectionSchemaEntity SectionSchema { get; }
 
     /// <summary>
     /// Gets the date that the release was created.
@@ -64,18 +64,18 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     /// Initializes a new instance of the ReleaseEntity class.
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="schema"></param>
+    /// <param name="sectionSchema"></param>
     /// <param name="modelValue"></param>
     /// <param name="resolvedValue"></param>
     /// <param name="tokenSet"></param>
     internal ReleaseEntity(
         ReleaseId id,
-        SchemaEntity schema,
+        SectionSchemaEntity sectionSchema,
         JsonDocument modelValue,
         JsonDocument resolvedValue,
         TokenSetComposed? tokenSet) : base(id)
     {
-        Schema = schema;
+        SectionSchema = sectionSchema;
         ModelValue = modelValue;
         ResolvedValue = resolvedValue;
         TokenSet = tokenSet;

@@ -5,7 +5,9 @@
   "type": "object",
   "required": [
     "firstName",
-    "lastName"
+    "lastName",
+    "age",
+    "kafka"
   ],
   "additionalProperties": false,
   "properties": {
@@ -22,8 +24,11 @@
       "type": "integer",
       "minimum": 0
     },
-    "favoriteColor": {
-      "type": "string"
+    "kafka": {
+      "$ref": "kafka/1.0.0"
+    },
+    "credentials": {
+      "$ref": "credentials/1.2.3"
     }
   }
 }

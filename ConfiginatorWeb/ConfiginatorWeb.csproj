@@ -12,20 +12,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="Schemas\2.0.0.json">
+      <None Include="Schemas\*.*">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Include="Schemas\test2.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Include="Schemas\test3.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Remove="Projections\IConfigurationProjections.cs" />
-      <Compile Remove="Projections\ConfigurationProjectionsFromAggregate.cs" />
     </ItemGroup>
 
     <ItemGroup>

@@ -9,9 +9,9 @@ namespace Allard.Configinator.Core.Model;
 
 public class SectionAggregate : AggregateBase<SectionId>
 {
-    internal List<SchemaEntity> InternalSchemas { get; } = new();
+    internal List<SectionSchemaEntity> InternalSchemas { get; } = new();
     internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
-    public IEnumerable<SchemaEntity> Schemas => InternalSchemas.AsReadOnly();
+    public IEnumerable<SectionSchemaEntity> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public string SectionName { get; internal set; }
     public string Path { get; internal set; }
@@ -23,7 +23,7 @@ public class SectionAggregate : AggregateBase<SectionId>
         InternalEnvironments.GetEnvironment(environmentId);
 
 
-    internal SectionAggregate(SectionId id, string name, string path, SchemaEntity? schema = null) : base(id)
+    internal SectionAggregate(SectionId id, string name, string path, SectionSchemaEntity? schema = null) : base(id)
     {
         Guards.NotDefault(id, nameof(id));
         Guards.NotEmpty(path, nameof(name));
@@ -44,17 +44,17 @@ public class SectionAggregate : AggregateBase<SectionId>
         InternalSourceEvents.Add(evt);
     }
 
-    public SchemaEntity AddSchema(SchemaId schemaId, SemanticVersion schemaVersion, JsonSchema schema)
+    public SectionSchemaEntity AddSchema(SectionSchemaId sectionSchemaId, SemanticVersion schemaVersion, JsonSchema schema)
     {
-        InternalSchemas.EnsureDoesntExist(schemaId, schemaVersion);
-        PlayEvent(new SchemaAddedToSectionEvent(Id, schemaId, schemaVersion, schema));
-        return GetSchema(schemaId);
+        InternalSchemas.EnsureDoesntExist(sectionSchemaId, schemaVersion);
+        PlayEvent(new SchemaAddedToSectionEvent(Id, sectionSchemaId, schemaVersion, schema));
+        return GetSchema(sectionSchemaId);
     }
 
-    public SchemaEntity GetSchema(SchemaId schemaId) =>
-        InternalSchemas.Single(s => s.Id == schemaId);
+    public SectionSchemaEntity GetSchema(SectionSchemaId sectionSchemaId) =>
+        InternalSchemas.Single(s => s.Id == sectionSchemaId);
 
-    public SchemaEntity GetSchema(SemanticVersion version) =>
+    public SectionSchemaEntity GetSchema(SemanticVersion version) =>
         InternalSchemas.Single(s => s.Version == version);
 
     public EnvironmentEntity AddEnvironment(EnvironmentId environmentId, string name)
@@ -71,13 +71,13 @@ public class SectionAggregate : AggregateBase<SectionId>
         EnvironmentId environmentId,
         ReleaseId releaseId,
         TokenSetComposed? tokens,
-        SchemaId schemaId,
+        SectionSchemaId sectionSchemaId,
         JsonDocument value,
         CancellationToken cancellationToken = default)
     {
         var env = GetEnvironment(environmentId);
         env.InternalReleases.EnsureReleaseDoesntExist(releaseId);
-        var schema = GetSchema(schemaId);
+        var schema = GetSchema(sectionSchemaId);
         var tokenValues = tokens?.ToValueDictionary() ?? new Dictionary<string, JToken>();
 
         // System.Text.Json is immutable, which we like.
@@ -95,7 +95,7 @@ public class SectionAggregate : AggregateBase<SectionId>
             releaseId,
             env.Id,
             Id,
-            schemaId,
+            sectionSchemaId,
             value,
             resolvedValue,
             tokens,
