@@ -28,7 +28,7 @@ public record SectionCreatedEvent(
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentName"></param>
 public record EnvironmentCreatedEvent(
-    EnvironmentId EnvironmentId, 
+    EnvironmentId EnvironmentId,
     SectionId SectionId,
     string EnvironmentName) : DomainEventBase;
 
@@ -39,8 +39,8 @@ public record EnvironmentCreatedEvent(
 /// <param name="Schema"></param>
 public record SchemaAddedToSectionEvent(
     SectionId SectionId,
-    SectionSchemaId SectionSchemaId, 
-    SemanticVersion SchemaVersion, 
+    SectionSchemaId SectionSchemaId,
+    SemanticVersion SchemaVersion,
     JsonSchema Schema) : DomainEventBase;
 
 /// <summary>
@@ -124,14 +124,18 @@ public record TokenValueCreatedEvent(
     string TokenName,
     JToken Value) : DomainEventBase;
 
-
-    
 public record ReleaseValueBecameCurrent(
     SectionId SectionId,
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId) : DomainEventBase;
-    
+
 public record ReleaseValueBecameOld(
     SectionId SectionId,
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId) : DomainEventBase;
+
+public record GlobalSchemaCreated(
+    GlobalSchemaId GlobalSchemaId,
+    string Name,
+    SemanticVersion Version,
+    JsonSchema Schema) : DomainEventBase;

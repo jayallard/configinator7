@@ -14,6 +14,7 @@ public class Startup
         services
             .AddScoped<ISectionRepository, SectionRepositoryMemory>()
             .AddScoped<ITokenSetRepository, TokenSetRepositoryMemory>()
+            .AddScoped<IGlobalSchemaRepository, GlobalSchemaRepositoryMemory>()
             .AddScoped<IUnitOfWork, UnitOfWorkMemory>()
             .AddScoped<IIdentityService, IdentityServiceMemory>()
             .AddScoped<SectionDomainService>()

@@ -73,8 +73,9 @@ public class ReleaseEntity : EntityBase<ReleaseId>
         SectionSchemaEntity sectionSchema,
         JsonDocument modelValue,
         JsonDocument resolvedValue,
-        TokenSetComposed? tokenSet) : base(id)
+        TokenSetComposed? tokenSet)
     {
+        Id = id;
         SectionSchema = sectionSchema;
         ModelValue = modelValue;
         ResolvedValue = resolvedValue;

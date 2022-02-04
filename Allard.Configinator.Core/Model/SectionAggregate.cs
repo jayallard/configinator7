@@ -23,7 +23,7 @@ public class SectionAggregate : AggregateBase<SectionId>
         InternalEnvironments.GetEnvironment(environmentId);
 
 
-    internal SectionAggregate(SectionId id, string name, string path, SectionSchemaEntity? schema = null) : base(id)
+    internal SectionAggregate(SectionId id, string name, string path, SectionSchemaEntity? schema = null)
     {
         Guards.NotDefault(id, nameof(id));
         Guards.NotEmpty(path, nameof(name));
@@ -31,7 +31,7 @@ public class SectionAggregate : AggregateBase<SectionId>
         PlayEvent(new SectionCreatedEvent(id, name, path, schema));
     }
 
-    internal SectionAggregate(List<IDomainEvent> events) : base(new SectionId(-1))
+    internal SectionAggregate(List<IDomainEvent> events)
     {
         Guards.NotDefault(events, nameof(events));
         foreach (var evt in events) PlayEvent(evt);

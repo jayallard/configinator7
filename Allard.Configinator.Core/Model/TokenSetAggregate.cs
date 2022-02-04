@@ -9,12 +9,12 @@ public class TokenSetAggregate : AggregateBase<TokenSetId>
     private readonly Dictionary<string, JToken> _tokens = new();
 
     
-    internal TokenSetAggregate(TokenSetId id, string name, string? baseTokenSet = null) : base(id)
+    internal TokenSetAggregate(TokenSetId id, string name, string? baseTokenSet = null)
     {
         Play(new TokenSetCreatedEvent(id, name, null, baseTokenSet));
     }
     
-    internal TokenSetAggregate(List<IDomainEvent> events) : base(new TokenSetId(-1))
+    internal TokenSetAggregate(List<IDomainEvent> events)
     {
         Guards.NotDefault(events, nameof(events));
         foreach (var evt in events) Play(evt);

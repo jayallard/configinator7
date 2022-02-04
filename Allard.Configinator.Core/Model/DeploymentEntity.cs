@@ -18,8 +18,9 @@ public class DeploymentEntity : EntityBase<DeploymentId>
     
     public DeploymentEntity(
         DeploymentId id,
-        DateTime deploymentDate) : base(id)
+        DateTime deploymentDate)
     {
+        Id = id;
         DeploymentDate = deploymentDate;
     }
 }

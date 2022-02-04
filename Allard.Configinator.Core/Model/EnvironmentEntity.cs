@@ -6,8 +6,9 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
     public IEnumerable<ReleaseEntity> Releases => InternalReleases.AsReadOnly();
 
 
-    public EnvironmentEntity(EnvironmentId id, string environmentName) : base(id)
+    public EnvironmentEntity(EnvironmentId id, string environmentName)
     {
+        Id = id;
         EnvironmentName = environmentName;
     }
 
