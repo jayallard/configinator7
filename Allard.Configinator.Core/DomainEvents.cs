@@ -57,7 +57,7 @@ public record ReleaseCreatedEvent(
     EnvironmentId EnvironmentId,
     SectionId SectionId,
     SectionSchemaId SectionSchemaId,
-    TokenSetId TokenSetId,
+    TokenSetId? TokenSetId,
     JsonDocument ModelValue,
     JsonDocument ResolvedValue,
     HashSet<string> TokensInUse) : DomainEventBase;
