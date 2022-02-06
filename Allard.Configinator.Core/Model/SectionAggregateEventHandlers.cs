@@ -65,7 +65,7 @@ internal static class SectionAggregateEventHandlers
             schema,
             evt.ModelValue,
             evt.ResolvedValue,
-            evt.Tokens);
+            evt.TokenSetId);
         env.InternalReleases.Add(release);
     }
 

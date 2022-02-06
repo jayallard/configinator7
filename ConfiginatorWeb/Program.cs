@@ -11,7 +11,6 @@ using Allard.Json;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using NJsonSchema;
-using NJsonSchema.Generation;
 using NJsonSchema.References;
 using NuGet.Versioning;
 
@@ -24,10 +23,12 @@ builder.Services
     .AddScoped<IEventPublisher, MediatorPublisher>()
     .AddSingleton<IIdentityService, IdentityServiceMemory>()
     .AddMediatR(typeof(Program))
+    .AddTransient<SchemaLoader>()
 
     // domain services
-    .AddScoped<SectionDomainService>()
-    .AddScoped<TokenSetDomainService>()
+    .AddTransient<SectionDomainService>()
+    .AddTransient<TokenSetDomainService>()
+    .AddTransient<GlobalSchemaDomainService>()
 
     // event handlers - HACK
     .AddScoped<IEventHandler<TokenValueSetEvent>, UpdateReleasesWhenTokenValueChanges>()
@@ -39,8 +40,8 @@ builder.Services
     .AddSingleton<IGlobalSchemaRepository, GlobalSchemaRepositoryMemory>()
 
     // queries
-    .AddSingleton<ISectionQueries, SectionQueriesCoreRepository>()
-    .AddSingleton<ITokenSetQueries, TokenSetQueriesCoreRepository>();
+    .AddTransient<ISectionQueries, SectionQueriesCoreRepository>()
+    .AddTransient<ITokenSetQueries, TokenSetQueriesCoreRepository>();
 
 var app = builder.Build();
 
@@ -68,6 +69,11 @@ var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
 var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainService>();
 var tokenService = scope.ServiceProvider.GetRequiredService<TokenSetDomainService>();
+var globalSchemas = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainService>();
+
+await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", await GetSchema("__kafka-1.0.0.json"));
+
+
 
 var tokenSetEntity = await tokenService.CreateTokenSetAsync("tokens1");
 tokenSetEntity.SetValue("first", "Santa");
@@ -76,7 +82,7 @@ tokenSetEntity.SetValue("last", "Claus");
 var tokenSet2Entity = await tokenService.CreateTokenSetAsync("tokens2", "tokens1");
 tokenSet2Entity.SetValue("first", "SANTA!!!");
 
-var modelValue = JsonDocument.Parse("{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44 }");
+var modelValue = JsonDocument.Parse("{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44, \"kafka\": { \"brokers\": \"b\", \"user\": \"u\", \"password\": \"p\" } }");
 var composed = new TokenSetComposer(new[] {tokenSetEntity.ToTokenSet()}).Compose("tokens1");
 
 var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
@@ -84,16 +90,15 @@ var section1 = await sectionService.CreateSectionAsync("name1", "path1");
 
 var env1 = section1.AddEnvironment(await idService.GetId<EnvironmentId>(), "dev");
 section1.AddEnvironment(await idService.GetId<EnvironmentId>(), "dev2");
-var s = await GetSchema("1.0.0.json");
-var schema1 = section1.AddSchema(await idService.GetId<SectionSchemaId>(), new SemanticVersion(1, 0, 0), s);
-section1.AddSchema(await idService.GetId<SectionSchemaId>(), new SemanticVersion(2, 0, 0),
-    await GetSchema("2.0.0.json"));
+var schema1 = await sectionService.AddSchemaToSectionAsync(section1, new SemanticVersion(1, 0, 0), await GetSchema("1.0.0.json"));
 
-var release =
-    await section1.CreateReleaseAsync(env1.Id, await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
+await sectionService.AddSchemaToSectionAsync(section1, new SemanticVersion(2, 0, 0), await GetSchema("2.0.0.json"));
+
+var release = await sectionService.CreateReleaseAsync(section1, env1.Id, tokenSetEntity.Id, schema1.Id, modelValue, CancellationToken.None);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now);
 
-await section1.CreateReleaseAsync(env1.Id, await idService.GetId<ReleaseId>(), composed, schema1.Id, modelValue);
+await sectionService.CreateReleaseAsync(section1, env1.Id, tokenSetEntity.Id, schema1.Id, modelValue,
+    CancellationToken.None);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now);
 
 await sectionService.CreateSectionAsync("name2", "path2");
@@ -101,23 +106,24 @@ await uow.SaveChangesAsync();
 
 app.Run();
 
-async Task<JsonSchema> GetSchema(string fileName)
+async Task<JsonDocument> GetSchema(string fileName)
 {
     var f = Path.Combine(Directory.GetCurrentDirectory(), "Schemas", fileName);
     var json = File.ReadAllText(f);
+    return JsonDocument.Parse(json);
     //return await JsonSchema.FromJsonAsync(json);
 
-    return await JsonSchema.FromJsonAsync(json, ".", s =>
-    {
-        var schemaResolver = new JsonSchemaResolver(s, new JsonSchemaGeneratorSettings());
-        var referenceResolver = new Resolver(schemaResolver);
-
-        var kafkaFile = Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "__kafka-1.0.0.json");
-        var kafkaSchema = JsonSchema.FromFileAsync(kafkaFile).Result;
-
-        referenceResolver.AddDocumentReference("/ppm/kafka/1.0.0", kafkaSchema);
-        return referenceResolver;
-    });
+    // return await JsonSchema.FromJsonAsync(json, ".", s =>
+    // {
+    //     var schemaResolver = new JsonSchemaResolver(s, new JsonSchemaGeneratorSettings());
+    //     var referenceResolver = new Resolver(schemaResolver);
+    //
+    //     var kafkaFile = Path.Combine(Directory.GetCurrentDirectory(), "Schemas", "__kafka-1.0.0.json");
+    //     var kafkaSchema = JsonSchema.FromFileAsync(kafkaFile).Result;
+    //
+    //     referenceResolver.AddDocumentReference("/ppm/kafka/1.0.0", kafkaSchema);
+    //     return referenceResolver;
+    // });
 }
 
 public class Resolver : JsonReferenceResolver

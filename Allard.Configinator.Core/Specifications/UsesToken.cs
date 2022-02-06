@@ -9,7 +9,7 @@ namespace Allard.Configinator.Core.Specifications;
 /// </summary>
 public class UsesToken : ISpecification<SectionAggregate>
 {
-    public UsesToken(string tokenSetName,string tokenName)
+    public UsesToken(string tokenSetName, string tokenName)
     {
         TokenSetName = tokenSetName;
         TokenName = tokenName;
@@ -18,8 +18,11 @@ public class UsesToken : ISpecification<SectionAggregate>
     public string TokenSetName { get; }
     public string TokenName { get; }
 
-    public bool IsSatisfied(SectionAggregate obj) =>
-        // any environment that has any release that's using the token
-        obj.Environments.Any(
-            e => e.Releases.Any(r => string.Equals(TokenSetName, r.TokenSet?.TokenSetName, StringComparison.OrdinalIgnoreCase) && r.TokensInUse.Contains(TokenName)));
+    public bool IsSatisfied(SectionAggregate obj) => true;
+    // TODO: fix
+    // any environment that has any release that's using the token
+    // obj.Environments.Any(
+    //     e => e.Releases.Any(r =>
+    //         string.Equals(TokenSetName, r.TokenSet?.TokenSetName, StringComparison.OrdinalIgnoreCase) &&
+    //         r.TokensInUse.Contains(TokenName)));
 }

@@ -1,4 +1,4 @@
-﻿using NJsonSchema;
+﻿using System.Text.Json;
 using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.Model;
@@ -6,9 +6,9 @@ namespace Allard.Configinator.Core.Model;
 public class SectionSchemaEntity : EntityBase<SectionSchemaId>
 {
     public SemanticVersion Version { get; }
-    public JsonSchema Schema { get; }
+    public JsonDocument Schema { get; }
 
-    public SectionSchemaEntity(SectionSchemaId id, SemanticVersion version, JsonSchema schema)
+    public SectionSchemaEntity(SectionSchemaId id, SemanticVersion version, JsonDocument schema)
     {
         Id = id;
         Version = Guards.NotDefault(version, nameof(version));

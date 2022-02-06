@@ -7,7 +7,6 @@ namespace Allard.Configinator.Core.Model;
 public class TokenSetAggregate : AggregateBase<TokenSetId>
 {
     private readonly Dictionary<string, JToken> _tokens = new();
-
     
     internal TokenSetAggregate(TokenSetId id, string name, string? baseTokenSet = null)
     {

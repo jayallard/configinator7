@@ -33,7 +33,7 @@ public class ReleaseController : Controller
 
         // set the value to the last of the most recent release.
         var value = environment.Releases.LastOrDefault()?.ModelValue.RootElement.ToString();
-        var tokenSetName = environment.Releases.LastOrDefault()?.TokenSet?.TokenSetName;
+        var tokenSetName = "TODO"; //environment.Releases.LastOrDefault()?.TokenSetId?.TokenSetName;
         var tokenSets = (await _tokenSetQueries.GetTokenSetListAsync(cancellationToken))
             .Select(s => s.TokenSetName)
             .OrderBy(s => s)
@@ -49,7 +49,7 @@ public class ReleaseController : Controller
                 .Select(s => new EditSchemaView(
                     "schema-" + s.Version.ToFullString().Replace(".", "-"),
                     s.Version.ToFullString(),
-                    s.Schema.ToJson()))
+                    s.Schema.ToString()))
                 .ToList(),
 
             DefaultValue = value,

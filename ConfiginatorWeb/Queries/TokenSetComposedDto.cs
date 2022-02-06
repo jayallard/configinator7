@@ -6,6 +6,8 @@ public class TokenSetComposedDto
 {
     public string? Base { get; set; }
     public string TokenSetName { get; set; }
+    
+    public long TokenSetId { get; set; }
     public Dictionary<string, TokenComposedDto> Tokens { get; set; }
 
 

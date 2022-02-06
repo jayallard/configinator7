@@ -1,7 +1,1 @@
-﻿TODO
-    need to lose
-            parent properties
-            tokensetresolved being passed in - separate aggregate
-                    so should be referenced by id only
-                    but, we want it recorded, so not sure what to do there
-                    
+﻿

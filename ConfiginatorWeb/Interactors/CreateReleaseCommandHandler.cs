@@ -13,32 +13,38 @@ public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest,
     private readonly IUnitOfWork _unitOfWork;
     private readonly IIdentityService _identity;
     private readonly TokenSetDomainService _tokenSetDomainService;
+    private readonly SectionDomainService _sectionDomainService;
 
-    public CreateReleaseCommandHandler(IUnitOfWork unitOfWork, IIdentityService identity, TokenSetDomainService tokenSetDomainService)
+    public CreateReleaseCommandHandler(IUnitOfWork unitOfWork, IIdentityService identity,
+        TokenSetDomainService tokenSetDomainService, SectionDomainService sectionDomainService)
     {
         _unitOfWork = unitOfWork;
         _identity = identity;
         _tokenSetDomainService = tokenSetDomainService;
+        _sectionDomainService = sectionDomainService;
     }
 
     public async Task<CreateReleaseResponse> Handle(CreateReleaseRequest request, CancellationToken cancellationToken)
     {
-        // todo  convert to domain service
         try
         {
-            var json = JsonDocument.Parse(request.Value);
             var section =
                 (await _unitOfWork.Sections.FindAsync(new SectionNameIs(request.SectionName), cancellationToken))
                 .Single();
-            var tokens =
+            var environmentId = section.GetEnvironment(request.EnvironmentName).Id;
+            var tokenSetId =
                 request.TokenSetName == null
-                ? null
-                : await _tokenSetDomainService.GetTokenSetComposedAsync(request.TokenSetName, cancellationToken);
-
-            var releaseId = await _identity.GetId<ReleaseId>();
-            var env = section.GetEnvironment(request.EnvironmentName);
-            var schema = section.GetSchema(SemanticVersion.Parse(request.SchemaVersion));
-            await section.CreateReleaseAsync(env.Id, releaseId, tokens, schema.Id, json, cancellationToken);
+                    ? null
+                    : (await _unitOfWork.TokenSets.FindAsync(new TokenSetNameIs(request.TokenSetName),
+                        cancellationToken))
+                    .Single().Id;
+            var schemaId = section.GetSchema(SemanticVersion.Parse(request.SchemaVersion)).Id;
+            await _sectionDomainService.CreateReleaseAsync(
+                section,
+                environmentId,
+                tokenSetId,
+                schemaId,
+                JsonDocument.Parse(request.Value), cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new CreateReleaseResponse(true, new List<string>());
         }

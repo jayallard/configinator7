@@ -6,7 +6,8 @@
   "required": [
     "firstName",
     "lastName",
-    "age"
+    "age",
+    "kafka"
   ],
   "additionalProperties": false,
   "properties": {
@@ -22,6 +23,9 @@
       "description": "Age in years which must be equal to or greater than zero.",
       "type": "integer",
       "minimum": 0
+    },
+    "kafka": {
+      "$ref": "/ppm/kafka/1.0.0"
     }
   }
 }

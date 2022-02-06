@@ -1,7 +1,7 @@
-﻿using Allard.Configinator.Core.Model;
+﻿using System.Text.Json;
+using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
-using NJsonSchema;
 using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.DomainServices;
@@ -19,16 +19,17 @@ public class GlobalSchemaDomainService
 
     public async Task<GlobalSchemaAggregate> CreateGlobalSchemaAsync(
         string name, 
-        SemanticVersion version,
-        JsonSchema schema)
+        JsonDocument schema)
     {
-        if (await _unitOfWork.GlobalSchemas.Exists(new GetGlobalSchema(name, version)))
+        if (await _unitOfWork.GlobalSchemas.Exists(new GlobalSchemaName(name)))
         {
             throw new InvalidOperationException(
-                $"Schema already exists: Name={name}, Version={version.ToFullString()}");
+                $"Schema already exists: Name={name}");
         }
 
         var id = await _identityService.GetId<GlobalSchemaId>();
-        return new GlobalSchemaAggregate(id, name, version, schema);
+        var schemaAggregate = new GlobalSchemaAggregate(id, name, schema);
+        await _unitOfWork.GlobalSchemas.AddAsync(schemaAggregate);
+        return schemaAggregate;
     }
 }

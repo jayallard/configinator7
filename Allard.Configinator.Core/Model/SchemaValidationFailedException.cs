@@ -4,7 +4,8 @@ namespace Allard.Configinator.Core.Model;
 
 public class SchemaValidationFailedException : Exception
 {
-    public SchemaValidationFailedException(IEnumerable<ValidationError> errors)
+    public SchemaValidationFailedException(List<ValidationError> errors) 
+        : base("Schema validation failed:\n" + string.Join("\n", errors.Select(e => " - " + e)))
     {
         Errors = errors.ToList();
     }

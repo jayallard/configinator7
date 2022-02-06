@@ -40,7 +40,7 @@
 
 <h2>Schema</h2>
 <h3>Version @Model.SelectedRelease.Schema.Version.ToFullString()</h3>
-<pre>@Model.SelectedRelease.Schema.Schema.ToJson(Formatting.Indented)</pre>
+<pre>@Model.SelectedRelease.Schema.Schema.RootElement.ToString()</pre>
 
 <h2>Model Value</h2>
 <pre>@Model.SelectedRelease.ModelValue.PrettyPrint()</pre>

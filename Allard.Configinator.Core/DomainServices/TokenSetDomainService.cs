@@ -45,4 +45,11 @@ public class TokenSetDomainService
 
     public async Task<TokenSetComposed> GetTokenSetComposedAsync(string tokenSetName, CancellationToken cancellationToken = default) =>
             (await GetTokenSetComposerAsync(cancellationToken)).Compose(tokenSetName);
+
+    public async Task<TokenSetComposed> GetTokenSetComposedAsync(TokenSetId tokenSetId,
+        CancellationToken cancellationToken = default)
+    {
+        var tokenSetName = (await _unitOfWork.TokenSets.GetAsync(tokenSetId, cancellationToken)).TokenSetName;
+        return await GetTokenSetComposedAsync(tokenSetName, cancellationToken);
+    }
 }

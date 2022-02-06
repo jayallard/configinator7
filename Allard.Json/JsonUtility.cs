@@ -47,7 +47,7 @@ public static class JsonUtility
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static ISet<string> GetTokenNames(JObject json) => GetTokens(json)
+    public static HashSet<string> GetTokenNames(JObject json) => GetTokens(json)
         .Select(t => t.TokenName)
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 

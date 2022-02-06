@@ -26,7 +26,7 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     /// The copy is immutable. Changes made to the TokenSet post-release creation
     /// are not represented.
     /// </summary>
-    public TokenSetComposed? TokenSet { get; }
+    public TokenSetId? TokenSetId { get; }
 
     /// <summary>
     /// The schema used for this release.
@@ -67,19 +67,19 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     /// <param name="sectionSchema"></param>
     /// <param name="modelValue"></param>
     /// <param name="resolvedValue"></param>
-    /// <param name="tokenSet"></param>
+    /// <param name="tokenSetIdId"></param>
     internal ReleaseEntity(
         ReleaseId id,
         SectionSchemaEntity sectionSchema,
         JsonDocument modelValue,
         JsonDocument resolvedValue,
-        TokenSetComposed? tokenSet)
+        TokenSetId tokenSetIdId)
     {
         Id = id;
         SectionSchema = sectionSchema;
         ModelValue = modelValue;
         ResolvedValue = resolvedValue;
-        TokenSet = tokenSet;
+        TokenSetId = tokenSetIdId;
         CreateDate = DateTime.Now;
         TokensInUse = JsonUtility
             .GetTokens(modelValue.ToJsonNetJson())

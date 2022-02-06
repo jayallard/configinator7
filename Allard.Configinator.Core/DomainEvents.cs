@@ -1,9 +1,7 @@
 ﻿using System.Text.Json;
 using Allard.Configinator.Core.Model;
 using Allard.DomainDrivenDesign;
-using Allard.Json;
 using Newtonsoft.Json.Linq;
-using NJsonSchema;
 using NuGet.Versioning;
 
 namespace Allard.Configinator.Core;
@@ -41,7 +39,7 @@ public record SchemaAddedToSectionEvent(
     SectionId SectionId,
     SectionSchemaId SectionSchemaId,
     SemanticVersion SchemaVersion,
-    JsonSchema Schema) : DomainEventBase;
+    JsonDocument Schema) : DomainEventBase;
 
 /// <summary>
 /// A release was created.
@@ -59,9 +57,9 @@ public record ReleaseCreatedEvent(
     EnvironmentId EnvironmentId,
     SectionId SectionId,
     SectionSchemaId SectionSchemaId,
+    TokenSetId TokenSetId,
     JsonDocument ModelValue,
     JsonDocument ResolvedValue,
-    TokenSetComposed? Tokens,
     HashSet<string> TokensInUse) : DomainEventBase;
 
 /// <summary>
@@ -137,5 +135,4 @@ public record ReleaseValueBecameOld(
 public record GlobalSchemaCreated(
     GlobalSchemaId GlobalSchemaId,
     string Name,
-    SemanticVersion Version,
-    JsonSchema Schema) : DomainEventBase;
+    JsonDocument Schema) : DomainEventBase;

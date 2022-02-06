@@ -97,13 +97,14 @@ public class UpdateReleasesWhenTokenValueChanges : IEventHandler<TokenValueSetEv
                     e => e.InternalReleases
                         .Where(r =>
                             // has a token set
-                            r.TokenSet != null
+                            r.TokenSetId != null
 
                             // the token set is in the hierarchy of the token set that changed.
                             // IE: if there's a hierarchy of token sets, then the change
                             // can affect any release that's using any descendant of the changed
                             // token set.
-                            && relatedTokenSets.Contains(r.TokenSet.TokenSetName)
+                            // TODO fix
+                            //&& relatedTokenSets.Contains(r.TokenSet.TokenSetName)
 
                             // the release is using the token that changed
                             && r.TokensInUse.Contains(tokenName))

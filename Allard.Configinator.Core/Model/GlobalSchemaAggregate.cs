@@ -1,6 +1,5 @@
-﻿using Allard.DomainDrivenDesign;
-using NJsonSchema;
-using NuGet.Versioning;
+﻿using System.Text.Json;
+using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Model;
 
@@ -16,28 +15,24 @@ public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
     internal GlobalSchemaAggregate(
         GlobalSchemaId id,
         string name,
-        SemanticVersion version,
-        JsonSchema schema)
+        JsonDocument schema)
     {
         Guards.NotDefault(id, nameof(id));
         Guards.NotEmpty(name, nameof(name));
-        Guards.NotDefault(version, nameof(version));
         Guards.NotDefault(schema, nameof(schema));
-        PlayEvent(new GlobalSchemaCreated(id, name, version, schema));
+        PlayEvent(new GlobalSchemaCreated(id, name, schema));
     }
 
     public string Name { get; private set; }
-    public SemanticVersion Version { get; private set; }
-    public JsonSchema Schema { get; private set; }
-
+    public JsonDocument Schema { get; private set; }
     private void PlayEvent(IDomainEvent evt)
     {
+        InternalSourceEvents.Add(evt);
         switch (evt)
         {
             case GlobalSchemaCreated created:
                 Id = created.GlobalSchemaId;
                 Name = created.Name;
-                Version = created.Version;
                 Schema = created.Schema;
                 break;
             default:

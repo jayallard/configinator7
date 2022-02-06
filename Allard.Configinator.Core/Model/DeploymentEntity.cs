@@ -3,7 +3,6 @@
 public class DeploymentEntity : EntityBase<DeploymentId>
 {
     public DateTime DeploymentDate { get; }
-    
     public DateTime? RemovedDate { get; private set; }
     public string? RemoveReason { get; private set; }
     public bool IsDeployed { get; private set; } = true;
@@ -16,7 +15,7 @@ public class DeploymentEntity : EntityBase<DeploymentId>
         IsDeployed = false;
     }
     
-    public DeploymentEntity(
+    internal DeploymentEntity(
         DeploymentId id,
         DateTime deploymentDate)
     {

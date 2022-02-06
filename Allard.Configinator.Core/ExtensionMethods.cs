@@ -59,6 +59,9 @@ public static class ExtensionMethods
             throw new InvalidOperationException("Environment already exists. Name=" + name);
     }
 
+    public static void EnsureEnvironmentExists(this IEnumerable<EnvironmentEntity> environments, EnvironmentId id) =>
+        environments.EnsureExists(id, "Environment");
+
     /// <summary>
     /// Get an entity from a list of entities, by id.
     /// </summary>

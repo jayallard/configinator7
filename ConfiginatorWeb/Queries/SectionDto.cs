@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Allard.Configinator.Core.Model;
 using Allard.Json;
 using NJsonSchema;
 using NuGet.Versioning;
@@ -25,7 +26,7 @@ public class SectionDto
 public class SectionSchemaDto
 {
     public SemanticVersion Version { get; set; }
-    public JsonSchema Schema { get; set; }
+    public JsonDocument Schema { get; set; }
 }
 
 public class SectionEnvironmentDto
@@ -49,8 +50,7 @@ public class SectionReleaseDto
 
     public bool IsOutOfDate { get; set; }
 
-    // TODO: switch to dto
-    public TokenSetComposed? TokenSet { get; set; }
+    public TokenSetComposedDto? TokenSet { get; set; }
     
     public JsonDocument ModelValue { get; set; }
     

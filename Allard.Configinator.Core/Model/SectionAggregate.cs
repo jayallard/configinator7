@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Allard.DomainDrivenDesign;
-using Allard.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NuGet.Versioning;
@@ -15,14 +14,10 @@ public class SectionAggregate : AggregateBase<SectionId>
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public string SectionName { get; internal set; }
     public string Path { get; internal set; }
-
     public EnvironmentEntity GetEnvironment(string name) =>
         InternalEnvironments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
-
     public EnvironmentEntity GetEnvironment(EnvironmentId environmentId) =>
         InternalEnvironments.GetEnvironment(environmentId);
-
-
     internal SectionAggregate(SectionId id, string name, string path, SectionSchemaEntity? schema = null)
     {
         Guards.NotDefault(id, nameof(id));
@@ -44,7 +39,7 @@ public class SectionAggregate : AggregateBase<SectionId>
         InternalSourceEvents.Add(evt);
     }
 
-    public SectionSchemaEntity AddSchema(SectionSchemaId sectionSchemaId, SemanticVersion schemaVersion, JsonSchema schema)
+    internal SectionSchemaEntity AddSchema(SectionSchemaId sectionSchemaId, SemanticVersion schemaVersion, JsonDocument schema)
     {
         InternalSchemas.EnsureDoesntExist(sectionSchemaId, schemaVersion);
         PlayEvent(new SchemaAddedToSectionEvent(Id, sectionSchemaId, schemaVersion, schema));
@@ -66,43 +61,6 @@ public class SectionAggregate : AggregateBase<SectionId>
 
     public ReleaseEntity GetRelease(EnvironmentId environmentId, ReleaseId releaseId) =>
         GetEnvironment(environmentId).InternalReleases.GetRelease(releaseId);
-
-    public async Task<ReleaseEntity> CreateReleaseAsync(
-        EnvironmentId environmentId,
-        ReleaseId releaseId,
-        TokenSetComposed? tokens,
-        SectionSchemaId sectionSchemaId,
-        JsonDocument value,
-        CancellationToken cancellationToken = default)
-    {
-        var env = GetEnvironment(environmentId);
-        env.InternalReleases.EnsureReleaseDoesntExist(releaseId);
-        var schema = GetSchema(sectionSchemaId);
-        var tokenValues = tokens?.ToValueDictionary() ?? new Dictionary<string, JToken>();
-
-        // System.Text.Json is immutable, which we like.
-        // - NJsonSchema requires newtonsoft.
-        // - Resolve requires mutable objects.
-        // so, using System.Text.Json as much as possible.
-        // but here we need to convert to JsonNet, then back.
-        var newtonValue = value.ToJsonNetJson();
-        var newtonResolvedValue = await JsonUtility.ResolveAsync(newtonValue, tokenValues, cancellationToken);
-
-        ValidateAgainstSchema(newtonResolvedValue, schema.Schema);
-        var resolvedValue = newtonResolvedValue.ToSystemTextJson();
-        var tokensInUse = JsonUtility.GetTokenNamesDeep(newtonValue, tokenValues).ToHashSet();
-        var evt = new ReleaseCreatedEvent(
-            releaseId,
-            env.Id,
-            Id,
-            sectionSchemaId,
-            value,
-            resolvedValue,
-            tokens,
-            tokensInUse);
-        PlayEvent(evt);
-        return GetRelease(environmentId, releaseId);
-    }
 
     public DeploymentEntity SetDeployed(
         EnvironmentId environmentId,
@@ -136,17 +94,7 @@ public class SectionAggregate : AggregateBase<SectionId>
             .InternalDeployments
             .GetDeployment(deploymentId);
     }
-
-
-    private static void ValidateAgainstSchema(JToken value, JsonSchema schema)
-    {
-        var results = schema.Validate(value);
-        if (results.Any())
-        {
-            throw new SchemaValidationFailedException(results);
-        }
-    }
-
+    
     internal void SetOutOfDate(EnvironmentId environmentId, ReleaseId releaseId, bool isOutOfDate)
     {
         if (isOutOfDate)
