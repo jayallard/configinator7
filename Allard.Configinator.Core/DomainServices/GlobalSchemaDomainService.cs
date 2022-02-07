@@ -19,6 +19,7 @@ public class GlobalSchemaDomainService
 
     public async Task<GlobalSchemaAggregate> CreateGlobalSchemaAsync(
         string name, 
+        string? description,
         JsonDocument schema)
     {
         if (await _unitOfWork.GlobalSchemas.Exists(new GlobalSchemaName(name)))
@@ -28,7 +29,7 @@ public class GlobalSchemaDomainService
         }
 
         var id = await _identityService.GetId<GlobalSchemaId>();
-        var schemaAggregate = new GlobalSchemaAggregate(id, name, schema);
+        var schemaAggregate = new GlobalSchemaAggregate(id, name, description, schema);
         await _unitOfWork.GlobalSchemas.AddAsync(schemaAggregate);
         return schemaAggregate;
     }

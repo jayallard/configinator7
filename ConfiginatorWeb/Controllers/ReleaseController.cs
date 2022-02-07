@@ -1,4 +1,6 @@
-﻿using ConfiginatorWeb.Interactors;
+﻿using Allard.Configinator.Core.Schema;
+using ConfiginatorWeb.Interactors;
+using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Models.Release;
 using ConfiginatorWeb.Queries;
 using MediatR;
@@ -11,13 +13,16 @@ public class ReleaseController : Controller
     private readonly ITokenSetQueries _tokenSetQueries;
     private readonly ISectionQueries _sectionQueries;
     private readonly IMediator _mediator;
+    private readonly SchemaLoader _schemaLoader;
 
     public ReleaseController(
         ISectionQueries sectionQueries,
-        IMediator mediator, ITokenSetQueries tokenSetQueries)
+        ITokenSetQueries tokenSetQueries,
+        IMediator mediator, SchemaLoader schemaLoader)
     {
         _sectionQueries = sectionQueries;
         _mediator = mediator;
+        _schemaLoader = schemaLoader;
         _tokenSetQueries = tokenSetQueries;
     }
 
@@ -49,7 +54,7 @@ public class ReleaseController : Controller
                 .Select(s => new EditSchemaView(
                     "schema-" + s.Version.ToFullString().Replace(".", "-"),
                     s.Version.ToFullString(),
-                    s.Schema.ToString()))
+                    s.Schema.RootElement.ToString()))
                 .ToList(),
 
             DefaultValue = value,
@@ -91,7 +96,8 @@ public class ReleaseController : Controller
         var env = section.GetEnvironment(environmentName);
         var release = env.GetRelease(releaseId);
         var schema = section.GetSchema(release.Schema.Version);
-        return View(new ReleaseDisplayView(section, env, release, schema));
+        var schemaDetails = await _schemaLoader.ResolveSchemaAsync(schema.Schema);
+        return View(new ReleaseDisplayView(section, env, release, schemaDetails.ToOutputDto()));
     }
 }
 
@@ -99,7 +105,7 @@ public record ReleaseDisplayView(
     SectionDto Section,
     SectionEnvironmentDto SelectedEnvironment,
     SectionReleaseDto SelectedRelease,
-    SectionSchemaDto SelectedSchema);
+    SchemaInfoDto SelectedSchema);
 
 public record ReleaseHistoryView(
     SectionDto SelectedSection,

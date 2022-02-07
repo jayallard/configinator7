@@ -8,7 +8,7 @@ public class CreateConfiguration
     [Required]
     public string Name { get; set; }
     [Required]
-    public string Path { get; set; }
+    public string OrganizationPath { get; set; }
     
     [HiddenInput]
     [DataType(DataType.Text)]

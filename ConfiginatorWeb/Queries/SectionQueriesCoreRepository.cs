@@ -20,7 +20,7 @@ public class SectionQueriesCoreRepository : ISectionQueries
 
     public async Task<List<SectionListItemDto>> GetSectionsListAsync(CancellationToken cancellationToken = default)
         => (await _sectionRepository.FindAsync(new AllSections(), cancellationToken))
-            .Select(s => new SectionListItemDto(s.Id.Id, s.SectionName, s.Path))
+            .Select(s => new SectionListItemDto(s.Id.Id, s.SectionName, s.OrganizationPath))
             .ToList();
 
     public async Task<SectionDto?> GetSectionAsync(long id, CancellationToken cancellationToken = default)

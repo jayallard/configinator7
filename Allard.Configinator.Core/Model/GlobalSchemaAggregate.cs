@@ -15,14 +15,16 @@ public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
     internal GlobalSchemaAggregate(
         GlobalSchemaId id,
         string name,
+        string? description,
         JsonDocument schema)
     {
         Guards.NotDefault(id, nameof(id));
         Guards.NotEmpty(name, nameof(name));
         Guards.NotDefault(schema, nameof(schema));
-        PlayEvent(new GlobalSchemaCreated(id, name, schema));
+        PlayEvent(new GlobalSchemaCreated(id, name, description, schema));
     }
 
+    public string? Description { get; private set; }
     public string Name { get; private set; }
     public JsonDocument Schema { get; private set; }
     private void PlayEvent(IDomainEvent evt)
@@ -34,6 +36,7 @@ public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
                 Id = created.GlobalSchemaId;
                 Name = created.Name;
                 Schema = created.Schema;
+                Description = created.Description;
                 break;
             default:
                 throw new InvalidOperationException("Unhandled event type: " + evt.GetType().FullName);

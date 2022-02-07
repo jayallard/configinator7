@@ -39,7 +39,7 @@ internal static class SectionAggregateEventHandlers
 
     private static void CreateSection(SectionAggregate section, SectionCreatedEvent evt)
     {
-        section.Path = evt.Path;
+        section.OrganizationPath = evt.Path;
         
         // todo: id stuff is hacky
         section.Id = evt.SectionId;

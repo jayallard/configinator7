@@ -7,11 +7,14 @@ namespace ConfiginatorWeb.Controllers;
 
 public class ConfigurationController : Controller
 {
+    // TODO: move to query handlers
     private readonly ISectionQueries _sectionQueries;
     private readonly ITokenSetQueries _tokenSetQueries;
+    private readonly IGlobalSchemaQueries _globalSchemaQueries;
 
-    public ConfigurationController(ISectionQueries projections, ITokenSetQueries tokenSetQueries)
+    public ConfigurationController(ISectionQueries projections, ITokenSetQueries tokenSetQueries, IGlobalSchemaQueries globalSchemaQueries)
     {
+        _globalSchemaQueries = globalSchemaQueries;
         _sectionQueries = Guards.NotDefault(projections, nameof(projections));
         _tokenSetQueries = Guards.NotDefault(tokenSetQueries, nameof(tokenSetQueries));
     }
@@ -21,9 +24,12 @@ public class ConfigurationController : Controller
     {
         var sections = _sectionQueries.GetSectionsListAsync();
         var tokensSets = _tokenSetQueries.GetTokenSetListAsync();
+        var schemas = _globalSchemaQueries.GetGlobalSchemasListAsync();
 
-        await Task.WhenAll(sections, tokensSets);
-        var view = new IndexView(await sections, await tokensSets);
+        var view = new IndexView(
+            await sections, 
+            await tokensSets, 
+            await schemas);
         return View(view);
     }
 
@@ -63,4 +69,4 @@ public class ConfigurationController : Controller
     }
 }
 
-public record IndexView(List<SectionListItemDto> Sections, List<TokenSetListItemDto> TokenSets);
+public record IndexView(List<SectionListItemDto> Sections, List<TokenSetListItemDto> TokenSets, List<GlobalSchemaListItemDto> GlobalSchemas);

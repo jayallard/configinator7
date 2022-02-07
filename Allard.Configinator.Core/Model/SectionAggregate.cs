@@ -13,17 +13,17 @@ public class SectionAggregate : AggregateBase<SectionId>
     public IEnumerable<SectionSchemaEntity> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public string SectionName { get; internal set; }
-    public string Path { get; internal set; }
+    public string OrganizationPath { get; internal set; }
     public EnvironmentEntity GetEnvironment(string name) =>
         InternalEnvironments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
     public EnvironmentEntity GetEnvironment(EnvironmentId environmentId) =>
         InternalEnvironments.GetEnvironment(environmentId);
-    internal SectionAggregate(SectionId id, string name, string path, SectionSchemaEntity? schema = null)
+    internal SectionAggregate(SectionId id, string name, string organizationPath, SectionSchemaEntity? schema = null)
     {
         Guards.NotDefault(id, nameof(id));
-        Guards.NotEmpty(path, nameof(name));
-        Guards.NotEmpty(path, nameof(path));
-        PlayEvent(new SectionCreatedEvent(id, name, path, schema));
+        Guards.NotEmpty(organizationPath, nameof(name));
+        Guards.NotEmpty(organizationPath, nameof(organizationPath));
+        PlayEvent(new SectionCreatedEvent(id, name, organizationPath, schema));
     }
 
     internal SectionAggregate(List<IDomainEvent> events)

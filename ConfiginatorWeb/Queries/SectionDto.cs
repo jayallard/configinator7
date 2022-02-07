@@ -9,8 +9,10 @@ namespace ConfiginatorWeb.Queries;
 public class SectionDto
 {
     public string SectionName { get; set; }
+    
+    public long SectionId { get; set; }
 
-    public string Path { get; set; }
+    public string OrganizationPath { get; set; }
 
     public List<SectionSchemaDto> Schemas { get; set; }
 
@@ -32,6 +34,8 @@ public class SectionSchemaDto
 public class SectionEnvironmentDto
 {
     public string EnvironmentName { get; set; }
+    
+    public long EnvironmentId { get; set; }
 
     public List<SectionReleaseDto> Releases { get; set; }
 

@@ -20,7 +20,7 @@ public class SectionEntityTests
 
         // assert
         section.SectionName.Should().Be("name");
-        section.Path.Should().Be("path");
+        section.OrganizationPath.Should().Be("path");
         section.Schemas.Single().Version.Should().Be(new SemanticVersion(1, 0, 0));
     }
 

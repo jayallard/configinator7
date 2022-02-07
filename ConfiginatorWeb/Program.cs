@@ -4,6 +4,7 @@ using Allard.Configinator.Core.DomainEventHandlers;
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Schema;
 using Allard.Configinator.Infrastructure;
 using Allard.Configinator.Infrastructure.Repositories;
 using Allard.DomainDrivenDesign;
@@ -39,7 +40,8 @@ builder.Services
 
     // queries
     .AddTransient<ISectionQueries, SectionQueriesCoreRepository>()
-    .AddTransient<ITokenSetQueries, TokenSetQueriesCoreRepository>();
+    .AddTransient<ITokenSetQueries, TokenSetQueriesCoreRepository>()
+    .AddTransient<IGlobalSchemaQueries, GlobalSchemaQueriesCoreRepository>();
 
 var app = builder.Build();
 
@@ -69,7 +71,7 @@ var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainServi
 var tokenService = scope.ServiceProvider.GetRequiredService<TokenSetDomainService>();
 var globalSchemas = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainService>();
 
-await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", await GetSchema("__kafka-1.0.0.json"));
+await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", await GetSchema("__kafka-1.0.0.json"));
 
 
 var tokenSetEntity = await tokenService.CreateTokenSetAsync("tokens1");

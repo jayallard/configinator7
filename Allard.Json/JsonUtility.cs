@@ -10,7 +10,7 @@ public static class JsonUtility
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static IEnumerable<(string TokenName, string Path)> GetTokens(JObject json) =>
+    public static IEnumerable<(string TokenName, string JsonPath)> GetTokens(JObject json) =>
         json
             .Descendants()
             .Select(GetTokenNameAndPath)
@@ -23,7 +23,7 @@ public static class JsonUtility
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    private static (string TokenName, string Path)? GetTokenNameAndPath(JToken value)
+    private static (string TokenName, string JsonPath)? GetTokenNameAndPath(JToken value)
     {
         if (value.Type != JTokenType.String) return null;
         var v = value.Value<string>();

@@ -135,4 +135,5 @@ public record ReleaseValueBecameOld(
 public record GlobalSchemaCreated(
     GlobalSchemaId GlobalSchemaId,
     string Name,
+    string? Description,
     JsonDocument Schema) : DomainEventBase;

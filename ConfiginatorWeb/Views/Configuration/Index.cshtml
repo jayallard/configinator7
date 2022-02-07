@@ -18,7 +18,7 @@
                 @* } *@
 
             </td>
-            <td>@i.Path</td>
+            <td>@i.OrganizationPath</td>
         </tr>
     }
 </table>
@@ -32,6 +32,17 @@
             <td>
                 <a asp-controller="Token" asp-action="Index" asp-route-tokenSetName="@t.TokenSetName">@t.TokenSetName</a>
             </td>
+        </tr>
+    }
+</table>
+
+<h2>Global Schemas</h2>
+<table class="table">
+    @foreach (var t in Model.GlobalSchemas.OrderBy(kv => kv.Name))
+    {
+        <tr>
+            <td>@t.Name</td>
+            <td>@t.Description</td>
         </tr>
     }
 </table>

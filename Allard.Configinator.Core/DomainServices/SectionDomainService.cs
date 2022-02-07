@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Schema;
 using Allard.Configinator.Core.Specifications;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
-using NJsonSchema;
 using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.DomainServices;
@@ -25,7 +25,7 @@ public class SectionDomainService
         _schemaLoader = schemaLoader;
     }
 
-    public async Task<SectionAggregate> CreateSectionAsync(string sectionName, string path)
+    public async Task<SectionAggregate> CreateSectionAsync(string sectionName, string organizationPath)
     {
         // make sure section doesn't already exist
         if (await _unitOfWork.Sections.Exists(new SectionNameIs(sectionName)))
@@ -33,7 +33,7 @@ public class SectionDomainService
             throw new InvalidOperationException("Section already exists: " + sectionName);
         }
 
-        if (await _unitOfWork.Sections.Exists(new PathIs(path)))
+        if (await _unitOfWork.Sections.Exists(new OrganizationPathIs(organizationPath)))
         {
             throw new InvalidOperationException("The path is already in use by another section");
         }
@@ -41,7 +41,7 @@ public class SectionDomainService
         // todo: might as well make sure the id is unique too
 
         var id = await _identityService.GetId<SectionId>();
-        var section = new SectionAggregate(id, sectionName, path, null);
+        var section = new SectionAggregate(id, sectionName, organizationPath, null);
         await _unitOfWork.Sections.AddAsync(section);
         return section;
     }
@@ -54,7 +54,7 @@ public class SectionDomainService
         // make sure the schema is valid
         // this resolves the schema; confirms references are good.
         // resolves references from GlobalSchemaEntities,
-        await _schemaLoader.GetSchemaAsync(schema);
+        await _schemaLoader.ResolveSchemaAsync(schema);
 
         var id = await _identityService.GetId<SectionSchemaId>();
         return section.AddSchema(id, version, schema);
@@ -83,8 +83,8 @@ public class SectionDomainService
 
         // validate against the schema
         var schemaJson = section.GetSchema(sectionSchemaId).Schema;
-        var schema = await _schemaLoader.GetSchemaAsync(schemaJson, cancellationToken);
-        var validationErrors = schema.Validate(jsonNetResolved);
+        var schemaDetails = await _schemaLoader.ResolveSchemaAsync(schemaJson, cancellationToken);
+        var validationErrors = schemaDetails.Root.ResolvedSchema!.Validate(jsonNetResolved);
         if (validationErrors.Any()) throw new SchemaValidationFailedException(validationErrors.ToList());
 
         // convert the json.net to system.text.json

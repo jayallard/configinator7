@@ -32,7 +32,9 @@
                 <td>@t.Name</td>
                 <td>@t.SourceTokenSet</td>
                 <td>@t.TokenValueOrigin</td>
-                <td><pre>@t.Token</pre></td>
+                <td>
+                    <pre>@t.Token</pre>
+                </td>
             </tr>
         }
     </table>
@@ -40,7 +42,43 @@
 
 <h2>Schema</h2>
 <h3>Version @Model.SelectedRelease.Schema.Version.ToFullString()</h3>
-<pre>@Model.SelectedRelease.Schema.Schema.RootElement.ToString()</pre>
+<pre>@Model.SelectedSchema.Root.SchemaSource.RootElement</pre>
+@if (Model.SelectedSchema.References.Any())
+{
+    <h4>Schema References</h4>
+    foreach (var r in Model.SelectedSchema.References)
+    {
+        <p>
+            <b>@r.Name</b>
+        </p>
+        @if (r.RefersTo.Any())
+        {
+            <p>
+                Uses:
+                <ul>
+                    @foreach (var to in r.RefersTo)
+                    {
+                        <li>@to</li>
+                    }
+                </ul>
+                }
+            </p>
+        }
+        @if (r.ReferencedBy.Any())
+        {
+            <p>
+                Used By:
+                <ul>
+                    @foreach (var from in r.ReferencedBy)
+                    {
+                        <li>@from</li>
+                    }
+                </ul>
+            </p>
+        }
+        <pre>@r.SchemaSource.RootElement</pre>
+    }
+}
 
 <h2>Model Value</h2>
 <pre>@Model.SelectedRelease.ModelValue.PrettyPrint()</pre>
