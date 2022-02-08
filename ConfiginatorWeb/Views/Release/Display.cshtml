@@ -1,5 +1,4 @@
-﻿@using Newtonsoft.Json
-@using Allard.Json
+﻿@using Allard.Json
 @model ConfiginatorWeb.Controllers.ReleaseDisplayView
 
 @{
@@ -10,6 +9,15 @@
 <p>Section: <a asp-controller="Configuration" asp-action="Display" asp-route-name="@Model.Section.SectionName">@Model.Section.SectionName</a></p>
 <p>Environment: @Model.SelectedEnvironment.EnvironmentName</p>
 <p>Release Id: @Model.SelectedRelease.ReleaseId</p>
+
+<h2>Resolved Value</h2>
+<p>This is the Model Value combined with the tokens. This is the configuration value of the section for this release.</p>
+<code><pre>@Model.SelectedRelease.ResolvedValue.PrettyPrint()</pre></code>
+
+<h2>Template Value</h2>
+<p>The configuration value template. This is updated with token values, resulting in the Resolved Value.</p>
+<code><pre>@Model.SelectedRelease.ModelValue.PrettyPrint()</pre></code>
+
 
 <h2>Token Set</h2>
 @if (Model.SelectedRelease.TokenSet != null)
@@ -42,7 +50,19 @@
 
 <h2>Schema</h2>
 <h3>Version @Model.SelectedRelease.Schema.Version.ToFullString()</h3>
-<pre>@Model.SelectedSchema.Root.SchemaSource.RootElement</pre>
+@if (Model.SelectedSchema.Root.RefersTo.Any())
+{
+    <p>
+        Uses:
+        <ul>
+            @foreach (var to in Model.SelectedSchema.Root.RefersTo)
+            {
+                <li>@to</li>
+            }
+        </ul>
+    </p>
+}
+<code><pre>@Model.SelectedSchema.Root.SchemaSource.RootElement</pre></code>
 @if (Model.SelectedSchema.References.Any())
 {
     <h4>Schema References</h4>
@@ -76,48 +96,8 @@
                 </ul>
             </p>
         }
-        <pre>@r.SchemaSource.RootElement</pre>
+        <code><pre>@r.SchemaSource.RootElement</pre></code>
     }
 }
 
-<h2>Model Value</h2>
-<pre>@Model.SelectedRelease.ModelValue.PrettyPrint()</pre>
-
-<h2>Resolved Value</h2>
-<pre>@Model.SelectedRelease.ResolvedValue.PrettyPrint()</pre>
-
-<h2>Deployment History</h2>
-@if (!Model.SelectedRelease.Deployments.Any())
-{
-    <p>None</p>
-}
-<table class="table">
-    <thead>
-    <tr>
-        <th>Deployment Id</th>
-        <th>Deployment Date</th>
-        <th>Remove Date</th>
-        <th>Remove Reason</th>
-    </tr>
-    </thead>
-    @foreach (var d in Model.SelectedRelease.Deployments.OrderBy(d => d.DeploymentDate))
-    {
-        <tr>
-            <td>@d.DeploymentId</td>
-            <td>
-                @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
-                @if (d.IsDeployed)
-                {
-                    <span class="badge rounded-pill bg-success">Deployed</span>
-                }
-
-                @if (Model.SelectedRelease.IsOutOfDate)
-                {
-                    <span class="badge rounded-pill bg-warning">Out of Date</span>
-                }
-            </td>
-            <td>@d.RemovedDate?.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
-            <td>@d.RemoveReason</td>
-        </tr>
-    }
-</table>
+@await Component.InvokeAsync("DeploymentHistory", Model.SelectedRelease)

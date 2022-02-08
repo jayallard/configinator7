@@ -21,6 +21,9 @@ public class SectionDto
     public SectionEnvironmentDto GetEnvironment(string environmentName) =>
         Environments.Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase));
 
+    public SectionEnvironmentDto GetEnvironment(long environmentId) =>
+        Environments.Single(e => e.EnvironmentId == environmentId);
+
     public SectionSchemaDto GetSchema(SemanticVersion version) =>
         Schemas.Single(s => s.Version == version);
 }

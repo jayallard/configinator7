@@ -26,6 +26,16 @@ public class ReleaseController : Controller
         _tokenSetQueries = tokenSetQueries;
     }
 
+    // DEPLOY
+    public async Task<IActionResult> Deploy(long sectionId, long environmentId, long releaseId)
+    {
+        var section = await _sectionQueries.GetSectionAsync(sectionId);
+        var environment = section.GetEnvironment(environmentId);
+        var release = environment.GetRelease(releaseId);
+        var view = new DeployView(section, environment, release);
+        return View(view);
+    }
+    
     // GET
     public async Task<IActionResult> Add(
         string sectionName,
@@ -115,6 +125,11 @@ public record ReleaseHistoryView(
 public record ReleaseHistoryDeploymentPair(
     SectionReleaseDto Release,
     SectionDeploymentDto Deployment);
+
+public record DeployView(
+    SectionDto Section,
+    SectionEnvironmentDto Environment,
+    SectionReleaseDto Release);
 
 public class ReleaseDeployRequest : IRequest<ReleaseDeployResponse>
 {

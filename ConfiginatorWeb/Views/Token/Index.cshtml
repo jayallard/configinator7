@@ -52,6 +52,10 @@
                     case TokenValueOrigin.Override:
                         <span class="badge rounded-pill bg-success">Overridden</span><br/>
                         break;
+                    case TokenValueOrigin.Addition:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }            
             </td>
             <td>
@@ -77,7 +81,7 @@
                     {
                         <span>
                             Token Set: @i.SourceTokenSet<br/>
-                            <pre>@i.Token</pre>
+                            <code><pre>@i.Token</pre></code>
                         </span>
                     }
                 }

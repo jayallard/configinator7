@@ -9,6 +9,7 @@
 <h2>Key: @Model.Key</h2>
 
 <form asp-action="SaveValue" method="post">
+    @Html.AntiForgeryToken();
     <textarea id="value" name="value" style="width:400px;height: 200px;">@Model.SelectedToken</textarea>
     <input type="hidden" name="tokenSetName" value="@Model.TokenSetName"/>
     <input type="hidden" name="key" value="@Model.Key"/>

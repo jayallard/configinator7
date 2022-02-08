@@ -13,7 +13,10 @@ public class SchemaDetailTracker
     public const string RootSchemaName = "/";
     private readonly Dictionary<string, SchemaDetail> _schemas = new(StringComparer.OrdinalIgnoreCase);
 
-    public ReadOnlyCollection<SchemaDetail> References => _schemas.Values.ToList().AsReadOnly();
+    public ReadOnlyCollection<SchemaDetail> AllSchemas => _schemas.Values.ToList().AsReadOnly();
+
+    public ReadOnlyCollection<SchemaDetail> References =>
+        _schemas.Values.Where(v => v.Name != RootSchemaName).ToList().AsReadOnly();
 
     public SchemaDetail Root => GetOrCreate(RootSchemaName);
 

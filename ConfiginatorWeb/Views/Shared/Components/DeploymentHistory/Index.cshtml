@@ -1,0 +1,39 @@
+﻿@model ConfiginatorWeb.Queries.SectionReleaseDto
+<h2>Deployment History</h2>
+@if (Model.Deployments.Any())
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Deployment Id</th>
+            <th>Deployment Date</th>
+            <th>Remove Date</th>
+            <th>Remove Reason</th>
+        </tr>
+        </thead>
+        @foreach (var d in Model.Deployments.OrderBy(d => d.DeploymentDate))
+        {
+            <tr>
+                <td>@d.DeploymentId</td>
+                <td>
+                    @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
+                    @if (d.IsDeployed)
+                    {
+                        <span class="badge rounded-pill bg-success">Deployed</span>
+                    }
+
+                    @if (Model.IsOutOfDate)
+                    {
+                        <span class="badge rounded-pill bg-warning">Out of Date</span>
+                    }
+                </td>
+                <td>@d.RemovedDate?.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
+                <td>@d.RemoveReason</td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    <p><i>None</i></p>
+}

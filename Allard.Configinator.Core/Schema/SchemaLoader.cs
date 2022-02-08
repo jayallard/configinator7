@@ -25,8 +25,7 @@ public class SchemaLoader
         var resolved = await JsonSchema.FromJsonAsync(schemaSource.RootElement.ToString(), ".",
             s => Resolve(SchemaDetailTracker.RootSchemaName, s, tracker), cancellationToken);
         tracker.SetSchema(SchemaDetailTracker.RootSchemaName, schemaSource, resolved);
-        var info = new SchemaInfo(tracker.Root,
-            tracker.References.Where(r => r.Name != SchemaDetailTracker.RootSchemaName).ToList().AsReadOnly());
+        var info = new SchemaInfo(tracker.Root, tracker.References);
         return info;
     }
 

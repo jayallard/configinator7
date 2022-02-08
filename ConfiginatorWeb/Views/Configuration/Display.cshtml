@@ -34,16 +34,7 @@ $(document).ready(function() {
      });
  });
 </script>
-
-<h2>@Model.SectionName</h2>
-<table>
-    <tr>
-        <td>Name</td><td>@Model.SectionName</td>
-    </tr>
-    <tr>
-        <td>Path</td><td>@Model.OrganizationPath</td>
-    </tr>
-</table>
+<h1>Configuration Section: @Model.SectionName</h1>
 <h2>Environments</h2>
 <table class="table table-bordered">
     <thead>
@@ -79,10 +70,23 @@ $(document).ready(function() {
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                                 <td>@r.TokenSet?.TokenSetName</td>
                                 <td>
-                                    <button data-deploy="1" data-e="@e.EnvironmentName" data-r="@r.ReleaseId">Deploy</button>
+                                    @* <button data-deploy="1" data-e="@e.EnvironmentName" data-r="@r.ReleaseId">Deploy</button> *@
                                     @if (r.IsDeployed)
                                     {
+                                        <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
+                                           asp-route-environmentid="@e.EnvironmentId"
+                                           asp-route-releaseid="@r.ReleaseId">
+                                            Redeploy
+                                        </a>
                                         <span class="badge rounded-pill bg-success">Deployed</span>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
+                                           asp-route-environmentid="@e.EnvironmentId"
+                                           asp-route-releaseid="@r.ReleaseId">
+                                            Deploy
+                                        </a>
                                     }
                                     @if (r.IsOutOfDate)
                                     {

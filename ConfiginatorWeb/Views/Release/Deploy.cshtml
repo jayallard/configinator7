@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using ConfiginatorWeb.Views.Shared.Components
+@using ConfiginatorWeb.Views.Shared.Components.DeploymentHistory
+@model ConfiginatorWeb.Controllers.DeployView
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h1>Deploy</h1>
+<table class="table">
+    <tr>
+        <td>Section</td>
+        <td>@Model.Section.SectionName</td>
+    </tr>
+    <tr>
+        <td>Environment</td>
+        <td>@Model.Environment.EnvironmentName</td>
+    </tr>
+    <tr>
+        <td>Release Id</td>
+        <td>@Model.Release.ReleaseId</td>
+    </tr>
+</table>
+<h2>Deployment Configuration</h2>
+<p>stuff provided by deployment module</p>
+<h2>Notes</h2>
+<p>
+    <form>
+        @Html.AntiForgeryToken();
+        <div>
+            <label for="notes">Anything of interest?</label>
+            <textarea class="form-control" id="notes" rows="5"></textarea>
+        </div>
+    </form>
+</p>
+
+@await Component.InvokeAsync("DeploymentHistory", Model.Release)
