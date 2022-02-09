@@ -28,17 +28,15 @@ public class SectionDomainService
     public async Task<SectionAggregate> CreateSectionAsync(string sectionName, string organizationPath)
     {
         // make sure section doesn't already exist
-        if (await _unitOfWork.Sections.Exists(new SectionNameIs(sectionName)))
+        if (await _unitOfWork.Sections.Exists(sectionName))
         {
             throw new InvalidOperationException("Section already exists: " + sectionName);
         }
 
         if (await _unitOfWork.Sections.Exists(new OrganizationPathIs(organizationPath)))
         {
-            throw new InvalidOperationException("The path is already in use by another section");
+            throw new InvalidOperationException("The organization path is already in use by another section");
         }
-
-        // todo: might as well make sure the id is unique too
 
         var id = await _identityService.GetId<SectionId>();
         var section = new SectionAggregate(id, sectionName, organizationPath, null);

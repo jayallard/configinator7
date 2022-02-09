@@ -26,10 +26,10 @@ public class ConfigurationController : Controller
         var tokensSets = _tokenSetQueries.GetTokenSetListAsync();
         var schemas = _globalSchemaQueries.GetGlobalSchemasListAsync();
 
-        var view = new IndexView(
-            await sections, 
-            await tokensSets, 
-            await schemas);
+        var t = await tokensSets;
+        var roots = t.Where(t => t.BaseTokenSetName == null);
+        
+        var view = new IndexView(await sections, t, await schemas);
         return View(view);
     }
 
@@ -70,3 +70,4 @@ public class ConfigurationController : Controller
 }
 
 public record IndexView(List<SectionListItemDto> Sections, List<TokenSetListItemDto> TokenSets, List<GlobalSchemaListItemDto> GlobalSchemas);
+public record GlobalSchemaListItemDto(long GlobalSchemaId, string Name, string? Description);

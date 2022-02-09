@@ -26,6 +26,8 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     /// The copy is immutable. Changes made to the TokenSet post-release creation
     /// are not represented.
     /// </summary>
+    // BUG: token sets are mutable. this needs a copy, or token sets need to be versioned.
+    // versioned token sets would be a lot more complicated
     public TokenSetId? TokenSetId { get; }
 
     /// <summary>

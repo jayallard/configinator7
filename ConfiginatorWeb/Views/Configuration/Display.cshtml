@@ -80,7 +80,7 @@ $(document).ready(function() {
                         }
                     </table>
                 }
-                <a asp-controller="Release" asp-action="Add" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName">Add</a>
+                <a asp-controller="Release" asp-action="Add" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName">Create Release</a>
                 @if (e.Releases.Any())
                 {
                     <span>

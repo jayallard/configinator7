@@ -1,6 +1,7 @@
 ﻿using Allard.Configinator.Core;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
+using ConfiginatorWeb.Controllers;
 
 namespace ConfiginatorWeb.Queries;
 

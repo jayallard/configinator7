@@ -32,7 +32,7 @@
     {
         <tr class="@(string.Equals(t.Value.Name, Model.Key, StringComparison.OrdinalIgnoreCase) ? "bg-info" : "")">
             <td>@t.Value.Name</td>
-            <td>@t.Value.SourceTokenSet</td>
+            <td>@t.Value.SourceTokenSetName</td>
             <td>
                 <pre>@t.Value.Token.ToString()</pre>
             </td>

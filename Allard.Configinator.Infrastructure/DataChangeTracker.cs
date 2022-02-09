@@ -65,6 +65,13 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
         return db;
     }
 
+    public async Task<TAggregate> FindOneAsync(ISpecification<TAggregate> specification, CancellationToken cancellationToken = default)
+    {
+        var matches = await FindAsync(specification, cancellationToken);
+        if (matches.Count != 1) throw new InvalidOperationException("The query returned multiple matches");
+        return matches[0];
+    }
+
     public Task<List<IDomainEvent>> GetEvents(CancellationToken cancellationToken = default) =>
         Task.FromResult(_localData.SelectMany(d => d.SourceEvents).ToList());
 

@@ -1,6 +1,3 @@
 ﻿namespace ConfiginatorWeb.Queries;
 
-public class TokenSetListItemDto
-{
-    public string TokenSetName { get; set; }
-}
+public record TokenSetListItemDto(string TokenSetName, string? BaseTokenSetName, string? Mermaid);

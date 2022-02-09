@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Allard.Configinator.Core;
+﻿using Allard.Configinator.Core;
 using ConfiginatorWeb.Interactors;
 using ConfiginatorWeb.Queries;
 using MediatR;

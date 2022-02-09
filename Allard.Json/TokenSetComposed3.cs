@@ -15,6 +15,23 @@ public class TokenSetComposed3
             kv => kv.Value.DeepClone(),
             StringComparer.OrdinalIgnoreCase);
 
+    public ImmutableDictionary<string, TokenComposed3> TokensResolved
+    {
+        get
+        {
+            ResolveAll();
+            return _resolved.ToImmutableDictionary(
+                kv => kv.Key,
+                kv => kv.Value,
+                StringComparer.OrdinalIgnoreCase);
+        }
+    }
+
+    private void ResolveAll()
+    {
+        foreach (var key in this.Keys) Resolve(key);
+    }
+    
     public TokenSetComposed3 Root => BaseTokenSet?.Root ?? this;
 
     public ISet<string> GetRelatedTokenSetNames()

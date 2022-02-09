@@ -1,4 +1,6 @@
-﻿namespace ConfiginatorWeb.Queries;
+﻿using ConfiginatorWeb.Controllers;
+
+namespace ConfiginatorWeb.Queries;
 
 public interface IGlobalSchemaQueries
 {

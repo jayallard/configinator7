@@ -10,10 +10,10 @@ public static class ExtensionMethods
 {
     public static IDictionary<string, JToken> ToValueDictionary(this TokenSetComposed3 tokens) =>
         tokens
-            .Tokens
+            .TokensResolved
             .ToDictionary(
                 t => t.Key, 
-                t => t.Value, 
+                t => t.Value.Token, 
                 StringComparer.OrdinalIgnoreCase);
 
     private static void EnsureDoesntExist<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,

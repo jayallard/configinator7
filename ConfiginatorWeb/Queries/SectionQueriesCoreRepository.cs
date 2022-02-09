@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.Design.Serialization;
-using Allard.Configinator.Core;
+﻿using Allard.Configinator.Core;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
@@ -10,37 +9,34 @@ namespace ConfiginatorWeb.Queries;
 
 public class SectionQueriesCoreRepository : ISectionQueries
 {
-    private readonly ISectionRepository _sectionRepository;
-    private readonly ITokenSetRepository _tokenSetRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public SectionQueriesCoreRepository(ISectionRepository sectionRepository, ITokenSetRepository tokenSetRepository)
+    public SectionQueriesCoreRepository(IUnitOfWork unitOfWork)
     {
-        _sectionRepository = Guards.NotDefault(sectionRepository, nameof(sectionRepository));
-        _tokenSetRepository = Guards.NotDefault(tokenSetRepository, nameof(tokenSetRepository));
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<List<SectionListItemDto>> GetSectionsListAsync(CancellationToken cancellationToken = default)
-        => (await _sectionRepository.FindAsync(new AllSections(), cancellationToken))
+        => (await _unitOfWork.Sections.FindAsync(new AllSections(), cancellationToken))
             .Select(s => new SectionListItemDto(s.Id.Id, s.SectionName, s.OrganizationPath))
             .ToList();
 
     public async Task<SectionDto?> GetSectionAsync(long id, CancellationToken cancellationToken = default)
     {
-        var section = await _sectionRepository.GetAsync(new SectionId(id), cancellationToken);
+        var section = await _unitOfWork.Sections.GetAsync(new SectionId(id), cancellationToken);
         return await CreateSectionDto(section, cancellationToken);
     }
 
     public async Task<SectionDto> GetSectionAsync(string name, CancellationToken cancellationToken = default)
     {
         // get the section
-        var section = (await _sectionRepository.FindAsync(new SectionNameIs(name), cancellationToken))
-            .Single();
+        var section = await _unitOfWork.Sections.GetSectionAsync(name, cancellationToken);
         return await CreateSectionDto(section, cancellationToken);
     }
 
     private async Task<SectionDto> CreateSectionDto(SectionAggregate section, CancellationToken cancellationToken)
     {
-        var tokenSets = (await _tokenSetRepository.FindAsync(new All(), cancellationToken))
+        var tokenSets = (await _unitOfWork.TokenSets.FindAsync(new All(), cancellationToken))
             .ToDictionary(
                 t => t.Id, 
                 t => t);

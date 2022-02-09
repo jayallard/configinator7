@@ -2,7 +2,6 @@
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
-using Allard.Configinator.Core.Specifications;
 using MediatR;
 using NuGet.Versioning;
 
@@ -11,16 +10,13 @@ namespace ConfiginatorWeb.Interactors;
 public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest, CreateReleaseResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IIdentityService _identity;
-    private readonly TokenSetDomainService _tokenSetDomainService;
     private readonly SectionDomainService _sectionDomainService;
 
-    public CreateReleaseCommandHandler(IUnitOfWork unitOfWork, IIdentityService identity,
-        TokenSetDomainService tokenSetDomainService, SectionDomainService sectionDomainService)
+    public CreateReleaseCommandHandler(
+        IUnitOfWork unitOfWork, 
+        SectionDomainService sectionDomainService)
     {
         _unitOfWork = unitOfWork;
-        _identity = identity;
-        _tokenSetDomainService = tokenSetDomainService;
         _sectionDomainService = sectionDomainService;
     }
 
@@ -28,21 +24,14 @@ public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest,
     {
         try
         {
-            var section =
-                (await _unitOfWork.Sections.FindAsync(new SectionNameIs(request.SectionName), cancellationToken))
-                .Single();
+            var section = await _unitOfWork.Sections.GetSectionAsync(request.SectionName, cancellationToken);
             var environmentId = section.GetEnvironment(request.EnvironmentName).Id;
-            var tokenSetId =
-                request.TokenSetName == null
-                    ? null
-                    : (await _unitOfWork.TokenSets.FindAsync(new TokenSetNameIs(request.TokenSetName),
-                        cancellationToken))
-                    .Single().Id;
+            var tokenSet = await _unitOfWork.TokenSets.GetTokenSetAsyncIfNotNull(request.TokenSetName, cancellationToken);
             var schemaId = section.GetSchema(SemanticVersion.Parse(request.SchemaVersion)).Id;
             await _sectionDomainService.CreateReleaseAsync(
                 section,
                 environmentId,
-                tokenSetId,
+                tokenSet?.Id,
                 schemaId,
                 JsonDocument.Parse(request.Value), cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -91,7 +91,7 @@ public class ReleaseController : Controller
     public async Task<IActionResult> Deploy(long sectionId, long environmentId, long releaseId, string notes,
         CancellationToken cancellationToken)
     {
-        var request = new ReleaseDeployRequest
+        var request = new DeployRequest
         {
             SectionId = sectionId,
             EnvironmentId = environmentId,
@@ -168,7 +168,7 @@ public record DeployView(
     SectionEnvironmentDto Environment,
     SectionReleaseDto Release);
 
-public class ReleaseDeployRequest : IRequest<ReleaseDeployResponse>
+public class DeployRequest : IRequest<DeployResponse>
 {
     public long SectionId { get; set; }
     public long EnvironmentId { get; set; }
@@ -176,4 +176,4 @@ public class ReleaseDeployRequest : IRequest<ReleaseDeployResponse>
     public string Notes { get; set; }
 }
 
-public record ReleaseDeployResponse(long DeploymentId);
+public record DeployResponse(long DeploymentId);

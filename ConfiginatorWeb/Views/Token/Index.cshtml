@@ -2,6 +2,7 @@
 @using System.Linq;
 @using Allard.Json
 @using ConfiginatorWeb.Queries
+@using Newtonsoft.Json.Linq
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
@@ -81,25 +82,27 @@
                     items.Reverse();
                     foreach (var i in items)
                     {
-                        <span>
-                            Token Set: @i.SourceTokenSet<br/>
-                            <code>
-                                <pre>@i.Token</pre>
-                            </code>
-                        </span>
+                        @if (i.Token.Type == JTokenType.Object)
+                        {
+                            <span>
+                                <code>
+                                    <pre>@i.Token</pre>
+                                </code>
+                            </span>
+                        }
+                        else
+                        {
+                            <div>
+                                @i.TokenSetName : @i.TokenValueOrigin : <code>@i.Token</code>
+                            </div>
+                        }
                     }
                 }
             </td>
         </tr>
     }
 </table>
-
-@* <div> *@
-@*     <code> *@
-@*         @Html.Raw(Model.MermaidJsDiagram.Replace("\n", "<br/>")) *@
-@*     </code> *@
-@* </div> *@
 <div class="mermaid">
-    @Html.Raw(Model.MermaidJsDiagram)
+    @Model.MermaidJsDiagram
 </div>
 <script>mermaid.initialize({ startOnLoad: true })</script>

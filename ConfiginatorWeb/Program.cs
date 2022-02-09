@@ -94,6 +94,12 @@ await tokenService.CreateTokenSetAsync("yabba", "tokensAB");
 await tokenService.CreateTokenSetAsync("dabbadoo", "tokensAB");
 
 
+await tokenService.CreateTokenSetAsync("root2", null);
+await tokenService.CreateTokenSetAsync("blah1", "root2");
+await tokenService.CreateTokenSetAsync("blah2", "root2");
+await tokenService.CreateTokenSetAsync("c1", "blah2");
+await tokenService.CreateTokenSetAsync("c2", "blah2");
+
 
 var modelValue =
     JsonDocument.Parse(

@@ -16,8 +16,7 @@ public class SetTokenValueCommandHandler : IRequestHandler<SetTokenValueCommand,
 
     public async Task<SetTokenValueResponse> Handle(SetTokenValueCommand request, CancellationToken cancellationToken)
     {
-        var tokenSet = (await _unitOfWork.TokenSets.FindAsync(new TokenSetNameIs(request.TokenSetName), cancellationToken))
-            .Single();
+        var tokenSet = await _unitOfWork.TokenSets.GetTokenSetAsync(request.TokenSetName, cancellationToken);
         tokenSet.SetValue(request.Key, request.Value);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return new SetTokenValueResponse();
