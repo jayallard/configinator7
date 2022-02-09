@@ -1,4 +1,5 @@
-﻿using Allard.Configinator.Core;
+﻿using System.Text;
+using Allard.Configinator.Core;
 using ConfiginatorWeb.Interactors;
 using ConfiginatorWeb.Queries;
 using MediatR;
@@ -20,7 +21,7 @@ public class TokenController : Controller
     public async Task<IActionResult> Index(string tokenSetName, CancellationToken cancellationToken)
     {
         var tokenSet = await _mediator.Send(new TokenSetComposedQuery(tokenSetName), cancellationToken);
-        return View(new EditTokenSetView(tokenSet.TokenSet));
+        return View(new EditTokenSetView(tokenSet.TokenSet, tokenSet.MermaidMarkup));
     }
 
     public async Task<IActionResult> EditValue(string tokenSetName, string key, CancellationToken cancellationToken)
@@ -36,7 +37,7 @@ public class TokenController : Controller
             TokenSetName = tokenSetName,
             Key = key,
             SelectedToken = token,
-            TokensComposed = tokenSet.TokenSet
+            TokensComposed = tokenSet.TokenSet,
         });
     }
 
@@ -49,11 +50,11 @@ public class TokenController : Controller
     {
         var command = new SetTokenValueCommand(tokenSetName, key, value);
         await _mediator.Send(command, cancellationToken);
-        return RedirectToAction("index", new {tokenSetName = tokenSetName});
+        return RedirectToAction("index", new {tokenSetName});
     }
 }
 
-public record EditTokenSetView(TokenSetComposedDto TokenSet);
+public record EditTokenSetView(TokenSetComposedDto TokenSet, string MermaidJsDiagram);
 
 public class EditValueView
 {
@@ -64,11 +65,4 @@ public class EditValueView
     public JToken SelectedToken { get; set; }
 
     public TokenSetComposedDto TokensComposed { get; set; }
-}
-
-public class SaveTokenValue
-{
-    public string TokenSetName { get; set; }
-    public string Key { get; set; }
-    public string Value { get; set; }
 }

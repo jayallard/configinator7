@@ -8,7 +8,7 @@ public enum TokenValueOrigin
     /// <summary>
     /// The value is added at this layer.
     /// </summary>
-    Addition,
+    Defined,
     
     /// <summary>
     /// This layer overrides a value of a higher layer.

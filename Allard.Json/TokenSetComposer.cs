@@ -1,6 +1,4 @@
-﻿using System.Runtime.Versioning;
-
-namespace Allard.Json;
+﻿namespace Allard.Json;
 
 /// <summary>
 /// TokenSets can inherit from TokenSets, etc. It can be a deep hierarchy.
@@ -16,10 +14,8 @@ public class TokenSetComposer
     /// </summary>
     /// <param name="tokenSets">All of the token sets. This must include any TokenSet that is to be composed,
     /// and all of the TokenSets inherit from.</param>
-    public TokenSetComposer(IEnumerable<TokenSet> tokenSets)
-    {
+    public TokenSetComposer(IEnumerable<TokenSet> tokenSets) =>
         _tokenSets = tokenSets.ToDictionary(t => t.TokenSetName, t => t, StringComparer.OrdinalIgnoreCase);
-    }
 
     public IEnumerable<TokenSet> GetDescendantsAndSelf(string tokenSetName)
     {
@@ -28,20 +24,20 @@ public class TokenSetComposer
         {
             if (string.Equals(tokenSetName, t.TokenSetName, StringComparison.OrdinalIgnoreCase)) yield return t;
             var current = t;
-            while (current.Base != null)
+            while (current.BaseTokenSetName != null)
             {
-                if (current.Base.Equals(tokenSetName, StringComparison.OrdinalIgnoreCase))
+                if (current.BaseTokenSetName.Equals(tokenSetName, StringComparison.OrdinalIgnoreCase))
                 {
                     yield return t;
                     break;
                 }
 
-                current = _tokenSets[current.Base];
+                current = _tokenSets[current.BaseTokenSetName];
             }
         }
     }
-    
-    
+
+
     /// <summary>
     /// Retrieve a token set by name.
     /// </summary>
@@ -62,7 +58,7 @@ public class TokenSetComposer
     public TokenSetComposed Compose(string tokenSetName)
     {
         var bottom = GetTokenSet(tokenSetName);
-        if (bottom.Base == null)
+        if (bottom.BaseTokenSetName == null)
         {
             return ToTokenSetComposed(bottom);
         }
@@ -72,8 +68,8 @@ public class TokenSetComposer
 
         // initialize BOTTOM with all of the values from BASE.
         // All values are defaulted to INHERITED.
-        var baseValues = Compose(bottom.Base).Tokens;
-        foreach (var (k, v) in baseValues)
+        var baseTokenSet = Compose(bottom.BaseTokenSetName);
+        foreach (var (k, v) in baseTokenSet.Tokens)
         {
             var copy = v.Clone();
             copy.TokenValueOrigin = TokenValueOrigin.Inherited;
@@ -94,7 +90,7 @@ public class TokenSetComposer
                 Name = key,
                 Token = value,
                 SourceTokenSet = bottom.TokenSetName,
-                TokenValueOrigin = TokenValueOrigin.Addition
+                TokenValueOrigin = TokenValueOrigin.Defined
             };
 
             // it was provided by the BASE, but child wins.
@@ -110,12 +106,15 @@ public class TokenSetComposer
         }
 
         RemoveUnnecessaryIntermediaryNodes(bottomValues);
-        return new TokenSetComposed
+        var child = new TokenSetComposed
         {
-            Base = bottom.Base,
+            Base = baseTokenSet,
             TokenSetName = bottom.TokenSetName,
             Tokens = bottomValues
         };
+        
+        baseTokenSet.AddChild(child);
+        return child;
     }
 
     /// <summary>
@@ -142,7 +141,8 @@ public class TokenSetComposer
         //  TS2 resolves to     a=value, parent=ts1   value is inherited
         //  So, the value of ts2 links to ts1 which links to ts0
         //  This reduces it to: ts2 -> ts0
-        var valuesWithBase = values.Values
+        var valuesWithBase = values
+            .Values
             .Where(v => v.BaseToken?.BaseToken != null);
         foreach (var v in valuesWithBase)
         {
@@ -162,7 +162,7 @@ public class TokenSetComposer
             Name = b.Key,
             Token = b.Value.DeepClone(),
             SourceTokenSet = bottom.TokenSetName,
-            TokenValueOrigin = TokenValueOrigin.Addition,
+            TokenValueOrigin = TokenValueOrigin.Defined,
             BaseToken = null
         }, StringComparer.OrdinalIgnoreCase)
     };

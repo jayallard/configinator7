@@ -66,7 +66,8 @@ public class SectionAggregate : AggregateBase<SectionId>
         EnvironmentId environmentId,
         ReleaseId releaseId,
         DeploymentId deploymentId,
-        DateTime deploymentDate)
+        DateTime deploymentDate,
+        string? notes)
     {
         var release = GetRelease(environmentId, releaseId);
         release.InternalDeployments.EnsureDeploymentDoesntExist(deploymentId);
@@ -80,7 +81,8 @@ public class SectionAggregate : AggregateBase<SectionId>
             deploymentDate,
             Id,
             environmentId,
-            releaseId);
+            releaseId,
+            notes);
         PlayEvent(deployedEvt);
         return GetDeployment(environmentId, releaseId, deploymentId);
     }

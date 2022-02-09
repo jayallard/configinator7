@@ -20,11 +20,11 @@ public class ReleaseDeployCommandHandler : IRequestHandler<ReleaseDeployRequest,
 
     public async Task<ReleaseDeployResponse> Handle(ReleaseDeployRequest request, CancellationToken cancellationToken)
     {
-        var section = (await _unitOfWork.Sections.FindAsync(new SectionNameIs(request.SectionName), cancellationToken)).Single();
-        var env = section.GetEnvironment(request.EnvironmentName);
+        var section = await _unitOfWork.Sections.GetAsync(new SectionId(request.SectionId), cancellationToken);
+        var env = section.GetEnvironment(new EnvironmentId(request.EnvironmentId));
         var deploymentHistoryId = await _identityService.GetId<DeploymentId>();
-        section.SetDeployed(env.Id, new ReleaseId(request.ReleaseId), deploymentHistoryId, DateTime.Now);
+        section.SetDeployed(env.Id, new ReleaseId(request.ReleaseId), deploymentHistoryId, DateTime.Now, request.Notes);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return new ReleaseDeployResponse();
+        return new ReleaseDeployResponse(deploymentHistoryId.Id);
     }
 }

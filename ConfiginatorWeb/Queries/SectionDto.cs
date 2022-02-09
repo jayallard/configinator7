@@ -72,5 +72,7 @@ public class SectionDeploymentDto
     public DateTime DeploymentDate { get; set; }
     public DateTime? RemovedDate { get; set; }
     public string? RemoveReason { get; set; }
+    
+    public string? Notes { get; set; }
     public bool IsDeployed => RemovedDate is null;
 }

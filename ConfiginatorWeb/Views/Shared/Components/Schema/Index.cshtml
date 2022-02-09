@@ -1,0 +1,52 @@
+﻿@model ConfiginatorWeb.Views.Shared.Components.Schema.SchemaIndexView
+<h2>Schema</h2>
+<p>Version: TODO</p>
+@if (Model.Schema.Root.RefersTo.Any())
+{
+    <p>
+        Uses:
+        <ul>
+            @foreach (var to in Model.Schema.Root.RefersTo)
+            {
+                <li>@to</li>
+            }
+        </ul>
+    </p>
+}
+<code><pre>@Model.Schema.Root.SchemaSource.RootElement</pre></code>
+@if (Model.Schema.References.Any())
+{
+    <h3>Schema References</h3>
+    foreach (var r in Model.Schema.References)
+    {
+        <p>
+            <b>@r.Name</b>
+        </p>
+        @if (r.RefersTo.Any())
+        {
+            <p>
+                Uses:
+                <ul>
+                    @foreach (var to in r.RefersTo)
+                    {
+                        <li>@to</li>
+                    }
+                </ul>
+                }
+            </p>
+        }
+        @if (r.ReferencedBy.Any())
+        {
+            <p>
+                Used By:
+                <ul>
+                    @foreach (var from in r.ReferencedBy)
+                    {
+                        <li>@from</li>
+                    }
+                </ul>
+            </p>
+        }
+        <code><pre>@r.SchemaSource.RootElement</pre></code>
+    }
+}

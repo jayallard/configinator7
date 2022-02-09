@@ -1,5 +1,4 @@
-﻿@using Allard.Configinator.Core.Model
-@model ConfiginatorWeb.Controllers.ReleaseHistoryView;
+﻿@model ConfiginatorWeb.Controllers.ReleaseHistoryView;
 
 @{
     ViewBag.Title = "title";
@@ -18,6 +17,7 @@
         <th>Deployment Id</th>
         <th>Schema Version</th>
         <th>Deployment Date</th>
+        <th>Notes</th>
         <th>Remove Date</th>
         <th>Remove Reason</th>
     </tr>
@@ -33,15 +33,9 @@
             <td>@h.Release.Schema.Version.ToFullString()</td>
             <td>
                 @h.Deployment.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
-                @if (h.Deployment.IsDeployed)
-                {
-                    <span class="badge rounded-pill bg-success">Deployed</span>
-                }
-                @* @if (h.IsOutOrDate) *@
-                @* { *@
-                @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
-                @* } *@
+                @Html.IsDeployedBadge(h.Deployment.IsDeployed)
             </td>
+            <td>@h.Deployment.Notes</td>
             <td>@h.Deployment.RemovedDate?.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
             <td>@h.Deployment.RemoveReason</td>
         </tr>

@@ -7,6 +7,7 @@
         <tr>
             <th>Deployment Id</th>
             <th>Deployment Date</th>
+            <th>Notes</th>
             <th>Remove Date</th>
             <th>Remove Reason</th>
         </tr>
@@ -17,16 +18,10 @@
                 <td>@d.DeploymentId</td>
                 <td>
                     @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
-                    @if (d.IsDeployed)
-                    {
-                        <span class="badge rounded-pill bg-success">Deployed</span>
-                    }
-
-                    @if (Model.IsOutOfDate)
-                    {
-                        <span class="badge rounded-pill bg-warning">Out of Date</span>
-                    }
+                    @Html.IsDeployedBadge(d.IsDeployed)
+                    @Html.IsOutOfDateBadge(Model.IsOutOfDate)
                 </td>
+                <td>@d.Notes</td>
                 <td>@d.RemovedDate?.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                 <td>@d.RemoveReason</td>
             </tr>

@@ -73,7 +73,7 @@ public class ReleaseEntity : EntityBase<ReleaseId>
         SectionSchemaEntity sectionSchema,
         JsonDocument modelValue,
         JsonDocument resolvedValue,
-        TokenSetId tokenSetIdId)
+        TokenSetId? tokenSetIdId)
     {
         Id = id;
         SectionSchema = sectionSchema;

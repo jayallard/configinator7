@@ -14,14 +14,14 @@ public class TokenSetComposerTests
         var tokenSets = new TokenSet[]
         {
             new() {TokenSetName = "a"},
-            new() {TokenSetName = "b", Base = "a"},
-            new() {TokenSetName = "c", Base = "b"},
-            new() {TokenSetName = "d1", Base = "c"},
-            new() {TokenSetName = "d2", Base = "c"},
-            new() {TokenSetName = "dd1", Base = "d1"},
-            new() {TokenSetName = "x", Base = "a"},
+            new() {TokenSetName = "b", BaseTokenSetName = "a"},
+            new() {TokenSetName = "c", BaseTokenSetName = "b"},
+            new() {TokenSetName = "d1", BaseTokenSetName = "c"},
+            new() {TokenSetName = "d2", BaseTokenSetName = "c"},
+            new() {TokenSetName = "dd1", BaseTokenSetName = "d1"},
+            new() {TokenSetName = "x", BaseTokenSetName = "a"},
             new() {TokenSetName = "y"},
-            new() {TokenSetName = "z", Base = "y"}
+            new() {TokenSetName = "z", BaseTokenSetName = "y"}
         };
 
         var composed = new TokenSetComposer(tokenSets);
@@ -66,7 +66,7 @@ public class TokenSetComposerTests
         };
         var b = new TokenSet
         {
-            Base = "c",
+            BaseTokenSetName = "c",
             TokenSetName = "b",
             Tokens = new Dictionary<string, JToken>
             {
@@ -77,7 +77,7 @@ public class TokenSetComposerTests
         };
         var a = new TokenSet
         {
-            Base = "b",
+            BaseTokenSetName = "b",
             TokenSetName = "a",
             Tokens = new Dictionary<string, JToken>
             {
@@ -111,7 +111,7 @@ public class TokenSetComposerTests
         JToken.DeepEquals(aResolved.Tokens["c4"].Token, JToken.Parse("{ \"new\": \"guy\" }")).Should().BeTrue();
 
         // c5 is defined in a, not overridden
-        aResolved.Tokens["c5"].TokenValueOrigin.Should().Be(TokenValueOrigin.Addition);
+        aResolved.Tokens["c5"].TokenValueOrigin.Should().Be(TokenValueOrigin.Defined);
         aResolved.Tokens["c5"].SourceTokenSet.Should().Be("a");
         aResolved.Tokens["c5"].Token?.ToString().Should().Be("smashing");
     }

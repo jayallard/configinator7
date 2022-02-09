@@ -28,7 +28,8 @@ public static class ExtensionMethods
             DeploymentId = d.Id.Id,
             DeploymentDate = d.DeploymentDate,
             RemovedDate = d.RemovedDate,
-            RemoveReason = d.RemoveReason
+            RemoveReason = d.RemoveReason,
+            Notes = d.Notes
         }).ToList()
     };
 

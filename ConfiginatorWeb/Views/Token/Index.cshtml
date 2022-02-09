@@ -6,7 +6,7 @@
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
-
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 <style>
     pre {
         background-color: white;
@@ -38,7 +38,7 @@
                 @t.Name
             </td>
             <td>
-               <a asp-action="EditValue" asp-route-tokenSetName="@Model.TokenSet.TokenSetName" asp-route-key="@t.Name">Edit</a>
+                <a asp-action="EditValue" asp-route-tokenSetName="@Model.TokenSet.TokenSetName" asp-route-key="@t.Name">Edit</a>
                 @if (t.TokenValueOrigin != TokenValueOrigin.Inherited)
                 {
                     <span>&nbsp;|&nbsp;<a href="#">Delete</a></span>
@@ -47,16 +47,18 @@
                 @switch (t.TokenValueOrigin)
                 {
                     case TokenValueOrigin.Inherited:
-                        <div class="badge rounded-pill bg-info">Inherited</div><br/>
+                        <div class="badge rounded-pill bg-info">Inherited</div>
+                        <br/>
                         break;
                     case TokenValueOrigin.Override:
-                        <span class="badge rounded-pill bg-success">Overridden</span><br/>
+                        <span class="badge rounded-pill bg-success">Overridden</span>
+                        <br/>
                         break;
-                    case TokenValueOrigin.Addition:
+                    case TokenValueOrigin.Defined:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
-                }            
+                }
             </td>
             <td>
                 <pre>@t.Token</pre>
@@ -81,7 +83,9 @@
                     {
                         <span>
                             Token Set: @i.SourceTokenSet<br/>
-                            <code><pre>@i.Token</pre></code>
+                            <code>
+                                <pre>@i.Token</pre>
+                            </code>
                         </span>
                     }
                 }
@@ -89,3 +93,13 @@
         </tr>
     }
 </table>
+
+<div>
+    <code>
+        @Model.MermaidJsDiagram.Replace("\n", "<br/>"))
+    </code>
+</div>
+<div class="mermaid">
+    @Html.Raw(Model.MermaidJsDiagram)
+</div>
+<script>mermaid.initialize({ startOnLoad: true })</script>

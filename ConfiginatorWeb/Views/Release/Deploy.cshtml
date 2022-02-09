@@ -1,6 +1,4 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
-@using ConfiginatorWeb.Views.Shared.Components
-@using ConfiginatorWeb.Views.Shared.Components.DeploymentHistory
 @model ConfiginatorWeb.Controllers.DeployView
 
 @{
@@ -25,15 +23,40 @@
 </table>
 <h2>Deployment Configuration</h2>
 <p>stuff provided by deployment module</p>
-<h2>Notes</h2>
-<p>
-    <form>
-        @Html.AntiForgeryToken();
+<h2>Value to Deploy</h2>
+<code>
+    <pre>@Model.Release.ResolvedValue.RootElement</pre>
+</code>
+<form method="post">
+    <h2>Notes</h2>
+    <p>
+        @Html.AntiForgeryToken()
         <div>
             <label for="notes">Anything of interest?</label>
-            <textarea class="form-control" id="notes" rows="5"></textarea>
+            <textarea class="form-control" id="notes" rows="5" name="notes"></textarea>
         </div>
-    </form>
-</p>
+    </p>
 
+    @Html.AntiForgeryToken()
+    @Html.Hidden("SectionId", Model.Section.SectionId)
+    @Html.Hidden("EnvironmentId", Model.Environment.EnvironmentId)
+    @Html.Hidden("ReleaseId", Model.Release.ReleaseId)
+    @if (Model.Release.IsOutOfDate)
+    {
+        @Html.IsDeployedBadge(Model.Release.IsDeployed)
+        @Html.IsOutOfDateBadge(true)
+        <br/>
+        <br/>
+        <p>Warning: This release's value is out of date. You are advised to create a new release rather than deploy this one.</p>
+        <button class="btn btn-danger">Deploy</button>
+        <button class="btn btn-primary">Cancel</button>
+    }
+    else
+    {
+        @Html.IsDeployedBadge(Model.Release.IsDeployed, "<br/><br/>")
+        <button class="btn btn-primary" type="submit">Deploy</button>
+        <button class="btn btn-secondary">Cancel</button>
+    }
+</form>
+<br/>
 @await Component.InvokeAsync("DeploymentHistory", Model.Release)

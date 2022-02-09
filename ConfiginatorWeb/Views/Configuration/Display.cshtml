@@ -64,45 +64,28 @@ $(document).ready(function() {
                         {
                             <tr>
                                 <td>
-                                    <a asp-controller="Release" asp-action="Display" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a>
+                                    <a asp-controller="Release" asp-action="Display" asp-route-sectionId="@Model.SectionId" asp-route-environmentId="@e.EnvironmentId" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a>
                                 </td>
                                 <td>@r.Schema.Version.ToFullString()</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                                 <td>@r.TokenSet?.TokenSetName</td>
                                 <td>
-                                    @* <button data-deploy="1" data-e="@e.EnvironmentName" data-r="@r.ReleaseId">Deploy</button> *@
-                                    @if (r.IsDeployed)
-                                    {
-                                        <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
-                                           asp-route-environmentid="@e.EnvironmentId"
-                                           asp-route-releaseid="@r.ReleaseId">
-                                            Redeploy
-                                        </a>
-                                        <span class="badge rounded-pill bg-success">Deployed</span>
-                                    }
-                                    else
-                                    {
-                                        <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
-                                           asp-route-environmentid="@e.EnvironmentId"
-                                           asp-route-releaseid="@r.ReleaseId">
-                                            Deploy
-                                        </a>
-                                    }
-                                    @if (r.IsOutOfDate)
-                                    {
-                                        <span class="badge rounded-pill bg-warning">Out of Date</span>
-                                    }
+                                    <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
+                                       asp-route-environmentid="@e.EnvironmentId"
+                                       asp-route-releaseid="@r.ReleaseId">@(r.IsDeployed ? "Re-Deploy": "Deploy")</a>
+                                    <span>&nbsp;</span>@Html.IsDeployedBadge(r.IsDeployed)
+                                    @Html.IsOutOfDateBadge(r.IsOutOfDate)
                                 </td>
                             </tr>
                         }
                     </table>
                 }
-                <a asp-controller="Release", asp-action="Add" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName">Add</a>
+                <a asp-controller="Release" asp-action="Add" asp-route-sectionName="@Model.SectionName" asp-route-environmentName="@e.EnvironmentName">Add</a>
                 @if (e.Releases.Any())
                 {
                     <span>
                         &nbsp;|
-                        <a asp-controller="Release" asp-action="History" asp-route-environmentName="@e.EnvironmentName" asp-route-sectionName="@Model.SectionName">Deploy History</a>
+                        <a asp-controller="Release" asp-action="History" asp-route-environmentId="@e.EnvironmentId" asp-route-sectionId="@Model.SectionId">Deploy History</a>
                     </span>
                 }
             </td>

@@ -16,6 +16,4 @@ public class SchemaDetailDto
     public List<string> RefersTo { get; set; }
     public JsonSchema ResolvedSchema { get; set; }
     public JsonDocument SchemaSource { get; set; }
-    
-    
 }

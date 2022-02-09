@@ -87,7 +87,8 @@ public record ReleaseDeployedEvent(
     DateTime DeploymentDate,
     SectionId SectionId,
     EnvironmentId EnvironmentId,
-    ReleaseId ReleaseId) : DomainEventBase;
+    ReleaseId ReleaseId,
+    string? Notes) : DomainEventBase;
 
 /// <summary>
 /// A deployed release is no longer deployed.

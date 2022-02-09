@@ -53,7 +53,7 @@ public class TokenSetAggregate : AggregateBase<TokenSetId>
     
     public TokenSet ToTokenSet() => new()
     {
-        Base = BaseTokenSetName,
+        BaseTokenSetName = BaseTokenSetName,
         TokenSetName = TokenSetName,
         Tokens = _tokens.ToDictionary(kv => kv.Key, kv => kv.Value.DeepClone())
     };

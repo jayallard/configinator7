@@ -48,56 +48,6 @@
     </table>
 }
 
-<h2>Schema</h2>
-<h3>Version @Model.SelectedRelease.Schema.Version.ToFullString()</h3>
-@if (Model.SelectedSchema.Root.RefersTo.Any())
-{
-    <p>
-        Uses:
-        <ul>
-            @foreach (var to in Model.SelectedSchema.Root.RefersTo)
-            {
-                <li>@to</li>
-            }
-        </ul>
-    </p>
-}
-<code><pre>@Model.SelectedSchema.Root.SchemaSource.RootElement</pre></code>
-@if (Model.SelectedSchema.References.Any())
-{
-    <h4>Schema References</h4>
-    foreach (var r in Model.SelectedSchema.References)
-    {
-        <p>
-            <b>@r.Name</b>
-        </p>
-        @if (r.RefersTo.Any())
-        {
-            <p>
-                Uses:
-                <ul>
-                    @foreach (var to in r.RefersTo)
-                    {
-                        <li>@to</li>
-                    }
-                </ul>
-                }
-            </p>
-        }
-        @if (r.ReferencedBy.Any())
-        {
-            <p>
-                Used By:
-                <ul>
-                    @foreach (var from in r.ReferencedBy)
-                    {
-                        <li>@from</li>
-                    }
-                </ul>
-            </p>
-        }
-        <code><pre>@r.SchemaSource.RootElement</pre></code>
-    }
-}
+@await Component.InvokeAsync("Schema", Model.SelectedRelease.Schema)
 
 @await Component.InvokeAsync("DeploymentHistory", Model.SelectedRelease)

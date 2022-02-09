@@ -1,6 +1,5 @@
-﻿using Allard.Configinator.Core.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 using ConfiginatorWeb.Interactors;
-using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Models.Release;
 using ConfiginatorWeb.Queries;
 using MediatR;
@@ -13,20 +12,19 @@ public class ReleaseController : Controller
     private readonly ITokenSetQueries _tokenSetQueries;
     private readonly ISectionQueries _sectionQueries;
     private readonly IMediator _mediator;
-    private readonly SchemaLoader _schemaLoader;
 
     public ReleaseController(
         ISectionQueries sectionQueries,
         ITokenSetQueries tokenSetQueries,
-        IMediator mediator, SchemaLoader schemaLoader)
+        IMediator mediator)
     {
         _sectionQueries = sectionQueries;
         _mediator = mediator;
-        _schemaLoader = schemaLoader;
         _tokenSetQueries = tokenSetQueries;
     }
 
     // DEPLOY
+    [HttpGet]
     public async Task<IActionResult> Deploy(long sectionId, long environmentId, long releaseId)
     {
         var section = await _sectionQueries.GetSectionAsync(sectionId);
@@ -35,16 +33,16 @@ public class ReleaseController : Controller
         var view = new DeployView(section, environment, release);
         return View(view);
     }
-    
+
     // GET
     public async Task<IActionResult> Add(
-        string sectionName,
-        string environmentName,
+        long sectionId,
+        long environmentId,
         CancellationToken cancellationToken)
     {
-        var section = await _sectionQueries.GetSectionAsync(sectionName, cancellationToken);
-        if (section == null) throw new InvalidOperationException("Section doesn't exist: " + sectionName);
-        var environment = section.GetEnvironment(environmentName);
+        var section = await _sectionQueries.GetSectionAsync(sectionId, cancellationToken);
+        if (section == null) throw new InvalidOperationException("Section doesn't exist: " + sectionId);
+        var environment = section.GetEnvironment(environmentId);
 
         // set the value to the last of the most recent release.
         var value = environment.Releases.LastOrDefault()?.ModelValue.RootElement.ToString();
@@ -56,8 +54,8 @@ public class ReleaseController : Controller
 
         var v = new EditReleaseView
         {
-            EnvironmentName = environmentName,
-            SectionName = sectionName,
+            EnvironmentName = environment.EnvironmentName,
+            SectionName = section.SectionName,
             Schemas = section
                 .Schemas
                 .OrderByDescending(s => s.Version)
@@ -79,17 +77,46 @@ public class ReleaseController : Controller
     public async Task<CreateReleaseResponse> Create(CreateReleaseRequest request) =>
         await _mediator.Send(request);
 
+    /// <summary>
+    /// Execute a deployment.
+    /// Handles the POST from Deploy.cshtml
+    /// </summary>
+    /// <param name="sectionId"></param>
+    /// <param name="environmentId"></param>
+    /// <param name="releaseId"></param>
+    /// <param name="notes"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
-    public async Task<ReleaseDeployResponse>
-        Deploy(ReleaseDeployRequest request, CancellationToken cancellationToken) =>
-        await _mediator.Send(request, cancellationToken);
-
-
-    public async Task<IActionResult> History(string sectionName, string environmentName,
+    public async Task<IActionResult> Deploy(long sectionId, long environmentId, long releaseId, string notes,
         CancellationToken cancellationToken)
     {
-        var section = await _sectionQueries.GetSectionAsync(sectionName, cancellationToken);
-        var env = section.GetEnvironment(environmentName);
+        var request = new ReleaseDeployRequest
+        {
+            SectionId = sectionId,
+            EnvironmentId = environmentId,
+            ReleaseId = releaseId,
+            Notes = notes
+        };
+
+        var response = await _mediator.Send(request, cancellationToken);
+        return RedirectToAction("display", new
+        {
+            sectionId = sectionId,
+            environmentId = environmentId,
+            releaseId = releaseId
+        });
+    }
+
+    public async Task<IActionResult> History(
+        long? sectionId, 
+        long? environmentId,
+        CancellationToken cancellationToken)
+    {
+        if (sectionId == null || environmentId == null) throw new Exception("invalid input - temp exception");
+        
+        var section = await _sectionQueries.GetSectionAsync(sectionId.Value, cancellationToken);
+        var env = section.GetEnvironment(environmentId.Value);
         var history = env
             .Releases
             .SelectMany(r =>
@@ -100,22 +127,32 @@ public class ReleaseController : Controller
         return View(view);
     }
 
-    public async Task<IActionResult> Display(string sectionName, string environmentName, long releaseId)
+    [HttpGet]
+    public async Task<IActionResult> Display(ReleaseDisplayRequest request)
     {
-        var section = await _sectionQueries.GetSectionAsync(sectionName);
-        var env = section.GetEnvironment(environmentName);
-        var release = env.GetRelease(releaseId);
-        var schema = section.GetSchema(release.Schema.Version);
-        var schemaDetails = await _schemaLoader.ResolveSchemaAsync(schema.Schema);
-        return View(new ReleaseDisplayView(section, env, release, schemaDetails.ToOutputDto()));
+        // temp
+        if (request.SectionId == null || request.EnvironmentId == null || request.ReleaseId == null)
+            throw new Exception("invalid input - temp exception");
+        
+        var section = await _sectionQueries.GetSectionAsync(request.SectionId!.Value);
+        var env = section.GetEnvironment(request.EnvironmentId!.Value);
+        var release = env.GetRelease(request.ReleaseId!.Value);
+        return View(new ReleaseDisplayView(section, env, release));
     }
+}
+
+// TODO: the annotations aren't working... 
+public class ReleaseDisplayRequest
+{
+    [Required] public long? SectionId { get; set; }
+    [Required] public long? EnvironmentId { get; set; }
+    [Required] public long? ReleaseId { get; set; }
 }
 
 public record ReleaseDisplayView(
     SectionDto Section,
     SectionEnvironmentDto SelectedEnvironment,
-    SectionReleaseDto SelectedRelease,
-    SchemaInfoDto SelectedSchema);
+    SectionReleaseDto SelectedRelease);
 
 public record ReleaseHistoryView(
     SectionDto SelectedSection,
@@ -133,11 +170,10 @@ public record DeployView(
 
 public class ReleaseDeployRequest : IRequest<ReleaseDeployResponse>
 {
-    public string SectionName { get; set; }
-    public string EnvironmentName { get; set; }
+    public long SectionId { get; set; }
+    public long EnvironmentId { get; set; }
     public long ReleaseId { get; set; }
+    public string Notes { get; set; }
 }
 
-public class ReleaseDeployResponse
-{
-}
+public record ReleaseDeployResponse(long DeploymentId);

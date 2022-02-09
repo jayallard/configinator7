@@ -15,6 +15,7 @@ using NuGet.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services
@@ -81,6 +82,14 @@ tokenSetEntity.SetValue("last", "Claus");
 var tokenSet2Entity = await tokenService.CreateTokenSetAsync("tokens2", "tokens1");
 tokenSet2Entity.SetValue("first", "SANTA!!!");
 
+
+await tokenService.CreateTokenSetAsync("tokens3", "tokens2");
+await tokenService.CreateTokenSetAsync("tokens4", "tokens3");
+await tokenService.CreateTokenSetAsync("tokens5a", "tokens4");
+await tokenService.CreateTokenSetAsync("tokens5b", "tokens4");
+
+
+
 var modelValue =
     JsonDocument.Parse(
         "{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44, \"kafka\": { \"brokers\": \"b\", \"user\": \"u\", \"password\": \"p\" } }");
@@ -98,11 +107,11 @@ await sectionService.AddSchemaToSectionAsync(section1, new SemanticVersion(2, 0,
 
 var release = await sectionService.CreateReleaseAsync(section1, env1.Id, tokenSetEntity.Id, schema1.Id, modelValue,
     CancellationToken.None);
-section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now);
+section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now, "Initial Setup - from code");
 
 await sectionService.CreateReleaseAsync(section1, env1.Id, tokenSetEntity.Id, schema1.Id, modelValue,
     CancellationToken.None);
-section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now);
+section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now, "Initial Setup - from code");
 
 await sectionService.CreateSectionAsync("name2", "path2");
 await uow.SaveChangesAsync();

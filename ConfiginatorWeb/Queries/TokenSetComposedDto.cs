@@ -14,7 +14,7 @@ public class TokenSetComposedDto
     public static TokenSetComposedDto FromTokenSetComposed(TokenSetComposed tokenSet) =>
         new()
         {
-            Base = tokenSet.Base,
+            Base = tokenSet.Base?.TokenSetName,
             TokenSetName = tokenSet.TokenSetName,
             Tokens = tokenSet
                 .Tokens
