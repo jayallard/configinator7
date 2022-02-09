@@ -52,7 +52,7 @@ public class TokenComposer3Tests
             },
         };
 
-        var a = TokenComposer3.Compose(sets, "a");
+        var a = TokenSetComposer3.Compose(sets, "a");
         var b = a.GetChild("b");
         var c = b.GetChild("c");
         var d = c.GetChild("d");
@@ -122,7 +122,7 @@ public class TokenComposer3Tests
             },
         };
 
-        var a = TokenComposer3.Compose(sets, "a");
+        var a = TokenSetComposer3.Compose(sets, "a");
         var b = a.GetChild("b");
         var c = b.GetChild("c");
         var d = c.GetChild("d");
@@ -163,7 +163,7 @@ public class TokenComposer3Tests
             new TokenSet {TokenSetName = "z", BaseTokenSetName = "y"},
         };
 
-        var a = TokenComposer3.Compose(sets, "a");
+        var a = TokenSetComposer3.Compose(sets, "a");
         var b1 = a.GetChild("b1");
         var b2 = a.GetChild("b2");
         var c1 = b1.GetChild("c1");

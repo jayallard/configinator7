@@ -1,4 +1,6 @@
-﻿namespace Allard.Json;
+﻿using Newtonsoft.Json.Linq;
+
+namespace Allard.Json;
 
 public class TokenComposed3
 {
@@ -6,6 +8,6 @@ public class TokenComposed3
     public TokenValueOrigin Origin { get; internal set; } = TokenValueOrigin.Defined;
     public TokenComposed3? Base { get; internal set; }
     public TokenComposed3(string name) => Name = name;
-    
     public TokenSetComposed3 TokenSet { get; internal set; }
+    public JToken Token { get; internal set; }
 }

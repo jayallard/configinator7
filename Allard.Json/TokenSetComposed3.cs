@@ -9,6 +9,40 @@ public class TokenSetComposed3
     private readonly Dictionary<string, TokenComposed3> _resolved = new();
     private readonly List<TokenSetComposed3> _children = new();
 
+    public Dictionary<string, JToken> Tokens =>
+        _tokens.ToDictionary(
+            kv => kv.Key,
+            kv => kv.Value.DeepClone(),
+            StringComparer.OrdinalIgnoreCase);
+
+    public TokenSetComposed3 Root => BaseTokenSet?.Root ?? this;
+
+    public ISet<string> GetRelatedTokenSetNames()
+    {
+        var values = new HashSet<string>();
+
+        // self and parents
+        var current = this;
+        while (current != null)
+        {
+            values.Add(current.TokenSetName);
+            current = current.BaseTokenSet;
+        }
+
+        // descendants
+        AddChildren(this);
+        return values;
+
+        void AddChildren(TokenSetComposed3 tokenSet)
+        {
+            foreach (var child in tokenSet.Children)
+            {
+                values.Add(child.TokenSetName);
+                AddChildren(child);
+            }
+        }
+    }
+
     internal void AddChild(TokenSetComposed3 child)
     {
         if (child.BaseTokenSet != null) throw new InvalidOperationException("bug");
@@ -41,7 +75,7 @@ public class TokenSetComposed3
         var existsHere = _tokens.ContainsKey(key);
         if (!existsHere && !existsInParent) return null;
         tokenComposed.Base = fromParent;
-        
+
         // if it exists only here, then ti's ADDED (the default value)
         // if it exists here and in the parent, then it's an OVERRIDE
         // if it exists in the parent, but not here, then it's inherited
@@ -52,6 +86,16 @@ public class TokenSetComposed3
                 : TokenValueOrigin.Inherited;
         }
 
+        if (existsHere)
+        {
+            tokenComposed.Token = _tokens[key];
+        }
+        else if (existsInParent)
+        {
+            tokenComposed.Token = fromParent.Token;
+        }
+
+        _resolved[key] = tokenComposed;
         return tokenComposed;
     }
 
@@ -59,7 +103,7 @@ public class TokenSetComposed3
     {
         var value = Resolve(key);
         if (value == null) throw new KeyNotFoundException(key);
-        
+
         // todo: clone
         return value;
     }

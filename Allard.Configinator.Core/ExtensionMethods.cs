@@ -8,11 +8,13 @@ namespace Allard.Configinator.Core;
 
 public static class ExtensionMethods
 {
-    public static IDictionary<string, JToken> ToValueDictionary(this TokenSetComposed tokens) =>
+    public static IDictionary<string, JToken> ToValueDictionary(this TokenSetComposed3 tokens) =>
         tokens
             .Tokens
-            .Values
-            .ToDictionary(t => t.Name, t => t.Token, StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(
+                t => t.Key, 
+                t => t.Value, 
+                StringComparer.OrdinalIgnoreCase);
 
     private static void EnsureDoesntExist<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,
         string parameterName)

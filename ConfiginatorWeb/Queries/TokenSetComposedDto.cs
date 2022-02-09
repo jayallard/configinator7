@@ -11,15 +11,19 @@ public class TokenSetComposedDto
     public Dictionary<string, TokenComposedDto> Tokens { get; set; }
 
 
-    public static TokenSetComposedDto FromTokenSetComposed(TokenSetComposed tokenSet) =>
+    public static TokenSetComposedDto FromTokenSetComposed(TokenSetComposed3 tokenSet) =>
         new()
         {
-            Base = tokenSet.Base?.TokenSetName,
+            Base = tokenSet.BaseTokenSet?.TokenSetName,
             TokenSetName = tokenSet.TokenSetName,
             Tokens = tokenSet
                 .Tokens
                 .ToDictionary(
                     kv => kv.Key, 
-                    kv => TokenComposedDto.FromTokenComposed(kv.Value)!)
+                    kv => new TokenComposedDto
+                    {
+                        
+                    },
+                    StringComparer.OrdinalIgnoreCase)
         };
 }

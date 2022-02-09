@@ -34,19 +34,16 @@ public class TokenSetDomainService
         return tokenSet;
     }
 
-    public async Task<TokenSetComposer> GetTokenSetComposerAsync(CancellationToken cancellationToken = default)
+    public async Task<TokenSetComposed3> GetTokenSetComposedAsync(
+        string tokenSetName,
+        CancellationToken cancellationToken = default)
     {
-        var tokenSets = await _unitOfWork.TokenSets.FindAsync(new All(), cancellationToken);
-        var x = tokenSets
-            .Select(t => t.ToTokenSet())
-            .ToList();
-        return new TokenSetComposer(x);
+        var aggregates = await _unitOfWork.TokenSets.FindAsync(new All(), cancellationToken);
+        var sets = aggregates.Select(a => a.ToTokenSet());
+        return TokenSetComposer3.Compose(sets, tokenSetName);
     }
 
-    public async Task<TokenSetComposed> GetTokenSetComposedAsync(string tokenSetName, CancellationToken cancellationToken = default) =>
-            (await GetTokenSetComposerAsync(cancellationToken)).Compose(tokenSetName);
-
-    public async Task<TokenSetComposed> GetTokenSetComposedAsync(TokenSetId tokenSetId,
+    public async Task<TokenSetComposed3> GetTokenSetComposedAsync(TokenSetId tokenSetId,
         CancellationToken cancellationToken = default)
     {
         var tokenSetName = (await _unitOfWork.TokenSets.GetAsync(tokenSetId, cancellationToken)).TokenSetName;

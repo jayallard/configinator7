@@ -83,18 +83,21 @@ var tokenSet2Entity = await tokenService.CreateTokenSetAsync("tokens2", "tokens1
 tokenSet2Entity.SetValue("first", "SANTA!!!");
 
 
+await tokenService.CreateTokenSetAsync("tokens2a", "tokens2");
 await tokenService.CreateTokenSetAsync("tokens3", "tokens2");
 await tokenService.CreateTokenSetAsync("tokens4", "tokens3");
 await tokenService.CreateTokenSetAsync("tokens5a", "tokens4");
 await tokenService.CreateTokenSetAsync("tokens5b", "tokens4");
+
+await tokenService.CreateTokenSetAsync("tokensAB", "tokens3");
+await tokenService.CreateTokenSetAsync("yabba", "tokensAB");
+await tokenService.CreateTokenSetAsync("dabbadoo", "tokensAB");
 
 
 
 var modelValue =
     JsonDocument.Parse(
         "{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44, \"kafka\": { \"brokers\": \"b\", \"user\": \"u\", \"password\": \"p\" } }");
-var composed = new TokenSetComposer(new[] {tokenSetEntity.ToTokenSet()}).Compose("tokens1");
-
 var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
 var section1 = await sectionService.CreateSectionAsync("name1", "path1");
 

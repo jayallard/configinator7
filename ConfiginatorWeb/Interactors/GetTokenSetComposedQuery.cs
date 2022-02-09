@@ -22,17 +22,23 @@ public class GetTokenSetComposedQuery : IRequestHandler<TokenSetComposedQuery, T
         
         // todo: doesn't belong here, but is convenient.
         // build the mermaid markup for the token sets
-        var mermaid = new StringBuilder().AppendLine("graph BT");
+        var mermaid = new StringBuilder()
+            .AppendLine("graph BT")
+            .AppendLine("classDef selected fill:#f9f,stroke:#333,stroke-width:4px");
+
         AddChildren(tokenSet.Root);
+        mermaid.AppendLine($"style {request.TokenSetName} fill:#00758f");
         return new TokenSetComposedQueryResult(TokenSetComposedDto.FromTokenSetComposed(tokenSet), mermaid.ToString());
 
-        void AddChildren(TokenSetComposed parent)
+        void AddChildren(TokenSetComposed3 parent)
         {
             foreach (var child in parent.Children)
             {
                 mermaid.AppendLine($"{child.TokenSetName} --> {parent.TokenSetName}");
                 AddChildren(child);
             }
+
+            mermaid.AppendLine($"click {parent.TokenSetName} \"/Token?tokenSetName={parent.TokenSetName}\" \" \"");
         }
     }
 }

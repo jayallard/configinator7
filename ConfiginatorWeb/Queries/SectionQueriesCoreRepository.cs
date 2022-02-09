@@ -1,4 +1,5 @@
-﻿using Allard.Configinator.Core;
+﻿using System.ComponentModel.Design.Serialization;
+using Allard.Configinator.Core;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
@@ -40,9 +41,11 @@ public class SectionQueriesCoreRepository : ISectionQueries
     private async Task<SectionDto> CreateSectionDto(SectionAggregate section, CancellationToken cancellationToken)
     {
         var tokenSets = (await _tokenSetRepository.FindAsync(new All(), cancellationToken))
-            .ToDictionary(ts => ts.Id, ts => ts);
-        var composer = new TokenSetComposer(tokenSets.Values.Select(ts => ts.ToTokenSet()));
+            .ToDictionary(
+                t => t.Id, 
+                t => t);
         
+        var composed = TokenSetComposer3.Compose(tokenSets.Values.Select(t => t.ToTokenSet()));
         var sectionDto = section.ToOutputDto();
         
         // iterate all releases and assign the tokens
@@ -51,8 +54,11 @@ public class SectionQueriesCoreRepository : ISectionQueries
             var envDto = sectionDto.GetEnvironment(env.EnvironmentName);
             foreach (var release in env.Releases.Where(r => r.TokenSetId != null))
             {
-                var composed = composer.Compose(tokenSets[release.TokenSetId!].TokenSetName);
-                envDto.GetRelease(release.Id.Id).TokenSet = TokenSetComposedDto.FromTokenSetComposed(composed);
+                TokenSetComposed3? tokenSet = null;
+                if (release.TokenSetId == null) continue;
+                var name = tokenSets[release.TokenSetId].TokenSetName;
+                tokenSet = composed[name];
+                envDto.GetRelease(release.Id.Id).TokenSet = TokenSetComposedDto.FromTokenSetComposed(tokenSet);
             }
         }
 

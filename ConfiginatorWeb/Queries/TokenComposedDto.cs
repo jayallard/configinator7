@@ -11,16 +11,16 @@ public class TokenComposedDto
     public TokenValueOrigin TokenValueOrigin { get; set; }
     public TokenComposedDto? BaseToken { get; set; }
 
-    public static TokenComposedDto? FromTokenComposed(TokenComposed? token)
+    public static TokenComposedDto? FromTokenComposed(TokenComposed3? token)
     {
         if (token == null) return null;
         return new TokenComposedDto
         {
-            BaseToken = TokenComposedDto.FromTokenComposed(token.BaseToken),
+            BaseToken = FromTokenComposed(token.Base),
             Name = token.Name,
-            SourceTokenSet = token.SourceTokenSet,
-            Token = token.Token.DeepClone(),
-            TokenValueOrigin = token.TokenValueOrigin
+            SourceTokenSet ="TODO",
+            Token = token.Token,
+            TokenValueOrigin = token.Origin
         };
     }
 }

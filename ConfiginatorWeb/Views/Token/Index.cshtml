@@ -94,11 +94,11 @@
     }
 </table>
 
-<div>
-    <code>
-        @Model.MermaidJsDiagram.Replace("\n", "<br/>"))
-    </code>
-</div>
+@* <div> *@
+@*     <code> *@
+@*         @Html.Raw(Model.MermaidJsDiagram.Replace("\n", "<br/>")) *@
+@*     </code> *@
+@* </div> *@
 <div class="mermaid">
     @Html.Raw(Model.MermaidJsDiagram)
 </div>
