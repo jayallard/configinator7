@@ -1,9 +1,9 @@
 namespace Allard.Json;
 
 /// <summary>
-/// TokenSets can inherit from another TokenSet.
+/// A VariableSet can inherit from another VariableSet.
 /// </summary>
-public enum TokenValueOrigin
+public enum VariableOrigin
 {
     /// <summary>
     /// The value is added at this layer.

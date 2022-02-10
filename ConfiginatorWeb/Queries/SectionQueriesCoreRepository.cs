@@ -36,25 +36,25 @@ public class SectionQueriesCoreRepository : ISectionQueries
 
     private async Task<SectionDto> CreateSectionDto(SectionAggregate section, CancellationToken cancellationToken)
     {
-        var tokenSets = (await _unitOfWork.TokenSets.FindAsync(new All(), cancellationToken))
+        var variableSets = (await _unitOfWork.VariableSets.FindAsync(new All(), cancellationToken))
             .ToDictionary(
                 t => t.Id, 
                 t => t);
         
-        var composed = TokenSetComposer3.Compose(tokenSets.Values.Select(t => t.ToTokenSet()));
+        var composed = VariableSetComposer.Compose(variableSets.Values.Select(t => t.ToVariableSet()));
         var sectionDto = section.ToOutputDto();
         
-        // iterate all releases and assign the tokens
+        // iterate all releases and assign the variables
         foreach (var env in section.Environments)
         {
             var envDto = sectionDto.GetEnvironment(env.EnvironmentName);
-            foreach (var release in env.Releases.Where(r => r.TokenSetId != null))
+            foreach (var release in env.Releases.Where(r => r.VariableSetId != null))
             {
-                TokenSetComposed3? tokenSet = null;
-                if (release.TokenSetId == null) continue;
-                var name = tokenSets[release.TokenSetId].TokenSetName;
-                tokenSet = composed[name];
-                envDto.GetRelease(release.Id.Id).TokenSet = TokenSetComposedDto.FromTokenSetComposed(tokenSet);
+                VariableSetComposed? variableSet = null;
+                if (release.VariableSetId == null) continue;
+                var name = variableSets[release.VariableSetId].VariableSetName;
+                variableSet = composed[name];
+                envDto.GetRelease(release.Id.Id).VariableSet = VariableSetComposedDto.FromVariableSetComposed(variableSet);
             }
         }
 

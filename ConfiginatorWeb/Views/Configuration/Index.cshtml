@@ -26,20 +26,20 @@
 
 <a asp-action="Create">Add</a>
 <br/><br/>
-<h2>Token Sets</h2>
+<h2>Variable Sets</h2>
 @* TODO: create toggle for text vs diagram *@
 @* <table class="table"> *@
-@*     @foreach (var t in Model.TokenSets.OrderBy(kv => kv.TokenSetName)) *@
+@*     @foreach (var t in Model.VariableSets.OrderBy(kv => kv.VariableSetName)) *@
 @*     { *@
 @*         <tr> *@
 @*             <td> *@
-@*                 <a asp-controller="Token" asp-action="Index" asp-route-tokenSetName="@t.TokenSetName">@t.TokenSetName</a> *@
+@*                 <a asp-controller="VariableSet" asp-action="Index" asp-route-variableSetName="@t.VariableSetName">@t.VariableSetName</a> *@
 @*             </td> *@
 @*         </tr> *@
 @*     } *@
 @* </table> *@
 
-@foreach (var t in Model.TokenSets.Where(t => t.Mermaid != null).OrderBy(kv => kv.TokenSetName))
+@foreach (var t in Model.VariableSets.Where(t => t.Mermaid != null).OrderBy(kv => kv.VariableSetName))
 {
     <div class="mermaid">
         @t.Mermaid

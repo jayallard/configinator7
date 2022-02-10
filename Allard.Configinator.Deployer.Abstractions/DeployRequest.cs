@@ -11,13 +11,13 @@ public class DeployRequest
     
     public Schema Schema { get; set; }
     public Section Section { get; set; }
-    public Environment Environment { get; set; }
+    public DeploymentEnvironment DeploymentEnvironment { get; set; }
     public Release Release { get; set;}
     public Deployment Deployment { get; set; }
 }
 
 public record Schema(JsonDocument ResolvedSchema);
 public record Section(long SectionId, string SectionName);
-public record Environment(long EnvironmentId, string EnvironmentName);
+public record DeploymentEnvironment(long EnvironmentId, string EnvironmentName);
 public record Release(long ReleaseId);
 public record Deployment(long DeploymentId, string Notes);

@@ -26,7 +26,7 @@
 // {
 //     public Task Handle(MediatorNotification<TokenValueSetEvent> notification, CancellationToken cancellationToken)
 //     {
-//         Console.WriteLine("--------- 1 " + notification.DomainEvent.TokenSetName + " : " + notification.DomainEvent.TokenName);
+//         Console.WriteLine("--------- 1 " + notification.DomainEvent.VariableSetName + " : " + notification.DomainEvent.TokenName);
 //         return Task.CompletedTask;
 //     }
 // }
@@ -35,7 +35,7 @@
 // {
 //     public Task Handle(MediatorNotification<TokenValueSetEvent> notification, CancellationToken cancellationToken)
 //     {
-//         Console.WriteLine("--------- 2 " + notification.DomainEvent.TokenSetName + " : " + notification.DomainEvent.TokenName);
+//         Console.WriteLine("--------- 2 " + notification.DomainEvent.VariableSetName + " : " + notification.DomainEvent.TokenName);
 //         return Task.CompletedTask;
 //     }
 // }

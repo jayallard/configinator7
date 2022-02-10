@@ -10,31 +10,31 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
     private readonly IEventPublisher _publisher;
     public UnitOfWorkMemory(
         ISectionRepository sectionRepository, 
-        ITokenSetRepository tokenSetRepository, 
+        IVariableSetRepository variableSetRepository, 
         IGlobalSchemaRepository globalSchemaRepository,
         IEventPublisher publisher)
     {
         _publisher = Guards.NotDefault(publisher, nameof(publisher));
         Sections = new DataChangeTracker<SectionAggregate, SectionId>(sectionRepository);
-        TokenSets = new DataChangeTracker<TokenSetAggregate, TokenSetId>(tokenSetRepository);
+        VariableSets = new DataChangeTracker<VariableSetAggregate, VariableSetId>(variableSetRepository);
         GlobalSchemas = new DataChangeTracker<GlobalSchemaAggregate, GlobalSchemaId>(globalSchemaRepository);
     }
     
     public IDataChangeTracker<SectionAggregate, SectionId> Sections { get; } 
-    public IDataChangeTracker<TokenSetAggregate, TokenSetId> TokenSets { get; } 
+    public IDataChangeTracker<VariableSetAggregate, VariableSetId> VariableSets { get; } 
     public IDataChangeTracker<GlobalSchemaAggregate, GlobalSchemaId> GlobalSchemas { get; } 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var events =
             (await Sections.GetEvents(cancellationToken))
-            .Union(await TokenSets.GetEvents(cancellationToken))
+            .Union(await VariableSets.GetEvents(cancellationToken))
             .Union(await GlobalSchemas.GetEvents(cancellationToken))
             .OrderBy(e => e.EventDate)
             .ToList();
 
         // write the changes, then publish events.
         await Sections.SaveChangesAsync(cancellationToken);
-        await TokenSets.SaveChangesAsync(cancellationToken);
+        await VariableSets.SaveChangesAsync(cancellationToken);
         await GlobalSchemas.SaveChangesAsync(cancellationToken);
         
         // this is after the commit. if this fails, then data changed and
@@ -50,7 +50,7 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
         if (_disposed) throw new ObjectDisposedException(nameof(UnitOfWorkMemory));
         _disposed = true;
         (Sections as IDisposable)?.Dispose();
-        (TokenSets as IDisposable)?.Dispose();
+        (VariableSets as IDisposable)?.Dispose();
         (GlobalSchemas as IDisposable)?.Dispose();
     }
 }

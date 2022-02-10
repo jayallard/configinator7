@@ -5,12 +5,12 @@ namespace Allard.Json;
 public static class JsonUtility
 {
     /// <summary>
-    /// Returns all tokens found the document.
-    /// Tokens are string values of the format $$token-name$$.
+    /// Returns all variables found the document.
+    /// Variables are string values of the format $$token-name$$.
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static IEnumerable<(string TokenName, string JsonPath)> GetTokens(JObject json) =>
+    public static IEnumerable<(string VariableName, string JsonPath)> GetTokens(JObject json) =>
         json
             .Descendants()
             .Select(GetTokenNameAndPath)
@@ -18,12 +18,12 @@ public static class JsonUtility
             .Select(v => v!.Value);
     
     /// <summary>
-    /// Return the name and path of the token within the value.
-    /// If the value isn't a token, it returns null
+    /// Return the name and path of the variable within the value.
+    /// If the value isn't a variable, it returns null
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    private static (string TokenName, string JsonPath)? GetTokenNameAndPath(JToken value)
+    private static (string VariableName, string JsonPath)? GetTokenNameAndPath(JToken value)
     {
         if (value.Type != JTokenType.String) return null;
         var v = value.Value<string>();
@@ -34,7 +34,7 @@ public static class JsonUtility
     }
 
     /// <summary>
-    /// Returns true if the string value is a token.
+    /// Returns true if the string variable is a variable.
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
@@ -42,47 +42,47 @@ public static class JsonUtility
                                                   value.StartsWith("$$", StringComparison.OrdinalIgnoreCase)
                                                   && value.EndsWith("$$", StringComparison.OrdinalIgnoreCase);
     /// <summary>
-    /// Returns all of the tokens used by a Json object.
-    /// Tokens are string values of the format $$token-name$$.
+    /// Returns all of the variables used by a Json object.
+    /// Variables are string values of the format $$token-name$$.
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
     public static HashSet<string> GetTokenNames(JObject json) => GetTokens(json)
-        .Select(t => t.TokenName)
+        .Select(t => t.VariableName)
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Returns a list of all tokens required by the value.
-    /// Tokens are string values of the format $$token-name$$.
+    /// Returns a list of all variables required by the value.
+    /// Variables are string values of the format $$token-name$$.
     /// </summary>
     /// <param name="value">The json value that uses references.</param>
-    /// <param name="tokenElements">Token names and values.</param>
-    /// <returns>A list of unique token names required by the value.</returns>
-    public static ISet<string> GetTokenNamesDeep(JObject value, IDictionary<string, JToken> tokenElements)
+    /// <param name="variableElements">Token names and values.</param>
+    /// <returns>A list of unique variable names required by the value.</returns>
+    public static ISet<string> GetVariableNamesDeep(JObject value, IDictionary<string, JToken> variableElements)
     {
-        // for each token in token elements, get the tokens that it requires.
-        // (tokens can use tokens, which use other tokens, etc. it can go as deep as we want)
-        var references = GetReferencedTokens(tokenElements);
+        // for each variable in variable elements, get the tokens that it requires.
+        // (tokens can use variables, which use other variables, etc. it can go as deep as we want)
+        var references = GetReferencedTokens(variableElements);
 
-        // get the tokens referenced by the value, and all the tokens referenced by those tokens.
+        // get the variables referenced by the value, and all the variables referenced by those variables.
         return AddSelfAndReferencedTokens(GetTokenNames(value), new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
-        // adds the tokenName to the hash set.
-        // also, adds all of the tokens that it references.
-        ISet<string> AddSelfAndReferencedTokens(IEnumerable<string>? tokenNames, ISet<string> names)
+        // adds the variable name to the hash set.
+        // also, adds all of the variables that it references.
+        ISet<string> AddSelfAndReferencedTokens(IEnumerable<string>? variableNames, ISet<string> names)
         {
-            if (tokenNames == null) return names;
-            foreach (var tokenName in tokenNames)
+            if (variableNames == null) return names;
+            foreach (var variableName in variableNames)
             {
-                if (names.Contains(tokenName))
+                if (names.Contains(variableName))
                 {
                     // already did this one.
-                    // tokens may be used may times within an object
+                    // variables may be used may times within an object
                     continue;
                 }
 
-                names.Add(tokenName);
-                AddSelfAndReferencedTokens(references[tokenName], names);
+                names.Add(variableName);
+                AddSelfAndReferencedTokens(references[variableName], names);
             }
 
             return names;
@@ -90,17 +90,17 @@ public static class JsonUtility
     }
 
     /// <summary>
-    /// The value of a token may refer to other tokens. This extracts the referenced tokens.
-    /// Tokens are string values of the format $$token-name$$.
+    /// The value of a variable may refer to other variables. This extracts the referenced variables.
+    /// Variables are string values of the format $$variable-name$$.
     /// </summary>
-    /// <param name="tokenElements">Key = token name, value = token value.</param>
-    /// <returns>Key = the name of the token, Value = the token the value references.</returns>
-    private static IDictionary<string, ISet<string>?> GetReferencedTokens(IDictionary<string, JToken> tokenElements)
+    /// <param name="variableElements">Key = variable name, value = variable value.</param>
+    /// <returns>Key = the name of the variable, Value = the variable the value references.</returns>
+    private static IDictionary<string, ISet<string>?> GetReferencedTokens(IDictionary<string, JToken> variableElements)
     {
         var references = new Dictionary<string, ISet<string>?>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (key, jsonNode) in tokenElements)
+        foreach (var (key, jsonNode) in variableElements)
         {
-            // if we previously encountered this token, then
+            // if we previously encountered this variable, then
             // move along
             if (references.ContainsKey(key))
             {
@@ -108,7 +108,7 @@ public static class JsonUtility
                 continue;
             }
 
-            // if the json node is an object, then extract the embedded token names.
+            // if the json node is an object, then extract the embedded variable names.
             // IE:
             // value = { "MyObject": "$$stuff$$" }
             // $$stuff$$ = {  "FirstName": "$$first$$", "LastName": "$$last$$" }
@@ -116,12 +116,12 @@ public static class JsonUtility
             // The result is Key=Stuff, Children=first, last
             if (jsonNode.Type == JTokenType.Object)
             {
-                var tokens = GetTokenNames((JObject) jsonNode).ToHashSet(StringComparer.OrdinalIgnoreCase);
-                references.Add(key, tokens);
+                var variables = GetTokenNames((JObject) jsonNode).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                references.Add(key, variables);
                 continue;
             }
 
-            // if it's not an object, then there aren't any child tokens.
+            // if it's not an object, then there aren't any child variables.
             // add it to the dictionary so that we know it's a valid name,
             // but it doesn't have any children.
             references.Add(key, null);
@@ -132,7 +132,7 @@ public static class JsonUtility
 
     public static Task<JObject> ResolveAsync(
         JObject model,
-        IDictionary<string, JToken> tokens,
+        IDictionary<string, JToken> variables,
         CancellationToken cancellationToken = default)
     {
         return Task.Run(Resolve, cancellationToken);
@@ -142,9 +142,9 @@ public static class JsonUtility
             const int maxIterations = 10;
 
             // make a copy of the model - this is the result value
-            // get the tokens from the resolved doc
-            // replace with the token values - each token value may itself contain more tokens
-            // repeat until no more tokens remain
+            // get the variables from the resolved doc
+            // replace with the variable values - each variable value may itself contain more tokens
+            // repeat until no variables remain
             var resolved = (JObject) model.DeepClone();
 
             // max of 10 iterations
@@ -162,9 +162,9 @@ public static class JsonUtility
 
                 foreach (var (tokenName, path) in remainingTokens)
                 {
-                    var tokenValue = tokens[tokenName];
+                    var variableName = variables[tokenName];
                     var property = (JProperty) resolved.SelectToken(path)!.Parent!;
-                    property.Value = tokenValue.DeepClone();
+                    property.Value = variableName.DeepClone();
                 }
             }
 

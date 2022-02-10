@@ -2,11 +2,11 @@
 
 namespace Allard.Configinator.Deployer.Memory;
 
-public class HardCodedDeploymentConfigurationFactory : IDeploymentConfigurationFactory
+public class HardCodedConfigurationProvider : IConfigurationProvider
 {
     public Task<MemoryDeploymentConfiguration> GetConfigurationAsync(DeployRequest request)
     {
-        if (request.Environment.EnvironmentName.StartsWith("dev"))
+        if (request.DeploymentEnvironment.EnvironmentName.StartsWith("dev"))
         {
             return Task.FromResult(new MemoryDeploymentConfiguration
             {
@@ -16,7 +16,7 @@ public class HardCodedDeploymentConfigurationFactory : IDeploymentConfigurationF
             });
         }
 
-        if (request.Environment.EnvironmentName.StartsWith("production"))
+        if (request.DeploymentEnvironment.EnvironmentName.StartsWith("production"))
         {
             return Task.FromResult(new MemoryDeploymentConfiguration
             {

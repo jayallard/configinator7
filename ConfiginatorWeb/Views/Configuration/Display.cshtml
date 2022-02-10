@@ -56,7 +56,7 @@ $(document).ready(function() {
                             <th>Id</th>
                             <th>Schema Version</th>
                             <th>Create Date</th>
-                            <th>Token Set</th>
+                            <th>Variable Set</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -68,7 +68,7 @@ $(document).ready(function() {
                                 </td>
                                 <td>@r.Schema.Version.ToFullString()</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
-                                <td>@r.TokenSet?.TokenSetName</td>
+                                <td>@r.VariableSet?.VariableSetName</td>
                                 <td>
                                     <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
                                        asp-route-environmentid="@e.EnvironmentId"

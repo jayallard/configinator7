@@ -11,19 +11,19 @@
 <p>Release Id: @Model.SelectedRelease.ReleaseId</p>
 
 <h2>Resolved Value</h2>
-<p>This is the Model Value combined with the tokens. This is the configuration value of the section for this release.</p>
+<p>This is the Model Value combined with the variables. This is the configuration value of the section for this release.</p>
 <code><pre>@Model.SelectedRelease.ResolvedValue.PrettyPrint()</pre></code>
 
 <h2>Template Value</h2>
-<p>The configuration value template. This is updated with token values, resulting in the Resolved Value.</p>
+<p>The configuration value template. This is updated with variable values, resulting in the Resolved Value.</p>
 <code><pre>@Model.SelectedRelease.ModelValue.PrettyPrint()</pre></code>
 
 
-<h2>Token Set</h2>
-@if (Model.SelectedRelease.TokenSet != null)
+<h2>Variable Set</h2>
+@if (Model.SelectedRelease.VariableSet != null)
 {
-    <p>Name: @Model.SelectedRelease.TokenSet.TokenSetName</p>
-    <p>Base: @(Model.SelectedRelease.TokenSet.Base ?? "none")</p>
+    <p>Name: @Model.SelectedRelease.VariableSet.VariableSetName</p>
+    <p>Base: @(Model.SelectedRelease.VariableSet.Base ?? "none")</p>
     <table class="table">
         <thead>
         <tr>
@@ -33,15 +33,15 @@
             <th>Value</th>
         </tr>
         </thead>
-        @foreach (var t in Model.SelectedRelease.TokenSet.Tokens.Values.OrderBy(v => v.Name))
+        @foreach (var t in Model.SelectedRelease.VariableSet.Variables.Values.OrderBy(v => v.Name))
         {
             <tr>
                 @* <td style="@(Model.SelectedRelease.UsedTokens.Contains(t.Name) ? "font-weight: bold; background-color: lightblue;" : "")">@t.Name</td> *@
                 <td>@t.Name</td>
-                <td>@t.SourceTokenSetName</td>
-                <td>@t.TokenValueOrigin</td>
+                <td>@t.SourceVariableSetName</td>
+                <td>@t.VariableOrigin</td>
                 <td>
-                    <pre>@t.Token</pre>
+                    <pre>@t.Value</pre>
                 </td>
             </tr>
         }

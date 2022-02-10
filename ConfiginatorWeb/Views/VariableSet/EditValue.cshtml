@@ -5,36 +5,36 @@
     Layout = "_Layout";
 }
 
-<h1>Token Set: @Model.TokenSetName</h1>
+<h1>Variable Set: @Model.VariableSetName</h1>
 <h2>Key: @Model.Key</h2>
 
 <form asp-action="SaveValue" method="post">
     @Html.AntiForgeryToken()
-    <textarea id="value" name="value" style="width:400px;height: 200px;">@Model.SelectedToken</textarea>
-    <input type="hidden" name="tokenSetName" value="@Model.TokenSetName"/>
+    <textarea id="value" name="value" style="width:400px;height: 200px;">@Model.SelectedVariable</textarea>
+    <input type="hidden" name="variableSetName" value="@Model.VariableSetName"/>
     <input type="hidden" name="key" value="@Model.Key"/>
     <br/>
     <button type="submit">Save</button>
 </form>
 
-<h1>Resolved Tokens</h1>
+<h1>Resolved Variables</h1>
 
 <table class="table table-bordered">
     <thead>
     <tr>
         <th>Key</th>
-        <th>Token Set</th>
+        <th>Variable Set</th>
         <th>Value</th>
     </tr>
     </thead>
-    <!-- .Where(t => string.Equals(Model.TokenSetName, t.Value.SourceTokenSet, StringComparison.OrdinalIgnoreCase)) -->
-    @foreach (var t in Model.TokensComposed.Tokens)
+    <!-- .Where(t => string.Equals(Model.VariableSetName, t.Value.SourceVariableSet, StringComparison.OrdinalIgnoreCase)) -->
+    @foreach (var t in Model.VariablesComposed.Variables)
     {
         <tr class="@(string.Equals(t.Value.Name, Model.Key, StringComparison.OrdinalIgnoreCase) ? "bg-info" : "")">
             <td>@t.Value.Name</td>
-            <td>@t.Value.SourceTokenSetName</td>
+            <td>@t.Value.SourceVariableSetName</td>
             <td>
-                <pre>@t.Value.Token.ToString()</pre>
+                <pre>@t.Value.Value.ToString()</pre>
             </td>
         </tr>
     }

@@ -13,7 +13,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services) =>
         services
             .AddScoped<ISectionRepository, SectionRepositoryMemory>()
-            .AddScoped<ITokenSetRepository, TokenSetRepositoryMemory>()
+            .AddScoped<IVariableSetRepository, VariableSetRepositoryMemory>()
             .AddScoped<IGlobalSchemaRepository, GlobalSchemaRepositoryMemory>()
             .AddScoped<IUnitOfWork, UnitOfWorkMemory>()
             .AddScoped<IIdentityService, IdentityServiceMemory>()

@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Allard.Configinator.Core\Allard.Configinator.Core.csproj" />
+      <ProjectReference Include="..\Allard.Configinator.Deployer.Memory\Allard.Configinator.Deployer.Memory.csproj" />
       <ProjectReference Include="..\Allard.Configinator.Infrastructure\Allard.Configinator.Infrastructure.csproj" />
     </ItemGroup>
 

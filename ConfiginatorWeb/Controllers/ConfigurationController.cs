@@ -9,25 +9,25 @@ public class ConfigurationController : Controller
 {
     // TODO: move to query handlers
     private readonly ISectionQueries _sectionQueries;
-    private readonly ITokenSetQueries _tokenSetQueries;
+    private readonly IVariableSetQueries _variableSetQueries;
     private readonly IGlobalSchemaQueries _globalSchemaQueries;
 
-    public ConfigurationController(ISectionQueries projections, ITokenSetQueries tokenSetQueries, IGlobalSchemaQueries globalSchemaQueries)
+    public ConfigurationController(ISectionQueries projections, IVariableSetQueries variableSetQueries, IGlobalSchemaQueries globalSchemaQueries)
     {
         _globalSchemaQueries = globalSchemaQueries;
         _sectionQueries = Guards.NotDefault(projections, nameof(projections));
-        _tokenSetQueries = Guards.NotDefault(tokenSetQueries, nameof(tokenSetQueries));
+        _variableSetQueries = Guards.NotDefault(variableSetQueries, nameof(variableSetQueries));
     }
 
     // GET
     public async Task<IActionResult> Index()
     {
         var sections = _sectionQueries.GetSectionsListAsync();
-        var tokensSets = _tokenSetQueries.GetTokenSetListAsync();
+        var variableSets = _variableSetQueries.GetVariableSetListAsync();
         var schemas = _globalSchemaQueries.GetGlobalSchemasListAsync();
 
-        var t = await tokensSets;
-        var roots = t.Where(t => t.BaseTokenSetName == null);
+        var t = await variableSets;
+        var roots = t.Where(t => t.BaseVariableSetName == null);
         
         var view = new IndexView(await sections, t, await schemas);
         return View(view);
@@ -69,5 +69,5 @@ public class ConfigurationController : Controller
     }
 }
 
-public record IndexView(List<SectionListItemDto> Sections, List<TokenSetListItemDto> TokenSets, List<GlobalSchemaListItemDto> GlobalSchemas);
+public record IndexView(List<SectionListItemDto> Sections, List<VariableSetListItemDto> VariableSets, List<GlobalSchemaListItemDto> GlobalSchemas);
 public record GlobalSchemaListItemDto(long GlobalSchemaId, string Name, string? Description);

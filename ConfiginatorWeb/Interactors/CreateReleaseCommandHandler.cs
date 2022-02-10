@@ -26,12 +26,12 @@ public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest,
         {
             var section = await _unitOfWork.Sections.GetSectionAsync(request.SectionName, cancellationToken);
             var environmentId = section.GetEnvironment(request.EnvironmentName).Id;
-            var tokenSet = await _unitOfWork.TokenSets.GetTokenSetAsyncIfNotNull(request.TokenSetName, cancellationToken);
+            var variableSet = await _unitOfWork.VariableSets.GetVariableSetIfNotNullAsync(request.VariableSetName, cancellationToken);
             var schemaId = section.GetSchema(SemanticVersion.Parse(request.SchemaVersion)).Id;
             await _sectionDomainService.CreateReleaseAsync(
                 section,
                 environmentId,
-                tokenSet?.Id,
+                variableSet?.Id,
                 schemaId,
                 JsonDocument.Parse(request.Value), cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -54,7 +54,7 @@ public class CreateReleaseRequest : IRequest<CreateReleaseResponse>
     public string EnvironmentName { get; set; }
     public string SchemaVersion { get; set; }
     public string Value { get; set; }
-    public string? TokenSetName { get; set; }
+    public string? VariableSetName { get; set; }
     public string SectionName { get; set; }
 }
 

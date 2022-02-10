@@ -31,7 +31,7 @@ $(document).ready(function() {
                                      EnvironmentName: '@Model.EnvironmentName',
                                      SchemaVersion: selectedSchemaVersion(),
                                      Value: $('#value').val(),
-                                     TokenSetName: $('#tokenSet').val()
+                                     VariableSetName: $('#variableSet').val()
                                  };
         //alert(JSON.stringify(requestDto));
         $.post('/Release/Create', requestDto)
@@ -57,13 +57,13 @@ Schema Version: @Html.DropDownListFor(
                     m => m.Schemas,
                     new SelectList(Model.Schemas, dataValueField: "Id", dataTextField: "Version"), new {id = "ddSchema"})
 <br/>
-Token Set:
-<select id="tokenSet">
+Variable Set:
+<select id="variableSet">
     <!-- I couldn't get Html.DropDownListFor to work for this -->
     <option></option>
-    @foreach (var ts in Model.TokenSetNames)
+    @foreach (var ts in Model.VariableSetNames)
     {
-        @if (string.Equals(Model.DefaultTokenSetName, ts, StringComparison.OrdinalIgnoreCase))
+        @if (string.Equals(Model.DefaultVariableSetName, ts, StringComparison.OrdinalIgnoreCase))
         {
             <option selected="selected" value="@ts">@ts</option>
         }

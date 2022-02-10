@@ -5,6 +5,8 @@ using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Schema;
+using Allard.Configinator.Deployer.Abstractions;
+using Allard.Configinator.Deployer.Memory;
 using Allard.Configinator.Infrastructure;
 using Allard.Configinator.Infrastructure.Repositories;
 using Allard.DomainDrivenDesign;
@@ -12,6 +14,7 @@ using Allard.Json;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using NuGet.Versioning;
+using IConfigurationProvider = Allard.Configinator.Deployer.Memory.IConfigurationProvider;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,22 +30,26 @@ builder.Services
 
     // domain services
     .AddTransient<SectionDomainService>()
-    .AddTransient<TokenSetDomainService>()
+    .AddTransient<VariableSetDomainService>()
     .AddTransient<GlobalSchemaDomainService>()
 
     // event handlers - HACK
-    .AddScoped<IEventHandler<TokenValueSetEvent>, UpdateReleasesWhenTokenValueChanges>()
+    .AddScoped<IEventHandler<VariableValueSetEvent>, UpdateReleasesWhenVariableValueChanges>()
 
     // database
     .AddScoped<IUnitOfWork, UnitOfWorkMemory>()
     .AddSingleton<ISectionRepository, SectionRepositoryMemory>()
-    .AddSingleton<ITokenSetRepository, TokenSetRepositoryMemory>()
+    .AddSingleton<IVariableSetRepository, VariableSetRepositoryMemory>()
     .AddSingleton<IGlobalSchemaRepository, GlobalSchemaRepositoryMemory>()
 
     // queries
     .AddTransient<ISectionQueries, SectionQueriesCoreRepository>()
-    .AddTransient<ITokenSetQueries, TokenSetQueriesCoreRepository>()
-    .AddTransient<IGlobalSchemaQueries, GlobalSchemaQueriesCoreRepository>();
+    .AddTransient<IVariableSetQueries, VariableSetQueriesCoreRepository>()
+    .AddTransient<IGlobalSchemaQueries, GlobalSchemaQueriesCoreRepository>()
+
+    // deployment
+    .AddTransient<IDeployerFactory, MemoryDeployerFactory>()
+    .AddTransient<IConfigurationProvider, HardCodedConfigurationProvider>();
 
 var app = builder.Build();
 
@@ -69,36 +76,36 @@ using var scope = app.Services.CreateScope();
 var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
 var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainService>();
-var tokenService = scope.ServiceProvider.GetRequiredService<TokenSetDomainService>();
+var variableSetService = scope.ServiceProvider.GetRequiredService<VariableSetDomainService>();
 var globalSchemas = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainService>();
 
 await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", await GetSchema("__kafka-1.0.0.json"));
 
 
-var tokenSetEntity = await tokenService.CreateTokenSetAsync("tokens1");
-tokenSetEntity.SetValue("first", "Santa");
-tokenSetEntity.SetValue("last", "Claus");
+var variableSetEntity = await variableSetService.CreateVariableSetAsync("tokens1");
+variableSetEntity.SetValue("first", "Santa");
+variableSetEntity.SetValue("last", "Claus");
 
-var tokenSet2Entity = await tokenService.CreateTokenSetAsync("tokens2", "tokens1");
-tokenSet2Entity.SetValue("first", "SANTA!!!");
-
-
-await tokenService.CreateTokenSetAsync("tokens2a", "tokens2");
-await tokenService.CreateTokenSetAsync("tokens3", "tokens2");
-await tokenService.CreateTokenSetAsync("tokens4", "tokens3");
-await tokenService.CreateTokenSetAsync("tokens5a", "tokens4");
-await tokenService.CreateTokenSetAsync("tokens5b", "tokens4");
-
-await tokenService.CreateTokenSetAsync("tokensAB", "tokens3");
-await tokenService.CreateTokenSetAsync("yabba", "tokensAB");
-await tokenService.CreateTokenSetAsync("dabbadoo", "tokensAB");
+var variableSet2Entity = await variableSetService.CreateVariableSetAsync("tokens2", "tokens1");
+variableSet2Entity.SetValue("first", "SANTA!!!");
 
 
-await tokenService.CreateTokenSetAsync("root2", null);
-await tokenService.CreateTokenSetAsync("blah1", "root2");
-await tokenService.CreateTokenSetAsync("blah2", "root2");
-await tokenService.CreateTokenSetAsync("c1", "blah2");
-await tokenService.CreateTokenSetAsync("c2", "blah2");
+await variableSetService.CreateVariableSetAsync("tokens2a", "tokens2");
+await variableSetService.CreateVariableSetAsync("tokens3", "tokens2");
+await variableSetService.CreateVariableSetAsync("tokens4", "tokens3");
+await variableSetService.CreateVariableSetAsync("tokens5a", "tokens4");
+await variableSetService.CreateVariableSetAsync("tokens5b", "tokens4");
+
+await variableSetService.CreateVariableSetAsync("tokensAB", "tokens3");
+await variableSetService.CreateVariableSetAsync("yabba", "tokensAB");
+await variableSetService.CreateVariableSetAsync("dabbadoo", "tokensAB");
+
+
+await variableSetService.CreateVariableSetAsync("root2", null);
+await variableSetService.CreateVariableSetAsync("blah1", "root2");
+await variableSetService.CreateVariableSetAsync("blah2", "root2");
+await variableSetService.CreateVariableSetAsync("c1", "blah2");
+await variableSetService.CreateVariableSetAsync("c2", "blah2");
 
 
 var modelValue =
@@ -114,11 +121,11 @@ var schema1 =
 
 await sectionService.AddSchemaToSectionAsync(section1, new SemanticVersion(2, 0, 0), await GetSchema("2.0.0.json"));
 
-var release = await sectionService.CreateReleaseAsync(section1, env1.Id, tokenSetEntity.Id, schema1.Id, modelValue,
+var release = await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
     CancellationToken.None);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now, "Initial Setup - from code");
 
-await sectionService.CreateReleaseAsync(section1, env1.Id, tokenSetEntity.Id, schema1.Id, modelValue,
+await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
     CancellationToken.None);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now, "Initial Setup - from code");
 

@@ -13,15 +13,15 @@ public class SectionDomainService
 {
     private readonly IIdentityService _identityService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly TokenSetDomainService _tokenSetDomainService;
+    private readonly VariableSetDomainService _variableSetDomainService;
     private readonly SchemaLoader _schemaLoader;
 
     public SectionDomainService(IIdentityService identityService, IUnitOfWork unitOfWork,
-        TokenSetDomainService tokenSetDomainService, SchemaLoader schemaLoader)
+        VariableSetDomainService variableSetDomainService, SchemaLoader schemaLoader)
     {
         _identityService = identityService;
         _unitOfWork = unitOfWork;
-        _tokenSetDomainService = tokenSetDomainService;
+        _variableSetDomainService = variableSetDomainService;
         _schemaLoader = schemaLoader;
     }
 
@@ -61,23 +61,23 @@ public class SectionDomainService
     public async Task<ReleaseEntity> CreateReleaseAsync(
         SectionAggregate section,
         EnvironmentId environmentId,
-        TokenSetId? tokenSetId,
+        VariableSetId? variableSetId,
         SectionSchemaId sectionSchemaId,
         JsonDocument value,
         CancellationToken cancellationToken)
     {
-        // get the token set
-        var tokenSet = tokenSetId == null
+        // get the variable set
+        var variableSet = variableSetId == null
             ? null
-            : await _tokenSetDomainService.GetTokenSetComposedAsync(tokenSetId, cancellationToken);
+            : await _variableSetDomainService.GetVariableSetComposedAsync(variableSetId, cancellationToken);
 
         // convert the value to a json.net value, which is needed for schema validation
         var jsonNetValue = value.ToJsonNetJson();
 
-        // apply the token replacements
+        // apply the variable replacements
 
         var jsonNetResolved = await JsonUtility.ResolveAsync(jsonNetValue,
-            tokenSet?.ToValueDictionary() ?? new Dictionary<string, JToken>(), cancellationToken);
+            variableSet?.ToValueDictionary() ?? new Dictionary<string, JToken>(), cancellationToken);
 
         // validate against the schema
         var schemaJson = section.GetSchema(sectionSchemaId).Schema;
@@ -89,16 +89,16 @@ public class SectionDomainService
         var resolved = jsonNetResolved.ToSystemTextJson();
 
         var releaseId = await _identityService.GetId<ReleaseId>();
-        var tokensInUse = JsonUtility.GetTokenNames(jsonNetValue);
+        var variablesInUse = JsonUtility.GetTokenNames(jsonNetValue);
         var evt = new ReleaseCreatedEvent(
             releaseId,
             environmentId,
             section.Id,
             sectionSchemaId,
-            tokenSetId,
+            variableSetId,
             value,
             resolved,
-            tokensInUse);
+            variablesInUse);
         section.PlayEvent(evt);
         return section.GetRelease(environmentId, releaseId);
     }

@@ -1,4 +1,4 @@
-﻿@model ConfiginatorWeb.Controllers.EditTokenSetView
+﻿@model ConfiginatorWeb.Controllers.EditVariableSetView
 @using System.Linq;
 @using Allard.Json
 @using ConfiginatorWeb.Queries
@@ -17,61 +17,61 @@
         color: blue;
     }
 </style>
-<h2>Token Set: @Model.TokenSet.TokenSetName</h2>
-@if (Model.TokenSet.Base != null)
+<h2>Variable Set: @Model.VariableSet.VariableSetName</h2>
+@if (Model.VariableSet.Base != null)
 {
-    <h2>Base: @Model.TokenSet.Base</h2>
+    <h2>Base: @Model.VariableSet.Base</h2>
 }
 
 <table class="table table-bordered">
     <thead>
     <tr>
-        <th>Token Name</th>
+        <th>Variable Name</th>
         <th></th>
         <th>Value</th>
         <th>Parent Values</th>
     </tr>
     </thead>
-    @foreach (var t in Model.TokenSet.Tokens.Values.OrderBy(t => t.Name))
+    @foreach (var t in Model.VariableSet.Variables.Values.OrderBy(t => t.Name))
     {
         <tr>
             <td>
                 @t.Name
             </td>
             <td>
-                <a asp-action="EditValue" asp-route-tokenSetName="@Model.TokenSet.TokenSetName" asp-route-key="@t.Name">Edit</a>
-                @if (t.TokenValueOrigin != TokenValueOrigin.Inherited)
+                <a asp-action="EditValue" asp-route-variableSetName="@Model.VariableSet.VariableSetName" asp-route-key="@t.Name">Edit</a>
+                @if (t.VariableOrigin != VariableOrigin.Inherited)
                 {
                     <span>&nbsp;|&nbsp;<a href="#">Delete</a></span>
                 }
                 <br/>
-                @switch (t.TokenValueOrigin)
+                @switch (t.VariableOrigin)
                 {
-                    case TokenValueOrigin.Inherited:
+                    case VariableOrigin.Inherited:
                         <div class="badge rounded-pill bg-info">Inherited</div>
                         <br/>
                         break;
-                    case TokenValueOrigin.Override:
+                    case VariableOrigin.Override:
                         <span class="badge rounded-pill bg-success">Overridden</span>
                         <br/>
                         break;
-                    case TokenValueOrigin.Defined:
+                    case VariableOrigin.Defined:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             </td>
             <td>
-                <pre>@t.Token</pre>
+                <pre>@t.Value</pre>
             </td>
             <td>
-                @if (t.TokenValueOrigin is TokenValueOrigin.Inherited or TokenValueOrigin.Override)
+                @if (t.VariableOrigin is VariableOrigin.Inherited or VariableOrigin.Override)
                 {
                     // crawl up the parents and make a list
                     // reverse and print the list
                     // this results in the info starting at the top base
                     // class, then down the stack
-                    var items = new List<TokenComposedDto>();
+                    var items = new List<VariableComposedDto>();
                     var current = t.BaseToken;
                     while (current != null)
                     {
@@ -82,18 +82,18 @@
                     items.Reverse();
                     foreach (var i in items)
                     {
-                        @if (i.Token.Type == JTokenType.Object)
+                        @if (i.Value.Type == JTokenType.Object)
                         {
                             <span>
                                 <code>
-                                    <pre>@i.Token</pre>
+                                    <pre>@i.Value</pre>
                                 </code>
                             </span>
                         }
                         else
                         {
                             <div>
-                                @i.TokenSetName : @i.TokenValueOrigin : <code>@i.Token</code>
+                                @i.VariableSetName : @i.VariableOrigin : <code>@i.Value</code>
                             </div>
                         }
                     }

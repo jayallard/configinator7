@@ -12,7 +12,7 @@ namespace Allard.Json.Tests.Unit;
 public class JsonUtilityTests
 {
     /*
-     * TODO: token not found, circular references, etc
+     * TODO: variable not found, circular references, etc
      * only happy path so far
      */
 
@@ -41,9 +41,9 @@ public class JsonUtilityTests
             }
         }.ToJObject();
 
-        var tokens = JsonUtility.GetTokens(value);
-        tokens.Count().Should().Be(8);
-        tokens.Should().Contain(new[]
+        var variables = JsonUtility.GetTokens(value);
+        variables.Count().Should().Be(8);
+        variables.Should().Contain(new[]
         {
             new ValueTuple<string, string>("first", "FirstName"),
             new ValueTuple<string, string>("last", "LastName"),
@@ -81,9 +81,9 @@ public class JsonUtilityTests
             }
         }.ToJObject();
 
-        var tokens = JsonUtility.GetTokenNames(value);
-        tokens.Count.Should().Be(5);
-        tokens.Should().Contain(new string[]
+        var variables = JsonUtility.GetTokenNames(value);
+        variables.Count.Should().Be(5);
+        variables.Should().Contain(new string[]
         {
             "last", "first", "object", "color", "fowl"
         });
@@ -95,7 +95,7 @@ public class JsonUtilityTests
         // -----------------------------------------------------------
         // arrange
         // -----------------------------------------------------------
-        // the json value that refers to tokens
+        // the json value that refers to variables
         var value = new
         {
             FirstName = "$$first$$",
@@ -117,7 +117,7 @@ public class JsonUtilityTests
             }
         }.ToJObject();
 
-        // one of the tokens
+        // one of the variables
         var objectToken = new
         {
             Color = "$$color$$",
@@ -128,8 +128,8 @@ public class JsonUtilityTests
             }
         }.ToJObject();
 
-        // all of the other tokens
-        var tokens = new Dictionary<string, JToken>(StringComparer.OrdinalIgnoreCase)
+        // all of the other variables
+        var variables = new Dictionary<string, JToken>(StringComparer.OrdinalIgnoreCase)
         {
             {"allergies", "gold fish"},
             {"age", 13},
@@ -147,7 +147,7 @@ public class JsonUtilityTests
         // -----------------------------------------------------------
         // act
         // -----------------------------------------------------------
-        var usedTokens = JsonUtility.GetTokenNamesDeep(value, tokens).ToList();
+        var usedTokens = JsonUtility.GetVariableNamesDeep(value, variables).ToList();
         
         // -----------------------------------------------------------
         // assert

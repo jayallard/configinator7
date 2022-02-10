@@ -51,28 +51,28 @@ public record SchemaAddedToSectionEvent(
 /// <param name="ModelValue"></param>
 /// <param name="ResolvedValue"></param>
 /// <param name="Tokens"></param>
-/// <param name="TokensInUse"></param>
+/// <param name="VariablesInUse"></param>
 public record ReleaseCreatedEvent(
     ReleaseId ReleaseId,
     EnvironmentId EnvironmentId,
     SectionId SectionId,
     SectionSchemaId SectionSchemaId,
-    TokenSetId? TokenSetId,
+    VariableSetId? VariableSetId,
     JsonDocument ModelValue,
     JsonDocument ResolvedValue,
-    HashSet<string> TokensInUse) : DomainEventBase;
+    HashSet<string> VariablesInUse) : DomainEventBase;
 
 /// <summary>
-/// A token set was created.
+/// A variable set was created.
 /// </summary>
-/// <param name="TokenSetName"></param>
-/// <param name="Tokens"></param>
-/// <param name="BaseTokenSetName"></param>
-public record TokenSetCreatedEvent(
-    TokenSetId TokenSetId,
-    string TokenSetName,
-    Dictionary<string, JToken>? Tokens,
-    string? BaseTokenSetName) : DomainEventBase;
+/// <param name="VariableSetName"></param>
+/// <param name="Variables"></param>
+/// <param name="BaseVariableSetName"></param>
+public record VariableSetCreatedEvent(
+    VariableSetId VariableSetId,
+    string VariableSetName,
+    Dictionary<string, JToken>? Variables,
+    string? BaseVariableSetName) : DomainEventBase;
 
 /// <summary>
 /// A release was deployed.
@@ -108,19 +108,19 @@ public record DeploymentRemovedEvent(
 // todo: SET is too broad... create a CREATED event.
 
 /// <summary>
-/// The value of a token changed.
+/// The value of a variable changed.
 /// </summary>
-/// <param name="TokenSetName"></param>
-/// <param name="TokenName"></param>
+/// <param name="VariableSetName"></param>
+/// <param name="VariableName"></param>
 /// <param name="Value"></param>
-public record TokenValueSetEvent(
-    string TokenSetName,
-    string TokenName,
+public record VariableValueSetEvent(
+    string VariableSetName,
+    string VariableName,
     JToken Value) : DomainEventBase;
 
-public record TokenValueCreatedEvent(
-    string TokenSetName,
-    string TokenName,
+public record VariableValueCreatedEvent(
+    string VariableSetName,
+    string VariableName,
     JToken Value) : DomainEventBase;
 
 public record ReleaseValueBecameCurrent(

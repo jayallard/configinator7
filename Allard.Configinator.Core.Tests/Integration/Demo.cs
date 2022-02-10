@@ -11,7 +11,7 @@ public class Demo
     [Fact]
     public void Blah()
     {
-        var tokens = new TokenSetAggregate(NewTokenSetId(10), "test1");
+        var variables = new VariableSetAggregate(NewVariableSetId(10), "test1");
         var section = new SectionAggregate(NewSectionId(0), "blah", "path");
         
     }

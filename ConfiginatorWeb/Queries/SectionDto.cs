@@ -57,7 +57,7 @@ public class SectionReleaseDto
 
     public bool IsOutOfDate { get; set; }
 
-    public TokenSetComposedDto? TokenSet { get; set; }
+    public VariableSetComposedDto? VariableSet { get; set; }
     
     public JsonDocument ModelValue { get; set; }
     

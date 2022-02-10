@@ -2,7 +2,7 @@
 
 namespace Allard.Configinator.Deployer.Memory;
 
-public interface IDeploymentConfigurationFactory
+public interface IConfigurationProvider
 {
     Task<MemoryDeploymentConfiguration> GetConfigurationAsync(DeployRequest request);
 }

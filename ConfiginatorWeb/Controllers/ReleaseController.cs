@@ -9,18 +9,18 @@ namespace ConfiginatorWeb.Controllers;
 
 public class ReleaseController : Controller
 {
-    private readonly ITokenSetQueries _tokenSetQueries;
+    private readonly IVariableSetQueries _variableSetQueries;
     private readonly ISectionQueries _sectionQueries;
     private readonly IMediator _mediator;
 
     public ReleaseController(
         ISectionQueries sectionQueries,
-        ITokenSetQueries tokenSetQueries,
+        IVariableSetQueries variableSetQueries,
         IMediator mediator)
     {
         _sectionQueries = sectionQueries;
         _mediator = mediator;
-        _tokenSetQueries = tokenSetQueries;
+        _variableSetQueries = variableSetQueries;
     }
 
     // DEPLOY
@@ -46,9 +46,9 @@ public class ReleaseController : Controller
 
         // set the value to the last of the most recent release.
         var value = environment.Releases.LastOrDefault()?.ModelValue.RootElement.ToString();
-        var tokenSetName = environment.Releases.LastOrDefault()?.TokenSet?.TokenSetName;
-        var tokenSets = (await _tokenSetQueries.GetTokenSetListAsync(cancellationToken))
-            .Select(s => s.TokenSetName)
+        var variableSetName = environment.Releases.LastOrDefault()?.VariableSet?.VariableSetName;
+        var variableSets = (await _variableSetQueries.GetVariableSetListAsync(cancellationToken))
+            .Select(s => s.VariableSetName)
             .OrderBy(s => s)
             .ToList();
 
@@ -66,8 +66,8 @@ public class ReleaseController : Controller
                 .ToList(),
 
             DefaultValue = value,
-            DefaultTokenSetName = tokenSetName,
-            TokenSetNames = tokenSets
+            DefaultVariableSetName = variableSetName,
+            VariableSetNames = variableSets
         };
 
         return View(v);
@@ -91,7 +91,7 @@ public class ReleaseController : Controller
     public async Task<IActionResult> Deploy(long sectionId, long environmentId, long releaseId, string notes,
         CancellationToken cancellationToken)
     {
-        var request = new DeployRequest
+        var request = new HttpDeployRequest
         {
             SectionId = sectionId,
             EnvironmentId = environmentId,
@@ -168,7 +168,7 @@ public record DeployView(
     SectionEnvironmentDto Environment,
     SectionReleaseDto Release);
 
-public class DeployRequest : IRequest<DeployResponse>
+public class HttpDeployRequest : IRequest<DeployResponse>
 {
     public long SectionId { get; set; }
     public long EnvironmentId { get; set; }

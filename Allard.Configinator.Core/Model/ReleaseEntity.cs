@@ -10,25 +10,25 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     public IEnumerable<DeploymentEntity> Deployments => InternalDeployments.AsReadOnly();
 
     /// <summary>
-    /// Gets the configuration value with optional tokens.
+    /// Gets the configuration value with optional variables.
     /// </summary>
     public JsonDocument ModelValue { get; }
 
     /// <summary>
     /// Gets the resolved configuration value. This is the ModelValue
-    /// with the token replacements completed.
+    /// with the variable replacements completed.
     /// </summary>
     public JsonDocument ResolvedValue { get; }
 
     /// <summary>
-    /// Gets or sets the token set used for this release.
-    /// This is the TokenSet as-of the time that the release was created.
-    /// The copy is immutable. Changes made to the TokenSet post-release creation
+    /// Gets or sets the variable set used for this release.
+    /// This is the VariableSet as-of the time that the release was created.
+    /// The copy is immutable. Changes made to the VariableSet post-release creation
     /// are not represented.
     /// </summary>
-    // BUG: token sets are mutable. this needs a copy, or token sets need to be versioned.
-    // versioned token sets would be a lot more complicated
-    public TokenSetId? TokenSetId { get; }
+    // BUG: variable sets are mutable. this needs a copy, or variable sets need to be versioned.
+    // versioned variable sets would be a lot more complicated
+    public VariableSetId? VariableSetId { get; }
 
     /// <summary>
     /// The schema used for this release.
@@ -47,12 +47,12 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     
     /// <summary>
     /// Gets a value indicating whether this release is out of date.
-    /// A release falls out of date if, for example, it uses a token
-    /// and the value of the token has changed.
+    /// A release falls out of date if, for example, it uses a variable
+    /// and the value of the variable has changed.
     /// </summary>
     public bool IsOutOfDate { get; private set; }
 
-    public ImmutableHashSet<string> TokensInUse { get; }
+    public ImmutableHashSet<string> VariablesInUse { get; }
 
     /// <summary>
     /// Set the value of the IsDeployed property.
@@ -69,23 +69,23 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     /// <param name="sectionSchema"></param>
     /// <param name="modelValue"></param>
     /// <param name="resolvedValue"></param>
-    /// <param name="tokenSetIdId"></param>
+    /// <param name="variableSetIdId"></param>
     internal ReleaseEntity(
         ReleaseId id,
         SectionSchemaEntity sectionSchema,
         JsonDocument modelValue,
         JsonDocument resolvedValue,
-        TokenSetId? tokenSetIdId)
+        VariableSetId? variableSetIdId)
     {
         Id = id;
         SectionSchema = sectionSchema;
         ModelValue = modelValue;
         ResolvedValue = resolvedValue;
-        TokenSetId = tokenSetIdId;
+        VariableSetId = variableSetIdId;
         CreateDate = DateTime.Now;
-        TokensInUse = JsonUtility
+        VariablesInUse = JsonUtility
             .GetTokens(modelValue.ToJsonNetJson())
-            .Select(t => t.TokenName)
+            .Select(t => t.VariableName)
             .ToImmutableHashSet();
     }
 }

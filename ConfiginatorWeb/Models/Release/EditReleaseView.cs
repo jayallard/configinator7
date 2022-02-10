@@ -9,9 +9,9 @@ public class EditReleaseView
     public List<EditSchemaView> Schemas { get; set; }
     
     public string? DefaultValue { get; set; }
-    public List<string> TokenSetNames { get; set; }
+    public List<string> VariableSetNames { get; set; }
     
-    public string? DefaultTokenSetName { get; set; }
+    public string? DefaultVariableSetName { get; set; }
 }
 public record EditSchemaView(string Id, string Version, string Schema);
 

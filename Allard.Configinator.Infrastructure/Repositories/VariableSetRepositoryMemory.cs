@@ -3,6 +3,6 @@ using Allard.Configinator.Core.Repositories;
 
 namespace Allard.Configinator.Infrastructure.Repositories;
 
-public class TokenSetRepositoryMemory : RepositoryMemoryBase<TokenSetAggregate, TokenSetId>, ITokenSetRepository
+public class VariableSetRepositoryMemory : RepositoryMemoryBase<VariableSetAggregate, VariableSetId>, IVariableSetRepository
 {
 }

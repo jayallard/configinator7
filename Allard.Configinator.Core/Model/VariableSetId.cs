@@ -2,9 +2,9 @@
 
 namespace Allard.Configinator.Core.Model;
 
-public record TokenSetId : IdBase
+public record VariableSetId : IdBase
 {
-    public TokenSetId(long id) : base(id)
+    public VariableSetId(long id) : base(id)
     {
     }
 }
