@@ -89,7 +89,7 @@ public class SectionDomainService
         var resolved = jsonNetResolved.ToSystemTextJson();
 
         var releaseId = await _identityService.GetId<ReleaseId>();
-        var variablesInUse = JsonUtility.GetTokenNames(jsonNetValue);
+        var variablesInUse = JsonUtility.GetVariableNames(jsonNetValue);
         var evt = new ReleaseCreatedEvent(
             releaseId,
             environmentId,

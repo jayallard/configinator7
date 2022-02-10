@@ -10,7 +10,7 @@ public static class JsonUtility
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static IEnumerable<(string VariableName, string JsonPath)> GetTokens(JObject json) =>
+    public static IEnumerable<(string VariableName, string JsonPath)> GetVariables(JObject json) =>
         json
             .Descendants()
             .Select(GetTokenNameAndPath)
@@ -47,7 +47,7 @@ public static class JsonUtility
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static HashSet<string> GetTokenNames(JObject json) => GetTokens(json)
+    public static HashSet<string> GetVariableNames(JObject json) => GetVariables(json)
         .Select(t => t.VariableName)
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -60,16 +60,16 @@ public static class JsonUtility
     /// <returns>A list of unique variable names required by the value.</returns>
     public static ISet<string> GetVariableNamesDeep(JObject value, IDictionary<string, JToken> variableElements)
     {
-        // for each variable in variable elements, get the tokens that it requires.
-        // (tokens can use variables, which use other variables, etc. it can go as deep as we want)
-        var references = GetReferencedTokens(variableElements);
+        // for each variable in variable elements, get the variables that it requires.
+        // (variables can use other variables, which use other variables, etc. it can go as deep as we want)
+        var references = GetReferencedVariables(variableElements);
 
         // get the variables referenced by the value, and all the variables referenced by those variables.
-        return AddSelfAndReferencedTokens(GetTokenNames(value), new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+        return AddSelfAndReferencedVariables(GetVariableNames(value), new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
         // adds the variable name to the hash set.
         // also, adds all of the variables that it references.
-        ISet<string> AddSelfAndReferencedTokens(IEnumerable<string>? variableNames, ISet<string> names)
+        ISet<string> AddSelfAndReferencedVariables(IEnumerable<string>? variableNames, ISet<string> names)
         {
             if (variableNames == null) return names;
             foreach (var variableName in variableNames)
@@ -82,7 +82,7 @@ public static class JsonUtility
                 }
 
                 names.Add(variableName);
-                AddSelfAndReferencedTokens(references[variableName], names);
+                AddSelfAndReferencedVariables(references[variableName], names);
             }
 
             return names;
@@ -95,7 +95,7 @@ public static class JsonUtility
     /// </summary>
     /// <param name="variableElements">Key = variable name, value = variable value.</param>
     /// <returns>Key = the name of the variable, Value = the variable the value references.</returns>
-    private static IDictionary<string, ISet<string>?> GetReferencedTokens(IDictionary<string, JToken> variableElements)
+    private static IDictionary<string, ISet<string>?> GetReferencedVariables(IDictionary<string, JToken> variableElements)
     {
         var references = new Dictionary<string, ISet<string>?>(StringComparer.OrdinalIgnoreCase);
         foreach (var (key, jsonNode) in variableElements)
@@ -116,7 +116,7 @@ public static class JsonUtility
             // The result is Key=Stuff, Children=first, last
             if (jsonNode.Type == JTokenType.Object)
             {
-                var variables = GetTokenNames((JObject) jsonNode).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var variables = GetVariableNames((JObject) jsonNode).ToHashSet(StringComparer.OrdinalIgnoreCase);
                 references.Add(key, variables);
                 continue;
             }
@@ -143,7 +143,7 @@ public static class JsonUtility
 
             // make a copy of the model - this is the result value
             // get the variables from the resolved doc
-            // replace with the variable values - each variable value may itself contain more tokens
+            // replace with the variable values - each variable value may itself contain more variables
             // repeat until no variables remain
             var resolved = (JObject) model.DeepClone();
 
@@ -151,16 +151,16 @@ public static class JsonUtility
             // todo: detect circular reference
             for (var i = 0; i < maxIterations; i++)
             {
-                var remainingTokens =
-                    GetTokens(resolved)
+                var remainingVariables =
+                    GetVariables(resolved)
                         .ToList();
 
-                if (!remainingTokens.Any())
+                if (!remainingVariables.Any())
                 {
                     return resolved;
                 }
 
-                foreach (var (tokenName, path) in remainingTokens)
+                foreach (var (tokenName, path) in remainingVariables)
                 {
                     var variableName = variables[tokenName];
                     var property = (JProperty) resolved.SelectToken(path)!.Parent!;

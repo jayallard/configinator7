@@ -17,7 +17,7 @@ public class JsonUtilityTests
      */
 
     [Fact]
-    public void GetTokens()
+    public void GetVariables()
     {
         var value = new
         {
@@ -41,7 +41,7 @@ public class JsonUtilityTests
             }
         }.ToJObject();
 
-        var variables = JsonUtility.GetTokens(value);
+        var variables = JsonUtility.GetVariables(value);
         variables.Count().Should().Be(8);
         variables.Should().Contain(new[]
         {
@@ -81,7 +81,7 @@ public class JsonUtilityTests
             }
         }.ToJObject();
 
-        var variables = JsonUtility.GetTokenNames(value);
+        var variables = JsonUtility.GetVariableNames(value);
         variables.Count.Should().Be(5);
         variables.Should().Contain(new string[]
         {
@@ -147,12 +147,12 @@ public class JsonUtilityTests
         // -----------------------------------------------------------
         // act
         // -----------------------------------------------------------
-        var usedTokens = JsonUtility.GetVariableNamesDeep(value, variables).ToList();
+        var usedVariables = JsonUtility.GetVariableNamesDeep(value, variables).ToList();
         
         // -----------------------------------------------------------
         // assert
         // -----------------------------------------------------------
-        usedTokens.Count.Should().Be(7);
-        usedTokens.Should().Contain(new [] {"allergies", "first", "last", "age", "color", "object", "fowl"});
+        usedVariables.Count.Should().Be(7);
+        usedVariables.Should().Contain(new [] {"allergies", "first", "last", "age", "color", "object", "fowl"});
     }
 }

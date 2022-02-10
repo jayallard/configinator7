@@ -50,7 +50,6 @@ public record SchemaAddedToSectionEvent(
 /// <param name="SectionSchemaId"></param>
 /// <param name="ModelValue"></param>
 /// <param name="ResolvedValue"></param>
-/// <param name="Tokens"></param>
 /// <param name="VariablesInUse"></param>
 public record ReleaseCreatedEvent(
     ReleaseId ReleaseId,

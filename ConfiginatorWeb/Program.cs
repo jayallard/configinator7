@@ -10,7 +10,6 @@ using Allard.Configinator.Deployer.Memory;
 using Allard.Configinator.Infrastructure;
 using Allard.Configinator.Infrastructure.Repositories;
 using Allard.DomainDrivenDesign;
-using Allard.Json;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using NuGet.Versioning;
@@ -82,23 +81,23 @@ var globalSchemas = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainS
 await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", await GetSchema("__kafka-1.0.0.json"));
 
 
-var variableSetEntity = await variableSetService.CreateVariableSetAsync("tokens1");
+var variableSetEntity = await variableSetService.CreateVariableSetAsync("variables1");
 variableSetEntity.SetValue("first", "Santa");
 variableSetEntity.SetValue("last", "Claus");
 
-var variableSet2Entity = await variableSetService.CreateVariableSetAsync("tokens2", "tokens1");
+var variableSet2Entity = await variableSetService.CreateVariableSetAsync("variables2", "variables1");
 variableSet2Entity.SetValue("first", "SANTA!!!");
 
 
-await variableSetService.CreateVariableSetAsync("tokens2a", "tokens2");
-await variableSetService.CreateVariableSetAsync("tokens3", "tokens2");
-await variableSetService.CreateVariableSetAsync("tokens4", "tokens3");
-await variableSetService.CreateVariableSetAsync("tokens5a", "tokens4");
-await variableSetService.CreateVariableSetAsync("tokens5b", "tokens4");
+await variableSetService.CreateVariableSetAsync("variables2a", "variables2");
+await variableSetService.CreateVariableSetAsync("variables3", "variables2");
+await variableSetService.CreateVariableSetAsync("variables4", "variables3");
+await variableSetService.CreateVariableSetAsync("variables5a", "variables4");
+await variableSetService.CreateVariableSetAsync("variables5b", "variables4");
 
-await variableSetService.CreateVariableSetAsync("tokensAB", "tokens3");
-await variableSetService.CreateVariableSetAsync("yabba", "tokensAB");
-await variableSetService.CreateVariableSetAsync("dabbadoo", "tokensAB");
+await variableSetService.CreateVariableSetAsync("variablesAB", "variables3");
+await variableSetService.CreateVariableSetAsync("yabba", "variablesAB");
+await variableSetService.CreateVariableSetAsync("dabbadoo", "variablesAB");
 
 
 await variableSetService.CreateVariableSetAsync("root2", null);
@@ -122,11 +121,11 @@ var schema1 =
 await sectionService.AddSchemaToSectionAsync(section1, new SemanticVersion(2, 0, 0), await GetSchema("2.0.0.json"));
 
 var release = await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
-    CancellationToken.None);
+    Cancellationvariable.None);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now, "Initial Setup - from code");
 
 await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
-    CancellationToken.None);
+    Cancellationvariable.None);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now, "Initial Setup - from code");
 
 await sectionService.CreateSectionAsync("name2", "path2");

@@ -5,12 +5,12 @@ namespace Allard.Json;
 
 public class VariableSetComposed
 {
-    private readonly Dictionary<string, JToken> _tokens;
+    private readonly Dictionary<string, JToken> _variables;
     private readonly Dictionary<string, VariableComposed> _resolved = new();
     private readonly List<VariableSetComposed> _children = new();
 
     public Dictionary<string, JToken> Variables =>
-        _tokens.ToDictionary(
+        _variables.ToDictionary(
             kv => kv.Key,
             kv => kv.Value.DeepClone(),
             StringComparer.OrdinalIgnoreCase);
@@ -74,8 +74,8 @@ public class VariableSetComposed
 
     public ISet<string> Keys =>
         BaseVariableSet == null
-            ? _tokens.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase)
-            : _tokens.Keys.Union(BaseVariableSet.Keys).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            ? _variables.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase)
+            : _variables.Keys.Union(BaseVariableSet.Keys).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     public string VariableSetName { get; }
 
@@ -89,7 +89,7 @@ public class VariableSetComposed
         };
         var fromParent = BaseVariableSet?.Resolve(key);
         var existsInParent = fromParent != null;
-        var existsHere = _tokens.ContainsKey(key);
+        var existsHere = _variables.ContainsKey(key);
         if (!existsHere && !existsInParent) return null;
         variableComposed.Base = fromParent;
 
@@ -105,7 +105,7 @@ public class VariableSetComposed
 
         if (existsHere)
         {
-            variableComposed.Value = _tokens[key];
+            variableComposed.Value = _variables[key];
         }
         else if (existsInParent)
         {
@@ -132,7 +132,7 @@ public class VariableSetComposed
         string variableSetName)
     {
         VariableSetName = variableSetName;
-        _tokens = variables.ToDictionary(
+        _variables = variables.ToDictionary(
             kv => kv.Key,
             kv => kv.Value,
             StringComparer.OrdinalIgnoreCase);

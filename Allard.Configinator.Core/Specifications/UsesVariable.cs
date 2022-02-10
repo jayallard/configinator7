@@ -24,5 +24,5 @@ public class UsesVariable : ISpecification<SectionAggregate>
     // obj.Environments.Any(
     //     e => e.Releases.Any(r =>
     //         string.Equals(VariableSetName, r.VariableSet?.VariableSetName, StringComparison.OrdinalIgnoreCase) &&
-    //         r.TokensInUse.Contains(TokenName)));
+    //         r.VariablesInUse.Contains(TokenName)));
 }

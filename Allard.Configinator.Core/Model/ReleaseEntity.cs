@@ -84,7 +84,7 @@ public class ReleaseEntity : EntityBase<ReleaseId>
         VariableSetId = variableSetIdId;
         CreateDate = DateTime.Now;
         VariablesInUse = JsonUtility
-            .GetTokens(modelValue.ToJsonNetJson())
+            .GetVariables(modelValue.ToJsonNetJson())
             .Select(t => t.VariableName)
             .ToImmutableHashSet();
     }

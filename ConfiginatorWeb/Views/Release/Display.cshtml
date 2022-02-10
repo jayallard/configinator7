@@ -36,7 +36,7 @@
         @foreach (var t in Model.SelectedRelease.VariableSet.Variables.Values.OrderBy(v => v.Name))
         {
             <tr>
-                @* <td style="@(Model.SelectedRelease.UsedTokens.Contains(t.Name) ? "font-weight: bold; background-color: lightblue;" : "")">@t.Name</td> *@
+                @* <td style="@(Model.SelectedRelease.UsedVariables.Contains(t.Name) ? "font-weight: bold; background-color: lightblue;" : "")">@t.Name</td> *@
                 <td>@t.Name</td>
                 <td>@t.SourceVariableSetName</td>
                 <td>@t.VariableOrigin</td>
