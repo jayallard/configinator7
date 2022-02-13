@@ -1,5 +1,6 @@
 ﻿using Allard.Configinator.Core;
 using ConfiginatorWeb.Interactors;
+using ConfiginatorWeb.Interactors.Configuration;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -26,14 +27,7 @@ public class ConfigurationController : Controller
     // GET
     public async Task<IActionResult> Index()
     {
-        var sections = _sectionQueries.GetSectionsListAsync();
-        var variableSets = _variableSetQueries.GetVariableSetListAsync();
-        var schemas = _globalSchemaQueries.GetGlobalSchemasListAsync();
-
-        var t = await variableSets;
-        var roots = t.Where(t => t.BaseVariableSetName == null);
-        
-        var view = new IndexView(await sections, t, await schemas);
+        var view = await _mediator.Send(new ConfigurationIndexRequest());
         return View(view);
     }
 
@@ -52,7 +46,6 @@ public class ConfigurationController : Controller
     public async Task<IActionResult> Create(CreateSectionAppRequest request)
     {
         if (!ModelState.IsValid) return View();
-    
         try
         {
             await _mediator.Send(request);
@@ -72,5 +65,3 @@ public class ConfigurationController : Controller
     }
 }
 
-public record IndexView(List<SectionListItemDto> Sections, List<VariableSetListItemDto> VariableSets, List<GlobalSchemaListItemDto> GlobalSchemas);
-public record GlobalSchemaListItemDto(long GlobalSchemaId, string Name, string? Description);

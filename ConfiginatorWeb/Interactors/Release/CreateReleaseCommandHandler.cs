@@ -5,7 +5,7 @@ using Allard.Configinator.Core.Repositories;
 using MediatR;
 using NuGet.Versioning;
 
-namespace ConfiginatorWeb.Interactors;
+namespace ConfiginatorWeb.Interactors.Release;
 
 public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest, CreateReleaseResponse>
 {

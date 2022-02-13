@@ -1,9 +1,8 @@
 ﻿using Allard.Configinator.Core.Repositories;
-using Allard.Configinator.Core.Specifications;
 using MediatR;
 using Newtonsoft.Json.Linq;
 
-namespace ConfiginatorWeb.Interactors;
+namespace ConfiginatorWeb.Interactors.VariableSets;
 
 public class SetVariableValueCommandHandler : IRequestHandler<SetVariableValueCommand, SetVariableValueResponse>
 {

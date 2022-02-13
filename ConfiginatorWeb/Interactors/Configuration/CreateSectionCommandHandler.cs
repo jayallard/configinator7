@@ -4,9 +4,9 @@ using Allard.Configinator.Core.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ConfiginatorWeb.Interactors;
+namespace ConfiginatorWeb.Interactors.Configuration;
 
-public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, CreateSecionAppResponse>
+public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, CreateSectionAppResponse>
 {
     private readonly SectionDomainService _service;
     private readonly IUnitOfWork _uow;
@@ -18,17 +18,17 @@ public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, 
         _uow = uow;
     }
 
-    public async Task<CreateSecionAppResponse> Handle(CreateSectionAppRequest request, CancellationToken cancellationToken)
+    public async Task<CreateSectionAppResponse> Handle(CreateSectionAppRequest request, CancellationToken cancellationToken)
     {
         var section = await _service.CreateSectionAsync(request.Name, request.OrganizationPath);
         
         // todo: this is awkward.
         await _uow.Sections.AddAsync(section, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
-        return new CreateSecionAppResponse(section.EntityId);    }
+        return new CreateSectionAppResponse(section.EntityId);    }
 }
 
-public class CreateSectionAppRequest : IRequest<CreateSecionAppResponse>
+public class CreateSectionAppRequest : IRequest<CreateSectionAppResponse>
 {
     [Required]
     public string Name { get; set; }
@@ -40,4 +40,4 @@ public class CreateSectionAppRequest : IRequest<CreateSecionAppResponse>
     public string? ErrorMessage { get; set; }
 }
 
-public record CreateSecionAppResponse(long sectionId);
+public record CreateSectionAppResponse(long sectionId);

@@ -1,5 +1,4 @@
 ﻿using Allard.Configinator.Deployer.Abstractions;
-using Allard.Configinator.Deployer.Memory;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;

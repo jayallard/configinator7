@@ -27,9 +27,23 @@
     {
         <tr>
             <td>
-                <a asp-action="DisplayRelease" asp-route-sectionName="@Model.SelectedSection.SectionName" asp-route-environmentName="@Model.SelectedEnvironment.EnvironmentName" asp-route-releaseId="@h.">@h.Release.ReleaseId</a>
+                <a
+                    asp-action="DisplayRelease"
+                    asp-route-sectionName="@Model.SelectedSection.SectionName"
+                    asp-route-environmentName="@Model.SelectedEnvironment.EnvironmentName"
+                    asp-route-releaseId="@h.Release.ReleaseId">
+                    @h.Release.ReleaseId
+                </a>
             </td>
-            <td>@h.Deployment.DeploymentId</td>
+            <td>
+                <a asp-action="DisplayDeployment"
+                   asp-route-SectionId="@Model.SelectedSection.SectionId"
+                   asp-route-EnvironmentId="@Model.SelectedEnvironment.EnvironmentId"
+                   asp-route-releaseId="@h.Release.ReleaseId"
+                   asp-route-DeploymentId="@h.Deployment.DeploymentId">
+                    @h.Deployment.DeploymentId
+                </a>
+            </td>
             <td>@h.Release.Schema.Version.ToFullString()</td>
             <td>
                 @h.Deployment.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")

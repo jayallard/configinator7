@@ -2,9 +2,8 @@
 using Allard.Configinator.Core.DomainServices;
 using ConfiginatorWeb.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
-namespace ConfiginatorWeb.Interactors;
+namespace ConfiginatorWeb.Interactors.VariableSets;
 
 public class GetVariableSetComposedQuery : IRequestHandler<VariableSetComposedQuery, VariableSetComposedQueryResult>
 {

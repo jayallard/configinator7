@@ -60,7 +60,7 @@ $(document).ready(function() {
                             <th></th>
                         </tr>
                         </thead>
-                        @foreach (var r in e.Releases)
+                        @foreach (var r in e.Releases.OrderByDescending(r => r.ReleaseId))
                         {
                             <tr>
                                 <td>

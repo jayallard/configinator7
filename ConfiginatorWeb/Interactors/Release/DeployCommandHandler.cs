@@ -6,7 +6,7 @@ using Allard.Configinator.Deployer.Abstractions;
 using ConfiginatorWeb.Controllers;
 using MediatR;
 
-namespace ConfiginatorWeb.Interactors;
+namespace ConfiginatorWeb.Interactors.Release;
 
 public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployResponse>
 {
@@ -33,7 +33,7 @@ public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployRes
         {
             Deployment = new Deployment(deploymentId.Id, request.Notes),
             DeploymentEnvironment = new DeploymentEnvironment(env.Id.Id, env.EnvironmentName),
-            Release = new Release(release.Id.Id),
+            Release = new Allard.Configinator.Deployer.Abstractions.Release(release.Id.Id),
             Schema = new Schema(release.SectionSchema.Schema),
             Section = new Section(section.Id.Id, section.SectionName),
             ResolvedValue = release.ResolvedValue

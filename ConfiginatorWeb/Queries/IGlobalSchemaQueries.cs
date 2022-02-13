@@ -1,4 +1,5 @@
-﻿using ConfiginatorWeb.Controllers;
+﻿using ConfiginatorWeb.Interactors;
+using ConfiginatorWeb.Interactors.Configuration;
 
 namespace ConfiginatorWeb.Queries;
 

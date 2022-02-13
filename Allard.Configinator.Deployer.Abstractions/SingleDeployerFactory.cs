@@ -1,6 +1,4 @@
-﻿using Allard.Configinator.Deployer.Abstractions;
-
-namespace Allard.Configinator.Deployer.Memory;
+﻿namespace Allard.Configinator.Deployer.Abstractions;
 
 /// <summary>
 /// A single application may have many deployers.

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using ConfiginatorWeb.Interactors;
+using ConfiginatorWeb.Interactors.Release;
 using ConfiginatorWeb.Models.Release;
 using ConfiginatorWeb.Queries;
 using MediatR;
@@ -109,6 +110,7 @@ public class ReleaseController : Controller
         });
     }
 
+    [HttpGet]
     public async Task<IActionResult> History(
         long? sectionId,
         long? environmentId,

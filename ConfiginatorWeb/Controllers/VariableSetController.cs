@@ -1,5 +1,6 @@
 ﻿using Allard.Configinator.Core;
 using ConfiginatorWeb.Interactors;
+using ConfiginatorWeb.Interactors.VariableSets;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

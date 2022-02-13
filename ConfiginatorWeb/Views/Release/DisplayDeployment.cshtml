@@ -5,8 +5,47 @@
     Layout = "_Layout";
 }
 
-
 <h1>Deployment Result</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-2">Section Name</div>
+        <div class="col-2">@Model.Section.SectionName</div>
+    </div>
+    <div class="row">
+        <div class="col-2">Environment Name</div>
+        <div class="col-2">@Model.Environment.EnvironmentName</div>
+    </div>
+    <div class="row">
+        <div class="col-2">Release Id</div>
+        <div class="col-2">
+            <a
+                asp-action="DisplayRelease"
+                asp-route-sectionId="@Model.Section.SectionId"
+                asp-route-environmentId="@Model.Environment.EnvironmentId"
+                asp-route-releaseId="@Model.Release.ReleaseId">
+                @Model.Release.ReleaseId</a>&nbsp;
+            @Html.IsDeployedBadge(Model.Release.IsDeployed) @Html.IsOutOfDateBadge(Model.Release.IsOutOfDate)
+        </div>
+    </div>
+</div>
+<br/>
+<h2>Notes</h2>
+<code>
+    <pre>@Model.Deployment.Notes</pre>
+</code>
+<br/>
+<h2>Deployment Details</h2>
+<div class="container">
+    <div class="row">
+        <div class="col-2">Deployment Date</div>
+        <div class="col-3">@Model.Deployment.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</div>
+    </div>
+    <div class="row">
+        <div class="col-5">@Html.IsDeployedBadge(Model.Deployment.IsDeployed)</div>
+    </div>
+</div>
+<br/>
+<h2>Deployment Messages</h2>
 @if (Model.Deployment.DeploymentResult == null)
 {
     <p>None</p>
@@ -19,7 +58,7 @@ else
         <tr>
             <th>Source</th>
             <th>Key</th>
-            <th>Severity></th>
+            <th>Severity</th>
             <th>Message</th>
             <th>Exception</th>
         </tr>
@@ -32,9 +71,18 @@ else
                 <td>@message.Key</td>
                 <td>@message.Severity</td>
                 <td>@message.Message</td>
-                <td><pre>@message.Exception?.ToString()</pre></td>
+                <td>
+                    <pre>@message.Exception?.ToString()</pre>
+                </td>
             </tr>
         }
-        
     </table>
+    @if (!Model.Deployment.DeploymentResult.Messages.Any())
+    {
+        <b>
+            <i>None</i>
+        </b>
+    }
 }
+<br/>
+@* @await Component.InvokeAsync("Schema", Model.Release.Schema) *@
