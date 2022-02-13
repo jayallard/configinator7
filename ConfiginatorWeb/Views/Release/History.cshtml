@@ -27,7 +27,7 @@
     {
         <tr>
             <td>
-                <a asp-action="Display" asp-route-sectionName="@Model.SelectedSection.SectionName" asp-route-environmentName="@Model.SelectedEnvironment.EnvironmentName" asp-route-releaseId="@h.">@h.Release.ReleaseId</a>
+                <a asp-action="DisplayRelease" asp-route-sectionName="@Model.SelectedSection.SectionName" asp-route-environmentName="@Model.SelectedEnvironment.EnvironmentName" asp-route-releaseId="@h.">@h.Release.ReleaseId</a>
             </td>
             <td>@h.Deployment.DeploymentId</td>
             <td>@h.Release.Schema.Version.ToFullString()</td>

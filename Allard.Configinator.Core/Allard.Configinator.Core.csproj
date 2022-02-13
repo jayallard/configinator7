@@ -24,5 +24,11 @@
             <_Parameter1>Allard.Configinator.Infrastructure.Tests</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
+    
+    <ItemGroup>
+      <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+        <HintPath>..\..\..\..\..\Program Files\dotnet\shared\Microsoft.AspNetCore.App\6.0.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 
 </Project>

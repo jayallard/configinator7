@@ -71,7 +71,7 @@
                     // reverse and print the list
                     // this results in the info starting at the top base
                     // class, then down the stack
-                    var items = new List<VariableComposedDto>();
+                    var items = new List<VariableComposedDto> {t};
                     var current = t.BaseToken;
                     while (current != null)
                     {
@@ -80,20 +80,27 @@
                     }
 
                     items.Reverse();
-                    foreach (var i in items)
+                    for (var i = 0; i < items.Count; i++)
                     {
-                        @if (i.Value.Type == JTokenType.Object)
+                        var item = items[i];
+                        @if (item.Value.Type == JTokenType.Object)
                         {
                             <span>
                                 <code>
-                                    <pre>@i.Value</pre>
+                                    <pre>@item.Value</pre>
                                 </code>
                             </span>
                         }
                         else
                         {
                             <div>
-                                @i.VariableSetName : @i.VariableOrigin : <code>@i.Value</code>
+                                @item.VariableSetName : @item.VariableOrigin : <code>@item.Value</code>
+                                
+                                @* TODO: ToString() is insufficient here... works for simple values but wont' work for objects. *@
+                                @if (i > 0 && item.VariableOrigin == VariableOrigin.Override && item.Value.ToString() == items[i - 1].Value.ToString())
+                                {
+                                    <b><i>Can Delete</i></b>
+                                }
                             </div>
                         }
                     }

@@ -39,11 +39,16 @@ public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployRes
             ResolvedValue = release.ResolvedValue
         };
 
+        var startDate = DateTime.Now;
         var deployer = await _deployerFactory.GetDeployer(deployRequest);
         var result = await deployer.DeployAsync(deployRequest, cancellationToken);
+        var coreResult = new DeploymentResult(result.IsSuccess,
+            result.Messages
+                .Select(m => new DeploymentResultMessage(m.Source, m.Key, m.Severity, m.Message, m.Exception)).ToList()
+                .AsReadOnly());
         
-        
-        section.SetDeployed(env.Id, new ReleaseId(request.ReleaseId), deploymentId, DateTime.Now, request.Notes);
+        // todo: convert start date and notes to an object
+        section.SetDeployed(env.Id, new ReleaseId(request.ReleaseId), deploymentId, coreResult, startDate, request.Notes);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return new DeployResponse(deploymentId.Id);
     }

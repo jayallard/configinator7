@@ -59,4 +59,5 @@
     }
 </form>
 <br/>
-@await Component.InvokeAsync("DeploymentHistory", Model.Release)
+@await Component.InvokeAsync("DeploymentHistory",
+    new {Model.Section, Model.Environment, Model.Release}))

@@ -61,19 +61,19 @@ public class SectionAggregate : AggregateBase<SectionId>
 
     public ReleaseEntity GetRelease(EnvironmentId environmentId, ReleaseId releaseId) =>
         GetEnvironment(environmentId).InternalReleases.GetRelease(releaseId);
+    
+    public DeploymentResult? DeploymentResult { get; private set; }
 
     public DeploymentEntity SetDeployed(
         EnvironmentId environmentId,
         ReleaseId releaseId,
         DeploymentId deploymentId,
+        DeploymentResult deploymentResult,
         DateTime deploymentDate,
         string? notes)
     {
         var release = GetRelease(environmentId, releaseId);
         release.InternalDeployments.EnsureDeploymentDoesntExist(deploymentId);
-
-        // if an active deployment exists, remove it
-        SetActiveDeploymentToRemoved(environmentId, releaseId, deploymentId);
 
         // create the new deployment.
         var deployedEvt = new ReleaseDeployedEvent(
@@ -82,6 +82,7 @@ public class SectionAggregate : AggregateBase<SectionId>
             Id,
             environmentId,
             releaseId,
+            deploymentResult,
             notes);
         PlayEvent(deployedEvt);
         return GetDeployment(environmentId, releaseId, deploymentId);
@@ -115,7 +116,8 @@ public class SectionAggregate : AggregateBase<SectionId>
     /// <param name="environmentId"></param>
     /// <param name="releaseId"></param>
     /// <param name="deploymentId"></param>
-    private void SetActiveDeploymentToRemoved(EnvironmentId environmentId, ReleaseId releaseId,
+    internal void SetActiveDeploymentToRemoved(
+        EnvironmentId environmentId, 
         DeploymentId deploymentId)
     {
         // see if any deployment for any release in the environment is
@@ -125,7 +127,7 @@ public class SectionAggregate : AggregateBase<SectionId>
             .Releases
             .SelectMany(r => r.Deployments
                 .Where(d => d.Id != deploymentId)
-                .Where(d => d.IsDeployed)
+                .Where(d => d.Status == DeploymentStatus.Deployed)
                 .Select(d => new {Release = r, Deployment = d})
             )
             .SingleOrDefault();

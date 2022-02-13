@@ -1,0 +1,37 @@
+﻿@model System.Collections.Concurrent.ConcurrentDictionary<string, System.Collections.Concurrent.ConcurrentDictionary<string, System.Text.Json.JsonDocument>>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+@* outer: 
+    key = region, value = region values.  
+    inner: key= configuration path, value = configuration value*@
+
+<h1>Configuration Store</h1>
+@foreach (var kv in Model.OrderBy(kv => kv.Key))
+{
+    <h1>Region: @kv.Key</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Path</th>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var (path, value) in kv.Value)
+        {
+            <tr>
+                <td>@path</td>
+                <td>
+                    <code>
+                        <pre>@value.RootElement</pre>
+                    </code>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

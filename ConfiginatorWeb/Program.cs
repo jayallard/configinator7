@@ -5,7 +5,6 @@ using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Schema;
-using Allard.Configinator.Deployer.Abstractions;
 using Allard.Configinator.Deployer.Memory;
 using Allard.Configinator.Infrastructure;
 using Allard.Configinator.Infrastructure.Repositories;
@@ -47,8 +46,10 @@ builder.Services
     .AddTransient<IGlobalSchemaQueries, GlobalSchemaQueriesCoreRepository>()
 
     // deployment
-    .AddTransient<IDeployerFactory, MemoryDeployerFactory>()
-    .AddTransient<IConfigurationProvider, HardCodedConfigurationProvider>();
+    // NOTE: deployer factory doesn't actually do anything in this case.
+    .AddSingleDeployer<MemoryDeployer>()
+    .AddTransient<IConfigurationProvider, HardCodedConfigurationProvider>()
+    .AddSingleton<MemoryConfigurationStore>();
 
 var app = builder.Build();
 
@@ -78,33 +79,34 @@ var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainServi
 var variableSetService = scope.ServiceProvider.GetRequiredService<VariableSetDomainService>();
 var globalSchemas = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainService>();
 
-await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", await GetSchema("__kafka-1.0.0.json"));
+var globalSchema1 = await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", await GetSchema("__kafka-1.0.0.json"));
+uow.GlobalSchemas.AddAsync(globalSchema1);
 
 
 var variableSetEntity = await variableSetService.CreateVariableSetAsync("variables1");
+uow.VariableSets.AddAsync(variableSetEntity);
 variableSetEntity.SetValue("first", "Santa");
 variableSetEntity.SetValue("last", "Claus");
 
 var variableSet2Entity = await variableSetService.CreateVariableSetAsync("variables2", "variables1");
 variableSet2Entity.SetValue("first", "SANTA!!!");
+uow.VariableSets.AddAsync(variableSet2Entity);
 
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables2a", "variables2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables3", "variables2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables4", "variables3"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables5a", "variables4"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables5b", "variables4"));
 
-await variableSetService.CreateVariableSetAsync("variables2a", "variables2");
-await variableSetService.CreateVariableSetAsync("variables3", "variables2");
-await variableSetService.CreateVariableSetAsync("variables4", "variables3");
-await variableSetService.CreateVariableSetAsync("variables5a", "variables4");
-await variableSetService.CreateVariableSetAsync("variables5b", "variables4");
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variablesAB", "variables3"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("yabba", "variablesAB"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("dabbadoo", "variablesAB"));
 
-await variableSetService.CreateVariableSetAsync("variablesAB", "variables3");
-await variableSetService.CreateVariableSetAsync("yabba", "variablesAB");
-await variableSetService.CreateVariableSetAsync("dabbadoo", "variablesAB");
-
-
-await variableSetService.CreateVariableSetAsync("root2", null);
-await variableSetService.CreateVariableSetAsync("blah1", "root2");
-await variableSetService.CreateVariableSetAsync("blah2", "root2");
-await variableSetService.CreateVariableSetAsync("c1", "blah2");
-await variableSetService.CreateVariableSetAsync("c2", "blah2");
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("root2", null));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("blah1", "root2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("blah2", "root2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("c1", "blah2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("c2", "blah2"));
 
 
 var modelValue =
@@ -112,6 +114,7 @@ var modelValue =
         "{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44, \"kafka\": { \"brokers\": \"b\", \"user\": \"u\", \"password\": \"p\" } }");
 var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
 var section1 = await sectionService.CreateSectionAsync("name1", "path1");
+await uow.Sections.AddAsync(section1);
 
 var env1 = section1.AddEnvironment(await idService.GetId<EnvironmentId>(), "dev");
 section1.AddEnvironment(await idService.GetId<EnvironmentId>(), "dev2");
@@ -121,14 +124,15 @@ var schema1 =
 await sectionService.AddSchemaToSectionAsync(section1, new SemanticVersion(2, 0, 0), await GetSchema("2.0.0.json"));
 
 var release = await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
-    Cancellationvariable.None);
-section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now, "Initial Setup - from code");
+    CancellationToken.None);
+section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now, "Initial Setup - from code");
 
 await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
-    Cancellationvariable.None);
-section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), DateTime.Now, "Initial Setup - from code");
+    CancellationToken.None);
+section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now, "Initial Setup - from code");
 
-await sectionService.CreateSectionAsync("name2", "path2");
+var section2 = await sectionService.CreateSectionAsync("name2", "path2");
+await uow.Sections.AddAsync(section2);
 await uow.SaveChangesAsync();
 
 app.Run();

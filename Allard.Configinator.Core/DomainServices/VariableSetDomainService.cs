@@ -30,7 +30,6 @@ public class VariableSetDomainService
 
         var id = await _identityService.GetId<VariableSetId>();
         var variableSet = new VariableSetAggregate(id, variableSetName, baseVariableSetName);
-        await _unitOfWork.VariableSets.AddAsync(variableSet);
         return variableSet;
     }
 

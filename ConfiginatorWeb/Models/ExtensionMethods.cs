@@ -29,7 +29,15 @@ public static class ExtensionMethods
             DeploymentDate = d.DeploymentDate,
             RemovedDate = d.RemovedDate,
             RemoveReason = d.RemoveReason,
-            Notes = d.Notes
+            Notes = d.Notes,
+            DeploymentResult = 
+                d.DeploymentResult == null 
+                ? null 
+                : new SectionDeploymentResultDto(
+                    d.DeploymentResult.IsSuccess, 
+                    d.DeploymentResult.Messages.Select(m => new DeploymentResultMessage(
+                        m.Source, m.Key, m.Severity, m.Message, m.Exception)
+                        ).ToList())
         }).ToList()
     };
 

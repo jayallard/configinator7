@@ -32,7 +32,7 @@ public static class MermaidUtility
             }
 
             // click event for each node
-            mermaid.AppendLine($"click {parent.VariableSetName} \"/Variable?variableSetName={parent.VariableSetName}\" \" \"");
+            mermaid.AppendLine($"click {parent.VariableSetName} \"/VariableSet?variableSetName={parent.VariableSetName}\" \" \"");
         }
     }
 }

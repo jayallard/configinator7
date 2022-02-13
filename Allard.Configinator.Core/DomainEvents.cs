@@ -87,6 +87,7 @@ public record ReleaseDeployedEvent(
     SectionId SectionId,
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId,
+    DeploymentResult DeploymentResult,
     string? Notes) : DomainEventBase;
 
 /// <summary>

@@ -40,7 +40,6 @@ public class SectionDomainService
 
         var id = await _identityService.GetId<SectionId>();
         var section = new SectionAggregate(id, sectionName, organizationPath, null);
-        await _unitOfWork.Sections.AddAsync(section);
         return section;
     }
 

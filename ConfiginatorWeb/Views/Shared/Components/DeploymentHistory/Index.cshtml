@@ -1,6 +1,7 @@
-﻿@model ConfiginatorWeb.Queries.SectionReleaseDto
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model ConfiginatorWeb.Views.Shared.Components.DeploymentHistory.DeploymentHistoryView
 <h2>Deployment History</h2>
-@if (Model.Deployments.Any())
+@if (Model.Release.Deployments.Any())
 {
     <table class="table">
         <thead>
@@ -12,14 +13,20 @@
             <th>Remove Reason</th>
         </tr>
         </thead>
-        @foreach (var d in Model.Deployments.OrderBy(d => d.DeploymentDate))
+        @foreach (var d in Model.Release.Deployments.OrderBy(d => d.DeploymentDate))
         {
             <tr>
-                <td>@d.DeploymentId</td>
+                <td><a 
+                        asp-controller="Release" 
+                        asp-action="DisplayDeployment"
+                        asp-route-sectionId="@Model.Section.SectionId"
+                        asp-route-environmentId="@Model.Environment.EnvironmentId" 
+                        asp-route-releaseId="@Model.Release.ReleaseId"
+                        asp-route-deploymentId="@d.DeploymentId">@d.DeploymentId</a></td>
                 <td>
                     @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
                     @Html.IsDeployedBadge(d.IsDeployed)
-                    @Html.IsOutOfDateBadge(Model.IsOutOfDate)
+                    @Html.IsOutOfDateBadge(Model.Release.IsOutOfDate)
                 </td>
                 <td>@d.Notes</td>
                 <td>@d.RemovedDate?.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>

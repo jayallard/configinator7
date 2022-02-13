@@ -71,11 +71,16 @@ internal static class SectionAggregateEventHandlers
 
     private static void AddDeployed(SectionAggregate section, ReleaseDeployedEvent evt)
     {
+        
+        // if an active deployment exists, remove it
+        section.SetActiveDeploymentToRemoved(evt.EnvironmentId, evt.DeploymentId);
+
         var release = section.GetRelease(evt.EnvironmentId, evt.ReleaseId);
         release.SetDeployed(true);
         release.InternalDeployments.Add(new DeploymentEntity(
             evt.DeploymentId,
             evt.DeploymentDate,
+            evt.DeploymentResult,
             evt.Notes));
     }
 

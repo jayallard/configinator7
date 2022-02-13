@@ -1,0 +1,40 @@
+﻿@model ConfiginatorWeb.Controllers.DisplayDeploymentView
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+
+<h1>Deployment Result</h1>
+@if (Model.Deployment.DeploymentResult == null)
+{
+    <p>None</p>
+}
+else
+{
+    <p>Success: @Model.Deployment.DeploymentResult.IsSuccess</p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Source</th>
+            <th>Key</th>
+            <th>Severity></th>
+            <th>Message</th>
+            <th>Exception</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var message in Model.Deployment.DeploymentResult.Messages)
+        {
+            <tr>
+                <td>@message.Source</td>
+                <td>@message.Key</td>
+                <td>@message.Severity</td>
+                <td>@message.Message</td>
+                <td><pre>@message.Exception?.ToString()</pre></td>
+            </tr>
+        }
+        
+    </table>
+}

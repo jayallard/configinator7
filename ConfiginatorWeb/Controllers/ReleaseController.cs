@@ -100,21 +100,22 @@ public class ReleaseController : Controller
         };
 
         var response = await _mediator.Send(request, cancellationToken);
-        return RedirectToAction("display", new
+        return RedirectToAction("DisplayDeployment", new
         {
-            sectionId = sectionId,
-            environmentId = environmentId,
-            releaseId = releaseId
+            sectionId,
+            environmentId,
+            releaseId,
+            response.DeploymentId
         });
     }
 
     public async Task<IActionResult> History(
-        long? sectionId, 
+        long? sectionId,
         long? environmentId,
         CancellationToken cancellationToken)
     {
         if (sectionId == null || environmentId == null) throw new Exception("invalid input - temp exception");
-        
+
         var section = await _sectionQueries.GetSectionAsync(sectionId.Value, cancellationToken);
         var env = section.GetEnvironment(environmentId.Value);
         var history = env
@@ -128,18 +129,39 @@ public class ReleaseController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Display(ReleaseDisplayRequest request)
+    public async Task<IActionResult> DisplayRelease(ReleaseDisplayRequest request)
     {
         // temp
         if (request.SectionId == null || request.EnvironmentId == null || request.ReleaseId == null)
             throw new Exception("invalid input - temp exception");
-        
+
         var section = await _sectionQueries.GetSectionAsync(request.SectionId!.Value);
         var env = section.GetEnvironment(request.EnvironmentId!.Value);
         var release = env.GetRelease(request.ReleaseId!.Value);
         return View(new ReleaseDisplayView(section, env, release));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> DisplayDeployment(DeploymentDisplayRequest request)
+    {
+        // temp
+        if (request.SectionId == null || request.EnvironmentId == null || request.ReleaseId == null ||
+            request.DeploymentId == null)
+            throw new Exception("invalid input - temp exception");
+        var section = await _sectionQueries.GetSectionAsync(request.SectionId.Value);
+        var env = section.GetEnvironment(request.EnvironmentId.Value);
+        var release = env.GetRelease(request.ReleaseId!.Value);
+        var deployment = release.GetDeployment(request.DeploymentId.Value);
+        var view = (object)new DisplayDeploymentView(section, env, release, deployment);
+        return View(view);
+    }
 }
+
+public record DisplayDeploymentView(
+    SectionDto Section,
+    SectionEnvironmentDto Environment,
+    SectionReleaseDto Release,
+    SectionDeploymentDto Deployment);
 
 // TODO: the annotations aren't working... 
 public class ReleaseDisplayRequest
@@ -149,10 +171,18 @@ public class ReleaseDisplayRequest
     [Required] public long? ReleaseId { get; set; }
 }
 
+public class DeploymentDisplayRequest
+{
+    [Required] public long? SectionId { get; set; }
+    [Required] public long? EnvironmentId { get; set; }
+    [Required] public long? ReleaseId { get; set; }
+    [Required] public long? DeploymentId { get; set; }
+}
+
 public record ReleaseDisplayView(
     SectionDto Section,
-    SectionEnvironmentDto SelectedEnvironment,
-    SectionReleaseDto SelectedRelease);
+    SectionEnvironmentDto Environment,
+    SectionReleaseDto Release);
 
 public record ReleaseHistoryView(
     SectionDto SelectedSection,

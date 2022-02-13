@@ -30,7 +30,6 @@ public class GlobalSchemaDomainService
 
         var id = await _identityService.GetId<GlobalSchemaId>();
         var schemaAggregate = new GlobalSchemaAggregate(id, name, description, schema);
-        await _unitOfWork.GlobalSchemas.AddAsync(schemaAggregate);
         return schemaAggregate;
     }
 }

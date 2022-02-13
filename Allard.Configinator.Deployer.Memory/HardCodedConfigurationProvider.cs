@@ -10,6 +10,7 @@ public class HardCodedConfigurationProvider : IConfigurationProvider
         {
             return Task.FromResult(new MemoryDeploymentConfiguration
             {
+                Path = "/a/b/c",
                 RegionName = "jay-east-1",
                 UserName = "e1-username",
                 Password = "e1-password"
@@ -20,6 +21,7 @@ public class HardCodedConfigurationProvider : IConfigurationProvider
         {
             return Task.FromResult(new MemoryDeploymentConfiguration
             {
+                Path = "/x/y/z",
                 RegionName = "jay-west-4",
                 UserName = "w4-username",
                 Password = "24-password"

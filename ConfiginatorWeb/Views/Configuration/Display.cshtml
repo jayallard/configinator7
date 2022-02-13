@@ -64,11 +64,16 @@ $(document).ready(function() {
                         {
                             <tr>
                                 <td>
-                                    <a asp-controller="Release" asp-action="Display" asp-route-sectionId="@Model.SectionId" asp-route-environmentId="@e.EnvironmentId" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a>
+                                    <a asp-controller="Release" asp-action="DisplayRelease" asp-route-sectionId="@Model.SectionId" asp-route-environmentId="@e.EnvironmentId" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a>
                                 </td>
                                 <td>@r.Schema.Version.ToFullString()</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
-                                <td>@r.VariableSet?.VariableSetName</td>
+                                <td>
+                                    @if (r.VariableSet != null)
+                                    {
+                                        <a asp-controller="VariableSet" asp-action="Index" asp-route-variableSetName="@r.VariableSet.VariableSetName">@r.VariableSet.VariableSetName</a>
+                                    }
+                                </td>
                                 <td>
                                     <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
                                        asp-route-environmentid="@e.EnvironmentId"

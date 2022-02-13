@@ -38,7 +38,7 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
         return _localData.Where(specification.IsSatisfied).ToList();
     }
 
-    public Task AddAsync(TAggregate entity)
+    public Task AddAsync(TAggregate entity, CancellationToken cancellationToken = default)
     {
         // todo: exception if already exists
         _localData.Add(entity);

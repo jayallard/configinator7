@@ -9,7 +9,7 @@ namespace ConfiginatorWeb.Queries;
 public class SectionDto
 {
     public string SectionName { get; set; }
-    
+
     public long SectionId { get; set; }
 
     public string OrganizationPath { get; set; }
@@ -37,7 +37,7 @@ public class SectionSchemaDto
 public class SectionEnvironmentDto
 {
     public string EnvironmentName { get; set; }
-    
+
     public long EnvironmentId { get; set; }
 
     public List<SectionReleaseDto> Releases { get; set; }
@@ -58,12 +58,15 @@ public class SectionReleaseDto
     public bool IsOutOfDate { get; set; }
 
     public VariableSetComposedDto? VariableSet { get; set; }
-    
+
     public JsonDocument ModelValue { get; set; }
-    
+
     public JsonDocument ResolvedValue { get; set; }
-    
+
     public List<SectionDeploymentDto> Deployments { get; set; }
+
+    public SectionDeploymentDto GetDeployment(long deploymentId) =>
+        Deployments.Single(d => d.DeploymentId == deploymentId);
 }
 
 public class SectionDeploymentDto
@@ -72,7 +75,20 @@ public class SectionDeploymentDto
     public DateTime DeploymentDate { get; set; }
     public DateTime? RemovedDate { get; set; }
     public string? RemoveReason { get; set; }
-    
     public string? Notes { get; set; }
     public bool IsDeployed => RemovedDate is null;
+    
+    public SectionDeploymentResultDto? DeploymentResult { get; set; }
 }
+
+public record SectionDeploymentResultDto(
+    bool IsSuccess,
+    List<DeploymentResultMessage> Messages);
+
+public record SectionDeploymentResultMessageDto(
+    string Source,
+    string Key,
+    LogLevel Severity,
+    string Message,
+    Exception? ex = null);
+    
