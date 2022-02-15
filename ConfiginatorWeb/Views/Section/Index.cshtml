@@ -12,12 +12,11 @@
     {
         <tr>
             <td>
-                <a asp-action="Display" asp-route-sectionId="@i.SectionId">@i.Name</a>
+                @Html.SectionLink(i.Name, i.SectionId)
                 @* @if (i.DeployedIsOutOfDate) *@
                 @* { *@
                 @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
                 @* } *@
-
             </td>
             <td>@i.OrganizationPath</td>
         </tr>

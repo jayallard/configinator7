@@ -4,6 +4,7 @@ using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using NuGet.Versioning;
 
 namespace ConfiginatorWeb.Controllers;
 
@@ -43,6 +44,13 @@ public class SectionController : Controller
         return View(section);
     }
 
+    public async Task<IActionResult> SchemaView(long sectionId, SemanticVersion version)
+    {
+        var section = await _sectionQueries.GetSectionAsync(sectionId);
+        var schema = section.GetSchema(version);
+        return View(new SchemaView(section, schema));
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(
         string name,
@@ -71,6 +79,7 @@ public class SectionController : Controller
             ModelState.AddModelError("error", ex.Message);
             return View();
         }
-
     }
 }
+
+public record SchemaView(SectionDto Section, SectionSchemaDto Schema);

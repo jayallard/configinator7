@@ -64,20 +64,20 @@ $(document).ready(function() {
                         {
                             <tr>
                                 <td>
-                                    <a asp-controller="Release" asp-action="DisplayRelease" asp-route-sectionId="@Model.SectionId" asp-route-environmentId="@e.EnvironmentId" asp-route-releaseId="@r.ReleaseId">@r.ReleaseId</a>
+                                    @Html.ReleaseLink(Model.SectionId, e.EnvironmentId, r.ReleaseId)
                                 </td>
                                 <td>@r.Schema.Version.ToFullString()</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                                 <td>
                                     @if (r.VariableSet != null)
                                     {
-                                        <a asp-controller="VariableSet" asp-action="Index" asp-route-variableSetName="@r.VariableSet.VariableSetName">@r.VariableSet.VariableSetName</a>
+                                        @Html.VariableSetLink(r.VariableSet.VariableSetName)
                                     }
                                 </td>
                                 <td>
                                     <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
                                        asp-route-environmentid="@e.EnvironmentId"
-                                       asp-route-releaseid="@r.ReleaseId">@(r.IsDeployed ? "Re-Deploy": "Deploy")</a>
+                                       asp-route-releaseid="@r.ReleaseId">@(r.IsDeployed ? "Re-Deploy" : "Deploy")</a>
                                     <span>&nbsp;</span>@Html.IsDeployedBadge(r.IsDeployed)
                                     @Html.IsOutOfDateBadge(r.IsOutOfDate)
                                 </td>
@@ -102,7 +102,7 @@ $(document).ready(function() {
     @foreach (var s in Model.Schemas)
     {
         <tr>
-            <td>@s.Version</td>
+            <td>@Html.SectionSchemaLink(Model.SectionId,  s.Version)</td>
         </tr>
     }
 </table>

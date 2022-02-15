@@ -9,7 +9,7 @@
 <div class="container">
     <div class="row">
         <div class="col-2">Section Name</div>
-        <div class="col-2">@Model.Section.SectionName</div>
+        <div class="col-2">@Html.SectionLink(@Model.Section.SectionName, Model.Section.SectionId)</div>
     </div>
     <div class="row">
         <div class="col-2">Environment Name</div>

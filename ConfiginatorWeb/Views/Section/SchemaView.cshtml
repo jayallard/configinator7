@@ -1,0 +1,8 @@
+﻿@model ConfiginatorWeb.Controllers.SchemaView
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+@await Component.InvokeAsync("Schema", Model.Schema)
