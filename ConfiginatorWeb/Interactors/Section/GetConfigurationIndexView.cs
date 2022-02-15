@@ -1,7 +1,7 @@
 ﻿using ConfiginatorWeb.Queries;
 using MediatR;
 
-namespace ConfiginatorWeb.Interactors.Configuration;
+namespace ConfiginatorWeb.Interactors.Section;
 
 public class ConfigurationIndexRequestHandler : IRequestHandler<ConfigurationIndexRequest, ConfigurationIndexResponse>
 {

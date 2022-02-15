@@ -30,7 +30,8 @@ builder.Services
     .AddTransient<SectionDomainService>()
     .AddTransient<VariableSetDomainService>()
     .AddTransient<GlobalSchemaDomainService>()
-
+    .AddSingleton<EnvironmentValidationService>()
+    
     // event handlers - HACK
     .AddScoped<IEventHandler<VariableValueSetEvent>, UpdateReleasesWhenVariableValueChanges>()
 
@@ -50,6 +51,11 @@ builder.Services
     .AddSingleDeployer<MemoryDeployer>()
     .AddTransient<IConfigurationProvider, HardCodedConfigurationProvider>()
     .AddSingleton<MemoryConfigurationStore>();
+
+// hack
+var environmentRules = new EnvironmentRules();
+builder.Configuration.Bind("environmentRules", environmentRules);
+builder.Services.AddSingleton(environmentRules);
 
 var app = builder.Build();
 
@@ -80,17 +86,17 @@ var variableSetService = scope.ServiceProvider.GetRequiredService<VariableSetDom
 var globalSchemas = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainService>();
 
 var globalSchema1 = await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", await GetSchema("__kafka-1.0.0.json"));
-uow.GlobalSchemas.AddAsync(globalSchema1);
+await uow.GlobalSchemas.AddAsync(globalSchema1);
 
 
 var variableSetEntity = await variableSetService.CreateVariableSetAsync("variables1");
-uow.VariableSets.AddAsync(variableSetEntity);
+await uow.VariableSets.AddAsync(variableSetEntity);
 variableSetEntity.SetValue("first", "Santa");
 variableSetEntity.SetValue("last", "Claus");
 
 var variableSet2Entity = await variableSetService.CreateVariableSetAsync("variables2", "variables1");
 variableSet2Entity.SetValue("first", "SANTA!!!");
-uow.VariableSets.AddAsync(variableSet2Entity);
+await uow.VariableSets.AddAsync(variableSet2Entity);
 
 await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables2a", "variables2"));
 await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables3", "variables2"));
@@ -116,8 +122,8 @@ var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
 var section1 = await sectionService.CreateSectionAsync("name1", "path1");
 await uow.Sections.AddAsync(section1);
 
-var env1 = section1.AddEnvironment(await idService.GetId<EnvironmentId>(), "dev");
-section1.AddEnvironment(await idService.GetId<EnvironmentId>(), "dev2");
+var env1 = await sectionService.AddEnvironmentToSectionAsync(section1, "development");
+await sectionService.AddEnvironmentToSectionAsync(section1, "development-jay");
 var schema1 =
     await sectionService.AddSchemaToSectionAsync(section1, new SemanticVersion(1, 0, 0), await GetSchema("1.0.0.json"));
 

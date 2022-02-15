@@ -1,5 +1,5 @@
 ﻿using ConfiginatorWeb.Interactors;
-using ConfiginatorWeb.Interactors.Configuration;
+using ConfiginatorWeb.Interactors.Section;
 
 namespace ConfiginatorWeb.Queries;
 

@@ -51,14 +51,7 @@ public class SectionAggregate : AggregateBase<SectionId>
 
     public SectionSchemaEntity GetSchema(SemanticVersion version) =>
         InternalSchemas.Single(s => s.Version == version);
-
-    public EnvironmentEntity AddEnvironment(EnvironmentId environmentId, string name)
-    {
-        InternalEnvironments.EnsureEnvironmentDoesntExist(environmentId, name);
-        PlayEvent(new EnvironmentCreatedEvent(environmentId, Id, name));
-        return GetEnvironment(name);
-    }
-
+    
     public ReleaseEntity GetRelease(EnvironmentId environmentId, ReleaseId releaseId) =>
         GetEnvironment(environmentId).InternalReleases.GetRelease(releaseId);
     

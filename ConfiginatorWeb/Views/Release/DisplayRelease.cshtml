@@ -6,7 +6,7 @@
     Layout = "_Layout";
 }
 
-<p>Section: <a asp-controller="Configuration" asp-action="Display" asp-route-name="@Model.Section.SectionName">@Model.Section.SectionName</a></p>
+<p>Section: <a asp-controller="Section" asp-action="Display" asp-route-name="@Model.Section.SectionName">@Model.Section.SectionName</a></p>
 <p>Environment: @Model.Environment.EnvironmentName</p>
 <p>Release Id: @Model.Release.ReleaseId</p>
 

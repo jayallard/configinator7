@@ -3,7 +3,7 @@ using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
 using ConfiginatorWeb.Controllers;
 using ConfiginatorWeb.Interactors;
-using ConfiginatorWeb.Interactors.Configuration;
+using ConfiginatorWeb.Interactors.Section;
 
 namespace ConfiginatorWeb.Queries;
 

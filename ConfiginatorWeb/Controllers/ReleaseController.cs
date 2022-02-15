@@ -37,13 +37,16 @@ public class ReleaseController : Controller
 
     // GET
     public async Task<IActionResult> Add(
-        long sectionId,
-        long environmentId,
+        long? sectionId,
+        long? environmentId,
         CancellationToken cancellationToken)
     {
-        var section = await _sectionQueries.GetSectionAsync(sectionId, cancellationToken);
+        // temp
+        if (sectionId == null || environmentId == null) throw new Exception("bad input");
+        
+        var section = await _sectionQueries.GetSectionAsync(sectionId.Value, cancellationToken);
         if (section == null) throw new InvalidOperationException("Section doesn't exist: " + sectionId);
-        var environment = section.GetEnvironment(environmentId);
+        var environment = section.GetEnvironment(environmentId.Value);
 
         // set the value to the last of the most recent release.
         var value = environment.Releases.LastOrDefault()?.ModelValue.RootElement.ToString();

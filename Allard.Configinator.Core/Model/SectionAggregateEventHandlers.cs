@@ -40,7 +40,7 @@ internal static class SectionAggregateEventHandlers
     private static void CreateSection(SectionAggregate section, SectionCreatedEvent evt)
     {
         section.OrganizationPath = evt.Path;
-        
+
         // todo: id stuff is hacky
         section.Id = evt.SectionId;
         section.SectionName = evt.SectionName;
@@ -50,8 +50,13 @@ internal static class SectionAggregateEventHandlers
         }
     }
 
-    private static void AddEnvironment(SectionAggregate section, EnvironmentCreatedEvent evt) =>
-        section.InternalEnvironments.Add(new EnvironmentEntity(evt.EnvironmentId, evt.EnvironmentName));
+    private static void AddEnvironment(
+        SectionAggregate section,
+        EnvironmentCreatedEvent evt) =>
+        section.InternalEnvironments.Add(new EnvironmentEntity(
+            evt.EnvironmentId,
+            evt.EnvironmentType,
+            evt.EnvironmentName));
 
     private static void AddSchema(SectionAggregate section, SchemaAddedToSectionEvent evt) =>
         section.InternalSchemas.Add(new SectionSchemaEntity(evt.SectionSchemaId, evt.SchemaVersion, evt.Schema));
@@ -71,7 +76,6 @@ internal static class SectionAggregateEventHandlers
 
     private static void AddDeployed(SectionAggregate section, ReleaseDeployedEvent evt)
     {
-        
         // if an active deployment exists, remove it
         section.SetActiveDeploymentToRemoved(evt.EnvironmentId, evt.DeploymentId);
 
@@ -94,7 +98,7 @@ internal static class SectionAggregateEventHandlers
 
     private static void OutOfDate(SectionAggregate section, ReleaseValueBecameOld evt) =>
         section.GetRelease(evt.EnvironmentId, evt.ReleaseId).SetOutOfDate(true);
-    
+
     private static void CurrentValue(SectionAggregate section, ReleaseValueBecameCurrent evt) =>
         section.GetRelease(evt.EnvironmentId, evt.ReleaseId).SetOutOfDate(false);
 }

@@ -12,8 +12,8 @@ public static class ExtensionMethods
         variables
             .VariablesResolved
             .ToDictionary(
-                t => t.Key, 
-                t => t.Value.Value, 
+                t => t.Key,
+                t => t.Value.Value,
                 StringComparer.OrdinalIgnoreCase);
 
     private static void EnsureDoesntExist<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,
@@ -51,14 +51,11 @@ public static class ExtensionMethods
             throw new InvalidOperationException("Schema already exists. Version=" + version.ToFullString());
     }
 
-    public static void EnsureEnvironmentDoesntExist(this IEnumerable<EnvironmentEntity> environments, EnvironmentId id,
-        string? name = null)
+    public static void EnsureEnvironmentDoesntExist(this IEnumerable<EnvironmentEntity> environments,
+        string environmentName)
     {
-        var environmentEntities = environments as EnvironmentEntity[] ?? environments.ToArray();
-        environmentEntities.EnsureDoesntExist(id, "Environment");
-        if (name != null &&
-            environmentEntities.Any(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase)))
-            throw new InvalidOperationException("Environment already exists. Name=" + name);
+        if (environments.Any(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException("Environment already exists. Name=" + environmentName);
     }
 
     public static void EnsureEnvironmentExists(this IEnumerable<EnvironmentEntity> environments, EnvironmentId id) =>

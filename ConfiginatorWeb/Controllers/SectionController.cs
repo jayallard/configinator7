@@ -1,6 +1,5 @@
 ﻿using Allard.Configinator.Core;
-using ConfiginatorWeb.Interactors;
-using ConfiginatorWeb.Interactors.Configuration;
+using ConfiginatorWeb.Interactors.Section;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace ConfiginatorWeb.Controllers;
 
-public class ConfigurationController : Controller
+public class SectionController : Controller
 {
     // TODO: move to query handlers
     private readonly ISectionQueries _sectionQueries;
@@ -16,9 +15,10 @@ public class ConfigurationController : Controller
     private readonly IGlobalSchemaQueries _globalSchemaQueries;
     private readonly IMediator _mediator;
 
-    public ConfigurationController(ISectionQueries projections, IVariableSetQueries variableSetQueries, IGlobalSchemaQueries globalSchemaQueries, IMediator mediator)
+    public SectionController(ISectionQueries projections, IVariableSetQueries variableSetQueries,
+        IGlobalSchemaQueries globalSchemaQueries, IMediator mediator)
     {
-        _mediator = mediator;
+        _mediator = Guards.NotDefault(mediator, nameof(mediator));
         _globalSchemaQueries = Guards.NotDefault(globalSchemaQueries, nameof(globalSchemaQueries));
         _sectionQueries = Guards.NotDefault(projections, nameof(projections));
         _variableSetQueries = Guards.NotDefault(variableSetQueries, nameof(variableSetQueries));
@@ -31,9 +31,10 @@ public class ConfigurationController : Controller
         return View(view);
     }
 
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        return View();
+        var view = await _mediator.Send(new GetAddSectionViewModel());
+        return View(view);
     }
 
     public async Task<IActionResult> Display(long sectionId)
@@ -43,12 +44,22 @@ public class ConfigurationController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateSectionAppRequest request)
+    public async Task<IActionResult> Create(
+        string name,
+        string path,
+        List<string> selectedEnvironments)
     {
         if (!ModelState.IsValid) return View();
         try
         {
-            await _mediator.Send(request);
+            var request = new CreateSectionAppRequest
+            {
+                Name = name,
+                OrganizationPath = path,
+                EnvironmentNames = selectedEnvironments
+            };
+            var result = await _mediator.Send(request);
+            return RedirectToAction("Display", new {SectionId = result.SectionId});
         }
         catch (JsonReaderException ex)
         {
@@ -60,8 +71,6 @@ public class ConfigurationController : Controller
             ModelState.AddModelError("error", ex.Message);
             return View();
         }
-    
-        return RedirectToAction("Index");
+
     }
 }
-

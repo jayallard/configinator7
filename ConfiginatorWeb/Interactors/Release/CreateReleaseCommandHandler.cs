@@ -9,15 +9,18 @@ namespace ConfiginatorWeb.Interactors.Release;
 
 public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest, CreateReleaseResponse>
 {
+    private readonly ILogger<CreateReleaseCommandHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly SectionDomainService _sectionDomainService;
 
     public CreateReleaseCommandHandler(
         IUnitOfWork unitOfWork, 
-        SectionDomainService sectionDomainService)
+        SectionDomainService sectionDomainService, 
+        ILogger<CreateReleaseCommandHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _sectionDomainService = sectionDomainService;
+        _logger = logger;
     }
 
     public async Task<CreateReleaseResponse> Handle(CreateReleaseRequest request, CancellationToken cancellationToken)
@@ -39,11 +42,13 @@ public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest,
         }
         catch (SchemaValidationFailedException vex)
         {
+            _logger.LogError(vex, "Schema Validation Failed");
             var errors = vex.Errors.Select(v => v.ToString()).ToList();
             return new CreateReleaseResponse(false, errors);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Boom");
             return new CreateReleaseResponse(false, new List<string> {ex.Message});
         }
     }

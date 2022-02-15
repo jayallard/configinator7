@@ -15,7 +15,7 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        return RedirectToAction("Index", "Configuration");
+        return RedirectToAction("Index", "Section");
     }
 
     public IActionResult Privacy()

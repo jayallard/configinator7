@@ -35,7 +35,7 @@ public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployRes
             DeploymentEnvironment = new DeploymentEnvironment(env.Id.Id, env.EnvironmentName),
             Release = new Allard.Configinator.Deployer.Abstractions.Release(release.Id.Id),
             Schema = new Schema(release.SectionSchema.Schema),
-            Section = new Section(section.Id.Id, section.SectionName),
+            Section = new Allard.Configinator.Deployer.Abstractions.Section(section.Id.Id, section.SectionName),
             ResolvedValue = release.ResolvedValue
         };
 

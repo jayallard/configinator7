@@ -37,8 +37,7 @@ $(document).ready(function() {
         $.post('/Release/Create', requestDto)
         .done(function(data) {
             if (data.success) {
-                //alert('good');
-                document.location.replace("/Configuration/Display?name=@Model.SectionName")
+                document.location.replace("/Section/Display?name=@Model.SectionName")
                 return;
             }
             

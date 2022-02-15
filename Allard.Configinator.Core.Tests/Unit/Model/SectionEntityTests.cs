@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text.Json;
 using Allard.Configinator.Core.Model;
 using FluentAssertions;
-using NJsonSchema;
 using NuGet.Versioning;
 using Xunit;
 
@@ -31,7 +30,7 @@ public class SectionEntityTests
         var section = new SectionAggregate(new SectionId(0), "name", "path");
 
         // act
-        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0),JsonDocument.Parse("{}"));
+        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"));
 
         // assert
         section.Schemas.Count().Should().Be(1);
@@ -42,12 +41,15 @@ public class SectionEntityTests
     {
         // arrange
         var section = new SectionAggregate(NewSectionId(0), "name", "path");
-        var schema1 = new SectionSchemaEntity(new SectionSchemaId(0), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"));
-        var schema2 = new SectionSchemaEntity(new SectionSchemaId(1), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"));
+        var schema1 = new SectionSchemaEntity(new SectionSchemaId(0), new SemanticVersion(1, 0, 0),
+            JsonDocument.Parse("{}"));
+        var schema2 = new SectionSchemaEntity(new SectionSchemaId(1), new SemanticVersion(1, 0, 0),
+            JsonDocument.Parse("{}"));
 
         // act
-        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0),JsonDocument.Parse("{}"));
-        var test = () => section.AddSchema(new SectionSchemaId(1), new SemanticVersion(1, 0, 0),JsonDocument.Parse("{}"));
+        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"));
+        var test = () =>
+            section.AddSchema(new SectionSchemaId(1), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"));
 
         // assert
         test
@@ -64,7 +66,8 @@ public class SectionEntityTests
 
         // act
         section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"));
-        var test = () => section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 1, 0), JsonDocument.Parse("{}"));
+        var test = () =>
+            section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 1, 0), JsonDocument.Parse("{}"));
 
         // assert
         test
@@ -72,7 +75,7 @@ public class SectionEntityTests
             .ThrowExactly<InvalidOperationException>()
             .WithMessage("Schema already exists. Id=0");
     }
-    
+
     [Fact]
     public void AddEnvironment()
     {
@@ -80,7 +83,7 @@ public class SectionEntityTests
         var section = new SectionAggregate(new SectionId(0), "name", "path");
 
         // act
-        section.AddEnvironment(new EnvironmentId(25), "dev");
+        section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));
 
         // assert
         section.Environments.Single().Id.Id.Should().Be(25);
@@ -94,8 +97,8 @@ public class SectionEntityTests
         var section = new SectionAggregate(new SectionId(0), "name", "path");
 
         // act
-        section.AddEnvironment(new EnvironmentId(25), "dev");
-        var test = () => section.AddEnvironment(new EnvironmentId(26), "dev");
+        var test = () =>
+            section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));
 
         // assert
         test
@@ -111,8 +114,9 @@ public class SectionEntityTests
         var section = new SectionAggregate(new SectionId(0), "name", "path");
 
         // act
-        section.AddEnvironment(new EnvironmentId(25), "dev");
-        var test = () => section.AddEnvironment(new EnvironmentId(25), "dev2");
+        section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));
+        var test = () =>
+            section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev2"));
 
         // assert
         test

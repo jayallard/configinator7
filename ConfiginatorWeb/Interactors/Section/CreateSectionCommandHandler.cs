@@ -4,7 +4,7 @@ using Allard.Configinator.Core.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ConfiginatorWeb.Interactors.Configuration;
+namespace ConfiginatorWeb.Interactors.Section;
 
 public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, CreateSectionAppResponse>
 {
@@ -21,8 +21,11 @@ public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, 
     public async Task<CreateSectionAppResponse> Handle(CreateSectionAppRequest request, CancellationToken cancellationToken)
     {
         var section = await _service.CreateSectionAsync(request.Name, request.OrganizationPath);
+        foreach (var env in request.EnvironmentNames)
+        {
+            await _service.AddEnvironmentToSectionAsync(section, env);  
+        }
         
-        // todo: this is awkward.
         await _uow.Sections.AddAsync(section, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
         return new CreateSectionAppResponse(section.EntityId);    }
@@ -35,9 +38,11 @@ public class CreateSectionAppRequest : IRequest<CreateSectionAppResponse>
     [Required]
     public string OrganizationPath { get; set; }
     
+    public List<string> EnvironmentNames { get; set; }
+    
     [HiddenInput]
     [DataType(DataType.Text)]
     public string? ErrorMessage { get; set; }
 }
 
-public record CreateSectionAppResponse(long sectionId);
+public record CreateSectionAppResponse(long SectionId);

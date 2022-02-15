@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model ConfiginatorWeb.Interactors.Section.AddSectionViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Create a Configuration Section</h2>
+
+<form asp-action="Create">
+    @Html.AntiForgeryToken()
+
+    <div class="container">
+        <div class="row">
+            <div class="col-1">
+                <label for="name">Name</label>
+            </div>
+            <div class="col"-1>
+                <input name="Name" class="form-text" id="name"></input>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+                <label for="path">Path</label>
+            </div>
+            <div class="col-1">
+                <input name="Path" class="form-text" id="path"></input>
+            </div>
+        </div>
+        <br/>
+        <h2>Choose Environments</h2>
+        @foreach (var e in Model.Environments)
+        {
+            <div class="row">
+                <div class="col-3">
+                    <input type="checkbox" name="selectedEnvironments" value="@e.EnvironmentName"/>&nbsp;@e.EnvironmentName
+                </div>
+            </div>
+        }
+        @Html.ValidationSummary()
+        <input type="submit" value="Create" class="btn btn-primary"/>
+    </div>
+</form>

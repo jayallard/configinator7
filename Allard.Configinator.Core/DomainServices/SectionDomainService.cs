@@ -15,14 +15,20 @@ public class SectionDomainService
     private readonly IUnitOfWork _unitOfWork;
     private readonly VariableSetDomainService _variableSetDomainService;
     private readonly SchemaLoader _schemaLoader;
+    private readonly EnvironmentValidationService _environmentValidationService;
 
-    public SectionDomainService(IIdentityService identityService, IUnitOfWork unitOfWork,
-        VariableSetDomainService variableSetDomainService, SchemaLoader schemaLoader)
+    public SectionDomainService(
+        IIdentityService identityService, 
+        IUnitOfWork unitOfWork,
+        VariableSetDomainService variableSetDomainService, 
+        SchemaLoader schemaLoader, 
+        EnvironmentValidationService environmentValidationService)
     {
         _identityService = identityService;
         _unitOfWork = unitOfWork;
         _variableSetDomainService = variableSetDomainService;
         _schemaLoader = schemaLoader;
+        _environmentValidationService = environmentValidationService;
     }
 
     public async Task<SectionAggregate> CreateSectionAsync(string sectionName, string organizationPath)
@@ -55,6 +61,22 @@ public class SectionDomainService
 
         var id = await _identityService.GetId<SectionSchemaId>();
         return section.AddSchema(id, version, schema);
+    }
+
+    public async Task<EnvironmentEntity> AddEnvironmentToSectionAsync(
+        SectionAggregate section,
+        string environmentName)
+    {
+        if (!_environmentValidationService.IsValidEnvironmentName(environmentName))
+        {
+            throw new InvalidOperationException("Invalid environment name: " + environmentName);
+        }
+
+        var environmentType = _environmentValidationService.GetEnvironmentType(environmentName);
+        var id = await _identityService.GetId<EnvironmentId>();
+        section.InternalEnvironments.EnsureEnvironmentDoesntExist(environmentName);
+        section.PlayEvent(new EnvironmentCreatedEvent(id, section.Id, environmentType, environmentName));
+        return section.GetEnvironment(environmentName);
     }
 
     public async Task<ReleaseEntity> CreateReleaseAsync(

@@ -28,6 +28,7 @@ public record SectionCreatedEvent(
 public record EnvironmentCreatedEvent(
     EnvironmentId EnvironmentId,
     SectionId SectionId,
+    string EnvironmentType,
     string EnvironmentName) : DomainEventBase;
 
 /// <summary>
