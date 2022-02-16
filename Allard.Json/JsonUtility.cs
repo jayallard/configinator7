@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Allard.Json;
 
@@ -16,7 +17,7 @@ public static class JsonUtility
             .Select(GetTokenNameAndPath)
             .Where(v => v != null)
             .Select(v => v!.Value);
-    
+
     /// <summary>
     /// Return the name and path of the variable within the value.
     /// If the value isn't a variable, it returns null
@@ -41,6 +42,7 @@ public static class JsonUtility
     private static bool IsToken(string? value) => value != null &&
                                                   value.StartsWith("$$", StringComparison.OrdinalIgnoreCase)
                                                   && value.EndsWith("$$", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>
     /// Returns all of the variables used by a Json object.
     /// Variables are string values of the format $$token-name$$.
@@ -65,7 +67,8 @@ public static class JsonUtility
         var references = GetReferencedVariables(variableElements);
 
         // get the variables referenced by the value, and all the variables referenced by those variables.
-        return AddSelfAndReferencedVariables(GetVariableNames(value), new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+        return AddSelfAndReferencedVariables(GetVariableNames(value),
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
         // adds the variable name to the hash set.
         // also, adds all of the variables that it references.
@@ -95,7 +98,8 @@ public static class JsonUtility
     /// </summary>
     /// <param name="variableElements">Key = variable name, value = variable value.</param>
     /// <returns>Key = the name of the variable, Value = the variable the value references.</returns>
-    private static IDictionary<string, ISet<string>?> GetReferencedVariables(IDictionary<string, JToken> variableElements)
+    private static IDictionary<string, ISet<string>?> GetReferencedVariables(
+        IDictionary<string, JToken> variableElements)
     {
         var references = new Dictionary<string, ISet<string>?>(StringComparer.OrdinalIgnoreCase);
         foreach (var (key, jsonNode) in variableElements)
@@ -129,6 +133,9 @@ public static class JsonUtility
 
         return references;
     }
+
+    public static string ToIndented(this JsonElement json) =>
+        JsonSerializer.Serialize(json, new JsonSerializerOptions {WriteIndented = true});
 
     public static Task<JObject> ResolveAsync(
         JObject model,

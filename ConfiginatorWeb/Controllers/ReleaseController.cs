@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Allard.Json;
 using ConfiginatorWeb.Interactors;
 using ConfiginatorWeb.Interactors.Release;
 using ConfiginatorWeb.Models.Release;
@@ -49,7 +50,7 @@ public class ReleaseController : Controller
         var environment = section.GetEnvironment(environmentId.Value);
 
         // set the value to the last of the most recent release.
-        var value = environment.Releases.LastOrDefault()?.ModelValue.RootElement.ToString();
+        var value = environment.Releases.LastOrDefault()?.ModelValue.RootElement.ToIndented();
         var variableSetName = environment.Releases.LastOrDefault()?.VariableSet?.VariableSetName;
         var variableSets = (await _variableSetQueries.GetVariableSetListAsync(cancellationToken))
             .Select(s => s.VariableSetName)

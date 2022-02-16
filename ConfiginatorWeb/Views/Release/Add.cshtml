@@ -52,44 +52,46 @@ $(document).ready(function() {
 <h3>Configuration Section: @Model.SectionName</h3>
 <h3>Environment: @Model.EnvironmentName</h3>
 
-Schema Version: @Html.DropDownListFor(
-                    m => m.Schemas,
-                    new SelectList(Model.Schemas, dataValueField: "Id", dataTextField: "Version"), new {id = "ddSchema"})
-<br/>
-Variable Set:
-<select id="variableSet">
-    <!-- I couldn't get Html.DropDownListFor to work for this -->
-    <option></option>
-    @foreach (var ts in Model.VariableSetNames)
+<form>
+    Schema Version: @Html.DropDownListFor(
+                        m => m.Schemas,
+                        new SelectList(Model.Schemas, dataValueField: "Id", dataTextField: "Version"), new {id = "ddSchema"})
+    <br/>
+    Variable Set:
+    <select id="variableSet">
+        <!-- I couldn't get Html.DropDownListFor to work for this -->
+        <option></option>
+        @foreach (var ts in Model.VariableSetNames)
+        {
+            @if (string.Equals(Model.DefaultVariableSetName, ts, StringComparison.OrdinalIgnoreCase))
+            {
+                <option selected="selected" value="@ts">@ts</option>
+            }
+            else
+            {
+                <option>@ts</option>
+            }
+        }
+    </select>
+    <table style="width: 100%;">
+        <thead>
+        <tr>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tr>
+            <td style="vertical-align: top; width: 50%;">
+                <textarea style="width:100%; height: 200px" id="value">@Model.DefaultValue</textarea>
+            </td>
+        </tr>
+    </table>
+    @if (Model.DefaultValue != null)
     {
-        @if (string.Equals(Model.DefaultVariableSetName, ts, StringComparison.OrdinalIgnoreCase))
-        {
-            <option selected="selected" value="@ts">@ts</option>
-        }
-        else
-        {
-            <option>@ts</option>
-        }
+        <div>The value has been copied from the latest release. Edit or replace it with the new value.</div>
     }
-</select>
-<table style="width: 100%;">
-    <thead>
-    <tr>
-        <th>Value</th>
-    </tr>
-    </thead>
-    <tr>
-        <td style="vertical-align: top; width: 50%;">
-            <textarea style="width:100%; height: 200px" id="value">@Model.DefaultValue</textarea>
-        </td>
-    </tr>
-</table>
-@if (Model.DefaultValue != null)
-{
-    <div>The value has been copied from the latest release. Edit or replace it with the new value.</div>
-}
-<input type="button" class="btn btn-primary" value="Create Release" id="save"/>
-
+    <button type="button" class="btn btn-primary" id="save">Create Release</button>
+    <button type="reset" class="btn btn-secondary">Reset</button>
+</form>
 <h2>Preview</h2>
 <p>Coming Soon!</p>
 
