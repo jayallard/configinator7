@@ -20,7 +20,7 @@ public class SchemaViewComponent : ViewComponent
     public async Task<IViewComponentResult> InvokeAsync(SectionSchemaDto schema)
     {
         var promoteTo =
-            _environmentValidationService.GetNextSchemaEnvironmentType(schema.EnvironmentTypes, schema.Version);
+            _environmentValidationService.GetNextSchemaEnvironmentType(schema.EnvironmentTypes);
         var resolved = await _loader.ResolveSchemaAsync(schema.Schema);
         var dto = resolved.ToOutputDto();
         var view = (IViewComponentResult) View("Index", new SchemaIndexView(dto, schema, promoteTo));

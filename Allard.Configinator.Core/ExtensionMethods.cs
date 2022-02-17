@@ -16,7 +16,7 @@ public static class ExtensionMethods
                 t => t.Value.Value,
                 StringComparer.OrdinalIgnoreCase);
 
-    private static void EnsureDoesntExist<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,
+    private static void EnsureIdDoesntExist<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,
         string parameterName)
         where TIdentity : IIdentity
     {
@@ -24,7 +24,7 @@ public static class ExtensionMethods
         throw new InvalidOperationException($"{parameterName} already exists. Id={id.Id}");
     }
 
-    private static void EnsureExists<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,
+    private static void EnsureIdExists<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,
         string parameterName)
         where TIdentity : IIdentity
     {
@@ -33,22 +33,22 @@ public static class ExtensionMethods
     }
 
     public static void EnsureReleaseDoesntExist(this IEnumerable<ReleaseEntity> releases, ReleaseId id)
-        => releases.EnsureDoesntExist(id, "Release");
+        => releases.EnsureIdDoesntExist(id, "Release");
 
     public static void EnsureExists(this IEnumerable<ReleaseEntity> releases, ReleaseId id)
-        => releases.EnsureExists(id, "Release");
+        => releases.EnsureIdExists(id, "Release");
 
     public static void EnsureDeploymentDoesntExist(this IEnumerable<DeploymentEntity> deployments,
         DeploymentId id)
-        => deployments.EnsureDoesntExist(id, "DeploymentHistory");
+        => deployments.EnsureIdDoesntExist(id, "DeploymentHistory");
 
     public static void EnsureDoesntExist(this IEnumerable<SectionSchemaEntity> schemas, SectionSchemaId id,
-        SemanticVersion? version = null)
+        string? name = null)
     {
         var schemaEntities = schemas as SectionSchemaEntity[] ?? schemas.ToArray();
-        schemaEntities.EnsureDoesntExist(id, "Schema");
-        if (version != null && schemaEntities.Any(s => s.Version.Equals(version)))
-            throw new InvalidOperationException("Schema already exists. Version=" + version.ToFullString());
+        schemaEntities.EnsureIdDoesntExist(id, "Schema");
+        if (name != null && schemaEntities.Any(s => s.SchemaName.Equals(name, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException("Schema already exists. Name=" + name);
     }
 
     public static void EnsureEnvironmentDoesntExist(this IEnumerable<EnvironmentEntity> environments,
@@ -59,7 +59,7 @@ public static class ExtensionMethods
     }
 
     public static void EnsureEnvironmentExists(this IEnumerable<EnvironmentEntity> environments, EnvironmentId id) =>
-        environments.EnsureExists(id, "Environment");
+        environments.EnsureIdExists(id, "Environment");
 
     /// <summary>
     /// Get an entity from a list of entities, by id.

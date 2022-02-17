@@ -1,4 +1,5 @@
-﻿using NuGet.Versioning;
+﻿using Allard.Configinator.Core.Model;
+using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.DomainServices;
 
@@ -51,7 +52,7 @@ public class EnvironmentValidationService
     public string GetEnvironmentType(string environmentName) => EnvironmentNames
         .Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase))
         .EnvironmentType;
-    
+
     // TODO: hack
     public string GetFirstEnvironmentType() => "development";
 
@@ -67,6 +68,7 @@ public class EnvironmentValidationService
         {
             throw new InvalidOperationException("Invalid environment type: " + environmentType);
         }
+
         if (environmentType.Equals("development", StringComparison.OrdinalIgnoreCase))
         {
             return "staging";
@@ -81,15 +83,27 @@ public class EnvironmentValidationService
     }
 
     // hack
-    public string? GetNextSchemaEnvironmentType(
-        IEnumerable<string> assignedEnvironmentType,
-        SemanticVersion schemaVersion)
+    public string? GetNextSchemaEnvironmentType(IEnumerable<string> assignedEnvironmentTypes)
     {
         // todo: configurable. pre-release can't be promoted.
-        if (schemaVersion.IsPrerelease) return null;
-        var types = assignedEnvironmentType.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        //if (name.IsPrerelease) return null;
+        var types = assignedEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
         if (!types.Contains("staging")) return "staging";
         if (!types.Contains("production")) return "production";
         return null;
+    }
+
+    // hack
+    public bool CanPromoteTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType,
+        SchemaName schemaName)
+    {
+        if (schemaName.Version.IsPrerelease) return false;
+        var types = assignedEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return targetEnvironmentType.ToLower() switch
+        {
+            "staging" => !types.Contains("staging"),
+            "production" => types.Contains("staging") && !types.Contains("production"),
+            _ => false
+        };
     }
 }

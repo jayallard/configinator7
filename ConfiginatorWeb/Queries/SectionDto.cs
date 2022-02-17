@@ -24,13 +24,13 @@ public class SectionDto
     public SectionEnvironmentDto GetEnvironment(long environmentId) =>
         Environments.Single(e => e.EnvironmentId == environmentId);
 
-    public SectionSchemaDto GetSchema(SemanticVersion version) =>
-        Schemas.Single(s => s.Version == version);
+    public SectionSchemaDto GetSchema(string name) =>
+        Schemas.Single(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 }
 
 public class SectionSchemaDto
 {
-    public SemanticVersion Version { get; set; }
+    public string Name { get; set; }
     public JsonDocument Schema { get; set; }
     public ISet<string> EnvironmentTypes { get; set; }
 }

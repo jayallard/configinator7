@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
@@ -30,7 +31,7 @@ public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest,
             var section = await _unitOfWork.Sections.GetSectionAsync(request.SectionName, cancellationToken);
             var environmentId = section.GetEnvironment(request.EnvironmentName).Id;
             var variableSet = await _unitOfWork.VariableSets.GetVariableSetIfNotNullAsync(request.VariableSetName, cancellationToken);
-            var schemaId = section.GetSchema(SemanticVersion.Parse(request.SchemaVersion)).Id;
+            var schemaId = section.GetSchema(request.SchemaName).Id;
             await _sectionDomainService.CreateReleaseAsync(
                 section,
                 environmentId,
@@ -56,10 +57,17 @@ public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest,
 
 public class CreateReleaseRequest : IRequest<CreateReleaseResponse>
 {
+    [Required]
     public string EnvironmentName { get; set; }
-    public string SchemaVersion { get; set; }
+
+    [Required]
+    public string SchemaName { get; set; }
+    
+    [Required]
     public string Value { get; set; }
     public string? VariableSetName { get; set; }
+    
+    [Required]
     public string SectionName { get; set; }
 }
 

@@ -12,7 +12,6 @@
     <tr>
         <th>Section Name</th>
         <th>Environment Types</th>
-        <th>Organization Path</th>
     </tr>
     </thead>
     <tbody>
@@ -20,14 +19,13 @@
     {
         <tr>
             <td>
-                @Html.SectionLink(i.Name, i.SectionId)
+                @(i.OrganizationPath.Replace("/", " / ").Trim()) / @Html.SectionLink(i.Name, i.SectionId)
                 @* @if (i.DeployedIsOutOfDate) *@
                 @* { *@
                 @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
                 @* } *@
             </td>
             <td>@string.Join(", ", @i.EnvironmentTypes.OrderBy(et => et).ToArray())</td>
-            <td>@i.OrganizationPath</td>
         </tr>
     }
     </tbody>

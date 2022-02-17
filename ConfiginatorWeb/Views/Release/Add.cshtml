@@ -9,7 +9,7 @@
 </script>
 
 <script type="text/javascript">
-function selectedSchemaVersion() {
+function selectedSchemaName() {
     return $('#ddSchema option:selected').text();
 }
 
@@ -29,7 +29,7 @@ $(document).ready(function() {
         const requestDto = {
                                      SectionName: '@Model.SectionName',
                                      EnvironmentName: '@Model.EnvironmentName',
-                                     SchemaVersion: selectedSchemaVersion(),
+                                     SchemaName: selectedSchemaName(),
                                      Value: $('#value').val(),
                                      VariableSetName: $('#variableSet').val()
                                  };
@@ -53,9 +53,9 @@ $(document).ready(function() {
 <h3>Environment: @Model.EnvironmentName</h3>
 
 <form>
-    Schema Version: @Html.DropDownListFor(
+    Schema: @Html.DropDownListFor(
                         m => m.Schemas,
-                        new SelectList(Model.Schemas, dataValueField: "Id", dataTextField: "Version"), new {id = "ddSchema"})
+                        new SelectList(Model.Schemas, dataValueField: "SchemaName", dataTextField: "SchemaName"), new {id = "ddSchema"})
     <br/>
     Variable Set:
     <select id="variableSet">
@@ -99,13 +99,13 @@ $(document).ready(function() {
 <p>Coming Soon!</p>
 
 <h2>Schema</h2>
-<div id="@Model.Schemas[0].Id">
+<div id="@Model.Schemas[0].SchemaName">
     <pre>@Model.Schemas[0].Schema</pre>
 </div>
 
 @foreach (var schema in Model.Schemas.Skip(1))
 {
-    <div id="@schema.Id" style="display: none">
+    <div id="@schema.SchemaName" style="display: none">
         <pre>@schema.Schema.</pre>
     </div>
 }

@@ -18,10 +18,10 @@ public class SectionDomainService
     private readonly EnvironmentValidationService _environmentValidationService;
 
     public SectionDomainService(
-        IIdentityService identityService, 
+        IIdentityService identityService,
         IUnitOfWork unitOfWork,
-        VariableSetDomainService variableSetDomainService, 
-        SchemaLoader schemaLoader, 
+        VariableSetDomainService variableSetDomainService,
+        SchemaLoader schemaLoader,
         EnvironmentValidationService environmentValidationService)
     {
         _identityService = identityService;
@@ -39,19 +39,15 @@ public class SectionDomainService
             throw new InvalidOperationException("Section already exists: " + sectionName);
         }
 
-        if (await _unitOfWork.Sections.Exists(new OrganizationPathIs(organizationPath)))
-        {
-            throw new InvalidOperationException("The organization path is already in use by another section");
-        }
-
         var id = await _identityService.GetId<SectionId>();
-        var section = new SectionAggregate(id, _environmentValidationService.GetFirstEnvironmentType(), sectionName, organizationPath);
+        var section = new SectionAggregate(id, _environmentValidationService.GetFirstEnvironmentType(), sectionName,
+            organizationPath);
         return section;
     }
 
     public async Task<SectionSchemaEntity> AddSchemaToSectionAsync(
         SectionAggregate section,
-        SemanticVersion version,
+        string name,
         JsonDocument schema)
     {
         // make sure the schema is valid
@@ -60,7 +56,22 @@ public class SectionDomainService
         await _schemaLoader.ResolveSchemaAsync(schema);
 
         var id = await _identityService.GetId<SectionSchemaId>();
-        return section.AddSchema(id, version, schema, _environmentValidationService.GetFirstEnvironmentType());
+        return section.AddSchema(id, name, schema, _environmentValidationService.GetFirstEnvironmentType());
+    }
+
+    public async Task<SectionSchemaEntity> PromoteSchemaAsync(
+        SectionAggregate section,
+        string schemaName,
+        string targetEnvironmentType,
+        CancellationToken cancellationToken = default)
+    {
+        var schema = section.GetSchema(schemaName);
+        var promotable = _environmentValidationService.CanPromoteTo(schema.EnvironmentTypes, targetEnvironmentType,
+            SchemaName.Parse(schemaName));
+        if (!promotable) throw new InvalidOperationException($"The schema cannot be promoted to {targetEnvironmentType}");
+        section.PlayEvent(new SectionSchemaPromotedEvent(section.Id, schemaName, targetEnvironmentType));
+        schema.InternalEnvironmentTypes.Add(targetEnvironmentType);
+        return schema;
     }
 
     public async Task<EnvironmentEntity> AddEnvironmentToSectionAsync(

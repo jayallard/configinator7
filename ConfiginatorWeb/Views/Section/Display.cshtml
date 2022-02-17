@@ -54,7 +54,7 @@ $(document).ready(function() {
                         <thead>
                         <tr>
                             <th>Id</th>
-                            <th>Schema Version</th>
+                            <th>Schema Name</th>
                             <th>Create Date</th>
                             <th>Variable Set</th>
                             <th></th>
@@ -66,7 +66,7 @@ $(document).ready(function() {
                                 <td>
                                     @Html.ReleaseLink(Model.SectionId, e.EnvironmentId, r.ReleaseId)
                                 </td>
-                                <td>@r.Schema.Version.ToFullString()</td>
+                                <td>@r.Schema.Name</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                                 <td>
                                     @if (r.VariableSet != null)
@@ -103,7 +103,7 @@ $(document).ready(function() {
 <table class="table table-bordered">
     <thead>
     <tr>
-        <th>Version</th>
+        <th>Name</th>
         <th>Environment Types</th>
     </tr>
     </thead>
@@ -111,7 +111,7 @@ $(document).ready(function() {
     @foreach (var s in Model.Schemas)
     {
         <tr>
-            <td>@Html.SectionSchemaLink(Model.SectionId, s.Version)</td>
+            <td>@Html.SectionSchemaLink(Model.SectionId, s.Name)</td>
             <td>@string.Join(", ", s.EnvironmentTypes)</td>
         </tr>
     }

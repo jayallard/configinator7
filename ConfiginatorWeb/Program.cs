@@ -119,15 +119,16 @@ var modelValue =
     JsonDocument.Parse(
         "{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44, \"kafka\": { \"brokers\": \"b\", \"user\": \"u\", \"password\": \"p\" } }");
 var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
-var section1 = await sectionService.CreateSectionAsync("name1", "path1");
+var section1 = await sectionService.CreateSectionAsync("merge-service", "data-domain");
 await uow.Sections.AddAsync(section1);
 
 var env1 = await sectionService.AddEnvironmentToSectionAsync(section1, "development");
 await sectionService.AddEnvironmentToSectionAsync(section1, "development-jay");
 var schema1 =
-    await sectionService.AddSchemaToSectionAsync(section1, new SemanticVersion(1, 0, 0), await GetSchema("1.0.0.json"));
+    await sectionService.AddSchemaToSectionAsync(section1, "section1/1.0.0", await GetSchema("1.0.0.json"));
+await sectionService.PromoteSchemaAsync(section1, "section1/1.0.0", "staging");
 
-await sectionService.AddSchemaToSectionAsync(section1, new SemanticVersion(2, 0, 0), await GetSchema("2.0.0.json"));
+await sectionService.AddSchemaToSectionAsync(section1, "section1/2.0.0", await GetSchema("2.0.0.json"));
 
 var release = await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
     CancellationToken.None);
@@ -137,7 +138,7 @@ await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id,
     CancellationToken.None);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now, "Initial Setup - from code");
 
-var section2 = await sectionService.CreateSectionAsync("name2", "path2");
+var section2 = await sectionService.CreateSectionAsync("ingestion-service", "data-domain");
 await uow.Sections.AddAsync(section2);
 await uow.SaveChangesAsync();
 

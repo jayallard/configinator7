@@ -63,10 +63,9 @@ public class ReleaseController : Controller
             SectionName = section.SectionName,
             Schemas = section
                 .Schemas
-                .OrderByDescending(s => s.Version)
+                .OrderByDescending(s => s.Name)
                 .Select(s => new EditSchemaView(
-                    "schema-" + s.Version.ToFullString().Replace(".", "-"),
-                    s.Version.ToFullString(),
+                    s.Name,
                     s.Schema.RootElement.ToString()))
                 .ToList(),
 

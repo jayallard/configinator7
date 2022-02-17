@@ -44,10 +44,10 @@ public class SectionController : Controller
         return View(section);
     }
 
-    public async Task<IActionResult> SchemaView(long sectionId, SemanticVersion version)
+    public async Task<IActionResult> SchemaView(long sectionId, string name)
     {
         var section = await _sectionQueries.GetSectionAsync(sectionId);
-        var schema = section.GetSchema(version);
+        var schema = section.GetSchema(name);
         return View(new SchemaView(section, schema));
     }
 

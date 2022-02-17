@@ -1,8 +1,5 @@
 ﻿using System.Text.Json;
 using Allard.DomainDrivenDesign;
-using Newtonsoft.Json.Linq;
-using NJsonSchema;
-using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.Model;
 
@@ -48,20 +45,21 @@ public class SectionAggregate : AggregateBase<SectionId>
 
     internal SectionSchemaEntity AddSchema(
         SectionSchemaId sectionSchemaId, 
-        SemanticVersion schemaVersion, 
+        string name, 
         JsonDocument schema,
         string environmentType)
     {
-        InternalSchemas.EnsureDoesntExist(sectionSchemaId, schemaVersion);
-        PlayEvent(new SchemaAddedToSectionEvent(Id, sectionSchemaId, schemaVersion, schema, environmentType));
+        SchemaName.Parse(name);
+        InternalSchemas.EnsureDoesntExist(sectionSchemaId, name);
+        PlayEvent(new SchemaAddedToSectionEvent(Id, sectionSchemaId, name, schema, environmentType));
         return GetSchema(sectionSchemaId);
     }
 
     public SectionSchemaEntity GetSchema(SectionSchemaId sectionSchemaId) =>
         InternalSchemas.Single(s => s.Id == sectionSchemaId);
 
-    public SectionSchemaEntity GetSchema(SemanticVersion version) =>
-        InternalSchemas.Single(s => s.Version == version);
+    public SectionSchemaEntity GetSchema(string name) =>
+        InternalSchemas.Single(s => s.SchemaName.Equals(name, StringComparison.OrdinalIgnoreCase));
     
     public ReleaseEntity GetRelease(EnvironmentId environmentId, ReleaseId releaseId) =>
         GetEnvironment(environmentId).InternalReleases.GetRelease(releaseId);

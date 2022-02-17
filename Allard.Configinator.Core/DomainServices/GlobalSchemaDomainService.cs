@@ -25,6 +25,7 @@ public class GlobalSchemaDomainService
         string environmentType,
         JsonDocument schema)
     {
+        SchemaName.Parse(name);
         if (await _unitOfWork.GlobalSchemas.Exists(new GlobalSchemaName(name)))
         {
             throw new InvalidOperationException(

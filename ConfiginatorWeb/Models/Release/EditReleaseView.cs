@@ -13,7 +13,7 @@ public class EditReleaseView
     
     public string? DefaultVariableSetName { get; set; }
 }
-public record EditSchemaView(string Id, string Version, string Schema);
+public record EditSchemaView(string SchemaName, string Schema);
 
 public class DisplayView
 {

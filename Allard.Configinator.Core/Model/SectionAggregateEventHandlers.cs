@@ -32,6 +32,9 @@ internal static class SectionAggregateEventHandlers
             case ReleaseValueBecameCurrent current:
                 CurrentValue(section, current);
                 break;
+            case SectionSchemaPromotedEvent schemaPromoted:
+                SchemaPromoted(section, schemaPromoted);
+                break;
             default:
                 throw new NotImplementedException("Unhandled event: " + evt.GetType().FullName);
         }
@@ -54,7 +57,7 @@ internal static class SectionAggregateEventHandlers
             evt.EnvironmentName));
 
     private static void AddSchema(SectionAggregate section, SchemaAddedToSectionEvent evt) =>
-        section.InternalSchemas.Add(new SectionSchemaEntity(evt.SectionSchemaId, evt.SchemaVersion, evt.Schema, evt.EnvironmentType));
+        section.InternalSchemas.Add(new SectionSchemaEntity(evt.SectionSchemaId, evt.Name, evt.Schema, evt.EnvironmentType));
 
     private static void AddRelease(SectionAggregate section, ReleaseCreatedEvent evt)
     {
@@ -96,4 +99,7 @@ internal static class SectionAggregateEventHandlers
 
     private static void CurrentValue(SectionAggregate section, ReleaseValueBecameCurrent evt) =>
         section.GetRelease(evt.EnvironmentId, evt.ReleaseId).SetOutOfDate(false);
+
+    public static void SchemaPromoted(SectionAggregate section, SectionSchemaPromotedEvent evt) =>
+        section.GetSchema(evt.SchemaName).InternalEnvironmentTypes.Add(evt.newEnvironmentType);
 }

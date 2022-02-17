@@ -38,9 +38,14 @@ public record EnvironmentCreatedEvent(
 public record SchemaAddedToSectionEvent(
     SectionId SectionId,
     SectionSchemaId SectionSchemaId,
-    SemanticVersion SchemaVersion,
+    string Name,
     JsonDocument Schema,
     string EnvironmentType) : DomainEventBase;
+
+public record SectionSchemaPromotedEvent(
+    SectionId SectionId,
+    string SchemaName,
+    string newEnvironmentType) : DomainEventBase;
 
 /// <summary>
 /// A release was created.

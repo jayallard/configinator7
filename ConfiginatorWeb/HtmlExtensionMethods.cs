@@ -29,6 +29,6 @@ public static class HtmlExtensionMethods
     public static IHtmlContent VariableSetLink(this IHtmlHelper helper, string variableSetName) =>
         helper.ActionLink(variableSetName, "Index", "VariableSet", new {variableSetName});
 
-    public static IHtmlContent SectionSchemaLink(this IHtmlHelper helper, long sectionId, SemanticVersion version) =>
-        helper.ActionLink(version.ToFullString(), "SchemaView", "Section", new {sectionId, version});
+    public static IHtmlContent SectionSchemaLink(this IHtmlHelper helper, long sectionId, string name) =>
+        helper.ActionLink(name, "SchemaView", "Section", new {sectionId, name});
 }

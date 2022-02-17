@@ -19,7 +19,7 @@ public class SectionEntityTests
         // assert
         section.SectionName.Should().Be("name");
         section.OrganizationPath.Should().Be("path");
-        section.Schemas.Single().Version.Should().Be(new SemanticVersion(1, 0, 0));
+        section.Schemas.Single().SchemaName.Should().Be("1.0.0");
     }
 
     [Fact]
@@ -29,7 +29,7 @@ public class SectionEntityTests
         var section = new SectionAggregate(new SectionId(0), "Development","name", "path");
 
         // act
-        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"), "development");
+        section.AddSchema(new SectionSchemaId(0), "1.0.0", JsonDocument.Parse("{}"), "development");
 
         // assert
         section.Schemas.Count().Should().Be(1);
@@ -40,15 +40,15 @@ public class SectionEntityTests
     {
         // arrange
         var section = new SectionAggregate(NewSectionId(0), "Development", "name", "path");
-        var schema1 = new SectionSchemaEntity(new SectionSchemaId(0), new SemanticVersion(1, 0, 0),
+        var schema1 = new SectionSchemaEntity(new SectionSchemaId(0), "1.0.0",
             JsonDocument.Parse("{}"), "development");
-        var schema2 = new SectionSchemaEntity(new SectionSchemaId(1), new SemanticVersion(1, 0, 0),
+        var schema2 = new SectionSchemaEntity(new SectionSchemaId(1), "1.0.0",
             JsonDocument.Parse("{}"), "development");
 
         // act
-        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"), "development");
+        section.AddSchema(new SectionSchemaId(0), "1.0.0", JsonDocument.Parse("{}"), "development");
         var test = () =>
-            section.AddSchema(new SectionSchemaId(1), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"), "development");
+            section.AddSchema(new SectionSchemaId(1), "1.0.0", JsonDocument.Parse("{}"), "development");
 
         // assert
         test
@@ -64,9 +64,9 @@ public class SectionEntityTests
         var section = new SectionAggregate(NewSectionId(0), "Development", "name", "path");
 
         // act
-        section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 0, 0), JsonDocument.Parse("{}"), "development");
+        section.AddSchema(new SectionSchemaId(0), "1.0.0", JsonDocument.Parse("{}"), "development");
         var test = () =>
-            section.AddSchema(new SectionSchemaId(0), new SemanticVersion(1, 1, 0), JsonDocument.Parse("{}"), "development");
+            section.AddSchema(new SectionSchemaId(0), "1.0.0", JsonDocument.Parse("{}"), "development");
 
         // assert
         test
