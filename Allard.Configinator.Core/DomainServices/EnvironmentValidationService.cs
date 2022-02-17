@@ -1,4 +1,6 @@
-﻿namespace Allard.Configinator.Core.DomainServices;
+﻿using NuGet.Versioning;
+
+namespace Allard.Configinator.Core.DomainServices;
 
 public class EnvironmentValidationService
 {
@@ -75,6 +77,19 @@ public class EnvironmentValidationService
             return "production";
         }
 
+        return null;
+    }
+
+    // hack
+    public string? GetNextSchemaEnvironmentType(
+        IEnumerable<string> assignedEnvironmentType,
+        SemanticVersion schemaVersion)
+    {
+        // todo: configurable. pre-release can't be promoted.
+        if (schemaVersion.IsPrerelease) return null;
+        var types = assignedEnvironmentType.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (!types.Contains("staging")) return "staging";
+        if (!types.Contains("production")) return "production";
         return null;
     }
 }

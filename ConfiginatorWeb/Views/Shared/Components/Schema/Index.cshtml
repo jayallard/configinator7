@@ -1,6 +1,19 @@
 ﻿@model ConfiginatorWeb.Views.Shared.Components.Schema.SchemaIndexView
+<p>Version: @Model.SectionSchema.Version</p>
+<h2>Environment Types</h2>
+<ul>
+    @foreach (var et in Model.SectionSchema.EnvironmentTypes)
+    {
+        <li>@et</li>
+    }
+</ul>
+@if (Model.PromoteToEnvironmentType is not null)
+{
+    <a href="#">Promote to @Model.PromoteToEnvironmentType</a>
+}
+<br/>
+<br/>
 <h2>Schema</h2>
-<p>Version: TODO</p>
 @if (Model.Schema.Root.RefersTo.Any())
 {
     <p>
@@ -32,7 +45,6 @@
                         <li>@to</li>
                     }
                 </ul>
-                }
             </p>
         }
         @if (r.ReferencedBy.Any())
