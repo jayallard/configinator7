@@ -15,7 +15,8 @@ public static class ExtensionMethods
         Schema = new SectionSchemaDto
         {
             Schema = release.SectionSchema.Schema,
-            Version = release.SectionSchema.Version
+            Version = release.SectionSchema.Version,
+            EnvironmentTypes = release.SectionSchema.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase)
         },
         CreateDate = release.CreateDate,
         IsDeployed = release.IsDeployed,
@@ -50,12 +51,13 @@ public static class ExtensionMethods
         {
             EnvironmentName = e.EnvironmentName,
             EnvironmentId = e.EntityId,
-            Releases = e.Releases.ToOutputDto().ToList()
+            Releases = e.Releases.ToOutputDto().ToList(),
         }).ToList(),
         Schemas = section.Schemas.Select(s => new SectionSchemaDto
         {
             Schema = s.Schema,
-            Version = s.Version
+            Version = s.Version,
+            EnvironmentTypes = s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase)
         }).ToList()
     };
 

@@ -11,13 +11,12 @@ namespace Allard.Configinator.Core;
 /// </summary>
 /// <param name="SectionId"></para>
 /// <param name="SectionName"></param>
-/// <param name="Path"></param>
-/// <param name="Schema"></param>
+/// <param name="OrganizationPath"></param>
 public record SectionCreatedEvent(
     SectionId SectionId,
     string SectionName,
-    string? Path,
-    SectionSchemaEntity? Schema) : DomainEventBase;
+    string InitialEnvironmentType,
+    string OrganizationPath) : DomainEventBase;
 
 /// <summary>
 /// An environment was added to a configuration section.
@@ -40,7 +39,8 @@ public record SchemaAddedToSectionEvent(
     SectionId SectionId,
     SectionSchemaId SectionSchemaId,
     SemanticVersion SchemaVersion,
-    JsonDocument Schema) : DomainEventBase;
+    JsonDocument Schema,
+    string EnvironmentType) : DomainEventBase;
 
 /// <summary>
 /// A release was created.
@@ -70,9 +70,17 @@ public record ReleaseCreatedEvent(
 /// <param name="BaseVariableSetName"></param>
 public record VariableSetCreatedEvent(
     VariableSetId VariableSetId,
+    VariableSetId? BaseVariableSetId,
+    
+    // TODO: transitional. delete this. (it'll break stuff)
+    string? BaseVariableSetName,
+    
     string VariableSetName,
-    Dictionary<string, JToken>? Variables,
-    string? BaseVariableSetName) : DomainEventBase;
+    string EnvironmentType) : DomainEventBase;
+
+public record VariableSetOverrideCreatedEvent(
+    VariableSetId VariableSetId,
+    VariableSetId BaseVariableSetId) : DomainEventBase;
 
 /// <summary>
 /// A release was deployed.
@@ -138,4 +146,5 @@ public record GlobalSchemaCreated(
     GlobalSchemaId GlobalSchemaId,
     string Name,
     string? Description,
+    string EnvironmentType,
     JsonDocument Schema) : DomainEventBase;

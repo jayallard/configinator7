@@ -14,7 +14,7 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
         IGlobalSchemaRepository globalSchemaRepository,
         IEventPublisher publisher)
     {
-        _publisher = Guards.NotDefault(publisher, nameof(publisher));
+        _publisher = Guards.HasValue(publisher, nameof(publisher));
         Sections = new DataChangeTracker<SectionAggregate, SectionId>(sectionRepository);
         VariableSets = new DataChangeTracker<VariableSetAggregate, VariableSetId>(variableSetRepository);
         GlobalSchemas = new DataChangeTracker<GlobalSchemaAggregate, GlobalSchemaId>(globalSchemaRepository);

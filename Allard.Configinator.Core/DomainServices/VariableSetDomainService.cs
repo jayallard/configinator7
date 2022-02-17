@@ -9,28 +9,60 @@ public class VariableSetDomainService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IIdentityService _identityService;
+    private readonly EnvironmentValidationService _environmentValidationService;
 
-    public VariableSetDomainService(IUnitOfWork unitOfWork, IIdentityService identityService)
+    public VariableSetDomainService(IUnitOfWork unitOfWork, IIdentityService identityService, EnvironmentValidationService environmentValidationService)
     {
-        _unitOfWork = Guards.NotDefault(unitOfWork, nameof(unitOfWork));
-        _identityService = Guards.NotDefault(identityService, nameof(identityService));
+        _environmentValidationService = Guards.HasValue(environmentValidationService, nameof(environmentValidationService));
+        _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
+        _identityService = Guards.HasValue(identityService, nameof(identityService));
     }
 
-    public async Task<VariableSetAggregate> CreateVariableSetAsync(string variableSetName, string? baseVariableSetName = default, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Create a new VariableSet.
+    /// </summary>
+    /// <param name="variableSetName"></param>
+    /// <param name="environmentType"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<VariableSetAggregate> CreateVariableSetAsync(
+        string variableSetName,
+        string environmentType,
+        CancellationToken cancellationToken = default)
     {
+        if (!_environmentValidationService.IsValidEnvironmentType(environmentType))
+        {
+            throw new InvalidOperationException("Environment type doesn't exist: " + environmentType);
+        }
+        
+        var id = await _identityService.GetId<VariableSetId>();
+        var variableSet = new VariableSetAggregate(id, null, null, variableSetName, environmentType);
+        return variableSet;
+    }
+
+    /// <summary>
+    /// Create a new VariableSet, which is a child of an existing variable set.
+    /// </summary>
+    /// <param name="variableSetName"></param>
+    /// <param name="baseVariableSetName"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<VariableSetAggregate> CreateVariableSetOverride(
+        string variableSetName,
+        string baseVariableSetName)
+    {
+        // make sure the new name doesn't already exist
         if (await _unitOfWork.VariableSets.Exists(new VariableSetNameIs(variableSetName)))
         {
             throw new InvalidOperationException("VariableSet already exists: " + variableSetName);
         }
 
-        if (baseVariableSetName is not null && !(await _unitOfWork.VariableSets.Exists(new VariableSetNameIs(baseVariableSetName))))
-        {
-            throw new InvalidOperationException("Base VariableSet doesn't exist: " + baseVariableSetName);
-        }
-
         var id = await _identityService.GetId<VariableSetId>();
-        var variableSet = new VariableSetAggregate(id, variableSetName, baseVariableSetName);
-        return variableSet;
+        var baseVariableSet = await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(baseVariableSetName));
+        var child = new VariableSetAggregate(id, baseVariableSet.Id, baseVariableSet.VariableSetName, variableSetName, baseVariableSet.EnvironmentType);
+        baseVariableSet.Play(new VariableSetOverrideCreatedEvent(id, baseVariableSet.Id));
+        return child;
     }
 
     public async Task<VariableSetComposed> GetVariableSetComposedAsync(

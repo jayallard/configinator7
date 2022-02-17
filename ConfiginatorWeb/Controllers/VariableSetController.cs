@@ -14,7 +14,7 @@ public class VariableSetController : Controller
 
     public VariableSetController(IMediator mediator)
     {
-        _mediator = Guards.NotDefault(mediator, nameof(mediator));
+        _mediator = Guards.HasValue(mediator, nameof(mediator));
     }
 
     // GET

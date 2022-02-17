@@ -77,7 +77,9 @@ $(document).ready(function() {
                                 <td>
                                     <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
                                        asp-route-environmentid="@e.EnvironmentId"
-                                       asp-route-releaseid="@r.ReleaseId">@(r.IsDeployed ? "Re-Deploy" : "Deploy")</a>
+                                       asp-route-releaseid="@r.ReleaseId">
+                                        @(r.IsDeployed ? "Re-Deploy" : "Deploy")
+                                    </a>
                                     <span>&nbsp;</span>@Html.IsDeployedBadge(r.IsDeployed)
                                     @Html.IsOutOfDateBadge(r.IsOutOfDate)
                                 </td>
@@ -97,12 +99,21 @@ $(document).ready(function() {
         </tr>
     }
 </table>
-<h2>Schemas</h2>
-<table class="table">
+<h2>Section Schemas</h2>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Version</th>
+        <th>Environment Types</th>
+    </tr>
+    </thead>
+    <tbody>
     @foreach (var s in Model.Schemas)
     {
         <tr>
-            <td>@Html.SectionSchemaLink(Model.SectionId,  s.Version)</td>
+            <td>@Html.SectionSchemaLink(Model.SectionId, s.Version)</td>
+            <td>@string.Join(", ", s.EnvironmentTypes)</td>
         </tr>
     }
+    </tbody>
 </table>

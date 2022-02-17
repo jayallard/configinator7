@@ -33,4 +33,4 @@ public record ConfigurationIndexResponse(
     List<GlobalSchemaListItemDto> GlobalSchemas) : IRequest<CreateSectionAppResponse>;
 
 
-public record GlobalSchemaListItemDto(long GlobalSchemaId, string Name, string? Description);
+public record GlobalSchemaListItemDto(long GlobalSchemaId, string Name, ISet<string> EnvironmentTypes, string? Description);

@@ -24,8 +24,8 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
 
     public UpdateReleasesWhenVariableValueChanges(IUnitOfWork unitOfWork, VariableSetDomainService variableSetDomainService)
     {
-        _variableSetDomainService = Guards.NotDefault(variableSetDomainService, nameof(variableSetDomainService));
-        _unitOfWork = Guards.NotDefault(unitOfWork, nameof(unitOfWork));
+        _variableSetDomainService = Guards.HasValue(variableSetDomainService, nameof(variableSetDomainService));
+        _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
     }
 
     public async Task ExecuteAsync(VariableValueSetEvent evt, CancellationToken cancellationToken = default)

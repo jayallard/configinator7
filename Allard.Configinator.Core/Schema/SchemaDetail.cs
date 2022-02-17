@@ -13,7 +13,7 @@ public class SchemaDetail
     /// Initialize a new instance of the SchemaDetail class.
     /// </summary>
     /// <param name="name"></param>
-    public SchemaDetail(string name) => Name = Guards.NotDefault(name, nameof(name));
+    public SchemaDetail(string name) => Name = Guards.HasValue(name, nameof(name));
 
     /// <summary>
     /// Gets the schema.

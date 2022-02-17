@@ -1,6 +1,4 @@
-﻿using NJsonSchema;
-
-namespace Allard.Configinator.Core.DomainServices;
+﻿namespace Allard.Configinator.Core.DomainServices;
 
 public class EnvironmentValidationService
 {
@@ -18,7 +16,7 @@ public class EnvironmentValidationService
     /// </summary>
     public ISet<string> EnvironmentTypeNames => _rules
         .EnvironmentTypes
-        .Select(e => e.EnvironmentTypeName)
+        .Select(e => e.Name)
         .ToHashSet();
 
     /// <summary>
@@ -30,7 +28,7 @@ public class EnvironmentValidationService
         {
             var x = _rules.EnvironmentTypes
                 .SelectMany(et => et.AllowedEnvironments
-                    .Select(e => (et.EnvironmentTypeName, e)));
+                    .Select(e => (EnvironmentTypeName: et.Name, e)));
             return x.ToList();
         }
     }
@@ -44,7 +42,39 @@ public class EnvironmentValidationService
         _rules.EnvironmentTypes.Any(et =>
             et.AllowedEnvironments.Contains(environmentName, StringComparer.OrdinalIgnoreCase));
 
+    public bool IsValidEnvironmentType(string environmentType) => _rules
+        .EnvironmentTypes
+        .Any(et => et.Name.Equals(environmentType, StringComparison.OrdinalIgnoreCase));
+
     public string GetEnvironmentType(string environmentName) => EnvironmentNames
         .Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase))
         .EnvironmentType;
+    
+    // TODO: hack
+    public string GetFirstEnvironmentType() => "development";
+
+
+    // TODO: hack
+    public bool IsPreReleaseAllowed(string environmentType) =>
+        environmentType.Equals("development", StringComparison.OrdinalIgnoreCase);
+
+    // TODO: hack
+    public string? GetNextEnvironmentTypeFor(string environmentType)
+    {
+        if (!IsValidEnvironmentType(environmentType))
+        {
+            throw new InvalidOperationException("Invalid environment type: " + environmentType);
+        }
+        if (environmentType.Equals("development", StringComparison.OrdinalIgnoreCase))
+        {
+            return "staging";
+        }
+
+        if (environmentType.Equals("staging", StringComparison.OrdinalIgnoreCase))
+        {
+            return "production";
+        }
+
+        return null;
+    }
 }

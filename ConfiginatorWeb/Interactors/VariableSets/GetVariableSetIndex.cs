@@ -11,7 +11,7 @@ public class GetVariableSetComposedQuery : IRequestHandler<VariableSetComposedQu
 
     public GetVariableSetComposedQuery(VariableSetDomainService variableSetDomainService)
     {
-        _variableSetDomainService = Guards.NotDefault(variableSetDomainService, nameof(variableSetDomainService));
+        _variableSetDomainService = Guards.HasValue(variableSetDomainService, nameof(variableSetDomainService));
     }
 
     public async Task<VariableSetComposedQueryResult> Handle(VariableSetComposedQuery request,

@@ -18,7 +18,7 @@ public class SectionQueriesCoreRepository : ISectionQueries
 
     public async Task<List<SectionListItemDto>> GetSectionsListAsync(CancellationToken cancellationToken = default)
         => (await _unitOfWork.Sections.FindAsync(new AllSections(), cancellationToken))
-            .Select(s => new SectionListItemDto(s.Id.Id, s.SectionName, s.OrganizationPath))
+            .Select(s => new SectionListItemDto(s.Id.Id, s.SectionName, s.OrganizationPath, s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase)))
             .ToList();
 
     public async Task<SectionDto?> GetSectionAsync(long id, CancellationToken cancellationToken = default)

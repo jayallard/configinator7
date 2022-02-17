@@ -39,15 +39,10 @@ internal static class SectionAggregateEventHandlers
 
     private static void CreateSection(SectionAggregate section, SectionCreatedEvent evt)
     {
-        section.OrganizationPath = evt.Path;
-
-        // todo: id stuff is hacky
+        section.OrganizationPath = evt.OrganizationPath;
         section.Id = evt.SectionId;
         section.SectionName = evt.SectionName;
-        if (evt.Schema != null)
-        {
-            section.InternalSchemas.Add(evt.Schema);
-        }
+        section.InternalEnvironmentTypes.Add(evt.InitialEnvironmentType);
     }
 
     private static void AddEnvironment(
@@ -59,7 +54,7 @@ internal static class SectionAggregateEventHandlers
             evt.EnvironmentName));
 
     private static void AddSchema(SectionAggregate section, SchemaAddedToSectionEvent evt) =>
-        section.InternalSchemas.Add(new SectionSchemaEntity(evt.SectionSchemaId, evt.SchemaVersion, evt.Schema));
+        section.InternalSchemas.Add(new SectionSchemaEntity(evt.SectionSchemaId, evt.SchemaVersion, evt.Schema, evt.EnvironmentType));
 
     private static void AddRelease(SectionAggregate section, ReleaseCreatedEvent evt)
     {

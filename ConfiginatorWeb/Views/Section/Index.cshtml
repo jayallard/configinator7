@@ -7,7 +7,15 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 
 <h2>Configuration Sections</h2>
-<table class="table">
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Section Name</th>
+        <th>Environment Types</th>
+        <th>Organization Path</th>
+    </tr>
+    </thead>
+    <tbody>
     @foreach (var i in Model.Sections)
     {
         <tr>
@@ -18,14 +26,39 @@
                 @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
                 @* } *@
             </td>
+            <td>@string.Join(", ", @i.EnvironmentTypes.OrderBy(et => et).ToArray())</td>
             <td>@i.OrganizationPath</td>
         </tr>
     }
+    </tbody>
 </table>
 
 <a asp-action="Create">Add</a>
+
 <br/><br/>
+<h2>Global Schemas</h2>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Environment Types</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var t in Model.GlobalSchemas.OrderBy(kv => kv.Name))
+    {
+        <tr>
+            <td>@t.Name</td>
+            <td>@string.Join(", ", @t.EnvironmentTypes.OrderBy(et => et).ToArray())</td>
+            <td>@t.Description</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<br/>
 <h2>Variable Sets</h2>
+<br/>
 @* TODO: create toggle for text vs diagram *@
 @* <table class="table"> *@
 @*     @foreach (var t in Model.VariableSets.OrderBy(kv => kv.VariableSetName)) *@
@@ -38,24 +71,21 @@
 @*     } *@
 @* </table> *@
 
-@foreach (var t in Model.VariableSets.Where(t => t.Mermaid != null).OrderBy(kv => kv.VariableSetName))
+@foreach (var environmentType in Model
+    .VariableSets
+    .Where(t => t.Mermaid != null)
+    .GroupBy(kv => kv.EnvironmentType))
 {
-    <div class="mermaid">
-        @t.Mermaid
-    </div>
-    <br/>
-    <br/>
+    <h3>@environmentType.Key</h3>
+    <hr/>
+    @foreach (var vs in environmentType)
+    {
+        <div class="mermaid">
+            @vs.Mermaid
+        </div>
+        <br/>
+        <br/>
+    }
 }
 
-
-<h2>Global Schemas</h2>
-<table class="table">
-    @foreach (var t in Model.GlobalSchemas.OrderBy(kv => kv.Name))
-    {
-        <tr>
-            <td>@t.Name</td>
-            <td>@t.Description</td>
-        </tr>
-    }
-</table>
 <script>mermaid.initialize({ startOnLoad: true })</script>

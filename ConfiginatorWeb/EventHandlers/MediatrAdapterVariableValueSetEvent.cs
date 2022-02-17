@@ -15,7 +15,7 @@ public class MediatrAdapterVariableValueSetEvent : INotificationHandler<Mediator
 
     public MediatrAdapterVariableValueSetEvent(IEnumerable<IEventHandler<VariableValueSetEvent>> handler, IMediator mediator, IServiceScopeFactory scope)
     {
-        _handler = Guards.NotDefault(handler, nameof(handler)).ToList();
+        _handler = Guards.HasValue(handler, nameof(handler)).ToList();
     }
 
     public async Task Handle(MediatorNotification<VariableValueSetEvent> notification, CancellationToken cancellationToken)

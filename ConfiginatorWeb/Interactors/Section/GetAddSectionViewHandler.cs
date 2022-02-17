@@ -11,7 +11,7 @@ public class GetAddSectionViewHandler : IRequestHandler<GetAddSectionViewModel, 
     public GetAddSectionViewHandler(EnvironmentValidationService environmentValidationService)
     {
         _environmentValidationService =
-            Guards.NotDefault(environmentValidationService, nameof(environmentValidationService));
+            Guards.HasValue(environmentValidationService, nameof(environmentValidationService));
     }
 
     public Task<AddSectionViewModel> Handle(GetAddSectionViewModel viewModel, CancellationToken cancellationToken)

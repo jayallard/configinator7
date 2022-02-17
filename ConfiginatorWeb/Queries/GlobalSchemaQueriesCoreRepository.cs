@@ -13,12 +13,15 @@ public class GlobalSchemaQueriesCoreRepository : IGlobalSchemaQueries
 
     public GlobalSchemaQueriesCoreRepository(IGlobalSchemaRepository repository)
     {
-        _repository = Guards.NotDefault(repository, nameof(repository));
+        _repository = Guards.HasValue(repository, nameof(repository));
     }
 
-    public async Task<List<GlobalSchemaListItemDto>> GetGlobalSchemasListAsync(CancellationToken cancellationToken = default)
+    public async Task<List<GlobalSchemaListItemDto>> GetGlobalSchemasListAsync(
+        CancellationToken cancellationToken = default)
     {
         var schemas = await _repository.FindAsync(new All(), cancellationToken);
-        return schemas.Select(gs => new GlobalSchemaListItemDto(gs.EntityId, gs.Name, gs.Description)).ToList();
+        return schemas.Select(gs =>
+                new GlobalSchemaListItemDto(gs.EntityId, gs.Name, gs.EnvironmentTypes.ToHashSet(), gs.Description))
+            .ToList();
     }
 }

@@ -85,34 +85,34 @@ var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainServi
 var variableSetService = scope.ServiceProvider.GetRequiredService<VariableSetDomainService>();
 var globalSchemas = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainService>();
 
-var globalSchema1 = await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", await GetSchema("__kafka-1.0.0.json"));
+var globalSchema1 = await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", "development", await GetSchema("__kafka-1.0.0.json"));
 await uow.GlobalSchemas.AddAsync(globalSchema1);
 
 
-var variableSetEntity = await variableSetService.CreateVariableSetAsync("variables1");
+var variableSetEntity = await variableSetService.CreateVariableSetAsync("variables1", "development");
 await uow.VariableSets.AddAsync(variableSetEntity);
 variableSetEntity.SetValue("first", "Santa");
 variableSetEntity.SetValue("last", "Claus");
 
-var variableSet2Entity = await variableSetService.CreateVariableSetAsync("variables2", "variables1");
+var variableSet2Entity = await variableSetService.CreateVariableSetOverride("variables2", "variables1");
 variableSet2Entity.SetValue("first", "SANTA!!!");
 await uow.VariableSets.AddAsync(variableSet2Entity);
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables2a", "variables2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables3", "variables2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables4", "variables3"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables5a", "variables4"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variables5b", "variables4"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables2a", "variables2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables3", "variables2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables4", "variables3"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables5a", "variables4"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables5b", "variables4"));
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("variablesAB", "variables3"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("yabba", "variablesAB"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("dabbadoo", "variablesAB"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variablesAB", "variables3"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("yabba", "variablesAB"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("dabbadoo", "variablesAB"));
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("root2", null));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("blah1", "root2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("blah2", "root2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("c1", "blah2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("c2", "blah2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("root2", "staging"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("blah1", "root2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("blah2", "root2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("c1", "blah2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("c2", "blah2"));
 
 
 var modelValue =

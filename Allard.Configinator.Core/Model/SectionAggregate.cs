@@ -8,6 +8,7 @@ namespace Allard.Configinator.Core.Model;
 
 public class SectionAggregate : AggregateBase<SectionId>
 {
+    internal ISet<string> InternalEnvironmentTypes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     internal List<SectionSchemaEntity> InternalSchemas { get; } = new();
     internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
     public IEnumerable<SectionSchemaEntity> Schemas => InternalSchemas.AsReadOnly();
@@ -18,17 +19,23 @@ public class SectionAggregate : AggregateBase<SectionId>
         InternalEnvironments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
     public EnvironmentEntity GetEnvironment(EnvironmentId environmentId) =>
         InternalEnvironments.GetEnvironment(environmentId);
-    internal SectionAggregate(SectionId id, string name, string organizationPath, SectionSchemaEntity? schema = null)
+
+    /// <summary>
+    /// Gets the environment types that can host this section.
+    /// </summary>
+    public IEnumerable<string> EnvironmentTypes => InternalEnvironmentTypes.ToList();
+    internal SectionAggregate(SectionId id, string initialEnvironmentType, string name, string organizationPath)
     {
-        Guards.NotDefault(id, nameof(id));
-        Guards.NotEmpty(organizationPath, nameof(name));
-        Guards.NotEmpty(organizationPath, nameof(organizationPath));
-        PlayEvent(new SectionCreatedEvent(id, name, organizationPath, schema));
+        Guards.HasValue(id, nameof(id));
+        Guards.HasValue(organizationPath, nameof(name));
+        Guards.HasValue(organizationPath, nameof(organizationPath));
+        Guards.HasValue(initialEnvironmentType, nameof(initialEnvironmentType));
+        PlayEvent(new SectionCreatedEvent(id, name, initialEnvironmentType, organizationPath));
     }
 
     internal SectionAggregate(List<IDomainEvent> events)
     {
-        Guards.NotDefault(events, nameof(events));
+        Guards.HasValue(events, nameof(events));
         foreach (var evt in events) PlayEvent(evt);
         InternalSourceEvents.Clear();
     }
@@ -39,10 +46,14 @@ public class SectionAggregate : AggregateBase<SectionId>
         InternalSourceEvents.Add(evt);
     }
 
-    internal SectionSchemaEntity AddSchema(SectionSchemaId sectionSchemaId, SemanticVersion schemaVersion, JsonDocument schema)
+    internal SectionSchemaEntity AddSchema(
+        SectionSchemaId sectionSchemaId, 
+        SemanticVersion schemaVersion, 
+        JsonDocument schema,
+        string environmentType)
     {
         InternalSchemas.EnsureDoesntExist(sectionSchemaId, schemaVersion);
-        PlayEvent(new SchemaAddedToSectionEvent(Id, sectionSchemaId, schemaVersion, schema));
+        PlayEvent(new SchemaAddedToSectionEvent(Id, sectionSchemaId, schemaVersion, schema, environmentType));
         return GetSchema(sectionSchemaId);
     }
 

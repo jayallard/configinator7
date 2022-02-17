@@ -32,6 +32,7 @@ public class SectionSchemaDto
 {
     public SemanticVersion Version { get; set; }
     public JsonDocument Schema { get; set; }
+    public ISet<string> EnvironmentTypes { get; set; }
 }
 
 public class SectionEnvironmentDto

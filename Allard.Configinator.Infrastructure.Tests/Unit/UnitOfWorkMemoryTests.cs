@@ -29,7 +29,7 @@ public class UnitOfWorkMemoryTests
     public async Task UowWritesToRepositoryOnSave()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(27), "name", "path");
+        var section = new SectionAggregate(new SectionId(27), "Development", "name", "path");
         
         // act
         await _unitOfWork.Sections.AddAsync(section);

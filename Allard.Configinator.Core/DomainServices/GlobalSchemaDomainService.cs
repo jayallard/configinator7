@@ -10,16 +10,19 @@ public class GlobalSchemaDomainService
 {
     private readonly IIdentityService _identityService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly EnvironmentValidationService _environmentService;
 
-    public GlobalSchemaDomainService(IIdentityService identityService, IUnitOfWork unitOfWork)
+    public GlobalSchemaDomainService(IIdentityService identityService, IUnitOfWork unitOfWork, EnvironmentValidationService environmentRules)
     {
-        _identityService = Guards.NotDefault(identityService, nameof(identityService));
-        _unitOfWork = Guards.NotDefault(unitOfWork, nameof(unitOfWork));
+        _environmentService = Guards.HasValue(environmentRules, nameof(environmentRules));
+        _identityService = Guards.HasValue(identityService, nameof(identityService));
+        _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
     }
 
     public async Task<GlobalSchemaAggregate> CreateGlobalSchemaAsync(
         string name, 
         string? description,
+        string environmentType,
         JsonDocument schema)
     {
         if (await _unitOfWork.GlobalSchemas.Exists(new GlobalSchemaName(name)))
@@ -28,8 +31,12 @@ public class GlobalSchemaDomainService
                 $"Schema already exists: Name={name}");
         }
 
+        if (!_environmentService.IsValidEnvironmentType(environmentType))
+        {
+            throw new InvalidOperationException("Invalid Environment Type: " + environmentType);
+        }
+
         var id = await _identityService.GetId<GlobalSchemaId>();
-        var schemaAggregate = new GlobalSchemaAggregate(id, name, description, schema);
-        return schemaAggregate;
+        return new GlobalSchemaAggregate(id, environmentType, name, description, schema);
     }
 }

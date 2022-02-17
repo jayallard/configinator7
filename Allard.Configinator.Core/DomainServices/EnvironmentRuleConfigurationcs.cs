@@ -7,6 +7,6 @@ public class EnvironmentRules
 
 public class EnvironmentType
 {
-    public string EnvironmentTypeName { get; set; }
+    public string Name { get; set; }
     public string[] AllowedEnvironments { get; set; }
 }

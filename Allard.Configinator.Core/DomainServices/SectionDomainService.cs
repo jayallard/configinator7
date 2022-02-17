@@ -45,7 +45,7 @@ public class SectionDomainService
         }
 
         var id = await _identityService.GetId<SectionId>();
-        var section = new SectionAggregate(id, sectionName, organizationPath, null);
+        var section = new SectionAggregate(id, _environmentValidationService.GetFirstEnvironmentType(), sectionName, organizationPath);
         return section;
     }
 
@@ -60,7 +60,7 @@ public class SectionDomainService
         await _schemaLoader.ResolveSchemaAsync(schema);
 
         var id = await _identityService.GetId<SectionSchemaId>();
-        return section.AddSchema(id, version, schema);
+        return section.AddSchema(id, version, schema, _environmentValidationService.GetFirstEnvironmentType());
     }
 
     public async Task<EnvironmentEntity> AddEnvironmentToSectionAsync(

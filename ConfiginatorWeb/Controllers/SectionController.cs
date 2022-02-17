@@ -19,10 +19,10 @@ public class SectionController : Controller
     public SectionController(ISectionQueries projections, IVariableSetQueries variableSetQueries,
         IGlobalSchemaQueries globalSchemaQueries, IMediator mediator)
     {
-        _mediator = Guards.NotDefault(mediator, nameof(mediator));
-        _globalSchemaQueries = Guards.NotDefault(globalSchemaQueries, nameof(globalSchemaQueries));
-        _sectionQueries = Guards.NotDefault(projections, nameof(projections));
-        _variableSetQueries = Guards.NotDefault(variableSetQueries, nameof(variableSetQueries));
+        _mediator = Guards.HasValue(mediator, nameof(mediator));
+        _globalSchemaQueries = Guards.HasValue(globalSchemaQueries, nameof(globalSchemaQueries));
+        _sectionQueries = Guards.HasValue(projections, nameof(projections));
+        _variableSetQueries = Guards.HasValue(variableSetQueries, nameof(variableSetQueries));
     }
 
     // GET

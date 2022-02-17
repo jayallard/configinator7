@@ -12,7 +12,7 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
 
     public DataChangeTracker(IRepository<TAggregate, TIdentity> repository)
     {
-        _repository = Guards.NotDefault(repository, nameof(repository));
+        _repository = Guards.HasValue(repository, nameof(repository));
     }
 
     public async Task<bool> Exists(ISpecification<TAggregate> specification)

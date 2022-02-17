@@ -6,34 +6,52 @@ namespace Allard.Configinator.Core.Model;
 
 public class VariableSetAggregate : AggregateBase<VariableSetId>
 {
+    private readonly List<VariableSetId> _children = new();
     private readonly Dictionary<string, JToken> _variables = new();
     
-    internal VariableSetAggregate(VariableSetId id, string name, string? baseVariableSet = null)
+    internal VariableSetAggregate(
+        VariableSetId id,
+        VariableSetId? baseId,
+        // TODO: temporary
+        string? baseVariableSetName,
+        string name, 
+        string environmentType)
     {
-        Play(new VariableSetCreatedEvent(id, name, null, baseVariableSet));
+        Play(new VariableSetCreatedEvent(id, baseId, baseVariableSetName, name, environmentType));
     }
     
     internal VariableSetAggregate(List<IDomainEvent> events)
     {
-        Guards.NotDefault(events, nameof(events));
+        Guards.HasValue(events, nameof(events));
         foreach (var evt in events) Play(evt);
         InternalSourceEvents.Clear();
     }
 
+    public IReadOnlyCollection<VariableSetId> Children => _children.AsReadOnly();
+
     public string VariableSetName { get; private set; }
 
     public string? BaseVariableSetName { get; private set; }
+    public VariableSetId BaseVariableSetId { get; private set; } 
 
-    private void Play(IDomainEvent evt)
+    public string EnvironmentType { get; private set; } = string.Empty;
+
+    internal void Play(IDomainEvent evt)
     {
         InternalSourceEvents.Add(evt);
         switch (evt)
         {
+            case VariableSetOverrideCreatedEvent overrideCreated:
+            {
+                _children.Add(overrideCreated.VariableSetId);
+                break;
+            }
             case VariableSetCreatedEvent created:
             {
                 VariableSetName = created.VariableSetName;
-                BaseVariableSetName = created.BaseVariableSetName;
                 Id = created.VariableSetId;
+                EnvironmentType = created.EnvironmentType;
+                BaseVariableSetName = created.BaseVariableSetName;
                 break;
             }
             case VariableValueSetEvent setter:
@@ -60,7 +78,7 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
 
     public void SetValue(string key, JToken value)
     {
-        Guards.NotDefault(value, nameof(value));
+        Guards.HasValue(value, nameof(value));
         if (_variables.ContainsKey(key))
         {
             Play(new VariableValueSetEvent(VariableSetName, key, value));

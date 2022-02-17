@@ -10,7 +10,7 @@ public class MediatorPublisher : IEventPublisher
 
     public MediatorPublisher(IMediator mediator)
     {
-        _mediator = Guards.NotDefault(mediator, nameof(mediator));
+        _mediator = Guards.HasValue(mediator, nameof(mediator));
     }
 
     public async Task PublishAsync(IEnumerable<IDomainEvent> events, CancellationToken cancellationToken = default)

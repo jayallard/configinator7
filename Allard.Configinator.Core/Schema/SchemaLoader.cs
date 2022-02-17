@@ -13,13 +13,13 @@ public class SchemaLoader
     private readonly IUnitOfWork _unitOfWork;
 
     public SchemaLoader(IUnitOfWork unitOfWork) =>
-        _unitOfWork = Guards.NotDefault(unitOfWork, nameof(unitOfWork));
+        _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
 
     public async Task<SchemaInfo> ResolveSchemaAsync(
         JsonDocument schemaSource,
         CancellationToken cancellationToken = default)
     {
-        Guards.NotDefault(schemaSource, nameof(schemaSource));
+        Guards.HasValue(schemaSource, nameof(schemaSource));
 
         var tracker = new SchemaDetailTracker();
         var resolved = await JsonSchema.FromJsonAsync(schemaSource.RootElement.ToString(), ".",
