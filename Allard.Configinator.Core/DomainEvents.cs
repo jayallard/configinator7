@@ -145,13 +145,21 @@ public record ReleaseValueBecameOld(
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId) : DomainEventBase;
 
-public record GlobalSchemaCreated(
-    GlobalSchemaId GlobalSchemaId,
+public record GlobalSchemaCreatedEvent(
+    SchemaId SchemaId,
+    string Name,
+    string? Description,
+    string EnvironmentType,
+    JsonDocument Schema) : DomainEventBase;
+
+public record SectionSchemaCreatedEvent(
+    SchemaId SchemaId,
+    SectionId SectionId,
     string Name,
     string? Description,
     string EnvironmentType,
     JsonDocument Schema) : DomainEventBase;
     
 public record GlobalSchemaPromotedEvent(
-    GlobalSchemaId GlobalSchemaId,
+    SchemaId SchemaId,
     string ToEnvironmentType) : DomainEventBase;

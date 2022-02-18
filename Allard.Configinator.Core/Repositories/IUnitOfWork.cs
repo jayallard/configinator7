@@ -8,7 +8,7 @@ public interface IUnitOfWork
 {
     IDataChangeTracker<SectionAggregate, SectionId> Sections { get; }
     IDataChangeTracker<VariableSetAggregate, VariableSetId> VariableSets { get; }
-    IDataChangeTracker<GlobalSchemaAggregate, GlobalSchemaId> GlobalSchemas { get; }
+    IDataChangeTracker<GlobalSchemaAggregate, SchemaId> GlobalSchemas { get; }
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 

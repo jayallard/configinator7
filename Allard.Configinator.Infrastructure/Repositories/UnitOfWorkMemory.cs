@@ -17,12 +17,12 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
         _publisher = Guards.HasValue(publisher, nameof(publisher));
         Sections = new DataChangeTracker<SectionAggregate, SectionId>(sectionRepository);
         VariableSets = new DataChangeTracker<VariableSetAggregate, VariableSetId>(variableSetRepository);
-        GlobalSchemas = new DataChangeTracker<GlobalSchemaAggregate, GlobalSchemaId>(globalSchemaRepository);
+        GlobalSchemas = new DataChangeTracker<GlobalSchemaAggregate, SchemaId>(globalSchemaRepository);
     }
     
     public IDataChangeTracker<SectionAggregate, SectionId> Sections { get; } 
     public IDataChangeTracker<VariableSetAggregate, VariableSetId> VariableSets { get; } 
-    public IDataChangeTracker<GlobalSchemaAggregate, GlobalSchemaId> GlobalSchemas { get; } 
+    public IDataChangeTracker<GlobalSchemaAggregate, SchemaId> GlobalSchemas { get; } 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var events =

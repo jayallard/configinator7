@@ -3,9 +3,10 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Model;
 
-public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
+public class GlobalSchemaAggregate : AggregateBase<SchemaId>
 {
     private readonly HashSet<string> _environmentTypes = new();
+
     internal GlobalSchemaAggregate(List<IDomainEvent> events)
     {
         Guards.HasValue(events, nameof(events));
@@ -13,22 +14,35 @@ public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
         InternalSourceEvents.Clear();
     }
 
+
     internal GlobalSchemaAggregate(
-        GlobalSchemaId id,
+        SchemaId schemaId,
+        SectionId? sectionId,
         string environmentType,
         string name,
         string? description,
         JsonDocument schema)
     {
-        Guards.HasValue(id, nameof(id));
+        Guards.HasValue(schemaId, nameof(schemaId));
         Guards.HasValue(name, nameof(name));
         Guards.HasValue(schema, nameof(schema));
-        Play(new GlobalSchemaCreated(id, name, description, environmentType, schema));
+        if (sectionId == null)
+        {
+            Play(new GlobalSchemaCreatedEvent(schemaId, name, description, environmentType, schema));
+        }
+        else
+        {
+            Play(new SectionSchemaCreatedEvent(schemaId, sectionId, name, description, environmentType, schema));
+        }
     }
+
+    public SectionId? SectionId { get; private set; }
+
+    public bool IsGlobalSchema => SectionId == null;
 
     public string? Description { get; private set; }
     public IEnumerable<string> EnvironmentTypes => _environmentTypes.ToList();
-    
+
     public string Name { get; private set; }
     public JsonDocument Schema { get; private set; }
 
@@ -37,8 +51,8 @@ public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
         InternalSourceEvents.Add(evt);
         switch (evt)
         {
-            case GlobalSchemaCreated created:
-                Id = created.GlobalSchemaId;
+            case GlobalSchemaCreatedEvent created:
+                Id = created.SchemaId;
                 Name = created.Name;
                 Schema = created.Schema;
                 Description = created.Description;

@@ -22,7 +22,6 @@ public class GlobalSchemaDomainService
     public async Task<GlobalSchemaAggregate> CreateGlobalSchemaAsync(
         string name, 
         string? description,
-        string environmentType,
         JsonDocument schema)
     {
         SchemaName.Parse(name);
@@ -31,14 +30,10 @@ public class GlobalSchemaDomainService
             throw new InvalidOperationException(
                 $"Schema already exists: Name={name}");
         }
-
-        if (!_environmentService.IsValidEnvironmentType(environmentType))
-        {
-            throw new InvalidOperationException("Invalid Environment Type: " + environmentType);
-        }
-
-        var id = await _identityService.GetId<GlobalSchemaId>();
-        return new GlobalSchemaAggregate(id, environmentType, name, description, schema);
+        
+        var id = await _identityService.GetId<SchemaId>();
+        var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
+        return new GlobalSchemaAggregate(id, null, firstEnvironmentType, name, description, schema);
     }
 
     public async Task PromoteSchemaAsync(string name, string targetEnvironmentType,

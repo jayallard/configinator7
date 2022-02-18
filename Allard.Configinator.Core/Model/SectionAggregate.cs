@@ -6,9 +6,9 @@ namespace Allard.Configinator.Core.Model;
 public class SectionAggregate : AggregateBase<SectionId>
 {
     internal ISet<string> InternalEnvironmentTypes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    internal List<SectionSchemaEntity> InternalSchemas { get; } = new();
+    internal List<SchemaId> InternalSchemas { get; } = new();
     internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
-    public IEnumerable<SectionSchemaEntity> Schemas => InternalSchemas.AsReadOnly();
+    public IEnumerable<SchemaId> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public string SectionName { get; internal set; }
     public EnvironmentEntity GetEnvironment(string name) =>
