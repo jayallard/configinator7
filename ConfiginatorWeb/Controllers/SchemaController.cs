@@ -1,4 +1,6 @@
-﻿using ConfiginatorWeb.Queries;
+﻿using ConfiginatorWeb.Interactors.Schema;
+using ConfiginatorWeb.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConfiginatorWeb.Controllers;
@@ -6,14 +8,16 @@ namespace ConfiginatorWeb.Controllers;
 public class SchemaController : Controller
 {
     private readonly ISectionQueries _sectionQueries;
+    private readonly IMediator _mediator;
 
-    public SchemaController(ISectionQueries sectionQueries)
+    public SchemaController(ISectionQueries sectionQueries, IMediator mediator)
     {
         _sectionQueries = sectionQueries;
+        _mediator = mediator;
     }
 
     // GET
-    public async Task<IActionResult> Add(long sectionId, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddSectionSchema(long sectionId, CancellationToken cancellationToken)
     {
         var section = await _sectionQueries.GetSectionAsync(sectionId, cancellationToken);
         ViewData["view"] = new AddSchemaViewModel(section);
@@ -21,15 +25,13 @@ public class SchemaController : Controller
     }
 
     [HttpPost]
-    public IActionResult Add(AddSchemaModel model)
+    public async Task<IActionResult> AddSectionSchema(AddSchemaModel model)
     {
-        ModelState.AddModelError("blah", "didn't work");
-        Console.WriteLine(model.Name);
-        Console.WriteLine(model.Schema);
-        return View("Add", model);
+        var result = await _mediator.Send(new CreateSectionSchemaRequest(model.SectionId, model.SchemaName, model.Schema));
+        return Json(new {ok = "then"});
     }
 }
 
-public record AddSchemaModel(long SectionId, string? Name, string? Schema);
+public record AddSchemaModel(long SectionId, string SchemaName, string Schema);
 
 public record AddSchemaViewModel(SectionDto Section);

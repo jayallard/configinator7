@@ -39,17 +39,7 @@ public class SectionAggregate : AggregateBase<SectionId>
         SectionAggregateEventHandlers.Play(this, evt);
         InternalSourceEvents.Add(evt);
     }
-
-    internal SectionSchemaEntity AddSchema(
-        SectionSchemaId sectionSchemaId, 
-        SchemaName name, 
-        JsonDocument schema,
-        string environmentType)
-    {
-        InternalSchemas.EnsureDoesntExist(sectionSchemaId, name.FullName); // TODO: shouldn't need fullname
-        PlayEvent(new SchemaAddedToSectionEvent(Id, sectionSchemaId, name, schema, environmentType));
-        return GetSchema(sectionSchemaId);
-    }
+    
 
     public SectionSchemaEntity GetSchema(SectionSchemaId sectionSchemaId) =>
         InternalSchemas.Single(s => s.Id == sectionSchemaId);

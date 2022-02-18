@@ -53,9 +53,11 @@ public class SectionDomainService
         // this resolves the schema; confirms references are good.
         // resolves references from GlobalSchemaEntities,
         await _schemaLoader.ResolveSchemaAsync(schema);
-
-        var id = await _identityService.GetId<SectionSchemaId>();
-        return section.AddSchema(id, SchemaName.Parse(name), schema, _environmentValidationService.GetFirstEnvironmentType());
+        var sectionSchemaId = await _identityService.GetId<SectionSchemaId>();
+        var firstEnvironmentType = _environmentValidationService.GetFirstEnvironmentType();
+        section.InternalSchemas.EnsureDoesntExist(sectionSchemaId, name);
+        section.PlayEvent(new SchemaAddedToSectionEvent(section.Id, sectionSchemaId, new SchemaName(name), schema, firstEnvironmentType));
+        return section.GetSchema(sectionSchemaId);
     }
 
     public async Task<SectionSchemaEntity> PromoteSchemaAsync(

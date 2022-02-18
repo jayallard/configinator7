@@ -1,0 +1,53 @@
+﻿@using ConfiginatorWeb.Controllers
+@model ConfiginatorWeb.Controllers.AddSchemaModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+    var view = (AddSchemaViewModel) ViewData["view"];
+}
+
+<script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js">
+</script>
+
+<script type="text/javascript">
+function schemaText() {
+    return $('#txtSchema').val()
+}
+
+function schemaName() {
+    return $('#txtSchemaName').val()
+}
+
+$(document).ready(function() {
+    $('#save').click(function (e){
+        const requestDto = {
+                                     SectionId: '@view.Section.SectionId',
+                                     SchemaName: schemaName(),
+                                     Schema: schemaText(),
+                                 };
+        //alert(JSON.stringify(requestDto));
+        $.post("@Url.Action("AddSectionSchema", "Schema")", requestDto)
+        .done(function (data) {
+            //alert(JSON.stringify(data));
+            document.location.replace('@Url.ActionLink("Display", "Section", new {SectionId=Model.SectionId})');
+        })
+        .fail(function (x, status, e) {
+            alert(x.responseText);
+        });
+    });
+});
+
+</script>
+
+<h1>Add a Schema to a Section</h1>
+<p>Section: @view.Section.SectionName</p>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <h2>Schema</h2>
+    Schema Name:&nbsp;&nbsp;@Html.TextBoxFor(m => m.SchemaName, new {id="txtSchemaName"})<br/>
+    The schema name is of the format: <code>name/semantic-version</code>. IE: <code>/my/configuration/section/1.0.0</code>
+    <br/><br/>
+    @Html.TextAreaFor(m => m.Schema, new {style = "width:100%;height:300px;", id="txtSchema"})
+    <button class="btn btn-primary" id="save" type="button">Create</button>
+</form>

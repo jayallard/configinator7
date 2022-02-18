@@ -17,12 +17,9 @@
         color: blue;
     }
 </style>
-<h2>Variable Set: @Model.VariableSet.VariableSetName</h2>
-@if (Model.VariableSet.Base != null)
-{
-    <h2>Base: @Model.VariableSet.Base</h2>
-}
-
+<h1>Variable Set</h1>
+<p>@Model.VariableSet.VariableSetName</p>
+<h2>Values</h2>
 <table class="table table-bordered">
     <thead>
     <tr>
@@ -109,6 +106,14 @@
         </tr>
     }
 </table>
+<h2>Releases</h2>
+<p>
+    TODO
+</p>
+<ul>
+    <li>/a/b/c</li>
+</ul>
+<h2>Variable Set Relationships</h2>
 <div class="mermaid">
     @Model.MermaidJsDiagram
 </div>
