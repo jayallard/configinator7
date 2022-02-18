@@ -31,7 +31,7 @@ public class SectionDomainService
         _environmentValidationService = environmentValidationService;
     }
 
-    public async Task<SectionAggregate> CreateSectionAsync(string sectionName, string organizationPath)
+    public async Task<SectionAggregate> CreateSectionAsync(string sectionName)
     {
         // make sure section doesn't already exist
         if (await _unitOfWork.Sections.Exists(sectionName))
@@ -40,8 +40,7 @@ public class SectionDomainService
         }
 
         var id = await _identityService.GetId<SectionId>();
-        var section = new SectionAggregate(id, _environmentValidationService.GetFirstEnvironmentType(), sectionName,
-            organizationPath);
+        var section = new SectionAggregate(id, _environmentValidationService.GetFirstEnvironmentType(), sectionName);
         return section;
     }
 
@@ -56,7 +55,7 @@ public class SectionDomainService
         await _schemaLoader.ResolveSchemaAsync(schema);
 
         var id = await _identityService.GetId<SectionSchemaId>();
-        return section.AddSchema(id, name, schema, _environmentValidationService.GetFirstEnvironmentType());
+        return section.AddSchema(id, SchemaName.Parse(name), schema, _environmentValidationService.GetFirstEnvironmentType());
     }
 
     public async Task<SectionSchemaEntity> PromoteSchemaAsync(

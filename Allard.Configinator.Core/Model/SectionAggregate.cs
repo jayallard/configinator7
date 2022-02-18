@@ -11,7 +11,6 @@ public class SectionAggregate : AggregateBase<SectionId>
     public IEnumerable<SectionSchemaEntity> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public string SectionName { get; internal set; }
-    public string OrganizationPath { get; internal set; }
     public EnvironmentEntity GetEnvironment(string name) =>
         InternalEnvironments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
     public EnvironmentEntity GetEnvironment(EnvironmentId environmentId) =>
@@ -21,13 +20,11 @@ public class SectionAggregate : AggregateBase<SectionId>
     /// Gets the environment types that can host this section.
     /// </summary>
     public IEnumerable<string> EnvironmentTypes => InternalEnvironmentTypes.ToList();
-    internal SectionAggregate(SectionId id, string initialEnvironmentType, string name, string organizationPath)
+    internal SectionAggregate(SectionId id, string initialEnvironmentType, string name)
     {
         Guards.HasValue(id, nameof(id));
-        Guards.HasValue(organizationPath, nameof(name));
-        Guards.HasValue(organizationPath, nameof(organizationPath));
         Guards.HasValue(initialEnvironmentType, nameof(initialEnvironmentType));
-        PlayEvent(new SectionCreatedEvent(id, name, initialEnvironmentType, organizationPath));
+        PlayEvent(new SectionCreatedEvent(id, name, initialEnvironmentType));
     }
 
     internal SectionAggregate(List<IDomainEvent> events)
@@ -45,12 +42,11 @@ public class SectionAggregate : AggregateBase<SectionId>
 
     internal SectionSchemaEntity AddSchema(
         SectionSchemaId sectionSchemaId, 
-        string name, 
+        SchemaName name, 
         JsonDocument schema,
         string environmentType)
     {
-        SchemaName.Parse(name);
-        InternalSchemas.EnsureDoesntExist(sectionSchemaId, name);
+        InternalSchemas.EnsureDoesntExist(sectionSchemaId, name.FullName); // TODO: shouldn't need fullname
         PlayEvent(new SchemaAddedToSectionEvent(Id, sectionSchemaId, name, schema, environmentType));
         return GetSchema(sectionSchemaId);
     }
@@ -59,7 +55,8 @@ public class SectionAggregate : AggregateBase<SectionId>
         InternalSchemas.Single(s => s.Id == sectionSchemaId);
 
     public SectionSchemaEntity GetSchema(string name) =>
-        InternalSchemas.Single(s => s.SchemaName.Equals(name, StringComparison.OrdinalIgnoreCase));
+        // TODO: don't need fullname
+        InternalSchemas.Single(s => s.SchemaName.FullName.Equals(name, StringComparison.OrdinalIgnoreCase));
     
     public ReleaseEntity GetRelease(EnvironmentId environmentId, ReleaseId releaseId) =>
         GetEnvironment(environmentId).InternalReleases.GetRelease(releaseId);

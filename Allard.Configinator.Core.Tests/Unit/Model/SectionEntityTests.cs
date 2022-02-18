@@ -14,11 +14,10 @@ public class SectionEntityTests
     public void CreateSection()
     {
         // arrange, act
-        var section = new SectionAggregate(new SectionId(0), "development","name", "path");
+        var section = new SectionAggregate(new SectionId(0), "development","name");
 
         // assert
         section.SectionName.Should().Be("name");
-        section.OrganizationPath.Should().Be("path");
         section.Schemas.Single().SchemaName.Should().Be("1.0.0");
     }
 
@@ -26,10 +25,10 @@ public class SectionEntityTests
     public void AddSchema()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development","name", "path");
+        var section = new SectionAggregate(new SectionId(0), "Development","name");
 
         // act
-        section.AddSchema(new SectionSchemaId(0), "1.0.0", JsonDocument.Parse("{}"), "development");
+        section.AddSchema(new SectionSchemaId(0), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
 
         // assert
         section.Schemas.Count().Should().Be(1);
@@ -39,16 +38,16 @@ public class SectionEntityTests
     public void AddSchemaThrowsExceptionIfVersionAlreadyExists()
     {
         // arrange
-        var section = new SectionAggregate(NewSectionId(0), "Development", "name", "path");
-        var schema1 = new SectionSchemaEntity(new SectionSchemaId(0), "1.0.0",
+        var section = new SectionAggregate(NewSectionId(0), "Development", "name");
+        var schema1 = new SectionSchemaEntity(new SectionSchemaId(0), SchemaName.Parse("1.0.0"),
             JsonDocument.Parse("{}"), "development");
-        var schema2 = new SectionSchemaEntity(new SectionSchemaId(1), "1.0.0",
+        var schema2 = new SectionSchemaEntity(new SectionSchemaId(1), SchemaName.Parse("1.0.0"),
             JsonDocument.Parse("{}"), "development");
 
         // act
-        section.AddSchema(new SectionSchemaId(0), "1.0.0", JsonDocument.Parse("{}"), "development");
+        section.AddSchema(new SectionSchemaId(0), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
         var test = () =>
-            section.AddSchema(new SectionSchemaId(1), "1.0.0", JsonDocument.Parse("{}"), "development");
+            section.AddSchema(new SectionSchemaId(1), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
 
         // assert
         test
@@ -61,12 +60,12 @@ public class SectionEntityTests
     public void AddSchemaThrowsExceptionIdAlreadyExists()
     {
         // arrange
-        var section = new SectionAggregate(NewSectionId(0), "Development", "name", "path");
+        var section = new SectionAggregate(NewSectionId(0), "Development", "name");
 
         // act
-        section.AddSchema(new SectionSchemaId(0), "1.0.0", JsonDocument.Parse("{}"), "development");
+        section.AddSchema(new SectionSchemaId(0), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
         var test = () =>
-            section.AddSchema(new SectionSchemaId(0), "1.0.0", JsonDocument.Parse("{}"), "development");
+            section.AddSchema(new SectionSchemaId(0), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
 
         // assert
         test
@@ -79,7 +78,7 @@ public class SectionEntityTests
     public void AddEnvironment()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "name", "path");
+        var section = new SectionAggregate(new SectionId(0), "Development", "name");
 
         // act
         section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));
@@ -93,7 +92,7 @@ public class SectionEntityTests
     public void AddEnvironmentThrowsExceptionIfNameAlreadyExists()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "name", "path");
+        var section = new SectionAggregate(new SectionId(0), "Development", "name");
 
         // act
         var test = () =>
@@ -110,7 +109,7 @@ public class SectionEntityTests
     public void AddEnvironmentThrowsExceptionIfIdAlreadyExists()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "name", "path");
+        var section = new SectionAggregate(new SectionId(0), "Development", "name");
 
         // act
         section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));

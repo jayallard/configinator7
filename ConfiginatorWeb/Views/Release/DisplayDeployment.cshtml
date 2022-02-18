@@ -9,15 +9,15 @@
 <div class="container">
     <div class="row">
         <div class="col-2">Section Name</div>
-        <div class="col-2">@Html.SectionLink(@Model.Section.SectionName, Model.Section.SectionId)</div>
+        <div class="col-3">@Html.SectionLink(@Model.Section.SectionName, Model.Section.SectionId)</div>
     </div>
     <div class="row">
         <div class="col-2">Environment Name</div>
-        <div class="col-2">@Model.Environment.EnvironmentName</div>
+        <div class="col-3">@Model.Environment.EnvironmentName</div>
     </div>
     <div class="row">
         <div class="col-2">Release Id</div>
-        <div class="col-2">
+        <div class="col-3">
             <a
                 asp-action="DisplayRelease"
                 asp-route-sectionId="@Model.Section.SectionId"

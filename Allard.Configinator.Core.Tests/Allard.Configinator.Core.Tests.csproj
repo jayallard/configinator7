@@ -42,4 +42,8 @@
       <ProjectReference Include="..\Allard.Configinator.Infrastructure\Allard.Configinator.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Unit\OrganizationPathHierarchy.cs" />
+    </ItemGroup>
+
 </Project>

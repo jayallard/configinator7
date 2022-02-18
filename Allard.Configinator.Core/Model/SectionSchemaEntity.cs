@@ -7,9 +7,9 @@ public class SectionSchemaEntity : EntityBase<SectionSchemaId>
 {
     internal HashSet<string> InternalEnvironmentTypes { get; } = new();
     public IEnumerable<string> EnvironmentTypes => InternalEnvironmentTypes.ToList();
-    public string SchemaName { get; }
+    public SchemaName SchemaName { get; }
     public JsonDocument Schema { get; }
-    internal SectionSchemaEntity(SectionSchemaId id, string name, JsonDocument schema, string environmentType)
+    internal SectionSchemaEntity(SectionSchemaId id, SchemaName name, JsonDocument schema, string environmentType)
     {
         Id = Guards.HasValue(id, nameof(id));
         SchemaName = Guards.HasValue(name, nameof(name));

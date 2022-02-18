@@ -9,6 +9,7 @@ public class SchemaName
     public SemanticVersion Version { get; }
     public string Name { get; }
 
+    public string FullName { get; }
     public SchemaName(string name)
     {
         var slash = name.LastIndexOf("/", StringComparison.OrdinalIgnoreCase);
@@ -19,5 +20,6 @@ public class SchemaName
 
         Name = name[..slash];
         Version = SemanticVersion.Parse(name[(slash + 1)..]);
+        FullName = name;
     }
 }

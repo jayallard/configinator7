@@ -63,7 +63,6 @@ public class SectionController : Controller
             var request = new CreateSectionAppRequest
             {
                 Name = name,
-                OrganizationPath = path,
                 EnvironmentNames = selectedEnvironments
             };
             var result = await _mediator.Send(request);

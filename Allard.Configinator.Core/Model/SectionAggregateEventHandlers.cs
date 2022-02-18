@@ -42,7 +42,6 @@ internal static class SectionAggregateEventHandlers
 
     private static void CreateSection(SectionAggregate section, SectionCreatedEvent evt)
     {
-        section.OrganizationPath = evt.OrganizationPath;
         section.Id = evt.SectionId;
         section.SectionName = evt.SectionName;
         section.InternalEnvironmentTypes.Add(evt.InitialEnvironmentType);

@@ -12,7 +12,7 @@ public static class ModelTestUtility
 
     public static SectionAggregate CreateTestSection()
     {
-        var section = new SectionAggregate(NewSectionId(0), "development", "s", "p");
+        var section = new SectionAggregate(NewSectionId(0), "development", "s");
         //section.AddEnvironment(NewEnvironmentId(0), "test1");
         //return section;
         throw new NotImplementedException();

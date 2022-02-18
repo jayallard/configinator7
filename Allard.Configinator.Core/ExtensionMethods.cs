@@ -47,7 +47,8 @@ public static class ExtensionMethods
     {
         var schemaEntities = schemas as SectionSchemaEntity[] ?? schemas.ToArray();
         schemaEntities.EnsureIdDoesntExist(id, "Schema");
-        if (name != null && schemaEntities.Any(s => s.SchemaName.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        // TODO: don't need fullname
+        if (name != null && schemaEntities.Any(s => s.SchemaName.FullName.Equals(name, StringComparison.OrdinalIgnoreCase)))
             throw new InvalidOperationException("Schema already exists. Name=" + name);
     }
 

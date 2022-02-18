@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Allard.Configinator.Core.Model;
 using Allard.Json;
 using ConfiginatorWeb.Interactors;
 using ConfiginatorWeb.Interactors.Release;
@@ -52,6 +53,7 @@ public class ReleaseController : Controller
         // set the value to the last of the most recent release.
         var value = environment.Releases.LastOrDefault()?.ModelValue.RootElement.ToIndented();
         var variableSetName = environment.Releases.LastOrDefault()?.VariableSet?.VariableSetName;
+        var schemaName = environment.Releases.LastOrDefault()?.Schema?.Name?.FullName;
         var variableSets = (await _variableSetQueries.GetVariableSetListAsync(cancellationToken))
             .Select(s => s.VariableSetName)
             .OrderBy(s => s)
@@ -63,7 +65,7 @@ public class ReleaseController : Controller
             SectionName = section.SectionName,
             Schemas = section
                 .Schemas
-                .OrderByDescending(s => s.Name)
+                .OrderByDescending(s => s.Name.FullName)
                 .Select(s => new EditSchemaView(
                     s.Name,
                     s.Schema.RootElement.ToString()))
@@ -71,6 +73,7 @@ public class ReleaseController : Controller
 
             DefaultValue = value,
             DefaultVariableSetName = variableSetName,
+            DefaultSchemaName = schemaName,
             VariableSetNames = variableSets
         };
 

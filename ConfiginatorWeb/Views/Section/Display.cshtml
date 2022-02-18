@@ -34,7 +34,8 @@ $(document).ready(function() {
      });
  });
 </script>
-<h1>Configuration Section: @Model.SectionName</h1>
+<h1>Configuration Section</h1>
+<p>@Model.SectionName</p>
 <h2>Environments</h2>
 <table class="table table-bordered">
     <thead>
@@ -66,7 +67,7 @@ $(document).ready(function() {
                                 <td>
                                     @Html.ReleaseLink(Model.SectionId, e.EnvironmentId, r.ReleaseId)
                                 </td>
-                                <td>@r.Schema.Name</td>
+                                <td>@r.Schema.Name.FullName</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                                 <td>
                                     @if (r.VariableSet != null)
@@ -111,9 +112,12 @@ $(document).ready(function() {
     @foreach (var s in Model.Schemas)
     {
         <tr>
-            <td>@Html.SectionSchemaLink(Model.SectionId, s.Name)</td>
+            <td>@Html.SectionSchemaLink(Model.SectionId, s.Name.FullName)</td>
             <td>@string.Join(", ", s.EnvironmentTypes)</td>
         </tr>
     }
     </tbody>
 </table>
+<p>
+    <a asp-action="Add" asp-controller="schema" asp-route-sectionId="@Model.SectionId">Add Schema</a>
+</p>

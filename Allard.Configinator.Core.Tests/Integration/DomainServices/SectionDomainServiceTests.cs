@@ -18,16 +18,16 @@ public class SectionDomainServiceTests
     [Fact]
     public async Task ThrowExceptionIfNameExists()
     {
-        await _domainService.CreateSectionAsync("name", "path");
-        var test = async () => await _domainService.CreateSectionAsync("name", "path");
+        await _domainService.CreateSectionAsync("name");
+        var test = async () => await _domainService.CreateSectionAsync("name");
         await test.Should().ThrowExactlyAsync<InvalidOperationException>().WithMessage("Section already exists: name");
     }
 
     [Fact]
     public async Task ThrowExceptionIfPathExists()
     {
-        await _domainService.CreateSectionAsync("name1", "path");
-        var test = async () => await _domainService.CreateSectionAsync("name2", "path");
+        await _domainService.CreateSectionAsync("name1");
+        var test = async () => await _domainService.CreateSectionAsync("name2");
         await test.Should().ThrowExactlyAsync<InvalidOperationException>().WithMessage("The path is already in use by another section");
     }
 }

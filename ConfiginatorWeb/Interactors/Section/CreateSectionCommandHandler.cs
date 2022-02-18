@@ -20,7 +20,7 @@ public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, 
 
     public async Task<CreateSectionAppResponse> Handle(CreateSectionAppRequest request, CancellationToken cancellationToken)
     {
-        var section = await _service.CreateSectionAsync(request.Name, request.OrganizationPath);
+        var section = await _service.CreateSectionAsync(request.Name);
         foreach (var env in request.EnvironmentNames)
         {
             await _service.AddEnvironmentToSectionAsync(section, env);  
@@ -35,8 +35,6 @@ public class CreateSectionAppRequest : IRequest<CreateSectionAppResponse>
 {
     [Required]
     public string Name { get; set; }
-    [Required]
-    public string OrganizationPath { get; set; }
     
     public List<string> EnvironmentNames { get; set; }
     

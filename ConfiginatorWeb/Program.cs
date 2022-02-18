@@ -119,7 +119,7 @@ var modelValue =
     JsonDocument.Parse(
         "{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44, \"kafka\": { \"brokers\": \"b\", \"user\": \"u\", \"password\": \"p\" } }");
 var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
-var section1 = await sectionService.CreateSectionAsync("merge-service", "data-domain");
+var section1 = await sectionService.CreateSectionAsync("data-domain/merge-service");
 await uow.Sections.AddAsync(section1);
 
 var env1 = await sectionService.AddEnvironmentToSectionAsync(section1, "development");
@@ -138,7 +138,7 @@ await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id,
     CancellationToken.None);
 section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now, "Initial Setup - from code");
 
-var section2 = await sectionService.CreateSectionAsync("ingestion-service", "data-domain");
+var section2 = await sectionService.CreateSectionAsync("data-domain/ingestion-service");
 await uow.Sections.AddAsync(section2);
 await uow.SaveChangesAsync();
 

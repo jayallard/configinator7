@@ -1,5 +1,4 @@
-﻿using Allard.Configinator.Core;
-using Allard.Configinator.Core.Model;
+﻿using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
 using Allard.Json;
@@ -18,7 +17,7 @@ public class SectionQueriesCoreRepository : ISectionQueries
 
     public async Task<List<SectionListItemDto>> GetSectionsListAsync(CancellationToken cancellationToken = default)
         => (await _unitOfWork.Sections.FindAsync(new AllSections(), cancellationToken))
-            .Select(s => new SectionListItemDto(s.Id.Id, s.SectionName, s.OrganizationPath, s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase)))
+            .Select(s => new SectionListItemDto(s.Id.Id, s.SectionName, s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase)))
             .ToList();
 
     public async Task<SectionDto?> GetSectionAsync(long id, CancellationToken cancellationToken = default)

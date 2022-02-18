@@ -11,12 +11,10 @@ namespace Allard.Configinator.Core;
 /// </summary>
 /// <param name="SectionId"></para>
 /// <param name="SectionName"></param>
-/// <param name="OrganizationPath"></param>
 public record SectionCreatedEvent(
     SectionId SectionId,
     string SectionName,
-    string InitialEnvironmentType,
-    string OrganizationPath) : DomainEventBase;
+    string InitialEnvironmentType) : DomainEventBase;
 
 /// <summary>
 /// An environment was added to a configuration section.
@@ -38,7 +36,7 @@ public record EnvironmentCreatedEvent(
 public record SchemaAddedToSectionEvent(
     SectionId SectionId,
     SectionSchemaId SectionSchemaId,
-    string Name,
+    SchemaName Name,
     JsonDocument Schema,
     string EnvironmentType) : DomainEventBase;
 

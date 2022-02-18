@@ -19,7 +19,7 @@
     {
         <tr>
             <td>
-                @(i.OrganizationPath.Replace("/", " / ").Trim()) / @Html.SectionLink(i.Name, i.SectionId)
+                @Html.SectionLink(i.Name.Replace("/", " / ") , i.SectionId)
                 @* @if (i.DeployedIsOutOfDate) *@
                 @* { *@
                 @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@

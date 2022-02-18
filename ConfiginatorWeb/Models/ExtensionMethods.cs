@@ -15,7 +15,7 @@ public static class ExtensionMethods
         Schema = new SectionSchemaDto
         {
             Schema = release.SectionSchema.Schema,
-            Name = release.SectionSchema.SchemaName,
+            Name = release.SectionSchema.SchemaName.ToOutputDto(),
             EnvironmentTypes = release.SectionSchema.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase)
         },
         CreateDate = release.CreateDate,
@@ -46,7 +46,6 @@ public static class ExtensionMethods
     {
         SectionName = section.SectionName,
         SectionId = section.EntityId,
-        OrganizationPath = section.OrganizationPath,
         Environments = section.Environments.Select(e => new SectionEnvironmentDto
         {
             EnvironmentName = e.EnvironmentName,
@@ -56,7 +55,7 @@ public static class ExtensionMethods
         Schemas = section.Schemas.Select(s => new SectionSchemaDto
         {
             Schema = s.Schema,
-            Name = s.SchemaName,
+            Name = s.SchemaName.ToOutputDto(),
             EnvironmentTypes = s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase)
         }).ToList()
     };
@@ -77,4 +76,7 @@ public static class ExtensionMethods
             SchemaSource = detail.SchemaSource,
             Name = detail.Name
         };
+
+    public static SchemaNameDto ToOutputDto(this SchemaName name) =>
+        new SchemaNameDto(name.Name, name.Version, name.FullName);
 }
