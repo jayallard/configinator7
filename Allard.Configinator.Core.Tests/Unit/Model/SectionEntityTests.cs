@@ -21,58 +21,7 @@ public class SectionEntityTests
         section.Schemas.Single().SchemaName.Should().Be("1.0.0");
     }
 
-    [Fact]
-    public void AddSchema()
-    {
-        // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development","name");
 
-        // act
-        section.AddSchema(new SectionSchemaId(0), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
-
-        // assert
-        section.Schemas.Count().Should().Be(1);
-    }
-
-    [Fact]
-    public void AddSchemaThrowsExceptionIfVersionAlreadyExists()
-    {
-        // arrange
-        var section = new SectionAggregate(NewSectionId(0), "Development", "name");
-        var schema1 = new SectionSchemaEntity(new SectionSchemaId(0), SchemaName.Parse("1.0.0"),
-            JsonDocument.Parse("{}"), "development");
-        var schema2 = new SectionSchemaEntity(new SectionSchemaId(1), SchemaName.Parse("1.0.0"),
-            JsonDocument.Parse("{}"), "development");
-
-        // act
-        section.AddSchema(new SectionSchemaId(0), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
-        var test = () =>
-            section.AddSchema(new SectionSchemaId(1), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
-
-        // assert
-        test
-            .Should()
-            .ThrowExactly<InvalidOperationException>()
-            .WithMessage("Schema already exists. Version=1.0.0");
-    }
-
-    [Fact]
-    public void AddSchemaThrowsExceptionIdAlreadyExists()
-    {
-        // arrange
-        var section = new SectionAggregate(NewSectionId(0), "Development", "name");
-
-        // act
-        section.AddSchema(new SectionSchemaId(0), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
-        var test = () =>
-            section.AddSchema(new SectionSchemaId(0), SchemaName.Parse("1.0.0"), JsonDocument.Parse("{}"), "development");
-
-        // assert
-        test
-            .Should()
-            .ThrowExactly<InvalidOperationException>()
-            .WithMessage("Schema already exists. Id=0");
-    }
 
     [Fact]
     public void AddEnvironment()

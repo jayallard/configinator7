@@ -83,10 +83,11 @@ var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
 var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainService>();
 var variableSetService = scope.ServiceProvider.GetRequiredService<VariableSetDomainService>();
-var globalSchemas = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainService>();
+var globalSchemaService = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainService>();
 
-var globalSchema1 = await globalSchemas.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", "development", await GetSchema("__kafka-1.0.0.json"));
+var globalSchema1 = await globalSchemaService.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", "development", await GetSchema("__kafka-1.0.0.json"));
 await uow.GlobalSchemas.AddAsync(globalSchema1);
+globalSchemaService.PromoteSchemaAsync(globalSchema1.Name, "staging");
 
 
 var variableSetEntity = await variableSetService.CreateVariableSetAsync("variables1", "development");

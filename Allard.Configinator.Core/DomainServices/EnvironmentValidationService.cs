@@ -83,10 +83,9 @@ public class EnvironmentValidationService
     }
 
     // hack
-    public string? GetNextSchemaEnvironmentType(IEnumerable<string> assignedEnvironmentTypes)
+    public string? GetNextSchemaEnvironmentType(IEnumerable<string> assignedEnvironmentTypes, SemanticVersion version)
     {
-        // todo: configurable. pre-release can't be promoted.
-        //if (name.IsPrerelease) return null;
+        if (version.IsPrerelease) return null;
         var types = assignedEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
         if (!types.Contains("staging")) return "staging";
         if (!types.Contains("production")) return "production";

@@ -26,7 +26,7 @@ public class GlobalSchemaDomainService
         JsonDocument schema)
     {
         SchemaName.Parse(name);
-        if (await _unitOfWork.GlobalSchemas.Exists(new GlobalSchemaName(name)))
+        if (await _unitOfWork.GlobalSchemas.Exists(new GlobalSchemaNameIs(name)))
         {
             throw new InvalidOperationException(
                 $"Schema already exists: Name={name}");
@@ -39,5 +39,14 @@ public class GlobalSchemaDomainService
 
         var id = await _identityService.GetId<GlobalSchemaId>();
         return new GlobalSchemaAggregate(id, environmentType, name, description, schema);
+    }
+
+    public async Task PromoteSchemaAsync(string name, string targetEnvironmentType,
+        CancellationToken cancellationToken = default)
+    {
+        // hack - schemas need to be normalized across sections and global.
+        // just make this work for now.
+        var schema = await _unitOfWork.GlobalSchemas.FindOneAsync(new GlobalSchemaNameIs(name), cancellationToken);
+        schema.Play(new GlobalSchemaPromotedEvent(schema.Id, targetEnvironmentType));
     }
 }

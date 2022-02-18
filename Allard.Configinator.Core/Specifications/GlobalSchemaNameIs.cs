@@ -4,9 +4,9 @@ using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.Specifications;
 
-public class GlobalSchemaName : ISpecification<GlobalSchemaAggregate>
+public class GlobalSchemaNameIs : ISpecification<GlobalSchemaAggregate>
 {
-    public GlobalSchemaName(string name)
+    public GlobalSchemaNameIs(string name)
     {
         Name = name;
     }

@@ -10,13 +10,15 @@ namespace Allard.Configinator.Core.Schema;
 /// </summary>
 public class SchemaDetailTracker
 {
-    public const string RootSchemaName = "/";
+    public string RootSchemaName { get; }
     private readonly Dictionary<string, SchemaDetail> _schemas = new(StringComparer.OrdinalIgnoreCase);
+
+    public SchemaDetailTracker(string rootSchemaName) => RootSchemaName = rootSchemaName;
 
     public ReadOnlyCollection<SchemaDetail> AllSchemas => _schemas.Values.ToList().AsReadOnly();
 
     public ReadOnlyCollection<SchemaDetail> References =>
-        _schemas.Values.Where(v => v.Name != RootSchemaName).ToList().AsReadOnly();
+        _schemas.Values.Where(v => v.Name.FullName != RootSchemaName).ToList().AsReadOnly();
 
     public SchemaDetail Root => GetOrCreate(RootSchemaName);
 

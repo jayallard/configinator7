@@ -112,7 +112,7 @@ $(document).ready(function() {
     @foreach (var s in Model.Schemas)
     {
         <tr>
-            <td>@Html.SectionSchemaLink(Model.SectionId, s.Name.FullName)</td>
+            <td>@Html.SectionSchemaLink(Model.SectionId, s.Name.FullName) @Html.IsPreReleaseSchema(s.Name.Version.IsPrerelease)</td>
             <td>@string.Join(", ", s.EnvironmentTypes)</td>
         </tr>
     }

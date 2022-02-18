@@ -151,3 +151,7 @@ public record GlobalSchemaCreated(
     string? Description,
     string EnvironmentType,
     JsonDocument Schema) : DomainEventBase;
+    
+public record GlobalSchemaPromotedEvent(
+    GlobalSchemaId GlobalSchemaId,
+    string ToEnvironmentType) : DomainEventBase;

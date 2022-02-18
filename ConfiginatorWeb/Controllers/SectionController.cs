@@ -1,4 +1,5 @@
 ﻿using Allard.Configinator.Core;
+using Allard.Configinator.Core.DomainServices;
 using ConfiginatorWeb.Interactors.Section;
 using ConfiginatorWeb.Queries;
 using MediatR;
@@ -12,17 +13,16 @@ public class SectionController : Controller
 {
     // TODO: move to query handlers
     private readonly ISectionQueries _sectionQueries;
-    private readonly IVariableSetQueries _variableSetQueries;
-    private readonly IGlobalSchemaQueries _globalSchemaQueries;
     private readonly IMediator _mediator;
+    private readonly EnvironmentValidationService _environmentValidationService;
 
-    public SectionController(ISectionQueries projections, IVariableSetQueries variableSetQueries,
-        IGlobalSchemaQueries globalSchemaQueries, IMediator mediator)
+    public SectionController(
+        ISectionQueries projections,
+        IMediator mediator, EnvironmentValidationService environmentValidationService)
     {
+        _environmentValidationService = environmentValidationService;
         _mediator = Guards.HasValue(mediator, nameof(mediator));
-        _globalSchemaQueries = Guards.HasValue(globalSchemaQueries, nameof(globalSchemaQueries));
         _sectionQueries = Guards.HasValue(projections, nameof(projections));
-        _variableSetQueries = Guards.HasValue(variableSetQueries, nameof(variableSetQueries));
     }
 
     // GET
@@ -48,7 +48,8 @@ public class SectionController : Controller
     {
         var section = await _sectionQueries.GetSectionAsync(sectionId);
         var schema = section.GetSchema(name);
-        return View(new SchemaView(section, schema));
+        return View(new SchemaView(section, schema,
+            _environmentValidationService.GetNextSchemaEnvironmentType(schema.EnvironmentTypes, schema.Name.Version)));
     }
 
     [HttpPost]
@@ -81,4 +82,4 @@ public class SectionController : Controller
     }
 }
 
-public record SchemaView(SectionDto Section, SectionSchemaDto Schema);
+public record SchemaView(SectionDto Section, SectionSchemaDto Schema, string? PromotableTo);

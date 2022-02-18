@@ -16,15 +16,16 @@ public class SchemaLoader
         _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
 
     public async Task<SchemaInfo> ResolveSchemaAsync(
+        string schemaName,
         JsonDocument schemaSource,
         CancellationToken cancellationToken = default)
     {
         Guards.HasValue(schemaSource, nameof(schemaSource));
 
-        var tracker = new SchemaDetailTracker();
+        var tracker = new SchemaDetailTracker(schemaName);
         var resolved = await JsonSchema.FromJsonAsync(schemaSource.RootElement.ToString(), ".",
-            s => Resolve(SchemaDetailTracker.RootSchemaName, s, tracker), cancellationToken);
-        tracker.SetSchema(SchemaDetailTracker.RootSchemaName, schemaSource, resolved);
+            s => Resolve(tracker.RootSchemaName, s, tracker), cancellationToken);
+        tracker.SetSchema(tracker.RootSchemaName, schemaSource, resolved);
         var info = new SchemaInfo(tracker.Root, tracker.References);
         return info;
     }
@@ -43,7 +44,7 @@ public class SchemaLoader
             {
                 // hack - .RESULT
                 var referenceJson = _unitOfWork.GlobalSchemas
-                    .FindAsync(new GlobalSchemaName(referenceSchemaName), CancellationToken.None)
+                    .FindAsync(new GlobalSchemaNameIs(referenceSchemaName), CancellationToken.None)
                     .Result.SingleOrDefault();
                 if (referenceJson == null)
                     throw new InvalidOperationException("GlobalSchema doesn't exist: " + referenceSchemaName);

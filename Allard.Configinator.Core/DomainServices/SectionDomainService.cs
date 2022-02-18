@@ -5,7 +5,6 @@ using Allard.Configinator.Core.Schema;
 using Allard.Configinator.Core.Specifications;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
-using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.DomainServices;
 
@@ -47,12 +46,15 @@ public class SectionDomainService
     public async Task<SectionSchemaEntity> AddSchemaToSectionAsync(
         SectionAggregate section,
         string name,
-        JsonDocument schema)
+        JsonDocument schema,
+        CancellationToken cancellationToken = default)
     {
         // make sure the schema is valid
         // this resolves the schema; confirms references are good.
         // resolves references from GlobalSchemaEntities,
-        await _schemaLoader.ResolveSchemaAsync(schema);
+        var resolved = await _schemaLoader.ResolveSchemaAsync(name, schema, cancellationToken);
+        SchemaUtility.ValidateRootSchema(resolved.Root.ResolvedSchema, name);
+        
         var sectionSchemaId = await _identityService.GetId<SectionSchemaId>();
         var firstEnvironmentType = _environmentValidationService.GetFirstEnvironmentType();
         section.InternalSchemas.EnsureDoesntExist(sectionSchemaId, name);
@@ -67,11 +69,36 @@ public class SectionDomainService
         CancellationToken cancellationToken = default)
     {
         var schema = section.GetSchema(schemaName);
-        var promotable = _environmentValidationService.CanPromoteTo(schema.EnvironmentTypes, targetEnvironmentType,
+        var isPromotable = _environmentValidationService.CanPromoteTo(
+            schema.EnvironmentTypes, 
+            targetEnvironmentType,
             SchemaName.Parse(schemaName));
-        if (!promotable) throw new InvalidOperationException($"The schema cannot be promoted to {targetEnvironmentType}");
+
+
+        // make sure the promotion is allowed
+        if (!isPromotable) throw new InvalidOperationException($"The schema cannot be promoted to {targetEnvironmentType}");
+
+        // if any pre-release schemas are used, make sure pre-release is supported.
+        var resolved = await _schemaLoader.ResolveSchemaAsync(schemaName, schema.Schema, cancellationToken);
+        if (resolved.IsPreRelease && !_environmentValidationService.IsPreReleaseAllowed(targetEnvironmentType))
+        {
+            throw new InvalidOperationException("The environment type doesn't support pre-releases. EnvironmentType=" +
+                                                targetEnvironmentType);
+        }
+        
+        // make sure all references exist in the target environment type
+        foreach (var r in resolved.References)
+        {
+            var global = await _unitOfWork.GlobalSchemas.FindOneAsync(new GlobalSchemaNameIs(r.Name.FullName), cancellationToken);
+            if (!global.EnvironmentTypes.Contains(targetEnvironmentType))
+            {
+                throw new InvalidOperationException(
+                    $"The schema, '{schemaName}', can't be promoted to '{targetEnvironmentType}'. It refers to '{global.Name}', which isn't assigned to '{targetEnvironmentType}'.");
+            }            
+        }
+        
+        
         section.PlayEvent(new SectionSchemaPromotedEvent(section.Id, schemaName, targetEnvironmentType));
-        schema.InternalEnvironmentTypes.Add(targetEnvironmentType);
         return schema;
     }
 
@@ -113,8 +140,8 @@ public class SectionDomainService
             variableSet?.ToValueDictionary() ?? new Dictionary<string, JToken>(), cancellationToken);
 
         // validate against the schema
-        var schemaJson = section.GetSchema(sectionSchemaId).Schema;
-        var schemaDetails = await _schemaLoader.ResolveSchemaAsync(schemaJson, cancellationToken);
+        var schema = section.GetSchema(sectionSchemaId);
+        var schemaDetails = await _schemaLoader.ResolveSchemaAsync(schema.SchemaName.FullName, schema.Schema, cancellationToken);
         var validationErrors = schemaDetails.Root.ResolvedSchema!.Validate(jsonNetResolved);
         if (validationErrors.Any()) throw new SchemaValidationFailedException(validationErrors.ToList());
 

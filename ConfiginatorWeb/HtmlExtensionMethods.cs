@@ -18,7 +18,12 @@ public static class HtmlExtensionMethods
             isDeployed
                 ? "<span class=\"badge rounded-pill bg-success\">Deployed</span>" + tail
                 : "");
-
+    
+    public static IHtmlContent IsPreReleaseSchema(this IHtmlHelper helper, bool isPreRelease) =>
+        helper.Raw(
+            isPreRelease
+                ? "<span class=\"badge rounded-pill bg-warning\">PreRelease</span>"
+                : "");
     public static IHtmlContent SectionLink(this IHtmlHelper helper, string sectionName, long sectionId) =>
         helper.ActionLink(sectionName, "Display", "Section", new {sectionId});
 

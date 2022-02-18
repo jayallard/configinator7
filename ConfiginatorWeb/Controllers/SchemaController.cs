@@ -27,8 +27,16 @@ public class SchemaController : Controller
     [HttpPost]
     public async Task<IActionResult> AddSectionSchema(AddSchemaModel model)
     {
-        var result = await _mediator.Send(new CreateSectionSchemaRequest(model.SectionId, model.SchemaName, model.Schema));
+         await _mediator.Send(new CreateSectionSchemaRequest(model.SectionId, model.SchemaName, model.Schema));
         return Json(new {ok = "then"});
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> PromoteSectionSchema(long? sectionId, string schemaName, string targetEnvironmentType)
+    {
+        if (sectionId == null) throw new InvalidOperationException("section id is required");
+        await _mediator.Send(new PromoteSectionSchemaRequest(sectionId.Value, schemaName, targetEnvironmentType));
+        return RedirectToAction("SchemaView", "Section", new {sectionId = sectionId.Value, name = schemaName});
     }
 }
 

@@ -74,7 +74,7 @@ public static class ExtensionMethods
             RefersTo = detail.RefersTo.ToList(),
             ResolvedSchema = detail.ResolvedSchema,
             SchemaSource = detail.SchemaSource,
-            Name = detail.Name
+            Name = detail.Name.FullName
         };
 
     public static SchemaNameDto ToOutputDto(this SchemaName name) =>

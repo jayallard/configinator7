@@ -4,5 +4,14 @@
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
-
 @await Component.InvokeAsync("Schema", Model.Schema)
+
+@if (Model.PromotableTo is not null)
+{
+    <form method="post" action="@Url.Action("PromoteSectionSchema", "Schema")">
+        @Html.Hidden("SectionId", Model.Section.SectionId)
+        @Html.Hidden("SchemaName", Model.Schema.Name.FullName)
+        @Html.Hidden("TargetEnvironmentType", Model.PromotableTo)
+        <button class="btn-primary" type="submit">Promote to @Model.PromotableTo</button>
+    </form>
+}

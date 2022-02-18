@@ -9,7 +9,7 @@ public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
     internal GlobalSchemaAggregate(List<IDomainEvent> events)
     {
         Guards.HasValue(events, nameof(events));
-        foreach (var evt in events) PlayEvent(evt);
+        foreach (var evt in events) Play(evt);
         InternalSourceEvents.Clear();
     }
 
@@ -23,7 +23,7 @@ public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
         Guards.HasValue(id, nameof(id));
         Guards.HasValue(name, nameof(name));
         Guards.HasValue(schema, nameof(schema));
-        PlayEvent(new GlobalSchemaCreated(id, name, description, environmentType, schema));
+        Play(new GlobalSchemaCreated(id, name, description, environmentType, schema));
     }
 
     public string? Description { get; private set; }
@@ -32,7 +32,7 @@ public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
     public string Name { get; private set; }
     public JsonDocument Schema { get; private set; }
 
-    private void PlayEvent(IDomainEvent evt)
+    internal void Play(IDomainEvent evt)
     {
         InternalSourceEvents.Add(evt);
         switch (evt)
@@ -43,6 +43,9 @@ public class GlobalSchemaAggregate : AggregateBase<GlobalSchemaId>
                 Schema = created.Schema;
                 Description = created.Description;
                 _environmentTypes.Add(created.EnvironmentType);
+                break;
+            case GlobalSchemaPromotedEvent promoted:
+                _environmentTypes.Add(promoted.ToEnvironmentType);
                 break;
             default:
                 throw new InvalidOperationException("Unhandled event type: " + evt.GetType().FullName);
