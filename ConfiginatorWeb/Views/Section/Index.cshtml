@@ -47,7 +47,7 @@
     @foreach (var t in Model.GlobalSchemas.OrderBy(kv => kv.SchemaName))
     {
         <tr>
-            <td>@t.SchemaName.FullName</td>
+            <td>@Html.SchemaLink(@t.SchemaName.FullName)</td>
             <td>@string.Join(", ", t.EnvironmentTypes.OrderBy(et => et).ToArray())</td>
             <td>@t.Description</td>
         </tr>
