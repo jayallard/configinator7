@@ -8,16 +8,16 @@ public static class ExtensionMethods
 {
     public static SchemaInfoDto ToOutputDto(this SchemaInfo schema)
     {
-        return new()
+        return new SchemaInfoDto
         {
             Root = schema.Root.ToOutputDto(),
             References = schema.References.Select(ToOutputDto).ToList()
         };
     }
 
-    private static SchemaDetailDto ToOutputDto(this SchemaDetail detail)
+    public static SchemaDetailDto ToOutputDto(this SchemaDetail detail)
     {
-        return new()
+        return new SchemaDetailDto
         {
             ReferencedBy = detail.ReferencedBy.Select(d => d.ToOutputDto()).ToList(),
             RefersTo = detail.RefersTo.Select(d => d.ToOutputDto()).ToList(),

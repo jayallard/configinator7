@@ -44,7 +44,7 @@ public class SectionQueriesCoreRepository : ISectionQueries
             SectionId = section.Id.Id,
             SectionName = section.SectionName,
             Environments = new List<SectionEnvironmentDto>(),
-            Schemas = new List<SectionSchemaDto>()
+            Schemas = new List<SchemaDto>()
         };
 
         foreach (var schema in section.Schemas)
@@ -138,12 +138,12 @@ public class SectionQueriesCoreRepository : ISectionQueries
         return byId;
     }
 
-    private async Task<SectionSchemaDto> GetSchemaAsync(
+    private async Task<SchemaDto> GetSchemaAsync(
         long schemaId,
         CancellationToken cancellationToken)
     {
         var s = await _unitOfWork.Schemas.GetAsync(new SchemaId(schemaId), cancellationToken);
-        return new SectionSchemaDto
+        return new SchemaDto
         {
             Schema = s.Schema,
             EnvironmentTypes = s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase),

@@ -3,7 +3,7 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Infrastructure;
 
-public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggregate, TIdentity>, IDisposable
+public sealed class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggregate, TIdentity>, IDisposable
     where TAggregate : IAggregate
     where TIdentity : IIdentity
 {
@@ -15,9 +15,9 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
         _repository = Guards.HasValue(repository, nameof(repository));
     }
 
-    public async Task<bool> Exists(ISpecification<TAggregate> specification)
+    public async Task<bool> Exists(ISpecification<TAggregate> specification, CancellationToken cancellationToken = default)
     {
-        return _localData.Any(specification.IsSatisfied) || await _repository.ExistsAsync(specification);
+        return _localData.Any(specification.IsSatisfied) || await _repository.ExistsAsync(specification, cancellationToken);
     }
 
     public async Task<List<TAggregate>> FindAsync(ISpecification<TAggregate> specification,
@@ -81,9 +81,8 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
         return Task.FromResult(_localData.SelectMany(d => d.SourceEvents).ToList());
     }
 
-    public virtual void Dispose()
+    public void Dispose()
     {
         _localData.Clear();
-        GC.SuppressFinalize(this);
     }
 }

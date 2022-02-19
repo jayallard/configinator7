@@ -10,7 +10,7 @@ public class SectionDto
 
     public long SectionId { get; set; }
 
-    public List<SectionSchemaDto> Schemas { get; set; }
+    public List<SchemaDto> Schemas { get; set; }
 
     public List<SectionEnvironmentDto> Environments { get; set; }
 
@@ -24,25 +24,25 @@ public class SectionDto
         return Environments.Single(e => e.EnvironmentId == environmentId);
     }
 
-    public SectionSchemaDto GetSchema(string name)
+    public SchemaDto GetSchema(string name)
     {
         return Schemas.Single(s => s.SchemaName.FullName.Equals(name, StringComparison.OrdinalIgnoreCase));
     }
 }
 
-public class SectionSchemaDto
+public class SchemaDto
 {
     public long SchemaId { get; set; }
-    public long SectionId { get; set; }
+    public long? SectionId { get; set; }
+    
+    public string? SectionName { get; set; }
+    public string? PromoteTo { get; set; }
     public SchemaNameDto SchemaName { get; set; }
     public JsonDocument Schema { get; set; }
     public ISet<string> EnvironmentTypes { get; set; }
 }
 
-public record SchemaNameDto(string Name, SemanticVersion Version, string FullName)
-{
-}
-
+public record SchemaNameDto(string Name, SemanticVersion Version, string FullName);
 public class SectionEnvironmentDto
 {
     public string EnvironmentName { get; set; }
@@ -61,7 +61,7 @@ public class SectionEnvironmentDto
 
 public class SectionReleaseDto
 {
-    public SectionSchemaDto Schema { get; set; }
+    public SchemaDto Schema { get; set; }
     public long ReleaseId { get; set; }
     public DateTime CreateDate { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using Allard.Configinator.Core.DomainServices;
+using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Schema;
 using Allard.Configinator.Core.Specifications.Schema;
@@ -15,18 +16,20 @@ public class SchemaController : Controller
     private readonly EnvironmentValidationService _environmentValidationService;
     private readonly IMediator _mediator;
     private readonly SchemaLoader _schemaLoader;
-    private readonly ISchemaQueries _schemaQueries;
     private readonly ISectionQueries _sectionQueries;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly SchemaDomainService _schemaDomainService;
 
     public SchemaController(ISectionQueries sectionQueries, IMediator mediator,
-        EnvironmentValidationService environmentValidationService, IUnitOfWork unitOfWork, SchemaLoader schemaLoader)
+        EnvironmentValidationService environmentValidationService, IUnitOfWork unitOfWork, SchemaLoader schemaLoader,
+        SchemaDomainService schemaDomainService)
     {
         _sectionQueries = sectionQueries;
         _mediator = mediator;
         _environmentValidationService = environmentValidationService;
         _unitOfWork = unitOfWork;
         _schemaLoader = schemaLoader;
+        _schemaDomainService = schemaDomainService;
     }
 
     // GET
@@ -54,12 +57,7 @@ public class SchemaController : Controller
 
     public async Task<IActionResult> SchemaView(string schemaName, CancellationToken cancellationToken)
     {
-        var schema = await _unitOfWork.Schemas.FindOneAsync(SchemaNameIs.Is(schemaName), cancellationToken);
-        var resolved = await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema, cancellationToken);
-        var promoteTo =
-            _environmentValidationService.GetNextSchemaEnvironmentType(schema.EnvironmentTypes,
-                schema.SchemaName.Version);
-        return View(new SchemaView(resolved.ToOutputDto(), promoteTo));
+        return View(new SchemaName(schemaName));
     }
 }
 

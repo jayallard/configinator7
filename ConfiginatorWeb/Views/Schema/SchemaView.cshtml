@@ -1,16 +1,7 @@
-﻿@model ConfiginatorWeb.Controllers.SchemaView
+﻿@model Allard.Configinator.Core.Model.SchemaName
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
-@await Component.InvokeAsync("Schema", Model.Schema)
-
-@if (Model.PromotableTo is not null)
-{
-    <form method="post" action="@Url.Action("PromoteSectionSchema", "Schema")">
-        @Html.Hidden("SchemaName", Model.Schema.Root.SchemaName)
-        @Html.Hidden("TargetEnvironmentType", Model.PromotableTo)
-        <button class="btn-primary" type="submit">Promote to @Model.PromotableTo</button>
-    </form>
-}
+@await Component.InvokeAsync("Schema", Model)

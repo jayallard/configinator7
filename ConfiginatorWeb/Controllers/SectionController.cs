@@ -1,5 +1,6 @@
 ﻿using Allard.Configinator.Core;
 using Allard.Configinator.Core.DomainServices;
+using Allard.Configinator.Core.Model;
 using ConfiginatorWeb.Interactors.Section;
 using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Queries;
@@ -78,6 +79,6 @@ public class SectionController : Controller
     }
 }
 
-public record SchemaView(SchemaInfoDto Schema, string? PromotableTo);
+public record SchemaView(SchemaInfoDto SchemaInfo, Dictionary<SchemaNameDto, SchemaDto> SchemaDtos, string? PromotableTo);
 
 public record SectionIndexView(SectionDto Section);

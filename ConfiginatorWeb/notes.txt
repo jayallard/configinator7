@@ -1,2 +1,11 @@
 ﻿TODO
 
+{
+    "properties": { 
+        "blah": { 
+            "$ref": "section1/1.0.0" 
+        } 
+    }
+}
+
+

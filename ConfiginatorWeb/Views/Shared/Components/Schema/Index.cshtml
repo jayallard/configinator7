@@ -1,66 +1,145 @@
 ﻿@using Allard.Json
 @model ConfiginatorWeb.Views.Shared.Components.Schema.SchemaIndexView
-<h1>View Section Schema</h1>
-<p>@Model.Schema.Root.SchemaName</p>
-<h2>Environment Types</h2>
-<ul>
-    @* @foreach (var et in Model.SectionSchema.EnvironmentTypes) *@
-    @* { *@
-    @*     <li>@et</li> *@
-    @* } *@
-</ul>
-<br/>
-<br/>
+<h1>View Schema</h1>
 <h2>Schema</h2>
-@if (Model.Schema.Root.RefersTo.Any())
-{
-    <p>
-        Uses:
-        <ul>
-            @foreach (var to in Model.Schema.Root.RefersTo)
-            {
-                <li>@to</li>
+<table class="table table-bordered table-sm">
+    <tbody>
+    <tr>
+        <th class="table-secondary">Name</th>
+        <th>@Model.Schema.Root.SchemaName</th>
+    </tr>
+    <tr>
+        <th class="table-secondary">Owner</th>
+        <td>
+            @{
+                var schemaInitial = Model.Dtos[Model.Schema.Root.SchemaName];
             }
-        </ul>
-    </p>
-}
+            @if (schemaInitial.SectionId is null)
+            {
+                <b>
+                    <i>Global</i>
+                </b>
+            }
+            else
+            {
+                <span>Section: @Html.SectionLink(schemaInitial.SectionName ?? "BUG", schemaInitial.SectionId.Value) </span>
+            }
+        </td>
+    </tr>
+    <tr>
+        <th class="table-secondary">Environment Types</th>
+        <td>
+            <ul>
+                @foreach (var et in Model.Dtos[Model.Schema.Root.SchemaName].EnvironmentTypes)
+                {
+                    <li>@et</li>
+                }
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th class="table-secondary">Refers To</th>
+        <td>
+            <ul>
+                @foreach (var et in Model.Schema.Root.RefersTo)
+                {
+                    <li>@et.FullName</li>
+                }
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th class="table-secondary">Referrenced By</th>
+        <td>
+            <ul>
+                @foreach (var et in Model.Schema.Root.ReferencedBy)
+                {
+                    <li>@et.FullName</li>
+                }
+            </ul>
+            @if (Model.Dtos[Model.Schema.Root.SchemaName].PromoteTo != null)
+            {
+                <a href="#">Promote To @Model.Dtos[Model.Schema.Root.SchemaName].PromoteTo</a>
+            }
+        </td>
+    </tr>
+    </tbody>
+</table>
 <code>
     <pre>@Model.Schema.Root.SchemaSource.PrettyPrint()</pre>
 </code>
 @if (Model.Schema.References.Any())
 {
-    <h3>Schema References</h3>
-    foreach (var r in Model.Schema.References)
+    <h2>References</h2>
+    foreach (var reference in Model.Schema.References)
     {
-        <p>
-            <b>@r.SchemaName</b>
-        </p>
-        @if (r.RefersTo.Any())
-        {
-            <p>
-                Uses:
-                <ul>
-                    @foreach (var to in r.RefersTo)
-                    {
-                        <li>@to</li>
+        <table class="table table-bordered table-sm">
+            <tbody>
+            <tr>
+                <th class="table-secondary">Name</th>
+                <th>@reference.SchemaName</th>
+            </tr>
+            <tr>
+                <th class="table-secondary">Owner</th>
+                <td>
+                    @{
+                        var schema = Model.Dtos[reference.SchemaName];
                     }
-                </ul>
-            </p>
-        }
-        @if (r.ReferencedBy.Any())
-        {
-            <p>
-                Used By:
-                <ul>
-                    @foreach (var from in r.ReferencedBy)
+                    @if (schema.SectionId is null)
                     {
-                        <li>@from</li>
+                        <b>
+                            <i>Global</i>
+                        </b>
                     }
-                </ul>
-            </p>
-        }
+                    else
+                    {
+                        <span>Section: @Html.SectionLink(schema.SectionName ?? "BUG", schema.SectionId.Value) </span>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th class="table-secondary">Environment Types</th>
+                <td>
+                    <ul>
+                        @foreach (var et in Model.Dtos[reference.SchemaName].EnvironmentTypes)
+                        {
+                            <li>@et</li>
+                        }
+                    </ul>
+                    @if (Model.Dtos[reference.SchemaName].PromoteTo != null)
+                    {
+                        <a href="#">Promote To @Model.Dtos[reference.SchemaName].PromoteTo</a>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th class="table-secondary">Refers To</th>
+                <td>
+                    <ul>
+                        @foreach (var et in reference.RefersTo)
+                        {
+                            <li>@et.FullName</li>
+                        }
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <th class="table-secondary">Referrenced By</th>
+                <td>
+                    <ul>
+                        @foreach (var et in reference.ReferencedBy)
+                        {
+                            <li>@et.FullName</li>
+                        }
+                    </ul>
+                </td>
+            </tr>
+            </tbody>
+        </table>
         <code>
-            <pre>@r.SchemaSource.PrettyPrint()</pre>
+            <pre>@Model.Schema.Root.SchemaSource.PrettyPrint()</pre>
         </code>
     }
 }
+<h2>Diagram</h2>
+<span>TODO</span>
