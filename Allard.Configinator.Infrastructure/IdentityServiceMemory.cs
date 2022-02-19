@@ -6,6 +6,7 @@ namespace Allard.Configinator.Infrastructure;
 public class IdentityServiceMemory : IIdentityService
 {
     private readonly Dictionary<Type, long> _ids = new();
+
     public Task<T> GetId<T>() where T : IIdentity
     {
         if (_ids.ContainsKey(typeof(T)))
@@ -19,6 +20,8 @@ public class IdentityServiceMemory : IIdentityService
         return Task.FromResult(Create<T>(0));
     }
 
-    private static T Create<T>(long value) =>
-        (T)Activator.CreateInstance(typeof(T), value)!;
+    private static T Create<T>(long value)
+    {
+        return (T) Activator.CreateInstance(typeof(T), value)!;
+    }
 }

@@ -2,12 +2,8 @@
 
 public class EnvironmentEntity : EntityBase<EnvironmentId>
 {
-    internal List<ReleaseEntity> InternalReleases { get; } = new();
-    public IEnumerable<ReleaseEntity> Releases => InternalReleases.AsReadOnly();
-    public string EnviromentType { get; }
-    public string EnvironmentName { get; }
     internal EnvironmentEntity(
-        EnvironmentId id, 
+        EnvironmentId id,
         string environmentType,
         string environmentName)
     {
@@ -15,4 +11,9 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
         EnviromentType = environmentType;
         EnvironmentName = environmentName;
     }
+
+    internal List<ReleaseEntity> InternalReleases { get; } = new();
+    public IEnumerable<ReleaseEntity> Releases => InternalReleases.AsReadOnly();
+    public string EnviromentType { get; }
+    public string EnvironmentName { get; }
 }

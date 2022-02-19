@@ -13,7 +13,7 @@ public class VariableSetComposedDto
 
     public static VariableSetComposedDto FromVariableSetComposed(VariableSetComposed variableSet)
     {
-        return new VariableSetComposedDto()
+        return new VariableSetComposedDto
         {
             Base = variableSet.BaseVariableSet?.VariableSetName,
             VariableSetName = variableSet.VariableSetName,

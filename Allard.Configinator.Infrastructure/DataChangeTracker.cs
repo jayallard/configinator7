@@ -16,7 +16,9 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
     }
 
     public async Task<bool> Exists(ISpecification<TAggregate> specification)
-        => _localData.Any(specification.IsSatisfied) || await _repository.ExistsAsync(specification);
+    {
+        return _localData.Any(specification.IsSatisfied) || await _repository.ExistsAsync(specification);
+    }
 
     public async Task<List<TAggregate>> FindAsync(ISpecification<TAggregate> specification,
         CancellationToken cancellationToken)
@@ -61,19 +63,23 @@ public class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracker<TAggr
         var local = _localData.SingleOrDefault(d => d.EntityId == id.Id);
         if (local != null) return local;
         var db = await _repository.GetAsync(id, cancellationToken);
+        if (db == null) throw new InvalidOperationException($"{id.GetType().Name} doesn't exist. Id: " + id.Id);
         _localData.Add(db);
         return db;
     }
 
-    public async Task<TAggregate> FindOneAsync(ISpecification<TAggregate> specification, CancellationToken cancellationToken = default)
+    public async Task<TAggregate> FindOneAsync(ISpecification<TAggregate> specification,
+        CancellationToken cancellationToken = default)
     {
         var matches = await FindAsync(specification, cancellationToken);
         if (matches.Count != 1) throw new InvalidOperationException("The query returned multiple matches");
         return matches[0];
     }
 
-    public Task<List<IDomainEvent>> GetEvents(CancellationToken cancellationToken = default) =>
-        Task.FromResult(_localData.SelectMany(d => d.SourceEvents).ToList());
+    public Task<List<IDomainEvent>> GetEvents(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(_localData.SelectMany(d => d.SourceEvents).ToList());
+    }
 
     public virtual void Dispose()
     {

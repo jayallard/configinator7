@@ -2,19 +2,20 @@
 using Allard.DomainDrivenDesign;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
-using NuGet.Versioning;
 
 namespace Allard.Configinator.Core;
 
 public static class ExtensionMethods
 {
-    public static IDictionary<string, JToken> ToValueDictionary(this VariableSetComposed variables) =>
-        variables
+    public static IDictionary<string, JToken> ToValueDictionary(this VariableSetComposed variables)
+    {
+        return variables
             .VariablesResolved
             .ToDictionary(
                 t => t.Key,
                 t => t.Value.Value,
                 StringComparer.OrdinalIgnoreCase);
+    }
 
     private static void EnsureIdDoesntExist<TIdentity>(this IEnumerable<IEntity> entities, TIdentity id,
         string parameterName)
@@ -33,23 +34,19 @@ public static class ExtensionMethods
     }
 
     public static void EnsureReleaseDoesntExist(this IEnumerable<ReleaseEntity> releases, ReleaseId id)
-        => releases.EnsureIdDoesntExist(id, "Release");
+    {
+        releases.EnsureIdDoesntExist(id, "Release");
+    }
 
     public static void EnsureExists(this IEnumerable<ReleaseEntity> releases, ReleaseId id)
-        => releases.EnsureIdExists(id, "Release");
+    {
+        releases.EnsureIdExists(id, "Release");
+    }
 
     public static void EnsureDeploymentDoesntExist(this IEnumerable<DeploymentEntity> deployments,
         DeploymentId id)
-        => deployments.EnsureIdDoesntExist(id, "DeploymentHistory");
-
-    public static void EnsureDoesntExist(this IEnumerable<SectionSchemaEntity> schemas, SectionSchemaId id,
-        string? name = null)
     {
-        var schemaEntities = schemas as SectionSchemaEntity[] ?? schemas.ToArray();
-        schemaEntities.EnsureIdDoesntExist(id, "Schema");
-        // TODO: don't need fullname
-        if (name != null && schemaEntities.Any(s => s.SchemaName.FullName.Equals(name, StringComparison.OrdinalIgnoreCase)))
-            throw new InvalidOperationException("Schema already exists. Name=" + name);
+        deployments.EnsureIdDoesntExist(id, "DeploymentHistory");
     }
 
     public static void EnsureEnvironmentDoesntExist(this IEnumerable<EnvironmentEntity> environments,
@@ -59,11 +56,13 @@ public static class ExtensionMethods
             throw new InvalidOperationException("Environment already exists. Name=" + environmentName);
     }
 
-    public static void EnsureEnvironmentExists(this IEnumerable<EnvironmentEntity> environments, EnvironmentId id) =>
+    public static void EnsureEnvironmentExists(this IEnumerable<EnvironmentEntity> environments, EnvironmentId id)
+    {
         environments.EnsureIdExists(id, "Environment");
+    }
 
     /// <summary>
-    /// Get an entity from a list of entities, by id.
+    ///     Get an entity from a list of entities, by id.
     /// </summary>
     /// <param name="entities"></param>
     /// <param name="id"></param>
@@ -82,15 +81,21 @@ public static class ExtensionMethods
     }
 
     public static EnvironmentEntity GetEnvironment(this IEnumerable<EnvironmentEntity> entities, EnvironmentId id)
-        => entities.GetEntity(id, "Entity");
+    {
+        return entities.GetEntity(id, "Entity");
+    }
 
     public static ReleaseEntity GetRelease(
         this IEnumerable<ReleaseEntity> entities,
         ReleaseId id)
-        => entities.GetEntity(id, "Release");
+    {
+        return entities.GetEntity(id, "Release");
+    }
 
     public static DeploymentEntity GetDeployment(
         this IEnumerable<DeploymentEntity> entities,
         DeploymentId id)
-        => entities.GetEntity(id, "Deployment");
+    {
+        return entities.GetEntity(id, "Deployment");
+    }
 }

@@ -11,7 +11,6 @@ using Allard.Configinator.Infrastructure.Repositories;
 using Allard.DomainDrivenDesign;
 using ConfiginatorWeb.Queries;
 using MediatR;
-using NuGet.Versioning;
 using IConfigurationProvider = Allard.Configinator.Deployer.Memory.IConfigurationProvider;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,9 +28,9 @@ builder.Services
     // domain services
     .AddTransient<SectionDomainService>()
     .AddTransient<VariableSetDomainService>()
-    .AddTransient<GlobalSchemaDomainService>()
+    .AddTransient<SchemaDomainService>()
     .AddSingleton<EnvironmentValidationService>()
-    
+
     // event handlers - HACK
     .AddScoped<IEventHandler<VariableValueSetEvent>, UpdateReleasesWhenVariableValueChanges>()
 
@@ -39,12 +38,12 @@ builder.Services
     .AddScoped<IUnitOfWork, UnitOfWorkMemory>()
     .AddSingleton<ISectionRepository, SectionRepositoryMemory>()
     .AddSingleton<IVariableSetRepository, VariableSetRepositoryMemory>()
-    .AddSingleton<IGlobalSchemaRepository, GlobalSchemaRepositoryMemory>()
+    .AddSingleton<ISchemaRepository, SchemaRepositoryMemory>()
 
     // queries
     .AddTransient<ISectionQueries, SectionQueriesCoreRepository>()
     .AddTransient<IVariableSetQueries, VariableSetQueriesCoreRepository>()
-    .AddTransient<IGlobalSchemaQueries, GlobalSchemaQueriesCoreRepository>()
+    .AddTransient<ISchemaQueries, SchemaQueriesCoreRepository>()
 
     // deployment
     // NOTE: deployer factory doesn't actually do anything in this case.
@@ -74,8 +73,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    "default",
+    "{controller=Home}/{action=Index}/{id?}");
 
 
 using var scope = app.Services.CreateScope();
@@ -83,11 +82,12 @@ var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
 var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainService>();
 var variableSetService = scope.ServiceProvider.GetRequiredService<VariableSetDomainService>();
-var globalSchemaService = scope.ServiceProvider.GetRequiredService<GlobalSchemaDomainService>();
+var schemaService = scope.ServiceProvider.GetRequiredService<SchemaDomainService>();
 
-var globalSchema1 = await globalSchemaService.CreateGlobalSchemaAsync("/ppm/kafka/1.0.0", "Kafka config", await GetSchema("__kafka-1.0.0.json"));
-await uow.GlobalSchemas.AddAsync(globalSchema1);
-await globalSchemaService.PromoteSchemaAsync(globalSchema1.Name, "staging");
+var kafkaSchema = await schemaService.CreateGlobalSchemaAsync(new SchemaName("/ppm/kafka/1.0.0"), "Kafka config",
+    await GetSchema("__kafka-1.0.0.json"));
+await uow.Schemas.AddAsync(kafkaSchema);
+await schemaService.PromoteSchemaAsync(kafkaSchema.SchemaName, "staging");
 
 
 var variableSetEntity = await variableSetService.CreateVariableSetAsync("variables1", "development");
@@ -126,18 +126,30 @@ await uow.Sections.AddAsync(section1);
 var env1 = await sectionService.AddEnvironmentToSectionAsync(section1, "development");
 await sectionService.AddEnvironmentToSectionAsync(section1, "development-jay");
 var schema1 =
-    await sectionService.AddSchemaToSectionAsync(section1, "section1/1.0.0", await GetSchema("1.0.0.json"));
-await sectionService.PromoteSchemaAsync(section1, "section1/1.0.0", "staging");
+    await schemaService.CreateSectionSchemaAsync(new SchemaName("section1/1.0.0"), section1.Id, null,
+        await GetSchema("1.0.0.json"));
+await uow.Schemas.AddAsync(schema1);
+await schemaService.PromoteSchemaAsync(schema1.SchemaName, "staging");
 
-await sectionService.AddSchemaToSectionAsync(section1, "section1/2.0.0", await GetSchema("2.0.0.json"));
+// this revealed a bug... need to add the entities to the schema within the service,
+// not the app code. otherwise, the user might add some entities and not others.
+// then, not everything is saved. (example: remove this AddAsync. Then there are entities referencing this schema,
+// but this schema doesn't save to the db
+var schema2 = await schemaService.CreateSectionSchemaAsync(new SchemaName("section1/2.0.0"), section1.Id, null,
+    await GetSchema("2.0.0.json"));
+await uow.Schemas.AddAsync(schema2);
 
 var release = await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
     CancellationToken.None);
-section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now, "Initial Setup - from code");
+section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(),
+    new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now,
+    "Initial Setup - from code");
 
 await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
     CancellationToken.None);
-section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(), new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now, "Initial Setup - from code");
+section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(),
+    new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now,
+    "Initial Setup - from code");
 
 var section2 = await sectionService.CreateSectionAsync("data-domain/ingestion-service");
 await uow.Sections.AddAsync(section2);

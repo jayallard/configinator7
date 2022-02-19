@@ -15,7 +15,7 @@ public class EnvironmentValidationService
     }
 
     /// <summary>
-    /// Gets the list of environment types.
+    ///     Gets the list of environment types.
     /// </summary>
     public ISet<string> EnvironmentTypeNames => _rules
         .EnvironmentTypes
@@ -23,7 +23,7 @@ public class EnvironmentValidationService
         .ToHashSet();
 
     /// <summary>
-    /// Returns a list of environment types and environments.
+    ///     Returns a list of environment types and environments.
     /// </summary>
     public List<(string EnvironmentType, string EnvironmentName)> EnvironmentNames
     {
@@ -37,47 +37,52 @@ public class EnvironmentValidationService
     }
 
     /// <summary>
-    /// Returns true if the environment name is valid for the environment type.
+    ///     Returns true if the environment name is valid for the environment type.
     /// </summary>
     /// <param name="environmentName"></param>
     /// <returns></returns>
-    public bool IsValidEnvironmentName(string environmentName) =>
-        _rules.EnvironmentTypes.Any(et =>
+    public bool IsValidEnvironmentName(string environmentName)
+    {
+        return _rules.EnvironmentTypes.Any(et =>
             et.AllowedEnvironments.Contains(environmentName, StringComparer.OrdinalIgnoreCase));
+    }
 
-    public bool IsValidEnvironmentType(string environmentType) => _rules
-        .EnvironmentTypes
-        .Any(et => et.Name.Equals(environmentType, StringComparison.OrdinalIgnoreCase));
+    public bool IsValidEnvironmentType(string environmentType)
+    {
+        return _rules
+            .EnvironmentTypes
+            .Any(et => et.Name.Equals(environmentType, StringComparison.OrdinalIgnoreCase));
+    }
 
-    public string GetEnvironmentType(string environmentName) => EnvironmentNames
-        .Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase))
-        .EnvironmentType;
+    public string GetEnvironmentType(string environmentName)
+    {
+        return EnvironmentNames
+            .Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase))
+            .EnvironmentType;
+    }
 
     // TODO: hack
-    public string GetFirstEnvironmentType() => "development";
+    public string GetFirstEnvironmentType()
+    {
+        return "development";
+    }
 
 
     // TODO: hack
-    public bool IsPreReleaseAllowed(string environmentType) =>
-        environmentType.Equals("development", StringComparison.OrdinalIgnoreCase);
+    public bool IsPreReleaseAllowed(string environmentType)
+    {
+        return environmentType.Equals("development", StringComparison.OrdinalIgnoreCase);
+    }
 
     // TODO: hack
     public string? GetNextEnvironmentTypeFor(string environmentType)
     {
         if (!IsValidEnvironmentType(environmentType))
-        {
             throw new InvalidOperationException("Invalid environment type: " + environmentType);
-        }
 
-        if (environmentType.Equals("development", StringComparison.OrdinalIgnoreCase))
-        {
-            return "staging";
-        }
+        if (environmentType.Equals("development", StringComparison.OrdinalIgnoreCase)) return "staging";
 
-        if (environmentType.Equals("staging", StringComparison.OrdinalIgnoreCase))
-        {
-            return "production";
-        }
+        if (environmentType.Equals("staging", StringComparison.OrdinalIgnoreCase)) return "production";
 
         return null;
     }

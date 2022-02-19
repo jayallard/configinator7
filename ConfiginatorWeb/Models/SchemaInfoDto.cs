@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using ConfiginatorWeb.Queries;
 using NJsonSchema;
 
 namespace ConfiginatorWeb.Models;
@@ -11,9 +12,10 @@ public class SchemaInfoDto
 
 public class SchemaDetailDto
 {
-    public string Name { get; set; }
-    public List<string> ReferencedBy { get; set; }
-    public List<string> RefersTo { get; set; }
+    public List<string> EnvironmentTypes { get; set; }
+    public string SchemaName { get; set; }
+    public List<SchemaNameDto> ReferencedBy { get; set; }
+    public List<SchemaNameDto> RefersTo { get; set; }
     public JsonSchema ResolvedSchema { get; set; }
     public JsonDocument SchemaSource { get; set; }
 }

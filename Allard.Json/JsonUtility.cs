@@ -6,21 +6,23 @@ namespace Allard.Json;
 public static class JsonUtility
 {
     /// <summary>
-    /// Returns all variables found the document.
-    /// Variables are string values of the format $$token-name$$.
+    ///     Returns all variables found the document.
+    ///     Variables are string values of the format $$token-name$$.
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static IEnumerable<(string VariableName, string JsonPath)> GetVariables(JObject json) =>
-        json
+    public static IEnumerable<(string VariableName, string JsonPath)> GetVariables(JObject json)
+    {
+        return json
             .Descendants()
             .Select(GetTokenNameAndPath)
             .Where(v => v != null)
             .Select(v => v!.Value);
+    }
 
     /// <summary>
-    /// Return the name and path of the variable within the value.
-    /// If the value isn't a variable, it returns null
+    ///     Return the name and path of the variable within the value.
+    ///     If the value isn't a variable, it returns null
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
@@ -35,27 +37,33 @@ public static class JsonUtility
     }
 
     /// <summary>
-    /// Returns true if the string variable is a variable.
+    ///     Returns true if the string variable is a variable.
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    private static bool IsToken(string? value) => value != null &&
-                                                  value.StartsWith("$$", StringComparison.OrdinalIgnoreCase)
-                                                  && value.EndsWith("$$", StringComparison.OrdinalIgnoreCase);
+    private static bool IsToken(string? value)
+    {
+        return value != null &&
+               value.StartsWith("$$", StringComparison.OrdinalIgnoreCase)
+               && value.EndsWith("$$", StringComparison.OrdinalIgnoreCase);
+    }
 
     /// <summary>
-    /// Returns all of the variables used by a Json object.
-    /// Variables are string values of the format $$token-name$$.
+    ///     Returns all of the variables used by a Json object.
+    ///     Variables are string values of the format $$token-name$$.
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static HashSet<string> GetVariableNames(JObject json) => GetVariables(json)
-        .Select(t => t.VariableName)
-        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    public static HashSet<string> GetVariableNames(JObject json)
+    {
+        return GetVariables(json)
+            .Select(t => t.VariableName)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
 
     /// <summary>
-    /// Returns a list of all variables required by the value.
-    /// Variables are string values of the format $$token-name$$.
+    ///     Returns a list of all variables required by the value.
+    ///     Variables are string values of the format $$token-name$$.
     /// </summary>
     /// <param name="value">The json value that uses references.</param>
     /// <param name="variableElements">Token names and values.</param>
@@ -78,11 +86,9 @@ public static class JsonUtility
             foreach (var variableName in variableNames)
             {
                 if (names.Contains(variableName))
-                {
                     // already did this one.
                     // variables may be used may times within an object
                     continue;
-                }
 
                 names.Add(variableName);
                 AddSelfAndReferencedVariables(references[variableName], names);
@@ -93,8 +99,8 @@ public static class JsonUtility
     }
 
     /// <summary>
-    /// The value of a variable may refer to other variables. This extracts the referenced variables.
-    /// Variables are string values of the format $$variable-name$$.
+    ///     The value of a variable may refer to other variables. This extracts the referenced variables.
+    ///     Variables are string values of the format $$variable-name$$.
     /// </summary>
     /// <param name="variableElements">Key = variable name, value = variable value.</param>
     /// <returns>Key = the name of the variable, Value = the variable the value references.</returns>
@@ -107,10 +113,8 @@ public static class JsonUtility
             // if we previously encountered this variable, then
             // move along
             if (references.ContainsKey(key))
-            {
                 // already processed this one
                 continue;
-            }
 
             // if the json node is an object, then extract the embedded variable names.
             // IE:
@@ -134,8 +138,10 @@ public static class JsonUtility
         return references;
     }
 
-    public static string ToIndented(this JsonElement json) =>
-        JsonSerializer.Serialize(json, new JsonSerializerOptions {WriteIndented = true});
+    public static string ToIndented(this JsonElement json)
+    {
+        return JsonSerializer.Serialize(json, new JsonSerializerOptions {WriteIndented = true});
+    }
 
     public static Task<JObject> ResolveAsync(
         JObject model,
@@ -162,10 +168,7 @@ public static class JsonUtility
                     GetVariables(resolved)
                         .ToList();
 
-                if (!remainingVariables.Any())
-                {
-                    return resolved;
-                }
+                if (!remainingVariables.Any()) return resolved;
 
                 foreach (var (tokenName, path) in remainingVariables)
                 {

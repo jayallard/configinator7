@@ -6,9 +6,9 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjectionExtensionMethods
 {
     /// <summary>
-    /// Register a single deployer.
-    /// This registers an IDeployerFactory of type SingleDeployerFactory,
-    /// and the IDeployer that it will provide.
+    ///     Register a single deployer.
+    ///     This registers an IDeployerFactory of type SingleDeployerFactory,
+    ///     and the IDeployer that it will provide.
     /// </summary>
     /// <param name="services"></param>
     /// <param name="lifetime"></param>

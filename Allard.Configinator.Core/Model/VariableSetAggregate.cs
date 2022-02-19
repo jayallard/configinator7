@@ -8,18 +8,18 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
 {
     private readonly List<VariableSetId> _children = new();
     private readonly Dictionary<string, JToken> _variables = new();
-    
+
     internal VariableSetAggregate(
         VariableSetId id,
         VariableSetId? baseId,
         // TODO: temporary
         string? baseVariableSetName,
-        string name, 
+        string name,
         string environmentType)
     {
         Play(new VariableSetCreatedEvent(id, baseId, baseVariableSetName, name, environmentType));
     }
-    
+
     internal VariableSetAggregate(List<IDomainEvent> events)
     {
         Guards.HasValue(events, nameof(events));
@@ -32,7 +32,7 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
     public string VariableSetName { get; private set; }
 
     public string? BaseVariableSetName { get; private set; }
-    public VariableSetId BaseVariableSetId { get; private set; } 
+    public VariableSetId BaseVariableSetId { get; private set; }
 
     public string EnvironmentType { get; private set; } = string.Empty;
 
@@ -68,13 +68,16 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
                 throw new InvalidOperationException("Unhandled event: " + evt.GetType().FullName);
         }
     }
-    
-    public VariableSet ToVariableSet() => new()
+
+    public VariableSet ToVariableSet()
     {
-        BaseVariableSetName = BaseVariableSetName,
-        VariableSetName = VariableSetName,
-        Variables = _variables.ToDictionary(kv => kv.Key, kv => kv.Value.DeepClone())
-    };
+        return new()
+        {
+            BaseVariableSetName = BaseVariableSetName,
+            VariableSetName = VariableSetName,
+            Variables = _variables.ToDictionary(kv => kv.Key, kv => kv.Value.DeepClone())
+        };
+    }
 
     public void SetValue(string key, JToken value)
     {
@@ -84,7 +87,7 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
             Play(new VariableValueSetEvent(VariableSetName, key, value));
             return;
         }
-        
+
         Play(new VariableValueCreatedEvent(VariableSetName, key, value));
     }
 }

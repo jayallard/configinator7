@@ -1,25 +1,9 @@
-﻿using System.Text.Json;
-using Allard.DomainDrivenDesign;
+﻿using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Model;
 
 public class SectionAggregate : AggregateBase<SectionId>
 {
-    internal ISet<string> InternalEnvironmentTypes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    internal List<SchemaId> InternalSchemas { get; } = new();
-    internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
-    public IEnumerable<SchemaId> Schemas => InternalSchemas.AsReadOnly();
-    public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
-    public string SectionName { get; internal set; }
-    public EnvironmentEntity GetEnvironment(string name) =>
-        InternalEnvironments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
-    public EnvironmentEntity GetEnvironment(EnvironmentId environmentId) =>
-        InternalEnvironments.GetEnvironment(environmentId);
-
-    /// <summary>
-    /// Gets the environment types that can host this section.
-    /// </summary>
-    public IEnumerable<string> EnvironmentTypes => InternalEnvironmentTypes.ToList();
     internal SectionAggregate(SectionId id, string initialEnvironmentType, string name)
     {
         Guards.HasValue(id, nameof(id));
@@ -34,24 +18,40 @@ public class SectionAggregate : AggregateBase<SectionId>
         InternalSourceEvents.Clear();
     }
 
+    internal ISet<string> InternalEnvironmentTypes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    internal List<SchemaId> InternalSchemas { get; } = new();
+    internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
+    public IEnumerable<SchemaId> Schemas => InternalSchemas.AsReadOnly();
+    public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
+    public string SectionName { get; internal set; }
+
+    /// <summary>
+    ///     Gets the environment types that can host this section.
+    /// </summary>
+    public IEnumerable<string> EnvironmentTypes => InternalEnvironmentTypes.ToList();
+
+    public DeploymentResult? DeploymentResult { get; private set; }
+
+    public EnvironmentEntity GetEnvironment(string name)
+    {
+        return InternalEnvironments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public EnvironmentEntity GetEnvironment(EnvironmentId environmentId)
+    {
+        return InternalEnvironments.GetEnvironment(environmentId);
+    }
+
     internal void PlayEvent(IDomainEvent evt)
     {
         SectionAggregateEventHandlers.Play(this, evt);
         InternalSourceEvents.Add(evt);
     }
-    
 
-    public SectionSchemaEntity GetSchema(SectionSchemaId sectionSchemaId) =>
-        InternalSchemas.Single(s => s.Id == sectionSchemaId);
-
-    public SectionSchemaEntity GetSchema(string name) =>
-        // TODO: don't need fullname
-        InternalSchemas.Single(s => s.SchemaName.FullName.Equals(name, StringComparison.OrdinalIgnoreCase));
-    
-    public ReleaseEntity GetRelease(EnvironmentId environmentId, ReleaseId releaseId) =>
-        GetEnvironment(environmentId).InternalReleases.GetRelease(releaseId);
-    
-    public DeploymentResult? DeploymentResult { get; private set; }
+    public ReleaseEntity GetRelease(EnvironmentId environmentId, ReleaseId releaseId)
+    {
+        return GetEnvironment(environmentId).InternalReleases.GetRelease(releaseId);
+    }
 
     public DeploymentEntity SetDeployed(
         EnvironmentId environmentId,
@@ -86,7 +86,7 @@ public class SectionAggregate : AggregateBase<SectionId>
             .InternalDeployments
             .GetDeployment(deploymentId);
     }
-    
+
     internal void SetOutOfDate(EnvironmentId environmentId, ReleaseId releaseId, bool isOutOfDate)
     {
         if (isOutOfDate)
@@ -94,19 +94,19 @@ public class SectionAggregate : AggregateBase<SectionId>
             PlayEvent(new ReleaseValueBecameOld(Id, environmentId, releaseId));
             return;
         }
-        
+
         PlayEvent(new ReleaseValueBecameCurrent(Id, environmentId, releaseId));
     }
 
     /// <summary>
-    /// When deploying: see if any other release for the environment is already
-    /// deployed. If so, remove it.
+    ///     When deploying: see if any other release for the environment is already
+    ///     deployed. If so, remove it.
     /// </summary>
     /// <param name="environmentId"></param>
     /// <param name="releaseId"></param>
     /// <param name="deploymentId"></param>
     internal void SetActiveDeploymentToRemoved(
-        EnvironmentId environmentId, 
+        EnvironmentId environmentId,
         DeploymentId deploymentId)
     {
         // see if any deployment for any release in the environment is
@@ -120,7 +120,7 @@ public class SectionAggregate : AggregateBase<SectionId>
                 .Select(d => new {Release = r, Deployment = d})
             )
             .SingleOrDefault();
-        
+
         if (deployed is null) return;
         var removedEvent = new DeploymentRemovedEvent(
             deployed.Deployment.Id,

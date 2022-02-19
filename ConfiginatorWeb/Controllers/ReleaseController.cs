@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Allard.Configinator.Core.Model;
 using Allard.Json;
-using ConfiginatorWeb.Interactors;
 using ConfiginatorWeb.Interactors.Release;
 using ConfiginatorWeb.Models.Release;
 using ConfiginatorWeb.Queries;
@@ -12,9 +10,9 @@ namespace ConfiginatorWeb.Controllers;
 
 public class ReleaseController : Controller
 {
-    private readonly IVariableSetQueries _variableSetQueries;
-    private readonly ISectionQueries _sectionQueries;
     private readonly IMediator _mediator;
+    private readonly ISectionQueries _sectionQueries;
+    private readonly IVariableSetQueries _variableSetQueries;
 
     public ReleaseController(
         ISectionQueries sectionQueries,
@@ -45,7 +43,7 @@ public class ReleaseController : Controller
     {
         // temp
         if (sectionId == null || environmentId == null) throw new Exception("bad input");
-        
+
         var section = await _sectionQueries.GetSectionAsync(sectionId.Value, cancellationToken);
         if (section == null) throw new InvalidOperationException("Section doesn't exist: " + sectionId);
         var environment = section.GetEnvironment(environmentId.Value);
@@ -53,7 +51,7 @@ public class ReleaseController : Controller
         // set the value to the last of the most recent release.
         var value = environment.Releases.LastOrDefault()?.ModelValue.RootElement.ToIndented();
         var variableSetName = environment.Releases.LastOrDefault()?.VariableSet?.VariableSetName;
-        var schemaName = environment.Releases.LastOrDefault()?.Schema?.Name?.FullName;
+        var schemaName = environment.Releases.LastOrDefault()?.Schema?.SchemaName?.FullName;
         var variableSets = (await _variableSetQueries.GetVariableSetListAsync(cancellationToken))
             .Select(s => s.VariableSetName)
             .OrderBy(s => s)
@@ -65,9 +63,9 @@ public class ReleaseController : Controller
             SectionName = section.SectionName,
             Schemas = section
                 .Schemas
-                .OrderByDescending(s => s.Name.FullName)
+                .OrderByDescending(s => s.SchemaName.FullName)
                 .Select(s => new EditSchemaView(
-                    s.Name,
+                    s.SchemaName,
                     s.Schema.RootElement.ToString()))
                 .ToList(),
 
@@ -81,12 +79,14 @@ public class ReleaseController : Controller
     }
 
     [HttpPost]
-    public async Task<CreateReleaseResponse> Create(CreateReleaseRequest request) =>
-        await _mediator.Send(request);
+    public async Task<CreateReleaseResponse> Create(CreateReleaseRequest request)
+    {
+        return await _mediator.Send(request);
+    }
 
     /// <summary>
-    /// Execute a deployment.
-    /// Handles the POST from Deploy.cshtml
+    ///     Execute a deployment.
+    ///     Handles the POST from Deploy.cshtml
     /// </summary>
     /// <param name="sectionId"></param>
     /// <param name="environmentId"></param>
@@ -160,7 +160,7 @@ public class ReleaseController : Controller
         var env = section.GetEnvironment(request.EnvironmentId.Value);
         var release = env.GetRelease(request.ReleaseId!.Value);
         var deployment = release.GetDeployment(request.DeploymentId.Value);
-        var view = (object)new DisplayDeploymentView(section, env, release, deployment);
+        var view = (object) new DisplayDeploymentView(section, env, release, deployment);
         return View(view);
     }
 }

@@ -3,7 +3,8 @@
 namespace Allard.Configinator.Core.Model;
 
 public record DeploymentResult(
-    bool IsSuccess, 
+    bool IsSuccess,
     IReadOnlyCollection<DeploymentResultMessage> Messages);
 
-public record DeploymentResultMessage(string Source, string Key, LogLevel Severity, string Message, Exception? Exception = null);
+public record DeploymentResultMessage(string Source, string Key, LogLevel Severity, string Message,
+    Exception? Exception = null);

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -55,7 +53,7 @@ public class JsonUtilityTests
             new ValueTuple<string, string>("Last", "Stuff.PersonalAttributes.NestAgain.LastAgain")
         });
     }
-    
+
     [Fact]
     public void GetTokenNames()
     {
@@ -83,12 +81,12 @@ public class JsonUtilityTests
 
         var variables = JsonUtility.GetVariableNames(value);
         variables.Count.Should().Be(5);
-        variables.Should().Contain(new string[]
+        variables.Should().Contain(new[]
         {
             "last", "first", "object", "color", "fowl"
         });
     }
-    
+
     [Fact]
     public void GetTokenNamesDeep()
     {
@@ -148,11 +146,11 @@ public class JsonUtilityTests
         // act
         // -----------------------------------------------------------
         var usedVariables = JsonUtility.GetVariableNamesDeep(value, variables).ToList();
-        
+
         // -----------------------------------------------------------
         // assert
         // -----------------------------------------------------------
         usedVariables.Count.Should().Be(7);
-        usedVariables.Should().Contain(new [] {"allergies", "first", "last", "age", "color", "object", "fowl"});
+        usedVariables.Should().Contain(new[] {"allergies", "first", "last", "age", "color", "object", "fowl"});
     }
 }

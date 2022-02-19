@@ -1,26 +1,30 @@
 ﻿using Allard.Configinator.Core;
 using Allard.Configinator.Core.DomainServices;
 using ConfiginatorWeb.Interactors.Section;
+using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using NuGet.Versioning;
 
 namespace ConfiginatorWeb.Controllers;
 
 public class SectionController : Controller
 {
+    private readonly EnvironmentValidationService _environmentValidationService;
+    private readonly IMediator _mediator;
+
+    private readonly ISchemaQueries _schemaQueries;
+
     // TODO: move to query handlers
     private readonly ISectionQueries _sectionQueries;
-    private readonly IMediator _mediator;
-    private readonly EnvironmentValidationService _environmentValidationService;
 
     public SectionController(
         ISectionQueries projections,
-        IMediator mediator, EnvironmentValidationService environmentValidationService)
+        IMediator mediator, EnvironmentValidationService environmentValidationService, ISchemaQueries schemaQueries)
     {
         _environmentValidationService = environmentValidationService;
+        _schemaQueries = schemaQueries;
         _mediator = Guards.HasValue(mediator, nameof(mediator));
         _sectionQueries = Guards.HasValue(projections, nameof(projections));
     }
@@ -38,18 +42,10 @@ public class SectionController : Controller
         return View(view);
     }
 
-    public async Task<IActionResult> Display(long sectionId)
+    public async Task<IActionResult> Display(long sectionId, CancellationToken cancellationToken)
     {
-        var section = await _sectionQueries.GetSectionAsync(sectionId);
-        return View(section);
-    }
-
-    public async Task<IActionResult> SchemaView(long sectionId, string name)
-    {
-        var section = await _sectionQueries.GetSectionAsync(sectionId);
-        var schema = section.GetSchema(name);
-        return View(new SchemaView(section, schema,
-            _environmentValidationService.GetNextSchemaEnvironmentType(schema.EnvironmentTypes, schema.Name.Version)));
+        var section = await _sectionQueries.GetSectionAsync(sectionId, cancellationToken);
+        return View(new SectionIndexView(section));
     }
 
     [HttpPost]
@@ -67,7 +63,7 @@ public class SectionController : Controller
                 EnvironmentNames = selectedEnvironments
             };
             var result = await _mediator.Send(request);
-            return RedirectToAction("Display", new {SectionId = result.SectionId});
+            return RedirectToAction("Display", new {result.SectionId});
         }
         catch (JsonReaderException ex)
         {
@@ -82,4 +78,6 @@ public class SectionController : Controller
     }
 }
 
-public record SchemaView(SectionDto Section, SectionSchemaDto Schema, string? PromotableTo);
+public record SchemaView(SchemaInfoDto Schema, string? PromotableTo);
+
+public record SectionIndexView(SectionDto Section);

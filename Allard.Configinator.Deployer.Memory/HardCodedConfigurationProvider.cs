@@ -7,7 +7,6 @@ public class HardCodedConfigurationProvider : IConfigurationProvider
     public Task<MemoryDeploymentConfiguration> GetConfigurationAsync(DeployRequest request)
     {
         if (request.DeploymentEnvironment.EnvironmentName.StartsWith("dev"))
-        {
             return Task.FromResult(new MemoryDeploymentConfiguration
             {
                 Path = "/a/b/c",
@@ -15,10 +14,8 @@ public class HardCodedConfigurationProvider : IConfigurationProvider
                 UserName = "e1-username",
                 Password = "e1-password"
             });
-        }
 
         if (request.DeploymentEnvironment.EnvironmentName.StartsWith("production"))
-        {
             return Task.FromResult(new MemoryDeploymentConfiguration
             {
                 Path = "/x/y/z",
@@ -26,7 +23,6 @@ public class HardCodedConfigurationProvider : IConfigurationProvider
                 UserName = "w4-username",
                 Password = "24-password"
             });
-        }
 
         throw new InvalidOperationException("Configuration undefined");
     }

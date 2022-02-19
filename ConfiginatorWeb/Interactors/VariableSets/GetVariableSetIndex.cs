@@ -17,13 +17,13 @@ public class GetVariableSetComposedQuery : IRequestHandler<VariableSetComposedQu
     public async Task<VariableSetComposedQueryResult> Handle(VariableSetComposedQuery request,
         CancellationToken cancellationToken)
     {
-        var variableSetComposed = await _variableSetDomainService.GetVariableSetComposedAsync(request.VariableSetName, cancellationToken);
+        var variableSetComposed =
+            await _variableSetDomainService.GetVariableSetComposedAsync(request.VariableSetName, cancellationToken);
         var mermaid = MermaidUtility.FlowChartForVariableSet(variableSetComposed, request.VariableSetName);
         var dto = VariableSetComposedDto.FromVariableSetComposed(variableSetComposed);
         return new VariableSetComposedQueryResult(dto, mermaid);
     }
 }
-
 
 public record VariableSetComposedQuery(string VariableSetName) : IRequest<VariableSetComposedQueryResult>;
 

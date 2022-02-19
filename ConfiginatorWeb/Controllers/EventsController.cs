@@ -1,5 +1,4 @@
-﻿using Allard.Configinator.Core.Model;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace ConfiginatorWeb.Controllers;
 

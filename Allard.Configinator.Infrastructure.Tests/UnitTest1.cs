@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Allard.Configinator.Infrastructure;
 using Allard.DomainDrivenDesign;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +31,7 @@ public class UnitTest1
             return Task.CompletedTask;
         }
     }
-    
+
     public class Handler2 : INotificationHandler<MediatorNotification<StuffHappenedEvent>>
     {
         public Task Handle(MediatorNotification<StuffHappenedEvent> notification, CancellationToken cancellationToken)

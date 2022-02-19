@@ -2,22 +2,21 @@
 using Allard.Configinator.Core.Model;
 using Allard.DomainDrivenDesign;
 using Newtonsoft.Json.Linq;
-using NuGet.Versioning;
 
 namespace Allard.Configinator.Core;
 
 /// <summary>
-/// A configuration section was created.
+///     A configuration section was created.
 /// </summary>
 /// <param name="SectionId"></para>
-/// <param name="SectionName"></param>
+///     <param name="SectionName"></param>
 public record SectionCreatedEvent(
     SectionId SectionId,
     string SectionName,
     string InitialEnvironmentType) : DomainEventBase;
 
 /// <summary>
-/// An environment was added to a configuration section.
+///     An environment was added to a configuration section.
 /// </summary>
 /// <param name="EnvironmentId"></param>
 /// <param name="SectionId"></param>
@@ -29,29 +28,21 @@ public record EnvironmentCreatedEvent(
     string EnvironmentName) : DomainEventBase;
 
 /// <summary>
-/// A schema was added to a configuration section.
+///     A schema was added to a configuration section.
 /// </summary>
 /// <param name="SectionId"></param>
 /// <param name="Schema"></param>
 public record SchemaAddedToSectionEvent(
     SectionId SectionId,
-    SectionSchemaId SectionSchemaId,
-    SchemaName Name,
-    JsonDocument Schema,
-    string EnvironmentType) : DomainEventBase;
-
-public record SectionSchemaPromotedEvent(
-    SectionId SectionId,
-    string SchemaName,
-    string newEnvironmentType) : DomainEventBase;
+    SchemaId SchemaId) : DomainEventBase;
 
 /// <summary>
-/// A release was created.
+///     A release was created.
 /// </summary>
 /// <param name="ReleaseId"></param>
 /// <param name="EnvironmentId"></param>
 /// <param name="SectionId"></param>
-/// <param name="SectionSchemaId"></param>
+/// <param name="SchemaId"></param>
 /// <param name="ModelValue"></param>
 /// <param name="ResolvedValue"></param>
 /// <param name="VariablesInUse"></param>
@@ -59,14 +50,14 @@ public record ReleaseCreatedEvent(
     ReleaseId ReleaseId,
     EnvironmentId EnvironmentId,
     SectionId SectionId,
-    SectionSchemaId SectionSchemaId,
+    SchemaId SchemaId,
     VariableSetId? VariableSetId,
     JsonDocument ModelValue,
     JsonDocument ResolvedValue,
     HashSet<string> VariablesInUse) : DomainEventBase;
 
 /// <summary>
-/// A variable set was created.
+///     A variable set was created.
 /// </summary>
 /// <param name="VariableSetName"></param>
 /// <param name="Variables"></param>
@@ -74,10 +65,9 @@ public record ReleaseCreatedEvent(
 public record VariableSetCreatedEvent(
     VariableSetId VariableSetId,
     VariableSetId? BaseVariableSetId,
-    
+
     // TODO: transitional. delete this. (it'll break stuff)
     string? BaseVariableSetName,
-    
     string VariableSetName,
     string EnvironmentType) : DomainEventBase;
 
@@ -86,7 +76,7 @@ public record VariableSetOverrideCreatedEvent(
     VariableSetId BaseVariableSetId) : DomainEventBase;
 
 /// <summary>
-/// A release was deployed.
+///     A release was deployed.
 /// </summary>
 /// <param name="DeploymentId"></param>
 /// <param name="DeploymentDate"></param>
@@ -103,7 +93,7 @@ public record ReleaseDeployedEvent(
     string? Notes) : DomainEventBase;
 
 /// <summary>
-/// A deployed release is no longer deployed.
+///     A deployed release is no longer deployed.
 /// </summary>
 /// <param name="DeploymentId"></param>
 /// <param name="SectionId"></param>
@@ -120,7 +110,7 @@ public record DeploymentRemovedEvent(
 // todo: SET is too broad... create a CREATED event.
 
 /// <summary>
-/// The value of a variable changed.
+///     The value of a variable changed.
 /// </summary>
 /// <param name="VariableSetName"></param>
 /// <param name="VariableName"></param>
@@ -147,7 +137,7 @@ public record ReleaseValueBecameOld(
 
 public record GlobalSchemaCreatedEvent(
     SchemaId SchemaId,
-    string Name,
+    SchemaName Name,
     string? Description,
     string EnvironmentType,
     JsonDocument Schema) : DomainEventBase;
@@ -155,11 +145,11 @@ public record GlobalSchemaCreatedEvent(
 public record SectionSchemaCreatedEvent(
     SchemaId SchemaId,
     SectionId SectionId,
-    string Name,
+    SchemaName Name,
     string? Description,
     string EnvironmentType,
     JsonDocument Schema) : DomainEventBase;
-    
+
 public record GlobalSchemaPromotedEvent(
     SchemaId SchemaId,
     string ToEnvironmentType) : DomainEventBase;

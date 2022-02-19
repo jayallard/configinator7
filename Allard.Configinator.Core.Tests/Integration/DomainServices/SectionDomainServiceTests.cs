@@ -28,6 +28,7 @@ public class SectionDomainServiceTests
     {
         await _domainService.CreateSectionAsync("name1");
         var test = async () => await _domainService.CreateSectionAsync("name2");
-        await test.Should().ThrowExactlyAsync<InvalidOperationException>().WithMessage("The path is already in use by another section");
+        await test.Should().ThrowExactlyAsync<InvalidOperationException>()
+            .WithMessage("The path is already in use by another section");
     }
 }

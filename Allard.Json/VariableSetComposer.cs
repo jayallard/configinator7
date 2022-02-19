@@ -2,10 +2,13 @@
 
 public static class VariableSetComposer
 {
-    public static VariableSetComposed Compose(IEnumerable<VariableSet> variableSets, string variableSetName) =>
-        Compose(variableSets)[variableSetName];
+    public static VariableSetComposed Compose(IEnumerable<VariableSet> variableSets, string variableSetName)
+    {
+        return Compose(variableSets)
+            .Single(v => v.VariableSetName.Equals(variableSetName, StringComparison.OrdinalIgnoreCase));
+    }
 
-    public static Dictionary<string, VariableSetComposed> Compose(IEnumerable<VariableSet> variableSets)
+    public static IEnumerable<VariableSetComposed> Compose(IEnumerable<VariableSet> variableSets)
     {
         var originals = variableSets.ToList();
         var sets = originals.ToDictionary(
@@ -22,7 +25,6 @@ public static class VariableSetComposer
             child.BaseVariableSet = theBase;
         }
 
-        return sets;
+        return sets.Values;
     }
-
 }

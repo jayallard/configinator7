@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ConfiginatorWeb.Controllers;
 
 /// <summary>
-/// All things useful for development and demo, but not part of configinator.
+///     All things useful for development and demo, but not part of configinator.
 /// </summary>
 public class DemoController : Controller
 {

@@ -1,4 +1,5 @@
-﻿@model ConfiginatorWeb.Queries.SectionDto
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model ConfiginatorWeb.Controllers.SectionIndexView
 
 @{
     ViewBag.Title = "title";
@@ -10,7 +11,7 @@
 <script type="text/javascript">
 function deploy(environmentName, releaseId) {
             const requestDto = {
-                 SectionName: '@Model.SectionName',
+                 SectionName: '@Model.Section.SectionName',
                  EnvironmentName: environmentName,
                  ReleaseId: releaseId
             };
@@ -35,7 +36,7 @@ $(document).ready(function() {
  });
 </script>
 <h1>Configuration Section</h1>
-<p>@Model.SectionName</p>
+<p>@Model.Section.SectionName</p>
 <h2>Environments</h2>
 <table class="table table-bordered">
     <thead>
@@ -44,7 +45,7 @@ $(document).ready(function() {
         <th>Releases</th>
     </tr>
     </thead>
-    @foreach (var e in Model.Environments)
+    @foreach (var e in Model.Section.Environments)
     {
         <tr>
             <td>@e.EnvironmentName</td>
@@ -65,9 +66,9 @@ $(document).ready(function() {
                         {
                             <tr>
                                 <td>
-                                    @Html.ReleaseLink(Model.SectionId, e.EnvironmentId, r.ReleaseId)
+                                    @Html.ReleaseLink(Model.Section.SectionId, e.EnvironmentId, r.ReleaseId)
                                 </td>
-                                <td>@r.Schema.Name.FullName</td>
+                                <td>@r.Schema.SchemaName.FullName</td>
                                 <td>@r.CreateDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
                                 <td>
                                     @if (r.VariableSet != null)
@@ -76,11 +77,12 @@ $(document).ready(function() {
                                     }
                                 </td>
                                 <td>
-                                    <a asp-controller="Release" asp-action="Deploy" asp-route-sectionid="@Model.SectionId"
-                                       asp-route-environmentid="@e.EnvironmentId"
-                                       asp-route-releaseid="@r.ReleaseId">
-                                        @(r.IsDeployed ? "Re-Deploy" : "Deploy")
-                                    </a>
+                                    @Html.ActionLink(r.IsDeployed ? "Re-Deploy" : "Deploy", "Deploy", "Release", new
+                                    {
+                                        Model.Section.SectionId,
+                                        e.EnvironmentId,
+                                        r.ReleaseId
+                                    })
                                     <span>&nbsp;</span>@Html.IsDeployedBadge(r.IsDeployed)
                                     @Html.IsOutOfDateBadge(r.IsOutOfDate)
                                 </td>
@@ -88,12 +90,12 @@ $(document).ready(function() {
                         }
                     </table>
                 }
-                <a asp-controller="Release" asp-action="Add" asp-route-sectionId="@Model.SectionId" asp-route-environmentId="@e.EnvironmentId">Create Release</a>
+                <a asp-controller="Release" asp-action="Add" asp-route-sectionId="@Model.Section.SectionId" asp-route-environmentId="@e.EnvironmentId">Create Release</a>
                 @if (e.Releases.Any())
                 {
                     <span>
                         &nbsp;|
-                        <a asp-controller="Release" asp-action="History" asp-route-environmentId="@e.EnvironmentId" asp-route-sectionId="@Model.SectionId">Deploy History</a>
+                        <a asp-controller="Release" asp-action="History" asp-route-environmentId="@e.EnvironmentId" asp-route-sectionId="@Model.Section.SectionId">Deploy History</a>
                     </span>
                 }
             </td>
@@ -109,15 +111,15 @@ $(document).ready(function() {
     </tr>
     </thead>
     <tbody>
-    @foreach (var s in Model.Schemas)
+    @foreach (var s in Model.Section.Schemas)
     {
         <tr>
-            <td>@Html.SectionSchemaLink(Model.SectionId, s.Name.FullName) @Html.IsPreReleaseSchema(s.Name.Version.IsPrerelease)</td>
+            <td>@Html.SchemaLink(s.SchemaName.FullName) @Html.IsPreReleaseSchema(s.SchemaName.Version.IsPrerelease)</td>
             <td>@string.Join(", ", s.EnvironmentTypes)</td>
         </tr>
     }
     </tbody>
 </table>
 <p>
-    <a asp-action="AddSectionSchema" asp-controller="schema" asp-route-sectionId="@Model.SectionId">Add Schema</a>
+    <a asp-action="AddSectionSchema" asp-controller="schema" asp-route-sectionId="@Model.Section.SectionId">Add Schema</a>
 </p>

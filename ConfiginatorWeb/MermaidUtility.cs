@@ -6,7 +6,7 @@ namespace ConfiginatorWeb;
 public static class MermaidUtility
 {
     /// <summary>
-    /// Create the mermaid js diagram for the variable set hierarchy.
+    ///     Create the mermaid js diagram for the variable set hierarchy.
     /// </summary>
     /// <param name="variableSetComposed"></param>
     /// <param name="selectedNode"></param>
@@ -18,11 +18,11 @@ public static class MermaidUtility
             .AppendLine("classDef selected fill:#f9f,stroke:#333,stroke-width:4px");
 
         AddChildren(variableSetComposed.Root);
-        
+
         // highlight the selected node
         mermaid.AppendLine($"style {selectedNode} fill:#00758f");
         return mermaid.ToString();
-        
+
         void AddChildren(VariableSetComposed parent)
         {
             foreach (var child in parent.Children)
@@ -32,7 +32,8 @@ public static class MermaidUtility
             }
 
             // click event for each node
-            mermaid.AppendLine($"click {parent.VariableSetName} \"/VariableSet?variableSetName={parent.VariableSetName}\" \" \"");
+            mermaid.AppendLine(
+                $"click {parent.VariableSetName} \"/VariableSet?variableSetName={parent.VariableSetName}\" \" \"");
         }
     }
 }

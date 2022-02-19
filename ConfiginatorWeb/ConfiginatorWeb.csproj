@@ -7,18 +7,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Allard.Configinator.Core\Allard.Configinator.Core.csproj" />
-      <ProjectReference Include="..\Allard.Configinator.Deployer.Memory\Allard.Configinator.Deployer.Memory.csproj" />
-      <ProjectReference Include="..\Allard.Configinator.Infrastructure\Allard.Configinator.Infrastructure.csproj" />
+        <ProjectReference Include="..\Allard.Configinator.Core\Allard.Configinator.Core.csproj"/>
+        <ProjectReference Include="..\Allard.Configinator.Deployer.Memory\Allard.Configinator.Deployer.Memory.csproj"/>
+        <ProjectReference Include="..\Allard.Configinator.Infrastructure\Allard.Configinator.Infrastructure.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="Schemas\*.*">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <None Include="Schemas\*.*">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1"/>
     </ItemGroup>
 </Project>

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Text.Json;
 using Allard.Configinator.Core.Model;
 using FluentAssertions;
-using NuGet.Versioning;
 using Xunit;
 
 namespace Allard.Configinator.Core.Tests.Unit.Model;
@@ -14,13 +12,11 @@ public class SectionEntityTests
     public void CreateSection()
     {
         // arrange, act
-        var section = new SectionAggregate(new SectionId(0), "development","name");
+        var section = new SectionAggregate(new SectionId(0), "development", "name");
 
         // assert
         section.SectionName.Should().Be("name");
-        section.Schemas.Single().SchemaName.Should().Be("1.0.0");
     }
-
 
 
     [Fact]

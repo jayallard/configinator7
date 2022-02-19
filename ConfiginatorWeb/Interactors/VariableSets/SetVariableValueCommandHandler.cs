@@ -13,14 +13,18 @@ public class SetVariableValueCommandHandler : IRequestHandler<SetVariableValueCo
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<SetVariableValueResponse> Handle(SetVariableValueCommand request, CancellationToken cancellationToken)
+    public async Task<SetVariableValueResponse> Handle(SetVariableValueCommand request,
+        CancellationToken cancellationToken)
     {
-        var variableSet = await _unitOfWork.VariableSets.GetVariableSetAsync(request.VariableSetName, cancellationToken);
+        var variableSet =
+            await _unitOfWork.VariableSets.GetVariableSetAsync(request.VariableSetName, cancellationToken);
         variableSet.SetValue(request.Key, request.Value);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return new SetVariableValueResponse();
     }
 }
 
-public record SetVariableValueCommand(string VariableSetName, string Key, JToken Value) : IRequest<SetVariableValueResponse>;
+public record SetVariableValueCommand
+    (string VariableSetName, string Key, JToken Value) : IRequest<SetVariableValueResponse>;
+
 public record SetVariableValueResponse;

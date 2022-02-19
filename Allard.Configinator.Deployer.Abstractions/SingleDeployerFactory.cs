@@ -1,10 +1,10 @@
 ﻿namespace Allard.Configinator.Deployer.Abstractions;
 
 /// <summary>
-/// A single application may have many deployers.
-/// But, in this case, we only have one. So, inject the one.
-/// TODO: this can be moved to abstractions, or similar.
-/// This isn't memory specific.
+///     A single application may have many deployers.
+///     But, in this case, we only have one. So, inject the one.
+///     TODO: this can be moved to abstractions, or similar.
+///     This isn't memory specific.
 /// </summary>
 public class SingleDeployerFactory : IDeployerFactory
 {
@@ -15,6 +15,8 @@ public class SingleDeployerFactory : IDeployerFactory
         _deployer = deployer;
     }
 
-    public Task<IDeployer> GetDeployer(DeployRequest request) =>
-        Task.FromResult(_deployer);
+    public Task<IDeployer> GetDeployer(DeployRequest request)
+    {
+        return Task.FromResult(_deployer);
+    }
 }

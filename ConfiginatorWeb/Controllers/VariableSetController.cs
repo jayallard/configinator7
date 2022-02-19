@@ -1,5 +1,4 @@
 ﻿using Allard.Configinator.Core;
-using ConfiginatorWeb.Interactors;
 using ConfiginatorWeb.Interactors.VariableSets;
 using ConfiginatorWeb.Queries;
 using MediatR;
@@ -37,14 +36,14 @@ public class VariableSetController : Controller
             VariableSetName = variableSetName,
             Key = key,
             SelectedVariable = variable,
-            VariablesComposed = variableSet.VariableSet,
+            VariablesComposed = variableSet.VariableSet
         });
     }
 
     [HttpPost]
     public async Task<IActionResult> SaveValue(
-        string variableSetName, 
-        string key, 
+        string variableSetName,
+        string key,
         string value,
         CancellationToken cancellationToken)
     {

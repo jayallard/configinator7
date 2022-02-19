@@ -18,26 +18,24 @@ public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, 
         _uow = uow;
     }
 
-    public async Task<CreateSectionAppResponse> Handle(CreateSectionAppRequest request, CancellationToken cancellationToken)
+    public async Task<CreateSectionAppResponse> Handle(CreateSectionAppRequest request,
+        CancellationToken cancellationToken)
     {
         var section = await _service.CreateSectionAsync(request.Name);
-        foreach (var env in request.EnvironmentNames)
-        {
-            await _service.AddEnvironmentToSectionAsync(section, env);  
-        }
-        
+        foreach (var env in request.EnvironmentNames) await _service.AddEnvironmentToSectionAsync(section, env);
+
         await _uow.Sections.AddAsync(section, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
-        return new CreateSectionAppResponse(section.EntityId);    }
+        return new CreateSectionAppResponse(section.EntityId);
+    }
 }
 
 public class CreateSectionAppRequest : IRequest<CreateSectionAppResponse>
 {
-    [Required]
-    public string Name { get; set; }
-    
+    [Required] public string Name { get; set; }
+
     public List<string> EnvironmentNames { get; set; }
-    
+
     [HiddenInput]
     [DataType(DataType.Text)]
     public string? ErrorMessage { get; set; }

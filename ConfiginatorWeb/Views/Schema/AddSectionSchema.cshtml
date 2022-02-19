@@ -30,7 +30,7 @@ $(document).ready(function() {
         $.post("@Url.Action("AddSectionSchema", "Schema")", requestDto)
         .done(function (data) {
             //alert(JSON.stringify(data));
-            document.location.replace('@Url.ActionLink("Display", "Section", new {SectionId=Model.SectionId})');
+            document.location.replace('@Url.ActionLink("Display", "Section", new {Model.SectionId})');
         })
         .fail(function (x, status, e) {
             alert(x.responseText);
@@ -45,9 +45,9 @@ $(document).ready(function() {
 <form method="post">
     @Html.AntiForgeryToken()
     <h2>Schema</h2>
-    Schema Name:&nbsp;&nbsp;@Html.TextBoxFor(m => m.SchemaName, new {id="txtSchemaName"})<br/>
+    Schema Name:&nbsp;&nbsp;@Html.TextBoxFor(m => m.SchemaName, new {id = "txtSchemaName"})<br/>
     The schema name is of the format: <code>name/semantic-version</code>. IE: <code>/my/configuration/section/1.0.0</code>
     <br/><br/>
-    @Html.TextAreaFor(m => m.Schema, new {style = "width:100%;height:300px;", id="txtSchema"})
+    @Html.TextAreaFor(m => m.Schema, new {style = "width:100%;height:300px;", id = "txtSchema"})
     <button class="btn btn-primary" id="save" type="button">Create</button>
 </form>

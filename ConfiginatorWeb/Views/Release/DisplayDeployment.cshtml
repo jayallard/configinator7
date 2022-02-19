@@ -9,7 +9,7 @@
 <div class="container">
     <div class="row">
         <div class="col-2">Section Name</div>
-        <div class="col-3">@Html.SectionLink(@Model.Section.SectionName, Model.Section.SectionId)</div>
+        <div class="col-3">@Html.SectionLink(Model.Section.SectionName, Model.Section.SectionId)</div>
     </div>
     <div class="row">
         <div class="col-2">Environment Name</div>
@@ -23,7 +23,8 @@
                 asp-route-sectionId="@Model.Section.SectionId"
                 asp-route-environmentId="@Model.Environment.EnvironmentId"
                 asp-route-releaseId="@Model.Release.ReleaseId">
-                @Model.Release.ReleaseId</a>&nbsp;
+                @Model.Release.ReleaseId
+            </a>&nbsp;
             @Html.IsDeployedBadge(Model.Release.IsDeployed) @Html.IsOutOfDateBadge(Model.Release.IsOutOfDate)
         </div>
     </div>

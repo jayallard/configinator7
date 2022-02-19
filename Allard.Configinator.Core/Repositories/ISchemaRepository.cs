@@ -3,6 +3,6 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Repositories;
 
-public interface IGlobalSchemaRepository : IRepository<GlobalSchemaAggregate, SchemaId>
+public interface ISchemaRepository : IRepository<SchemaAggregate, SchemaId>
 {
 }

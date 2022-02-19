@@ -9,13 +9,16 @@ public class VariableSet
 
     public Dictionary<string, JToken> Variables { get; set; } = new();
 
-    public VariableSet Clone() => new()
+    public VariableSet Clone()
     {
-        BaseVariableSetName = BaseVariableSetName,
-        VariableSetName = VariableSetName,
-        Variables = Variables.ToDictionary(
-            kv => kv.Key,
-            kv => kv.Value,
-            StringComparer.OrdinalIgnoreCase)
-    };
+        return new()
+        {
+            BaseVariableSetName = BaseVariableSetName,
+            VariableSetName = VariableSetName,
+            Variables = Variables.ToDictionary(
+                kv => kv.Key,
+                kv => kv.Value,
+                StringComparer.OrdinalIgnoreCase)
+        };
+    }
 }

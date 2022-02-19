@@ -9,26 +9,31 @@ namespace ConfiginatorWeb.Interactors.Schema;
 
 public class CreateSectionSchemaInteractor : IRequestHandler<CreateSectionSchemaRequest, CreateSectionSchemaResponse>
 {
+    private readonly SchemaDomainService _schemaDomainService;
     private readonly IUnitOfWork _uow;
-    private readonly EnvironmentValidationService _environmentValidationService;
-    private readonly SectionDomainService _sectionDomainService;
 
-    public CreateSectionSchemaInteractor(EnvironmentValidationService environmentValidationService, IUnitOfWork uow, SectionDomainService sectionDomainService)
+    public CreateSectionSchemaInteractor(
+        IUnitOfWork uow,
+        SchemaDomainService schemaDomainService)
     {
-        _sectionDomainService = Guards.HasValue(sectionDomainService, nameof(sectionDomainService));
-        _environmentValidationService = Guards.HasValue(environmentValidationService, nameof(environmentValidationService));
+        _schemaDomainService = schemaDomainService;
         _uow = Guards.HasValue(uow, nameof(uow));
     }
 
-    public async Task<CreateSectionSchemaResponse> Handle(CreateSectionSchemaRequest request, CancellationToken cancellationToken)
+    public async Task<CreateSectionSchemaResponse> Handle(CreateSectionSchemaRequest request,
+        CancellationToken cancellationToken)
     {
-        var section = await _uow.Sections.GetAsync(new SectionId(request.SectionId), cancellationToken);
-        await _sectionDomainService.AddSchemaToSectionAsync(section, request.SchemaName,
-            JsonDocument.Parse(request.SchemaText));
+        var schema = await _schemaDomainService.CreateSectionSchemaAsync(new SchemaName(request.SchemaName),
+            new SectionId(request.SectionId),
+            "description - TODO",
+            JsonDocument.Parse(request.SchemaText), cancellationToken);
+        await _uow.Schemas.AddAsync(schema, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
         return new CreateSectionSchemaResponse();
     }
 }
 
-public record CreateSectionSchemaRequest(long SectionId, string SchemaName, string SchemaText) : IRequest<CreateSectionSchemaResponse>;
+public record CreateSectionSchemaRequest
+    (long SectionId, string SchemaName, string SchemaText) : IRequest<CreateSectionSchemaResponse>;
+
 public record CreateSectionSchemaResponse;

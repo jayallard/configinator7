@@ -12,6 +12,8 @@ public class SectionIdNotIn : ISpecification<SectionAggregate>
         _except = ids.Select(id => id.Id).ToHashSet();
     }
 
-    public bool IsSatisfied(SectionAggregate obj) =>
-        !_except.Contains(obj.Id.Id);
+    public bool IsSatisfied(SectionAggregate obj)
+    {
+        return !_except.Contains(obj.Id.Id);
+    }
 }

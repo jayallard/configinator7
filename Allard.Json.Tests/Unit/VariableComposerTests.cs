@@ -48,15 +48,15 @@ public class VariableComposerTests
             new VariableSet
             {
                 VariableSetName = "d",
-                BaseVariableSetName = "c",
-            },
+                BaseVariableSetName = "c"
+            }
         };
 
         var a = VariableSetComposer.Compose(sets, "a");
         var b = a.GetChild("b");
         var c = b.GetChild("c");
         var d = c.GetChild("d");
-        
+
         // it's defined in A
         var variableAFromA = a.GetToken("a");
         variableAFromA.Origin.Should().Be(VariableOrigin.Defined);
@@ -106,10 +106,7 @@ public class VariableComposerTests
             new VariableSet
             {
                 VariableSetName = "d",
-                BaseVariableSetName = "c",
-                Variables =
-                {
-                }
+                BaseVariableSetName = "c"
             },
             new VariableSet
             {
@@ -119,7 +116,7 @@ public class VariableComposerTests
                 {
                     {"e", "from e"}
                 }
-            },
+            }
         };
 
         var a = VariableSetComposer.Compose(sets, "a");
@@ -130,16 +127,16 @@ public class VariableComposerTests
 
         // a
         a.Keys.Count.Should().Be(1);
-        
+
         // a, b
         b.Keys.Count.Should().Be(2);
-        
+
         // a, b, c
         c.Keys.Count.Should().Be(3);
-        
+
         // a, b, c
         d.Keys.Count.Should().Be(3);
-        
+
         // a, b, c, 3
         e.Keys.Count.Should().Be(4);
     }
@@ -160,7 +157,7 @@ public class VariableComposerTests
             new VariableSet {VariableSetName = "d2", BaseVariableSetName = "c3"},
             new VariableSet {VariableSetName = "x", BaseVariableSetName = "b2"},
             new VariableSet {VariableSetName = "y", BaseVariableSetName = "x"},
-            new VariableSet {VariableSetName = "z", BaseVariableSetName = "y"},
+            new VariableSet {VariableSetName = "z", BaseVariableSetName = "y"}
         };
 
         var a = VariableSetComposer.Compose(sets, "a");
@@ -186,9 +183,8 @@ public class VariableComposerTests
         x.BaseVariableSet.Should().Be(b2);
         y.BaseVariableSet.Should().Be(x);
         z.BaseVariableSet.Should().Be(y);
-        
-        
-        
+
+
         a.VariableSetName.Should().Be("a");
         a.Children.Count().Should().Be(2);
         b1.Children.Count().Should().Be(3);
@@ -196,13 +192,11 @@ public class VariableComposerTests
 
         PrintVariableSetHierarchy(a, 0);
     }
-    
+
     private void PrintVariableSetHierarchy(VariableSetComposed variableSet, int level)
     {
         var space = new string(' ', level * 3);
         _testOutputHelper.WriteLine(space + variableSet.VariableSetName);
-        foreach (var child in variableSet.Children)
-        {
-            PrintVariableSetHierarchy(child, level + 1);
-        }
-    }}
+        foreach (var child in variableSet.Children) PrintVariableSetHierarchy(child, level + 1);
+    }
+}

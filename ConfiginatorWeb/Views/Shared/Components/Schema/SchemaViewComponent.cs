@@ -1,6 +1,5 @@
 ﻿using Allard.Configinator.Core.Schema;
 using ConfiginatorWeb.Models;
-using ConfiginatorWeb.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConfiginatorWeb.Views.Shared.Components.Schema;
@@ -14,13 +13,13 @@ public class SchemaViewComponent : ViewComponent
         _loader = loader;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(SectionSchemaDto schema)
+    public async Task<IViewComponentResult> InvokeAsync(SchemaInfoDto schema)
     {
-        var resolved = await _loader.ResolveSchemaAsync(schema.Name.FullName, schema.Schema);
-        var dto = resolved.ToOutputDto();
-        var view = (IViewComponentResult) View("Index", new SchemaIndexView(dto, schema));
+        // var resolved = await _loader.ResolveSchemaAsync(new SchemaName(schema.SchemaName.FullName), schema.Schema);
+        // var dto = resolved.ToOutputDto();
+        var view = (IViewComponentResult) View("Index", new SchemaIndexView(schema));
         return view;
     }
 }
 
-public record SchemaIndexView(SchemaInfoDto Schema, SectionSchemaDto SectionSchema);
+public record SchemaIndexView(SchemaInfoDto Schema);

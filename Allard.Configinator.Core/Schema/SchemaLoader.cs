@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
+using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
-using Allard.Configinator.Core.Specifications;
+using Allard.Configinator.Core.Specifications.Schema;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
@@ -12,11 +13,13 @@ public class SchemaLoader
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public SchemaLoader(IUnitOfWork unitOfWork) =>
+    public SchemaLoader(IUnitOfWork unitOfWork)
+    {
         _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
+    }
 
     public async Task<SchemaInfo> ResolveSchemaAsync(
-        string schemaName,
+        SchemaName schemaName,
         JsonDocument schemaSource,
         CancellationToken cancellationToken = default)
     {
@@ -30,10 +33,13 @@ public class SchemaLoader
         return info;
     }
 
-    private static List<string> GetSchemaReferences(JToken doc) =>
-        doc.SelectTokens("$..['$ref']").Select(t => t.Value<string>()).ToList()!;
+    private static List<SchemaName> GetSchemaReferences(JToken doc)
+    {
+        return doc.SelectTokens("$..['$ref']").Select(t => new SchemaName(t.Value<string>())).ToList()!;
+    }
 
-    private JsonReferenceResolver Resolve(string schemaName, JsonSchema schema, SchemaDetailTracker tracker)
+    private JsonReferenceResolver Resolve(SchemaName schemaName, JsonSchema schema,
+        SchemaDetailTracker tracker)
     {
         var references = GetSchemaReferences(JObject.Parse(schema.ToJson()));
         var schemaResolver = new JsonSchemaResolver(schema, new JsonSchemaGeneratorSettings());
@@ -43,20 +49,25 @@ public class SchemaLoader
             if (!tracker.Exists(referenceSchemaName))
             {
                 // hack - .RESULT
-                var referenceJson = _unitOfWork.GlobalSchemas
-                    .FindAsync(new GlobalSchemaNameIs(referenceSchemaName), CancellationToken.None)
-                    .Result.SingleOrDefault();
-                if (referenceJson == null)
-                    throw new InvalidOperationException("GlobalSchema doesn't exist: " + referenceSchemaName);
+                var referenceJson = _unitOfWork
+                    .Schemas
+                    .FindOneAsync(SchemaNameIs.Is(referenceSchemaName), CancellationToken.None).Result;
+
+                // sections can only use it's own schemas, and global schemas
+                //EnsureSchemaCanBeUsed(sectionId, referenceJson);
+
                 var schemaRef = referenceJson.Schema.ToJsonNetJson();
                 var referenceSchema = JsonSchema
                     .FromJsonAsync(schemaRef.ToString(), ".", s => Resolve(referenceSchemaName, s, tracker),
                         CancellationToken.None).Result;
-                tracker.SetSchema(referenceSchemaName, referenceJson.Schema, referenceSchema);
+                tracker.SetSchema(
+                    referenceJson.SchemaName, 
+                    referenceJson.Schema, 
+                    referenceSchema);
             }
 
             // add to the schema
-            referenceResolver.AddDocumentReference(referenceSchemaName,
+            referenceResolver.AddDocumentReference(referenceSchemaName.FullName,
                 tracker.GetSchema(referenceSchemaName).ResolvedSchema);
 
             // add to the tracker
@@ -65,4 +76,16 @@ public class SchemaLoader
 
         return referenceResolver;
     }
+
+    // private static void EnsureSchemaCanBeUsed(SectionId? rootSectionId,
+    //     SchemaAggregate referenceJson)
+    // {
+    //     // if the the reference is a global, all good. anything can use it.
+    //     // global can refer to global, and section can refer to global
+    //     if (referenceJson.IsGlobalSchema) return;
+    //
+    //     // if the root is global, but refers to a section... bad schema!
+    //     if (rootSectionId is null && referenceJson.SectionId is not null)
+    //         throw new InvalidOperationException("A global schema can't refer to a section schema.");
+    // }
 }

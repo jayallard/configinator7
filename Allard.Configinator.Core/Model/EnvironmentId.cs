@@ -7,5 +7,9 @@ public record EnvironmentId : IdBase
     public EnvironmentId(long id) : base(id)
     {
     }
-    public ReleaseEntity? GetRelease(ReleaseId id) => null;
+
+    public ReleaseEntity? GetRelease(ReleaseId id)
+    {
+        return null;
+    }
 }

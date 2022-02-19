@@ -3,20 +3,20 @@ using System.Text.Json;
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Specifications.Schema;
 using MediatR;
-using NuGet.Versioning;
 
 namespace ConfiginatorWeb.Interactors.Release;
 
 public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest, CreateReleaseResponse>
 {
     private readonly ILogger<CreateReleaseCommandHandler> _logger;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly SectionDomainService _sectionDomainService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreateReleaseCommandHandler(
-        IUnitOfWork unitOfWork, 
-        SectionDomainService sectionDomainService, 
+        IUnitOfWork unitOfWork,
+        SectionDomainService sectionDomainService,
         ILogger<CreateReleaseCommandHandler> logger)
     {
         _unitOfWork = unitOfWork;
@@ -30,8 +30,11 @@ public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest,
         {
             var section = await _unitOfWork.Sections.GetSectionAsync(request.SectionName, cancellationToken);
             var environmentId = section.GetEnvironment(request.EnvironmentName).Id;
-            var variableSet = await _unitOfWork.VariableSets.GetVariableSetIfNotNullAsync(request.VariableSetName, cancellationToken);
-            var schemaId = section.GetSchema(request.SchemaName).Id;
+            var variableSet =
+                await _unitOfWork.VariableSets.GetVariableSetIfNotNullAsync(request.VariableSetName, cancellationToken);
+            var schemaId =
+                (await _unitOfWork.Schemas.FindOneAsync(SchemaNameIs.Is(request.SchemaName), cancellationToken))
+                .Id;
             await _sectionDomainService.CreateReleaseAsync(
                 section,
                 environmentId,
@@ -57,18 +60,15 @@ public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest,
 
 public class CreateReleaseRequest : IRequest<CreateReleaseResponse>
 {
-    [Required]
-    public string EnvironmentName { get; set; }
+    [Required] public string EnvironmentName { get; set; }
 
-    [Required]
-    public string SchemaName { get; set; }
-    
-    [Required]
-    public string Value { get; set; }
+    [Required] public string SchemaName { get; set; }
+
+    [Required] public string Value { get; set; }
+
     public string? VariableSetName { get; set; }
-    
-    [Required]
-    public string SectionName { get; set; }
+
+    [Required] public string SectionName { get; set; }
 }
 
 public record CreateReleaseResponse(bool Success, List<string> ErrorMessages);

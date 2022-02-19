@@ -2,6 +2,19 @@
 
 public class DeploymentEntity : EntityBase<DeploymentId>
 {
+    internal DeploymentEntity(
+        DeploymentId id,
+        DateTime deploymentDate,
+        DeploymentResult deploymentResult,
+        string? notes)
+    {
+        Id = id;
+        DeploymentDate = deploymentDate;
+        DeploymentResult = deploymentResult;
+        Status = deploymentResult.IsSuccess ? DeploymentStatus.Deployed : DeploymentStatus.Error;
+        Notes = notes;
+    }
+
     public DateTime DeploymentDate { get; }
     public DateTime? RemovedDate { get; private set; }
     public string? RemoveReason { get; private set; }
@@ -16,19 +29,6 @@ public class DeploymentEntity : EntityBase<DeploymentId>
         RemovedDate = removeDate;
         RemoveReason = removeReason;
         Status = DeploymentStatus.Removed;
-    }
-
-    internal DeploymentEntity(
-        DeploymentId id,
-        DateTime deploymentDate,
-        DeploymentResult deploymentResult,
-        string? notes)
-    {
-        Id = id;
-        DeploymentDate = deploymentDate;
-        DeploymentResult = deploymentResult;
-        Status = deploymentResult.IsSuccess ? DeploymentStatus.Deployed : DeploymentStatus.Error;
-        Notes = notes;
     }
 }
 

@@ -7,5 +7,4 @@ public record SectionId : IdBase
     public SectionId(long id) : base(id)
     {
     }
-
 }

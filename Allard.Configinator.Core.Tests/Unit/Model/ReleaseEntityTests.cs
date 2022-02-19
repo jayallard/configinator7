@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Allard.Configinator.Core.Model;
-using FluentAssertions;
 using Xunit;
 
 namespace Allard.Configinator.Core.Tests.Unit.Model;
-
-using static IdUtility;
-using static ModelTestUtility;
 
 public class ReleaseEntityTests
 {
@@ -32,12 +25,12 @@ public class ReleaseEntityTests
     }
 
     /// <summary>
-    /// An environment has multiple releases.
-    /// Each time a release is DEPLOYED, it is flagged as deployed.
-    /// When a new release is deployed, then the old release is no longer deployed.
-    /// Show that the release is no longer deployed, and that the specific deployment is no
-    /// longer deployed.
-    /// NOTE: releases can be redeployed. That's a different scenario not covered by this test.
+    ///     An environment has multiple releases.
+    ///     Each time a release is DEPLOYED, it is flagged as deployed.
+    ///     When a new release is deployed, then the old release is no longer deployed.
+    ///     Show that the release is no longer deployed, and that the specific deployment is no
+    ///     longer deployed.
+    ///     NOTE: releases can be redeployed. That's a different scenario not covered by this test.
     /// </summary>
     [Fact]
     public async Task SetToRemoveWhenUndeployed()

@@ -1,8 +1,7 @@
-﻿@model ConfiginatorWeb.Controllers.EditVariableSetView
-@using System.Linq;
-@using Allard.Json
+﻿@using Allard.Json
 @using ConfiginatorWeb.Queries
 @using Newtonsoft.Json.Linq
+@model ConfiginatorWeb.Controllers.EditVariableSetView
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
@@ -92,11 +91,13 @@
                         {
                             <div>
                                 @item.VariableSetName : @item.VariableOrigin : <code>@item.Value</code>
-                                
+
                                 @* TODO: ToString() is insufficient here... works for simple values but wont' work for objects. *@
                                 @if (i > 0 && item.VariableOrigin == VariableOrigin.Override && item.Value.ToString() == items[i - 1].Value.ToString())
                                 {
-                                    <b><i>Can Delete</i></b>
+                                    <b>
+                                        <i>Can Delete</i>
+                                    </b>
                                 }
                             </div>
                         }

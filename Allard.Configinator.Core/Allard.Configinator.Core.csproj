@@ -7,15 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="NJsonSchema" Version="10.6.7" />
-      <PackageReference Include="NuGet.Versioning" Version="6.0.0" />
+        <PackageReference Include="NJsonSchema" Version="10.6.7" />
+        <PackageReference Include="NuGet.Versioning" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Allard.DomainDrivenDesign\Allard.DomainDrivenDesign.csproj" />
-      <ProjectReference Include="..\Allard.Json\Allard.Json.csproj" />
+        <ProjectReference Include="..\Allard.DomainDrivenDesign\Allard.DomainDrivenDesign.csproj" />
+        <ProjectReference Include="..\Allard.Json\Allard.Json.csproj" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>Allard.Configinator.Core.Tests</_Parameter1>
@@ -24,11 +24,11 @@
             <_Parameter1>Allard.Configinator.Infrastructure.Tests</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
-    
+
     <ItemGroup>
-      <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-        <HintPath>..\..\..\..\..\Program Files\dotnet\shared\Microsoft.AspNetCore.App\6.0.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-      </Reference>
+        <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+            <HintPath>..\..\..\..\..\Program Files\dotnet\shared\Microsoft.AspNetCore.App\6.0.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>

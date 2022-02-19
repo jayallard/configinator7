@@ -5,5 +5,8 @@ namespace Allard.Configinator.Core.Specifications;
 
 public class AllSections : ISpecification<SectionAggregate>
 {
-    public bool IsSatisfied(SectionAggregate obj) => true;
+    public bool IsSatisfied(SectionAggregate obj)
+    {
+        return true;
+    }
 }

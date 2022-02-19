@@ -44,7 +44,7 @@
                     @h.Deployment.DeploymentId
                 </a>
             </td>
-            <td>@h.Release.Schema.Name</td>
+            <td>@h.Release.Schema.SchemaName</td>
             <td>
                 @h.Deployment.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
                 @Html.IsDeployedBadge(h.Deployment.IsDeployed)

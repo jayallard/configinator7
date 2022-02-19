@@ -5,11 +5,12 @@ namespace Allard.Configinator.Core.Specifications;
 
 public class SectionNameIs : ISpecification<SectionAggregate>
 {
-    public string Name { get; }
     public SectionNameIs(string name)
     {
         Name = name;
     }
+
+    public string Name { get; }
 
     public bool IsSatisfied(SectionAggregate obj)
     {

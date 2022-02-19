@@ -10,11 +10,12 @@ namespace ConfiginatorWeb.Interactors.Release;
 
 public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployResponse>
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IIdentityService _identityService;
     private readonly IDeployerFactory _deployerFactory;
+    private readonly IIdentityService _identityService;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeployCommandHandler(IUnitOfWork unitOfWork, IIdentityService identityService, IDeployerFactory deployerFactory)
+    public DeployCommandHandler(IUnitOfWork unitOfWork, IIdentityService identityService,
+        IDeployerFactory deployerFactory)
     {
         _unitOfWork = unitOfWork;
         _identityService = identityService;
@@ -34,7 +35,7 @@ public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployRes
             Deployment = new Deployment(deploymentId.Id, request.Notes),
             DeploymentEnvironment = new DeploymentEnvironment(env.Id.Id, env.EnvironmentName),
             Release = new Allard.Configinator.Deployer.Abstractions.Release(release.Id.Id),
-            Schema = new Allard.Configinator.Deployer.Abstractions.Schema(release.SectionSchema.Schema),
+            SchemaId = release.SchemaId,
             Section = new Allard.Configinator.Deployer.Abstractions.Section(section.Id.Id, section.SectionName),
             ResolvedValue = release.ResolvedValue
         };
@@ -46,9 +47,10 @@ public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployRes
             result.Messages
                 .Select(m => new DeploymentResultMessage(m.Source, m.Key, m.Severity, m.Message, m.Exception)).ToList()
                 .AsReadOnly());
-        
+
         // todo: convert start date and notes to an object
-        section.SetDeployed(env.Id, new ReleaseId(request.ReleaseId), deploymentId, coreResult, startDate, request.Notes);
+        section.SetDeployed(env.Id, new ReleaseId(request.ReleaseId), deploymentId, coreResult, startDate,
+            request.Notes);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return new DeployResponse(deploymentId.Id);
     }

@@ -6,8 +6,15 @@ namespace Allard.Json;
 
 public static class ExtensionMethods
 {
-    public static JsonDocument ToSystemTextJson(this JObject json) => JsonDocument.Parse(json.ToString());
-    public static JObject ToJsonNetJson(this JsonDocument json) => JObject.Parse(json.RootElement.ToString());
+    public static JsonDocument ToSystemTextJson(this JObject json)
+    {
+        return JsonDocument.Parse(json.ToString());
+    }
+
+    public static JObject ToJsonNetJson(this JsonDocument json)
+    {
+        return JObject.Parse(json.RootElement.ToString());
+    }
 
     public static JToken ToJsonNetJson(this JsonElement json)
     {

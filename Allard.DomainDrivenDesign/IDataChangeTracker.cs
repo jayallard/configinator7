@@ -1,6 +1,6 @@
 ﻿namespace Allard.DomainDrivenDesign;
 
-public interface IDataChangeTracker<TAggregate, in TIdentity> 
+public interface IDataChangeTracker<TAggregate, in TIdentity>
     where TAggregate : IAggregate
     where TIdentity : IIdentity
 {
@@ -9,6 +9,9 @@ public interface IDataChangeTracker<TAggregate, in TIdentity>
     Task AddAsync(TAggregate entity, CancellationToken cancellationToken = default);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
     Task<TAggregate> GetAsync(TIdentity id, CancellationToken cancellationToken = default);
-    Task<TAggregate> FindOneAsync(ISpecification<TAggregate> specification, CancellationToken cancellationToken = default);
+
+    Task<TAggregate> FindOneAsync(ISpecification<TAggregate> specification,
+        CancellationToken cancellationToken = default);
+
     Task<List<IDomainEvent>> GetEvents(CancellationToken cancellationToken = default);
 }

@@ -16,13 +16,17 @@
         @foreach (var d in Model.Release.Deployments.OrderBy(d => d.DeploymentDate))
         {
             <tr>
-                <td><a 
-                        asp-controller="Release" 
+                <td>
+                    <a
+                        asp-controller="Release"
                         asp-action="DisplayDeployment"
                         asp-route-sectionId="@Model.Section.SectionId"
-                        asp-route-environmentId="@Model.Environment.EnvironmentId" 
+                        asp-route-environmentId="@Model.Environment.EnvironmentId"
                         asp-route-releaseId="@Model.Release.ReleaseId"
-                        asp-route-deploymentId="@d.DeploymentId">@d.DeploymentId</a></td>
+                        asp-route-deploymentId="@d.DeploymentId">
+                        @d.DeploymentId
+                    </a>
+                </td>
                 <td>
                     @d.DeploymentDate.ToString("dddd, MMM dd yyyy HH:mm:ss")
                     @Html.IsDeployedBadge(d.IsDeployed)
@@ -37,5 +41,7 @@
 }
 else
 {
-    <p><i>None</i></p>
+    <p>
+        <i>None</i>
+    </p>
 }

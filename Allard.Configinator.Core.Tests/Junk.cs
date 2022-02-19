@@ -59,17 +59,14 @@ public record Node(string Name, string? ParentName = null)
         var parent = Parent;
         while (parent != null)
         {
-            if (string.Equals(parent.Name, name, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+            if (string.Equals(parent.Name, name, StringComparison.OrdinalIgnoreCase)) return true;
 
             parent = parent.Parent;
         }
 
         return false;
     }
-    
+
     public HashSet<string> GetDescendants()
     {
         var results = new List<string>();

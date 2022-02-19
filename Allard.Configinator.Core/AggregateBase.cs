@@ -7,6 +7,7 @@ public abstract class AggregateBase<TIdentity> : EntityBase<TIdentity>, IAggrega
 {
     protected List<IDomainEvent> InternalSourceEvents { get; } = new();
     public IEnumerable<IDomainEvent> SourceEvents => InternalSourceEvents.AsReadOnly();
+
     public void ClearEvents()
     {
         InternalSourceEvents.Clear();

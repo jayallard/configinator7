@@ -19,13 +19,13 @@
     {
         <tr>
             <td>
-                @Html.SectionLink(i.Name.Replace("/", " / ") , i.SectionId)
+                @Html.SectionLink(i.Name.Replace("/", " / "), i.SectionId)
                 @* @if (i.DeployedIsOutOfDate) *@
                 @* { *@
                 @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
                 @* } *@
             </td>
-            <td>@string.Join(", ", @i.EnvironmentTypes.OrderBy(et => et).ToArray())</td>
+            <td>@string.Join(", ", i.EnvironmentTypes.OrderBy(et => et).ToArray())</td>
         </tr>
     }
     </tbody>
@@ -44,11 +44,11 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var t in Model.GlobalSchemas.OrderBy(kv => kv.Name))
+    @foreach (var t in Model.GlobalSchemas.OrderBy(kv => kv.SchemaName))
     {
         <tr>
-            <td>@t.Name</td>
-            <td>@string.Join(", ", @t.EnvironmentTypes.OrderBy(et => et).ToArray())</td>
+            <td>@t.SchemaName.FullName</td>
+            <td>@string.Join(", ", t.EnvironmentTypes.OrderBy(et => et).ToArray())</td>
             <td>@t.Description</td>
         </tr>
     }

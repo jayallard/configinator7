@@ -1,14 +1,12 @@
-﻿using System.Collections.Concurrent;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Allard.Configinator.Deployer.Abstractions;
-using Microsoft.Extensions.Logging;
 
 namespace Allard.Configinator.Deployer.Memory;
 
 public class MemoryDeployer : IDeployer
 {
-    private readonly MemoryConfigurationStore _store;
     private readonly IConfigurationProvider _configurationProvider;
+    private readonly MemoryConfigurationStore _store;
 
     public MemoryDeployer(
         IConfigurationProvider configurationProvider,
@@ -33,21 +31,7 @@ public class MemoryDeployer : IDeployer
     }
 
     /// <summary>
-    /// Return a configuration document with only safe displayable values.
-    /// </summary>
-    /// <param name="configuration"></param>
-    /// <returns></returns>
-    private static JsonDocument Sanitize(MemoryDeploymentConfiguration configuration) =>
-        JsonSerializer.SerializeToDocument(new
-        {
-            configuration.RegionName,
-            configuration.Path,
-            UserName = "<redacted>",
-            Password = "<redacted>"
-        });
-
-    /// <summary>
-    /// Deploy to the memory dictionary.
+    ///     Deploy to the memory dictionary.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
@@ -77,5 +61,21 @@ public class MemoryDeployer : IDeployer
             result.AddError("DeployAsync", "Boom", "Exception Occurred", ex);
             return result;
         }
+    }
+
+    /// <summary>
+    ///     Return a configuration document with only safe displayable values.
+    /// </summary>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    private static JsonDocument Sanitize(MemoryDeploymentConfiguration configuration)
+    {
+        return JsonSerializer.SerializeToDocument(new
+        {
+            configuration.RegionName,
+            configuration.Path,
+            UserName = "<redacted>",
+            Password = "<redacted>"
+        });
     }
 }

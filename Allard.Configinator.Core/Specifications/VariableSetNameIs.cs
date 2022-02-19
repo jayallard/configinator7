@@ -5,10 +5,15 @@ namespace Allard.Configinator.Core.Specifications;
 
 public class VariableSetNameIs : ISpecification<VariableSetAggregate>
 {
+    public VariableSetNameIs(string name)
+    {
+        Name = name;
+    }
+
     public string Name { get; }
 
-    public VariableSetNameIs(string name) => Name = name;
-
-    public bool IsSatisfied(VariableSetAggregate obj) =>
-        obj.VariableSetName.Equals(Name, StringComparison.CurrentCultureIgnoreCase);
+    public bool IsSatisfied(VariableSetAggregate obj)
+    {
+        return obj.VariableSetName.Equals(Name, StringComparison.CurrentCultureIgnoreCase);
+    }
 }

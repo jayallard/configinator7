@@ -3,6 +3,6 @@ using Allard.Configinator.Core.Repositories;
 
 namespace Allard.Configinator.Infrastructure.Repositories;
 
-public class SectionRepositoryMemory :  RepositoryMemoryBase<SectionAggregate, SectionId>, ISectionRepository
+public class SectionRepositoryMemory : RepositoryMemoryBase<SectionAggregate, SectionId>, ISectionRepository
 {
 }

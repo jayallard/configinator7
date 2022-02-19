@@ -2,7 +2,10 @@
 
 public record IdBase : IIdentity
 {
-    public long Id { get; }
+    protected IdBase(long id)
+    {
+        Id = id;
+    }
 
-    protected IdBase(long id) => Id = id;
+    public long Id { get; }
 }

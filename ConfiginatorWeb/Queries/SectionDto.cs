@@ -1,7 +1,5 @@
 ﻿using System.Text.Json;
 using Allard.Configinator.Core.Model;
-using Allard.Json;
-using NJsonSchema;
 using NuGet.Versioning;
 
 namespace ConfiginatorWeb.Queries;
@@ -16,19 +14,27 @@ public class SectionDto
 
     public List<SectionEnvironmentDto> Environments { get; set; }
 
-    public SectionEnvironmentDto GetEnvironment(string environmentName) =>
-        Environments.Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase));
+    public SectionEnvironmentDto GetEnvironment(string environmentName)
+    {
+        return Environments.Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase));
+    }
 
-    public SectionEnvironmentDto GetEnvironment(long environmentId) =>
-        Environments.Single(e => e.EnvironmentId == environmentId);
+    public SectionEnvironmentDto GetEnvironment(long environmentId)
+    {
+        return Environments.Single(e => e.EnvironmentId == environmentId);
+    }
 
-    public SectionSchemaDto GetSchema(string name) =>
-        Schemas.Single(s => s.Name.FullName.Equals(name, StringComparison.OrdinalIgnoreCase));
+    public SectionSchemaDto GetSchema(string name)
+    {
+        return Schemas.Single(s => s.SchemaName.FullName.Equals(name, StringComparison.OrdinalIgnoreCase));
+    }
 }
 
 public class SectionSchemaDto
 {
-    public SchemaNameDto Name { get; set; }
+    public long SchemaId { get; set; }
+    public long SectionId { get; set; }
+    public SchemaNameDto SchemaName { get; set; }
     public JsonDocument Schema { get; set; }
     public ISet<string> EnvironmentTypes { get; set; }
 }
@@ -43,17 +49,20 @@ public class SectionEnvironmentDto
 
     public long EnvironmentId { get; set; }
 
+    public string EnvironmentType { get; set; }
+
     public List<SectionReleaseDto> Releases { get; set; }
 
-    public SectionReleaseDto GetRelease(long releaseId) =>
-        Releases.Single(r => r.ReleaseId == releaseId);
+    public SectionReleaseDto GetRelease(long releaseId)
+    {
+        return Releases.Single(r => r.ReleaseId == releaseId);
+    }
 }
 
 public class SectionReleaseDto
 {
     public SectionSchemaDto Schema { get; set; }
     public long ReleaseId { get; set; }
-
     public DateTime CreateDate { get; set; }
 
     public bool IsDeployed { get; set; }
@@ -68,8 +77,10 @@ public class SectionReleaseDto
 
     public List<SectionDeploymentDto> Deployments { get; set; }
 
-    public SectionDeploymentDto GetDeployment(long deploymentId) =>
-        Deployments.Single(d => d.DeploymentId == deploymentId);
+    public SectionDeploymentDto GetDeployment(long deploymentId)
+    {
+        return Deployments.Single(d => d.DeploymentId == deploymentId);
+    }
 }
 
 public class SectionDeploymentDto
@@ -80,7 +91,7 @@ public class SectionDeploymentDto
     public string? RemoveReason { get; set; }
     public string? Notes { get; set; }
     public bool IsDeployed => RemovedDate is null;
-    
+
     public SectionDeploymentResultDto? DeploymentResult { get; set; }
 }
 
@@ -94,4 +105,3 @@ public record SectionDeploymentResultMessageDto(
     LogLevel Severity,
     string Message,
     Exception? ex = null);
-    

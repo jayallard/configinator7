@@ -9,20 +9,21 @@ using Newtonsoft.Json.Linq;
 namespace Allard.Configinator.Core.DomainEventHandlers;
 
 /// <summary>
-/// When a variable value is updated, then find all releases that use the variable.
-/// Resolve the release's model value against the current versions of the variable sets.
-/// If the resolved value is different than the release's resolved value, then the
-/// release is out of date.
-/// For example: When the release is created, the value of the PASSWORD variable is ABC.
-/// The password variable value is changed to XYZ.
-/// The existing release is now out of date because the password has changed.
+///     When a variable value is updated, then find all releases that use the variable.
+///     Resolve the release's model value against the current versions of the variable sets.
+///     If the resolved value is different than the release's resolved value, then the
+///     release is out of date.
+///     For example: When the release is created, the value of the PASSWORD variable is ABC.
+///     The password variable value is changed to XYZ.
+///     The existing release is now out of date because the password has changed.
 /// </summary>
 public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValueSetEvent>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly VariableSetDomainService _variableSetDomainService;
 
-    public UpdateReleasesWhenVariableValueChanges(IUnitOfWork unitOfWork, VariableSetDomainService variableSetDomainService)
+    public UpdateReleasesWhenVariableValueChanges(IUnitOfWork unitOfWork,
+        VariableSetDomainService variableSetDomainService)
     {
         _variableSetDomainService = Guards.HasValue(variableSetDomainService, nameof(variableSetDomainService));
         _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
@@ -33,7 +34,8 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
         Console.WriteLine("Variable changed: " + evt);
 
         // get the composer for all variable sets
-        var variableSet = await _variableSetDomainService.GetVariableSetComposedAsync(evt.VariableSetName, cancellationToken);
+        var variableSet =
+            await _variableSetDomainService.GetVariableSetComposedAsync(evt.VariableSetName, cancellationToken);
         var values = variableSet.ToValueDictionary();
         var related = variableSet.GetRelatedVariableSetNames();
 
@@ -57,12 +59,15 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
     private async Task<IEnumerable<SectionAggregate>> GetAffectedSections(
         string variableSetName,
         string variableName,
-        CancellationToken cancellationToken) =>
-        (await _unitOfWork.Sections.FindAsync(new UsesVariable(variableSetName, variableName), cancellationToken))
-        .ToList();
+        CancellationToken cancellationToken)
+    {
+        return (await _unitOfWork.Sections.FindAsync(new UsesVariable(variableSetName, variableName),
+                cancellationToken))
+            .ToList();
+    }
 
     /// <summary>
-    /// Returns all releases that use the variable set and variable.
+    ///     Returns all releases that use the variable set and variable.
     /// </summary>
     /// <param name="variableName"></param>
     /// <param name="relatedVariableSets"></param>

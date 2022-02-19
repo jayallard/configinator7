@@ -10,14 +10,16 @@ namespace Allard.Configinator.Core.Tests;
 
 public class Startup
 {
-    public void ConfigureServices(IServiceCollection services) =>
+    public void ConfigureServices(IServiceCollection services)
+    {
         services
             .AddScoped<ISectionRepository, SectionRepositoryMemory>()
             .AddScoped<IVariableSetRepository, VariableSetRepositoryMemory>()
-            .AddScoped<IGlobalSchemaRepository, GlobalSchemaRepositoryMemory>()
+            .AddScoped<ISchemaRepository, SchemaRepositoryMemory>()
             .AddScoped<IUnitOfWork, UnitOfWorkMemory>()
             .AddScoped<IIdentityService, IdentityServiceMemory>()
             .AddScoped<SectionDomainService>()
             .AddScoped<IEventPublisher, MediatorPublisher>()
             .AddMediatR(typeof(Startup));
+    }
 }

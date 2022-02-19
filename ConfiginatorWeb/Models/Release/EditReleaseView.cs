@@ -13,6 +13,7 @@ public class EditReleaseView
     public string? DefaultVariableSetName { get; set; }
     public string? DefaultSchemaName { get; set; }
 }
+
 public record EditSchemaView(SchemaNameDto SchemaName, string Schema);
 
 public class DisplayView
@@ -22,4 +23,3 @@ public class DisplayView
     public long ReleaseId { get; set; }
     public ReleaseEntity Release { get; set; }
 }
-

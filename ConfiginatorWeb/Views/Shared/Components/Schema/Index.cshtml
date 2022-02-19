@@ -1,13 +1,13 @@
 ﻿@using Allard.Json
 @model ConfiginatorWeb.Views.Shared.Components.Schema.SchemaIndexView
 <h1>View Section Schema</h1>
-<p>@Model.SectionSchema.Name.FullName</p>
+<p>@Model.Schema.Root.SchemaName</p>
 <h2>Environment Types</h2>
 <ul>
-    @foreach (var et in Model.SectionSchema.EnvironmentTypes)
-    {
-        <li>@et</li>
-    }
+    @* @foreach (var et in Model.SectionSchema.EnvironmentTypes) *@
+    @* { *@
+    @*     <li>@et</li> *@
+    @* } *@
 </ul>
 <br/>
 <br/>
@@ -24,14 +24,16 @@
         </ul>
     </p>
 }
-<code><pre>@Model.Schema.Root.SchemaSource.PrettyPrint()</pre></code>
+<code>
+    <pre>@Model.Schema.Root.SchemaSource.PrettyPrint()</pre>
+</code>
 @if (Model.Schema.References.Any())
 {
     <h3>Schema References</h3>
     foreach (var r in Model.Schema.References)
     {
         <p>
-            <b>@r.Name</b>
+            <b>@r.SchemaName</b>
         </p>
         @if (r.RefersTo.Any())
         {
@@ -57,6 +59,8 @@
                 </ul>
             </p>
         }
-        <code><pre>@r.SchemaSource.PrettyPrint()</pre></code>
+        <code>
+            <pre>@r.SchemaSource.PrettyPrint()</pre>
+        </code>
     }
 }

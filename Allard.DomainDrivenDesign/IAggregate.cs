@@ -1,6 +1,6 @@
 ﻿namespace Allard.DomainDrivenDesign;
 
-public interface IAggregate :IEntity
+public interface IAggregate : IEntity
 {
     IEnumerable<IDomainEvent> SourceEvents { get; }
 
