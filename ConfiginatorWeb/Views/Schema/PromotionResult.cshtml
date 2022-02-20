@@ -1,0 +1,10 @@
+﻿@model ConfiginatorWeb.Interactors.Schema.PromoteSchemaResponse
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h1>Promotion Succeeded</h1>
+<code>@Model.SchemaName</code>
+<a asp-action="SchemaView" asp-route-schemaName="@Model.SchemaName">View Schema</a>

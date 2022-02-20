@@ -23,13 +23,12 @@ public class PromoteSectionSchemaCommandHandler : IRequestHandler<PromoteSchemaR
     public async Task<PromoteSchemaResponse> Handle(PromoteSchemaRequest request, CancellationToken cancellationToken)
     {
         var schema = await _uow.Schemas.FindOneAsync(SchemaNameIs.Is(request.SchemaName), cancellationToken);
-        await _schemaDomainService.PromoteSchemaAsync(new SchemaName(request.SchemaName), request.TargetEnvironmentType,
-            cancellationToken);
+        await _schemaDomainService.PromoteSchemaAsync(new SchemaName(request.SchemaName), request.TargetEnviornmentType, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
         return new PromoteSchemaResponse(schema.EntityId, request.SchemaName);
     }
 }
 
-public record PromoteSchemaRequest(string SchemaName, string TargetEnvironmentType) : IRequest<PromoteSchemaResponse>;
+public record PromoteSchemaRequest(string SchemaName, string TargetEnviornmentType) : IRequest<PromoteSchemaResponse>;
 
 public record PromoteSchemaResponse(long SchemaId, string SchemaName);

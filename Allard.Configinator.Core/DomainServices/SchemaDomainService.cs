@@ -144,7 +144,9 @@ public class SchemaDomainService
         return allUsedSchemas;
     }
 
-    public async Task<SchemaAggregate> PromoteSchemaAsync(SchemaName schemaName, string targetEnvironmentType,
+    public async Task<SchemaAggregate> PromoteSchemaAsync(
+        SchemaName schemaName, 
+        string targetEnvironmentType,
         CancellationToken cancellationToken = default)
     {
         var schema = await _unitOfWork.Schemas.FindOneAsync(SchemaNameIs.Is(schemaName), cancellationToken);

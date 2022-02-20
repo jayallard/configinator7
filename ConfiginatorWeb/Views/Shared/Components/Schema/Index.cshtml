@@ -1,8 +1,7 @@
 ﻿@using Allard.Json
 @model ConfiginatorWeb.Views.Shared.Components.Schema.SchemaIndexView
-<h1>View Schema</h1>
 <h2>Schema</h2>
-<table class="table table-bordered table-sm">
+<table class="table table-bordered">
     <tbody>
     <tr>
         <th class="table-secondary">Name</th>
@@ -35,7 +34,10 @@
                     <li>@et</li>
                 }
             </ul>
-        </td>
+            @if (Model.Dtos[Model.Schema.Root.SchemaName].PromoteTo != null)
+            {
+                <a asp-action="PromoteIndex" asp-route-schemaName="@Model.Schema.Root.SchemaName">Promote To @Model.Dtos[Model.Schema.Root.SchemaName].PromoteTo</a>
+            }        </td>
     </tr>
     <tr>
         <th class="table-secondary">Refers To</th>
@@ -57,10 +59,6 @@
                     <li>@et.FullName</li>
                 }
             </ul>
-            @if (Model.Dtos[Model.Schema.Root.SchemaName].PromoteTo != null)
-            {
-                <a href="#">Promote To @Model.Dtos[Model.Schema.Root.SchemaName].PromoteTo</a>
-            }
         </td>
     </tr>
     </tbody>
@@ -73,7 +71,7 @@
     <h2>References</h2>
     foreach (var reference in Model.Schema.References)
     {
-        <table class="table table-bordered table-sm">
+        <table class="table table-bordered">
             <tbody>
             <tr>
                 <th class="table-secondary">Name</th>

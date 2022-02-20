@@ -1,0 +1,59 @@
+﻿@model ConfiginatorWeb.Controllers.PromoteModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h1>Promote Schema</h1>
+<p>Promote <code>@Model.SchemaName.FullName</code> to <code>@Model.PromoteTo</code>.</p>
+@if (Model.IsOk)
+{
+    <p>The Schema can be promoted to <b>@Model.PromoteTo</b>.</p>
+    <form action="@Url.ActionLink("Promote")" method="post">
+        <input type="hidden" name="SchemaName" value="@Model.SchemaName.FullName"/>
+        <input type="hidden" name="TargetEnvironmentType" value="@Model.PromoteTo"/>
+        <button class="btn btn-primary" type="submit">Promote</button>
+    </form>
+    <br/>
+    <br/>
+}
+else
+{
+    <p>The Schemas has references that must be promoted first.</p>
+    <button class="btn btn-secondary" disabled="disabled">Promote</button>
+    <br/>
+    <br/>
+}
+@if (Model.ReferenceStatus.Any())
+{
+    <h2>References</h2>
+    <table class="table table-bordered">
+        <thead>
+        <tr class="table-secondary">
+            <th></th>
+            <th>Schema Name</th>
+            <th>Is Promoted</th>
+            <th>Environment Types</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var reference in Model.ReferenceStatus)
+        {
+            <tr>
+                <td>
+                    @if (!reference.IsOk)
+                    {
+                        <a asp-action="PromoteIndex" asp-route-schemaName="@reference.SchemaName.FullName">Promote</a>
+                    }
+                </td>
+                <td>@reference.SchemaName.FullName</td>
+                <td>@reference.IsOk</td>
+                <td>@string.Join(", ", reference.EnvironmentTypes)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+<hr/>
+@await Component.InvokeAsync("Schema", Model.SchemaName)

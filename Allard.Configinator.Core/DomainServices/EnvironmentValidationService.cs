@@ -103,6 +103,7 @@ public class EnvironmentValidationService
     {
         if (schemaName.Version.IsPrerelease) return false;
         var types = assignedEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (assignedEnvironmentTypes.Contains(targetEnvironmentType)) return false;
         return targetEnvironmentType.ToLower() switch
         {
             "staging" => !types.Contains("staging"),
