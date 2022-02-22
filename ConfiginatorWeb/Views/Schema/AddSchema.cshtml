@@ -4,7 +4,6 @@
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
-    var view = (AddSchemaViewModel) ViewData["view"];
 }
 
 <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js">
@@ -22,15 +21,19 @@ function schemaName() {
 $(document).ready(function() {
     $('#save').click(function (e){
         const requestDto = {
-                                     SectionId: '@view.Section.SectionId',
+                                     SectionId: '@Model.SectionId',
                                      SchemaName: schemaName(),
-                                     Schema: schemaText(),
+                                     SchemaText: schemaText(),
                                  };
         //alert(JSON.stringify(requestDto));
-        $.post("@Url.Action("AddSectionSchema", "Schema")", requestDto)
+        $.post("@Url.Action("AddSchema", "Schema")", requestDto)
         .done(function (data) {
             //alert(JSON.stringify(data));
-            document.location.replace('@Url.ActionLink("Display", "Section", new {Model.SectionId})');
+            if (requestDto.SectionId == null) {
+                document.location.replace('@Url.ActionLink("Index", "Schema")');
+            } else {
+                document.location.replace('@Url.ActionLink("Display", "Section", new {Model.SectionId})');
+            }
         })
         .fail(function (x, status, e) {
             alert(x.responseText);
@@ -40,14 +43,21 @@ $(document).ready(function() {
 
 </script>
 
-<h1>Add a Schema to a Section</h1>
-<p>Section: @view.Section.SectionName</p>
-<form method="post">
+@if (Model.SectionId is null)
+{
+    <h1>Add a Global Schema</h1>
+}
+else
+{
+    <h1>Add a Schema to a Section</h1>
+    <p>Section: @Model.SectionName</p>
+}
+<form>
     @Html.AntiForgeryToken()
     <h2>Schema</h2>
-    Schema Name:&nbsp;&nbsp;@Html.TextBoxFor(m => m.SchemaName, new {id = "txtSchemaName"})<br/>
+    Schema Name:&nbsp;<input type="text" name="SchemaName" id="txtSchemaName"/><br/>
     The schema name is of the format: <code>name/semantic-version</code>. IE: <code>/my/configuration/section/1.0.0</code>
     <br/><br/>
-    @Html.TextAreaFor(m => m.Schema, new {style = "width:100%;height:300px;", id = "txtSchema"})
+    <textarea id="txtSchema" name="Schema" style="width:100%;height: 300px;"></textarea>
     <button class="btn btn-primary" id="save" type="button">Create</button>
 </form>

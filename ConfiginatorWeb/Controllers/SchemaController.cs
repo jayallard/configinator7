@@ -36,20 +36,24 @@ public class SchemaController : Controller
     }
 
     // GET
-    public async Task<IActionResult> AddSectionSchema(long sectionId, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddSchema(long? sectionId, CancellationToken cancellationToken)
     {
-        var section = await _sectionQueries.GetSectionAsync(sectionId, cancellationToken);
-        ViewData["view"] = new AddSchemaViewModel(section);
-        return View(new AddSchemaModel(sectionId, null, null));
+        if (sectionId == null)
+        {
+            return View(new AddSchemaModel(null, null));
+        }
+        
+        var section = await _sectionQueries.GetSectionAsync(sectionId.Value, cancellationToken);
+        return View(new AddSchemaModel(sectionId.Value, section.SectionName));
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddSectionSchema(AddSchemaModel model)
+    public async Task<IActionResult> AddSchema(long? sectionId, string schemaName, string schemaText)
     {
-        await _mediator.Send(new CreateSectionSchemaRequest(model.SectionId, model.SchemaName, model.Schema));
+        await _mediator.Send(new CreateSchemaRequest(sectionId, schemaName, schemaText));
         return Json(new {ok = "then"});
     }
-
+    
     [HttpPost]
     public async Task<IActionResult> Promote(string schemaName, string targetEnvironmentType)
     {
@@ -99,10 +103,11 @@ public class SchemaController : Controller
     }
 }
 
-public record PromoteModel(string PromoteTo, bool IsOk, SchemaName SchemaName, List<PromoteModelReferenceStatus> ReferenceStatus);
+public record PromoteModel(string? PromoteTo, bool IsOk, SchemaName SchemaName, List<PromoteModelReferenceStatus> ReferenceStatus);
 
 public record PromoteModelReferenceStatus(SchemaNameDto SchemaName, bool IsOk, ISet<string> EnvironmentTypes);
 
-public record AddSchemaModel(long SectionId, string SchemaName, string Schema);
-
-public record AddSchemaViewModel(SectionDto Section);
+public record AddSchemaModel(long? SectionId, string? SectionName)
+{
+    public bool IsGlobal() => SectionId == null;
+}

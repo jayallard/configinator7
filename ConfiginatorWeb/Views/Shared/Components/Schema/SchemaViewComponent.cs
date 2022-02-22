@@ -1,4 +1,5 @@
-﻿using Allard.Configinator.Core.DomainServices;
+﻿using Allard.Configinator.Core;
+using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Schema;
@@ -53,9 +54,11 @@ public class SchemaViewComponent : ViewComponent
 
         // var resolved = await _loader.ResolveSchemaAsync(new SchemaName(schema.SchemaName.FullName), schema.Schema);
         // var dto = resolved.ToOutputDto();
-        var view = (IViewComponentResult) View("Index", new SchemaIndexView(resolved.ToOutputDto(), dtos));
+        var mermaid = MermaidUtility.FlowChartForSchemas(resolved.References.Union(new[] {resolved.Root}),
+            resolved.Root.SchemaName);
+        var view = (IViewComponentResult) View("Index", new SchemaIndexView(resolved.ToOutputDto(), dtos, mermaid));
         return view;
     }
 }
 
-public record SchemaIndexView(SchemaInfoDto Schema, Dictionary<string, SchemaDto> Dtos);
+public record SchemaIndexView(SchemaInfoDto Schema, Dictionary<string, SchemaDto> Dtos, string MermaidJs);

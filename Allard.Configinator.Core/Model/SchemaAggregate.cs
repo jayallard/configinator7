@@ -62,7 +62,7 @@ public class SchemaAggregate : AggregateBase<SchemaId>
                 SectionId = sectionCreated.SectionId;
                 _environmentTypes.Add(sectionCreated.EnvironmentType);
                 break;
-            case GlobalSchemaPromotedEvent promoted:
+            case SchemaPromotedEvent promoted:
                 _environmentTypes.Add(promoted.ToEnvironmentType);
                 break;
             default:

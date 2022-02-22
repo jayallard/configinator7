@@ -37,7 +37,8 @@
             @if (Model.Dtos[Model.Schema.Root.SchemaName].PromoteTo != null)
             {
                 <a asp-action="PromoteIndex" asp-route-schemaName="@Model.Schema.Root.SchemaName">Promote To @Model.Dtos[Model.Schema.Root.SchemaName].PromoteTo</a>
-            }        </td>
+            }
+        </td>
     </tr>
     <tr>
         <th class="table-secondary">Refers To</th>
@@ -139,5 +140,9 @@
         </code>
     }
 }
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 <h2>Diagram</h2>
-<span>TODO</span>
+<div class="mermaid">
+    @Model.MermaidJs
+</div>
+<script>mermaid.initialize({ startOnLoad: true })</script>

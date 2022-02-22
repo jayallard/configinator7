@@ -22,23 +22,9 @@ public class SchemaDomainService
         _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
     }
 
-    public async Task<SchemaAggregate> CreateGlobalSchemaAsync(
-        SchemaName name,
-        string? description,
-        JsonDocument schema)
-    {
-        if (await _unitOfWork.Schemas.Exists(SchemaNameIs.Is(name)))
-            throw new InvalidOperationException(
-                $"Schema already exists: Name={name}");
-
-        var id = await _identityService.GetId<SchemaId>();
-        var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
-        return new SchemaAggregate(id, null, firstEnvironmentType, name, description, schema);
-    }
-
-    public async Task<SchemaAggregate> CreateSectionSchemaAsync(
+    public async Task<SchemaAggregate> CreateSchemaAsync(
         SchemaName schemaName,
-        SectionId sectionId,
+        SectionId? sectionId,
         string? description,
         JsonDocument schema,
         CancellationToken cancellationToken = default)
@@ -63,7 +49,7 @@ public class SchemaDomainService
         // make sure that all schemas are either global, or are in the same section.
         // ---------------------------------------------------------------------------------------
         var validationProperties = await GetSchemaValidationProperties(schemaName, sectionId, resolved.References, cancellationToken);
-        SchemaUtility.ValidateSectionSchemaGroup(validationProperties, sectionId);
+        SchemaUtility.ValidateSchemasGroup(validationProperties, sectionId);
 
         // ---------------------------------------------------------------------------------------
         // All good. create the schema.
@@ -100,7 +86,7 @@ public class SchemaDomainService
     /// <returns></returns>
     private async Task<SchemaAggregate> ReallyCreateSchemaAsync(
         SchemaName schemaName,
-        SectionId sectionId,
+        SectionId? sectionId,
         string? description,
         JsonDocument schema, CancellationToken cancellationToken)
     {
@@ -108,6 +94,8 @@ public class SchemaDomainService
         var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
         var schemaAggregate = new SchemaAggregate(schemaId, sectionId, firstEnvironmentType, schemaName,
             description, schema);
+
+        if (sectionId == null) return schemaAggregate;
 
         // TODO: this should be event driven.
         var section = await _unitOfWork.Sections.GetAsync(sectionId, cancellationToken);
@@ -177,7 +165,7 @@ public class SchemaDomainService
                     $"The schema, '{schema.SchemaName.FullName}', can't be promoted to '{targetEnvironmentType}'. It refers to '{referencedSchema.SchemaName}', which isn't assigned to '{targetEnvironmentType}'.");
         }
 
-        schema.Play(new GlobalSchemaPromotedEvent(schema.Id, targetEnvironmentType));
+        schema.Play(new SchemaPromotedEvent(schema.Id, targetEnvironmentType));
         return schema;
     }
 }

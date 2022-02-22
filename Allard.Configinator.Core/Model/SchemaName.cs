@@ -7,7 +7,7 @@ public record SchemaName
     public SchemaName(string name)
     {
         var slash = name.LastIndexOf("/", StringComparison.OrdinalIgnoreCase);
-        if (slash < 2)
+        if (slash < 1)
             throw new InvalidOperationException("Invalid schema name: " + name + ". Naming convention is name/Version");
 
         Name = name[..slash];

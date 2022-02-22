@@ -25,36 +25,24 @@ public static class SchemaUtility
     /// IE: a schema owned by section #3 can't refer to a schema owned by section #4.
     /// </summary>
     /// <param name="relatedSchemas"></param>
-    /// <param name="sectionId"></param>
+    /// <param name="sectionId">Optional. If null, a global schema is being validated.</param>
     /// <exception cref="InvalidOperationException"></exception>
-    public static void ValidateSectionSchemaGroup(IEnumerable<SchemaValidationProperties> relatedSchemas, SectionId sectionId)
+    public static void ValidateSchemasGroup(IEnumerable<SchemaValidationProperties> relatedSchemas,
+        SectionId? sectionId)
     {
-        var badSchemas = relatedSchemas
-            .Where(s => !s.IsGlobal() && s.OwnerSectionId != sectionId)
-            .ToArray();
-        if (!badSchemas.Any()) return;
-        var bad = string.Join(", ", badSchemas.Select(s => s.SchemaName.FullName));
+        var badSchemas = sectionId == null
+            // global schemas can only refer to global schemas.
+            ? relatedSchemas.Where(s => !s.IsGlobal())
+            
+            // section schemas can refer to global, and it's own schemas of the same
+            // section.
+            : relatedSchemas.Where(s => !s.IsGlobal() && s.OwnerSectionId != sectionId);
+        
+        var bad = badSchemas.ToArray();
+        if (!bad.Any()) return;
+        var badMessage = string.Join(", ", badSchemas.Select(s => s.SchemaName.FullName));
         throw new InvalidOperationException(
-            "The following schemas can't be used, because they don't belong to this section: " + bad);
-    }
-    
-    /// <summary>
-    /// The schemas are all related to each other.
-    /// Make sure they are allowed to be related.
-    /// IE: a global schema can only refer to other global schemas.
-    /// If any of the schemas is owned by a section, then it's invalid.
-    /// </summary>
-    /// <param name="relatedSchemas"></param>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static void ValidateGlobalSchemaGroup(IEnumerable<SchemaAggregate> relatedSchemas)
-    {
-        var badSchemas = relatedSchemas
-            .Where(s => !s.IsGlobalSchema)
-            .ToArray();
-        if (!badSchemas.Any()) return;
-        var bad = string.Join(", ", badSchemas.Select(s => s.SchemaName.FullName));
-        throw new InvalidOperationException(
-            "The following schemas can't be used, because they aren't global schemas: " + bad);
+            "The following schemas can't be used, because they don't belong to this section: " + badMessage);
     }
 }
 

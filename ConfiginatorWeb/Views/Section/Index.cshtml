@@ -44,7 +44,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var t in Model.GlobalSchemas.OrderBy(kv => kv.SchemaName))
+    @foreach (var t in Model.GlobalSchemas.OrderBy(kv => kv.SchemaName.FullName))
     {
         <tr>
             <td>@Html.SchemaLink(@t.SchemaName.FullName)</td>
@@ -54,6 +54,7 @@
     }
     </tbody>
 </table>
+<p><a asp-action="AddSchema" asp-controller="Schema">Add Schema</a></p>
 <br/>
 <h2>Variable Sets</h2>
 <br/>

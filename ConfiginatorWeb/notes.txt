@@ -9,3 +9,11 @@
 }
 
 
+    {
+        "properties": { 
+            "blah": { 
+                "type": "string"
+            } 
+        }
+    }
+

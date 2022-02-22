@@ -150,6 +150,6 @@ public record SectionSchemaCreatedEvent(
     string EnvironmentType,
     JsonDocument Schema) : DomainEventBase;
 
-public record GlobalSchemaPromotedEvent(
+public record SchemaPromotedEvent(
     SchemaId SchemaId,
     string ToEnvironmentType) : DomainEventBase;
