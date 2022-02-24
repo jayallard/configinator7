@@ -17,6 +17,7 @@ public class SectionNamespaceHandler : IEventHandler<SectionCreatedEvent>
     public async Task ExecuteAsync(SectionCreatedEvent evt, CancellationToken cancellationToken = default)
     {
         var ns = await _namespaceDomainService.GetOrCreateAsync(evt.Namespace, cancellationToken);
+        ns.AddSection(evt.SectionId);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

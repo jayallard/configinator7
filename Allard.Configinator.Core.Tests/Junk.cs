@@ -17,6 +17,19 @@ public class Junk
     }
 
     [Fact]
+    public void Hierarchy()
+    {
+        var paths = new[]
+        {
+            "/a/b/c1/d/e1",
+            "/a/b/c1/d/e2"
+        };
+        
+        //   /a/b/c1
+        //
+    }
+
+    [Fact]
     public void AsEnumerableIsntOriginalType()
     {
         var blah = new HashSet<string> {"a", "b", "c"};

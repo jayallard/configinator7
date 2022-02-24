@@ -17,6 +17,7 @@ public class SchemaNamespaceHandler : IEventHandler<SchemaCreatedEvent>
     public async Task ExecuteAsync(SchemaCreatedEvent evt, CancellationToken cancellationToken = default)
     {
         var ns = await _namespaceDomainService.GetOrCreateAsync(evt.Namespace, cancellationToken);
+        ns.AddSchema(evt.SchemaId);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

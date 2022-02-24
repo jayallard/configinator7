@@ -20,6 +20,7 @@ public class VariableSetNamespaceHandler : IEventHandler<VariableSetCreatedEvent
     public async Task ExecuteAsync(VariableSetCreatedEvent evt, CancellationToken cancellationToken = default)
     {
         var ns = await _namespaceDomainService.GetOrCreateAsync(evt.Namespace, cancellationToken);
+        ns.AddVariableSet(evt.VariableSetId);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

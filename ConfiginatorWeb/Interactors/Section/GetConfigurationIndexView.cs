@@ -8,13 +8,15 @@ public class ConfigurationIndexRequestHandler : IRequestHandler<ConfigurationInd
     private readonly ISchemaQueries _schemaQueries;
     private readonly ISectionQueries _sectionQueries;
     private readonly IVariableSetQueries _variableSetQueries;
+    private readonly INamespaceQueries _namespaceQueries;
 
     public ConfigurationIndexRequestHandler(ISectionQueries sectionQueries, IVariableSetQueries variableSetQueries,
-        ISchemaQueries schemaQueries)
+        ISchemaQueries schemaQueries, INamespaceQueries namespaceQueries)
     {
         _sectionQueries = sectionQueries;
         _variableSetQueries = variableSetQueries;
         _schemaQueries = schemaQueries;
+        _namespaceQueries = namespaceQueries;
     }
 
     public async Task<ConfigurationIndexResponse> Handle(ConfigurationIndexRequest request,
@@ -23,13 +25,16 @@ public class ConfigurationIndexRequestHandler : IRequestHandler<ConfigurationInd
         var sections = _sectionQueries.GetSectionsListAsync(cancellationToken);
         var variableSets = _variableSetQueries.GetVariableSetListAsync(cancellationToken);
         var schemas = _schemaQueries.GetSchemasListAsync(cancellationToken);
-        return new ConfigurationIndexResponse(await sections, await variableSets, (await schemas).ToList());
+        var ns = _namespaceQueries.GetNamespaces();
+        
+        return new ConfigurationIndexResponse(await ns, await sections, await variableSets, (await schemas).ToList());
     }
 }
 
 public record ConfigurationIndexRequest : IRequest<ConfigurationIndexResponse>;
 
 public record ConfigurationIndexResponse(
+    List<NamespaceDto> Namespaces,
     List<SectionListItemDto> Sections,
     List<VariableSetListItemDto> VariableSets,
     List<SchemaListItemDto> Schemas) : IRequest<CreateSectionAppResponse>;

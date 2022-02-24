@@ -6,6 +6,46 @@
 }
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 
+<h2>Namespaces</h2>
+<table class="table table-bordered">
+    <thead>
+    <tr class="table-secondary">
+        <th>Namespace</th>
+        <th>Sections</th>
+        <th>Schemas</th>
+        <th>Variable Sets</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var ns in Model.Namespaces)
+    {
+        <tr>
+            <td>@ns.NamespaceName</td>
+            <td>
+                <ul>
+                    @foreach (var s in ns.Sections)
+                    {
+                        <li>@Html.SectionLink(null, s.SectionName, s.SectionId)</li>
+                    }
+                </ul>
+            </td>
+            <td>
+                @foreach (var s in ns.Schemas)
+                {
+                    <li>@Html.SchemaLink(@s.SchemaName.FullName)</li>
+                }
+            </td>
+            <td>
+                @foreach (var vs in ns.VariableSets)
+                {
+                    <li>@Html.VariableSetLink(vs.VariableSetName)</li>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
 <h2>Configuration Sections</h2>
 <table class="table table-bordered">
     <thead>
@@ -32,7 +72,6 @@
 </table>
 
 <a asp-action="Create">Add</a>
-
 <br/><br/>
 <h2>Schemas</h2>
 <table class="table table-bordered">
@@ -56,7 +95,9 @@
     }
     </tbody>
 </table>
-<p><a asp-action="AddSchema" asp-controller="Schema">Add Schema</a></p>
+<p>
+    <a asp-action="AddSchema" asp-controller="Schema">Add Schema</a>
+</p>
 <br/>
 <h2>Variable Sets</h2>
 <br/>

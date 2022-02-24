@@ -53,6 +53,7 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
         await Sections.SaveChangesAsync(cancellationToken);
         await VariableSets.SaveChangesAsync(cancellationToken);
         await Schemas.SaveChangesAsync(cancellationToken);
+        await Namespaces.SaveChangesAsync(cancellationToken);
 
         // this is after the commit. if this fails, then data changed and
         // downstream systems won't get word.

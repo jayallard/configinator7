@@ -49,6 +49,7 @@ builder.Services
     .AddTransient<ISectionQueries, SectionQueriesCoreRepository>()
     .AddTransient<IVariableSetQueries, VariableSetQueriesCoreRepository>()
     .AddTransient<ISchemaQueries, SchemaQueriesCoreRepository>()
+    .AddTransient<INamespaceQueries, NamespaceQueriesCoreRepository>()
 
     // deployment
     // NOTE: deployer factory doesn't actually do anything in this case.
@@ -89,7 +90,7 @@ var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainServi
 var variableSetService = scope.ServiceProvider.GetRequiredService<VariableSetDomainService>();
 var schemaService = scope.ServiceProvider.GetRequiredService<SchemaDomainService>();
 
-var kafkaSchema = await schemaService.CreateSchemaAsync("/ual/merge-service", new SchemaName("/ppm/kafka/1.0.0"), null, "Kafka config",
+var kafkaSchema = await schemaService.CreateSchemaAsync("/", new SchemaName("/ppm/kafka/1.0.0"), null, "Kafka config",
     await GetSchema("__kafka-1.0.0.json"));
 await uow.Schemas.AddAsync(kafkaSchema);
 await schemaService.PromoteSchemaAsync(kafkaSchema.SchemaName, "staging");
@@ -125,13 +126,13 @@ var modelValue =
     JsonDocument.Parse(
         "{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44, \"kafka\": { \"brokers\": \"b\", \"user\": \"u\", \"password\": \"p\" } }");
 var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
-var section1 = await sectionService.CreateSectionAsync("data-domain","merge-service");
+var section1 = await sectionService.CreateSectionAsync("/ual/merge-service","merge-service");
 await uow.Sections.AddAsync(section1);
 
 var env1 = await sectionService.AddEnvironmentToSectionAsync(section1, "development");
 await sectionService.AddEnvironmentToSectionAsync(section1, "development-jay");
 var schema1 =
-    await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("section1/1.0.0"), section1.Id, null,
+    await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("ual-ingestion-service/1.0.0"), section1.Id, null,
         await GetSchema("1.0.0.json"));
 await uow.Schemas.AddAsync(schema1);
 await schemaService.PromoteSchemaAsync(schema1.SchemaName, "staging");
@@ -140,7 +141,7 @@ await schemaService.PromoteSchemaAsync(schema1.SchemaName, "staging");
 // not the app code. otherwise, the user might add some entities and not others.
 // then, not everything is saved. (example: remove this AddAsync. Then there are entities referencing this schema,
 // but this schema doesn't save to the db
-var schema2 = await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("section1/2.0.0"), section1.Id, null,
+var schema2 = await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("ual-ingestion-service/2.0.0"), section1.Id, null,
     await GetSchema("2.0.0.json"));
 await uow.Schemas.AddAsync(schema2);
 
@@ -156,7 +157,7 @@ section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(),
     new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now,
     "Initial Setup - from code");
 
-var section2 = await sectionService.CreateSectionAsync("data-domain","ingestion-service");
+var section2 = await sectionService.CreateSectionAsync("/ual/ingestion-service","ingestion-service");
 await uow.Sections.AddAsync(section2);
 await uow.SaveChangesAsync();
 

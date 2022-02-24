@@ -1,7 +1,6 @@
 ﻿using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications.Namespaces;
-using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.DomainServices;
 
