@@ -3,11 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Allard.Configinator.Core.Tests;
 
 public class Junk
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public Junk(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
+    [Fact]
+    public void AsEnumerableIsntOriginalType()
+    {
+        var blah = new HashSet<string> {"a", "b", "c"};
+        var read = blah.AsEnumerable();
+        var x = (HashSet<string>) read;
+        x.Add("boom");
+
+        foreach (var item in x)
+        {
+            _testOutputHelper.WriteLine(item);
+        }
+        
+    }
+
     [Fact]
     public void Blah()
     {

@@ -1,6 +1,7 @@
 ﻿using Allard.Configinator.Core;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Specifications;
 using Allard.Configinator.Core.Specifications.Schema;
 using Allard.DomainDrivenDesign;
 using ConfiginatorWeb.Interactors.Section;
@@ -17,17 +18,11 @@ public class SchemaQueriesCoreRepository : ISchemaQueries
         _repository = Guards.HasValue(repository, nameof(repository));
     }
 
-    public Task<List<SchemaListItemDto>> GetGlobalSchemasListAsync(CancellationToken cancellationToken = default)
+    public Task<List<SchemaListItemDto>> GetSchemasListAsync(CancellationToken cancellationToken = default)
     {
-        return Query(new SchemaIsGlobal(), cancellationToken);
+        return Query(new All(), cancellationToken);
     }
-
-    public Task<List<SchemaListItemDto>> GetSectionSchemasListAsync(long sectionId,
-        CancellationToken cancellationToken = default)
-    {
-        return Query(new SchemaSectionIdIs(sectionId), cancellationToken);
-    }
-
+    
     private async Task<List<SchemaListItemDto>> Query(ISpecification<SchemaAggregate> specification,
         CancellationToken cancellationToken)
     {
@@ -37,6 +32,7 @@ public class SchemaQueriesCoreRepository : ISchemaQueries
                 new SchemaListItemDto(
                     gs.EntityId,
                     gs.SectionId?.Id,
+                    gs.Namespace,
                     gs.SchemaName.ToOutputDto(),
                     gs.EnvironmentTypes.ToHashSet(),
                     gs.Description))

@@ -30,9 +30,9 @@ public static class HtmlExtensionMethods
                 : "");
     }
 
-    public static IHtmlContent SectionLink(this IHtmlHelper helper, string sectionName, long sectionId)
+    public static IHtmlContent SectionLink(this IHtmlHelper helper, string @namespace, string sectionName, long sectionId)
     {
-        return helper.ActionLink(sectionName, "Display", "Section", new {sectionId});
+        return helper.ActionLink( @namespace  + "/" + sectionName, "Display", "Section", new {sectionId});
     }
 
     public static IHtmlContent ReleaseLink(this IHtmlHelper helper, long sectionId, long environmentId,

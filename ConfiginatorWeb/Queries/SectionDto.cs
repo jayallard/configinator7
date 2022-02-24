@@ -7,6 +7,8 @@ namespace ConfiginatorWeb.Queries;
 public class SectionDto
 {
     public string SectionName { get; set; }
+    
+    public string Namespace { get; set; }
 
     public long SectionId { get; set; }
 
@@ -34,7 +36,7 @@ public class SchemaDto
 {
     public long SchemaId { get; set; }
     public long? SectionId { get; set; }
-    
+    public string Namespace { get; set; }
     public string? SectionName { get; set; }
     public string? PromoteTo { get; set; }
     public SchemaNameDto SchemaName { get; set; }

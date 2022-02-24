@@ -21,7 +21,7 @@
             }
             else
             {
-                <span>Section: @Html.SectionLink(schemaInitial.SectionName ?? "BUG", schemaInitial.SectionId.Value) </span>
+                <span>Section: @Html.SectionLink(schemaInitial.Namespace, schemaInitial.SectionName ?? "BUG", schemaInitial.SectionId.Value) </span>
             }
         </td>
     </tr>
@@ -92,7 +92,7 @@
                     }
                     else
                     {
-                        <span>Section: @Html.SectionLink(schema.SectionName ?? "BUG", schema.SectionId.Value) </span>
+                        <span>Section: @Html.SectionLink(schema.Namespace, schema.SectionName ?? "BUG", schema.SectionId.Value) </span>
                     }
                 </td>
             </tr>
@@ -146,3 +146,7 @@
     @Model.MermaidJs
 </div>
 <script>mermaid.initialize({ startOnLoad: true })</script>
+<hr/>
+<pre>
+@Model.MermaidJs
+</pre>

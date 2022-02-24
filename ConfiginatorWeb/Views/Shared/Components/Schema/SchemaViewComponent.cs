@@ -47,6 +47,7 @@ public class SchemaViewComponent : ViewComponent
                     SchemaName = s.SchemaName.ToOutputDto(),
                     SectionId = s.SectionId?.Id,
                     SchemaId = s.Id.Id,
+                    Namespace = s.Namespace,
                     PromoteTo = _environmentValidationService.GetNextSchemaEnvironmentType(s.EnvironmentTypes, s.SchemaName.Version) 
                 })
                 .ToDictionary(s => s.SchemaName.FullName, s => s);

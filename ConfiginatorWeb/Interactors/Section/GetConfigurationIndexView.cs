@@ -22,7 +22,7 @@ public class ConfigurationIndexRequestHandler : IRequestHandler<ConfigurationInd
     {
         var sections = _sectionQueries.GetSectionsListAsync(cancellationToken);
         var variableSets = _variableSetQueries.GetVariableSetListAsync(cancellationToken);
-        var schemas = _schemaQueries.GetGlobalSchemasListAsync(cancellationToken);
+        var schemas = _schemaQueries.GetSchemasListAsync(cancellationToken);
         return new ConfigurationIndexResponse(await sections, await variableSets, (await schemas).ToList());
     }
 }
@@ -32,7 +32,7 @@ public record ConfigurationIndexRequest : IRequest<ConfigurationIndexResponse>;
 public record ConfigurationIndexResponse(
     List<SectionListItemDto> Sections,
     List<VariableSetListItemDto> VariableSets,
-    List<SchemaListItemDto> GlobalSchemas) : IRequest<CreateSectionAppResponse>;
+    List<SchemaListItemDto> Schemas) : IRequest<CreateSectionAppResponse>;
 
-public record SchemaListItemDto(long SchemaId, long? SectionId, SchemaNameDto SchemaName, ISet<string> EnvironmentTypes,
+public record SchemaListItemDto(long SchemaId, long? SectionId, string Namespace, SchemaNameDto SchemaName, ISet<string> EnvironmentTypes,
     string? Description);

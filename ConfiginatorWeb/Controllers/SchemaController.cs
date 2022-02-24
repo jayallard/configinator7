@@ -16,21 +16,18 @@ public class SchemaController : Controller
     private readonly IMediator _mediator;
     private readonly SchemaLoader _schemaLoader;
     private readonly ISectionQueries _sectionQueries;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly SchemaDomainService _schemaDomainService;
 
     public SchemaController(
         ISectionQueries sectionQueries,
         IMediator mediator,
         EnvironmentValidationService environmentValidationService,
-        IUnitOfWork unitOfWork,
         SchemaLoader schemaLoader,
         SchemaDomainService schemaDomainService)
     {
         _sectionQueries = sectionQueries;
         _mediator = mediator;
         _environmentValidationService = environmentValidationService;
-        _unitOfWork = unitOfWork;
         _schemaLoader = schemaLoader;
         _schemaDomainService = schemaDomainService;
     }
@@ -48,9 +45,9 @@ public class SchemaController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddSchema(long? sectionId, string schemaName, string schemaText)
+    public async Task<IActionResult> AddSchema(long? sectionId, string @namespace, string schemaName, string schemaText)
     {
-        await _mediator.Send(new CreateSchemaRequest(sectionId, schemaName, schemaText));
+        await _mediator.Send(new CreateSchemaRequest(sectionId, @namespace, schemaName, schemaText));
         return Json(new {ok = "then"});
     }
     

@@ -23,6 +23,7 @@ public class SchemaDomainService
     }
 
     public async Task<SchemaAggregate> CreateSchemaAsync(
+        string @namespace,
         SchemaName schemaName,
         SectionId? sectionId,
         string? description,
@@ -48,13 +49,14 @@ public class SchemaDomainService
         // ---------------------------------------------------------------------------------------
         // make sure that all schemas are either global, or are in the same section.
         // ---------------------------------------------------------------------------------------
-        var validationProperties = await GetSchemaValidationProperties(schemaName, sectionId, resolved.References, cancellationToken);
+        var validationProperties =
+            await GetSchemaValidationProperties(schemaName, sectionId, resolved.References, cancellationToken);
         SchemaUtility.ValidateSchemasGroup(validationProperties, sectionId);
-
+        
         // ---------------------------------------------------------------------------------------
         // All good. create the schema.
         // ---------------------------------------------------------------------------------------
-        return await ReallyCreateSchemaAsync(schemaName, sectionId, description, schema, cancellationToken);
+        return await ReallyCreateSchemaAsync(@namespace,  schemaName, sectionId, description, schema, cancellationToken);
     }
 
     private async Task<IEnumerable<SchemaValidationProperties>> GetSchemaValidationProperties(SchemaName schemaName,
@@ -64,11 +66,11 @@ public class SchemaDomainService
     {
         // get all references from the db
         var reference = await GetSchemasAsync(resolved.Select(r => r.SchemaName), cancellationToken);
-        
+
         // convert the references to SchemaValidationProperties
         var validationInfo = reference
             .Select(r => new SchemaValidationProperties(r.SchemaName, r.SectionId))
-            
+
             // add properties for the new schema that we're trying to create.
             .Union(new[] {new SchemaValidationProperties(schemaName, sectionId)});
         return validationInfo;
@@ -85,6 +87,7 @@ public class SchemaDomainService
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     private async Task<SchemaAggregate> ReallyCreateSchemaAsync(
+        string @namespace,
         SchemaName schemaName,
         SectionId? sectionId,
         string? description,
@@ -92,8 +95,14 @@ public class SchemaDomainService
     {
         var schemaId = await _identityService.GetId<SchemaId>();
         var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
-        var schemaAggregate = new SchemaAggregate(schemaId, sectionId, firstEnvironmentType, schemaName,
-            description, schema);
+        var schemaAggregate = new SchemaAggregate(
+            schemaId, 
+            sectionId, 
+            firstEnvironmentType,
+            @namespace,
+            schemaName,
+            description, 
+            schema);
 
         if (sectionId == null) return schemaAggregate;
 
@@ -133,7 +142,7 @@ public class SchemaDomainService
     }
 
     public async Task<SchemaAggregate> PromoteSchemaAsync(
-        SchemaName schemaName, 
+        SchemaName schemaName,
         string targetEnvironmentType,
         CancellationToken cancellationToken = default)
     {

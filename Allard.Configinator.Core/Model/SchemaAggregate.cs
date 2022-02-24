@@ -19,6 +19,7 @@ public class SchemaAggregate : AggregateBase<SchemaId>
         SchemaId schemaId,
         SectionId? sectionId,
         string environmentType,
+        string @namespace,
         SchemaName name,
         string? description,
         JsonDocument schema)
@@ -26,16 +27,13 @@ public class SchemaAggregate : AggregateBase<SchemaId>
         Guards.HasValue(schemaId, nameof(schemaId));
         Guards.HasValue(name, nameof(name));
         Guards.HasValue(schema, nameof(schema));
-        if (sectionId == null)
-            Play(new GlobalSchemaCreatedEvent(schemaId, name, description, environmentType, schema));
-        else
-            Play(new SectionSchemaCreatedEvent(schemaId, sectionId, name, description, environmentType, schema));
+        Play(new SchemaCreatedEvent(schemaId, sectionId, @namespace, name, description, environmentType, schema));
     }
 
     public SectionId? SectionId { get; private set; }
 
     public bool IsGlobalSchema => SectionId == null;
-
+    public string Namespace { get; private set; }
     public string? Description { get; private set; }
     public IEnumerable<string> EnvironmentTypes => _environmentTypes.ToList();
 
@@ -47,20 +45,14 @@ public class SchemaAggregate : AggregateBase<SchemaId>
         InternalSourceEvents.Add(evt);
         switch (evt)
         {
-            case GlobalSchemaCreatedEvent globalCreated:
-                Id = globalCreated.SchemaId;
-                SchemaName = globalCreated.Name;
-                Schema = globalCreated.Schema;
-                Description = globalCreated.Description;
-                _environmentTypes.Add(globalCreated.EnvironmentType);
-                break;
-            case SectionSchemaCreatedEvent sectionCreated:
-                Id = sectionCreated.SchemaId;
-                SchemaName = sectionCreated.Name;
-                Schema = sectionCreated.Schema;
-                Description = sectionCreated.Description;
-                SectionId = sectionCreated.SectionId;
-                _environmentTypes.Add(sectionCreated.EnvironmentType);
+            case SchemaCreatedEvent created:
+                Id = created.SchemaId;
+                SchemaName = created.Name;
+                Schema = created.Schema;
+                Description = created.Description;
+                SectionId = created.SectionId;
+                Namespace = created.Namespace;
+                _environmentTypes.Add(created.EnvironmentType);
                 break;
             case SchemaPromotedEvent promoted:
                 _environmentTypes.Add(promoted.ToEnvironmentType);

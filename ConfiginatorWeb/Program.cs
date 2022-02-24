@@ -30,15 +30,20 @@ builder.Services
     .AddTransient<VariableSetDomainService>()
     .AddTransient<SchemaDomainService>()
     .AddSingleton<EnvironmentValidationService>()
+    .AddTransient<NamespaceDomainService>()
 
     // event handlers - HACK
     .AddScoped<IEventHandler<VariableValueSetEvent>, UpdateReleasesWhenVariableValueChanges>()
+    .AddScoped<IEventHandler<SchemaCreatedEvent>, SchemaNamespaceHandler>()
+    .AddScoped<IEventHandler<SectionCreatedEvent>, SectionNamespaceHandler>()
+    .AddScoped<IEventHandler<VariableSetCreatedEvent>, VariableSetNamespaceHandler>()
 
     // database
     .AddScoped<IUnitOfWork, UnitOfWorkMemory>()
     .AddSingleton<ISectionRepository, SectionRepositoryMemory>()
     .AddSingleton<IVariableSetRepository, VariableSetRepositoryMemory>()
     .AddSingleton<ISchemaRepository, SchemaRepositoryMemory>()
+    .AddSingleton<INamespaceRepository, NamespaceRepositoryMemory>()
 
     // queries
     .AddTransient<ISectionQueries, SectionQueriesCoreRepository>()
@@ -84,49 +89,49 @@ var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainServi
 var variableSetService = scope.ServiceProvider.GetRequiredService<VariableSetDomainService>();
 var schemaService = scope.ServiceProvider.GetRequiredService<SchemaDomainService>();
 
-var kafkaSchema = await schemaService.CreateSchemaAsync(new SchemaName("/ppm/kafka/1.0.0"), null, "Kafka config",
+var kafkaSchema = await schemaService.CreateSchemaAsync("/ual/merge-service", new SchemaName("/ppm/kafka/1.0.0"), null, "Kafka config",
     await GetSchema("__kafka-1.0.0.json"));
 await uow.Schemas.AddAsync(kafkaSchema);
 await schemaService.PromoteSchemaAsync(kafkaSchema.SchemaName, "staging");
 
 
-var variableSetEntity = await variableSetService.CreateVariableSetAsync("variables1", "development");
+var variableSetEntity = await variableSetService.CreateVariableSetAsync("ns", "variables1", "development");
 await uow.VariableSets.AddAsync(variableSetEntity);
 variableSetEntity.SetValue("first", "Santa");
 variableSetEntity.SetValue("last", "Claus");
 
-var variableSet2Entity = await variableSetService.CreateVariableSetOverride("variables2", "variables1");
+var variableSet2Entity = await variableSetService.CreateVariableSetOverride("ns", "variables2", "variables1");
 variableSet2Entity.SetValue("first", "SANTA!!!");
 await uow.VariableSets.AddAsync(variableSet2Entity);
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables2a", "variables2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables3", "variables2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables4", "variables3"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables5a", "variables4"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variables5b", "variables4"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables2a", "variables2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables3", "variables2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables4", "variables3"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables5a", "variables4"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables5b", "variables4"));
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("variablesAB", "variables3"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("yabba", "variablesAB"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("dabbadoo", "variablesAB"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variablesAB", "variables3"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "yabba", "variablesAB"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "dabbadoo", "variablesAB"));
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("root2", "staging"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("blah1", "root2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("blah2", "root2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("c1", "blah2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("c2", "blah2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("ns", "root2", "staging"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "blah1", "root2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "blah2", "root2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "c1", "blah2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "c2", "blah2"));
 
 
 var modelValue =
     JsonDocument.Parse(
         "{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44, \"kafka\": { \"brokers\": \"b\", \"user\": \"u\", \"password\": \"p\" } }");
 var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
-var section1 = await sectionService.CreateSectionAsync("data-domain/merge-service");
+var section1 = await sectionService.CreateSectionAsync("data-domain","merge-service");
 await uow.Sections.AddAsync(section1);
 
 var env1 = await sectionService.AddEnvironmentToSectionAsync(section1, "development");
 await sectionService.AddEnvironmentToSectionAsync(section1, "development-jay");
 var schema1 =
-    await schemaService.CreateSchemaAsync(new SchemaName("section1/1.0.0"), section1.Id, null,
+    await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("section1/1.0.0"), section1.Id, null,
         await GetSchema("1.0.0.json"));
 await uow.Schemas.AddAsync(schema1);
 await schemaService.PromoteSchemaAsync(schema1.SchemaName, "staging");
@@ -135,7 +140,7 @@ await schemaService.PromoteSchemaAsync(schema1.SchemaName, "staging");
 // not the app code. otherwise, the user might add some entities and not others.
 // then, not everything is saved. (example: remove this AddAsync. Then there are entities referencing this schema,
 // but this schema doesn't save to the db
-var schema2 = await schemaService.CreateSchemaAsync(new SchemaName("section1/2.0.0"), section1.Id, null,
+var schema2 = await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("section1/2.0.0"), section1.Id, null,
     await GetSchema("2.0.0.json"));
 await uow.Schemas.AddAsync(schema2);
 
@@ -151,7 +156,7 @@ section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(),
     new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now,
     "Initial Setup - from code");
 
-var section2 = await sectionService.CreateSectionAsync("data-domain/ingestion-service");
+var section2 = await sectionService.CreateSectionAsync("data-domain","ingestion-service");
 await uow.Sections.AddAsync(section2);
 await uow.SaveChangesAsync();
 

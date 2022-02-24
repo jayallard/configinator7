@@ -52,7 +52,7 @@ public class SectionController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(
         string name,
-        string path,
+        string @namespace,
         List<string> selectedEnvironments)
     {
         if (!ModelState.IsValid) return View();
@@ -61,8 +61,9 @@ public class SectionController : Controller
             var request = new CreateSectionAppRequest
             {
                 Name = name,
-                EnvironmentNames = selectedEnvironments
+                Namespace = @namespace
             };
+            
             var result = await _mediator.Send(request);
             return RedirectToAction("Display", new {result.SectionId});
         }
@@ -78,7 +79,5 @@ public class SectionController : Controller
         }
     }
 }
-
-public record SchemaView(SchemaInfoDto SchemaInfo, Dictionary<SchemaNameDto, SchemaDto> SchemaDtos, string? PromotableTo);
 
 public record SectionIndexView(SectionDto Section);

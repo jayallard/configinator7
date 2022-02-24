@@ -12,6 +12,7 @@ namespace Allard.Configinator.Core;
 ///     <param name="SectionName"></param>
 public record SectionCreatedEvent(
     SectionId SectionId,
+    string Namespace,
     string SectionName,
     string InitialEnvironmentType) : DomainEventBase;
 
@@ -68,6 +69,7 @@ public record VariableSetCreatedEvent(
 
     // TODO: transitional. delete this. (it'll break stuff)
     string? BaseVariableSetName,
+    string Namespace,
     string VariableSetName,
     string EnvironmentType) : DomainEventBase;
 
@@ -135,16 +137,10 @@ public record ReleaseValueBecameOld(
     EnvironmentId EnvironmentId,
     ReleaseId ReleaseId) : DomainEventBase;
 
-public record GlobalSchemaCreatedEvent(
+public record SchemaCreatedEvent(
     SchemaId SchemaId,
-    SchemaName Name,
-    string? Description,
-    string EnvironmentType,
-    JsonDocument Schema) : DomainEventBase;
-
-public record SectionSchemaCreatedEvent(
-    SchemaId SchemaId,
-    SectionId SectionId,
+    SectionId? SectionId,
+    string Namespace,
     SchemaName Name,
     string? Description,
     string EnvironmentType,

@@ -15,12 +15,14 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
         ISectionRepository sectionRepository,
         IVariableSetRepository variableSetRepository,
         ISchemaRepository schemaRepository,
+        INamespaceRepository namespaceRepository,
         IEventPublisher publisher)
     {
         _publisher = Guards.HasValue(publisher, nameof(publisher));
         Sections = new DataChangeTracker<SectionAggregate, SectionId>(sectionRepository);
         VariableSets = new DataChangeTracker<VariableSetAggregate, VariableSetId>(variableSetRepository);
         Schemas = new DataChangeTracker<SchemaAggregate, SchemaId>(schemaRepository);
+        Namespaces = new DataChangeTracker<NamespaceAggregate, NamespaceId>(namespaceRepository);
     }
 
     public void Dispose()
@@ -35,6 +37,8 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
     public IDataChangeTracker<SectionAggregate, SectionId> Sections { get; }
     public IDataChangeTracker<VariableSetAggregate, VariableSetId> VariableSets { get; }
     public IDataChangeTracker<SchemaAggregate, SchemaId> Schemas { get; }
+    public IDataChangeTracker<NamespaceAggregate, NamespaceId> Namespaces { get; }
+
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {

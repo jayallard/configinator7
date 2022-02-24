@@ -4,11 +4,12 @@ namespace Allard.Configinator.Core.Model;
 
 public class SectionAggregate : AggregateBase<SectionId>
 {
-    internal SectionAggregate(SectionId id, string initialEnvironmentType, string name)
+    internal SectionAggregate(SectionId id, string initialEnvironmentType, string @namespace, string sectionName)
     {
         Guards.HasValue(id, nameof(id));
         Guards.HasValue(initialEnvironmentType, nameof(initialEnvironmentType));
-        PlayEvent(new SectionCreatedEvent(id, name, initialEnvironmentType));
+        Guards.HasValue(@namespace, nameof(@namespace));
+        PlayEvent(new SectionCreatedEvent(id, @namespace, sectionName, initialEnvironmentType));
     }
 
     internal SectionAggregate(List<IDomainEvent> events)
@@ -24,13 +25,13 @@ public class SectionAggregate : AggregateBase<SectionId>
     public IEnumerable<SchemaId> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public string SectionName { get; internal set; }
+    public string Namespace { get; internal set; }
 
     /// <summary>
     ///     Gets the environment types that can host this section.
     /// </summary>
     public IEnumerable<string> EnvironmentTypes => InternalEnvironmentTypes.ToList();
 
-    public DeploymentResult? DeploymentResult { get; private set; }
 
     public EnvironmentEntity GetEnvironment(string name)
     {

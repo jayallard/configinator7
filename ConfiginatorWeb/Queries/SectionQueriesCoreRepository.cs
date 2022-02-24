@@ -17,10 +17,11 @@ public class SectionQueriesCoreRepository : ISectionQueries
 
     public async Task<List<SectionListItemDto>> GetSectionsListAsync(CancellationToken cancellationToken = default)
     {
-        return (await _unitOfWork.Sections.FindAsync(new AllSections(), cancellationToken))
-            .Select(s => new SectionListItemDto(s.Id.Id, s.SectionName,
+        var items = (await _unitOfWork.Sections.FindAsync(new AllSections(), cancellationToken))
+            .Select(s => new SectionListItemDto(s.Id.Id,  s.Namespace, s.SectionName,
                 s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase)))
             .ToList();
+        return items;
     }
 
     public async Task<SectionDto?> GetSectionAsync(long id, CancellationToken cancellationToken = default)
@@ -43,6 +44,7 @@ public class SectionQueriesCoreRepository : ISectionQueries
         {
             SectionId = section.Id.Id,
             SectionName = section.SectionName,
+            Namespace = section.Namespace,
             Environments = new List<SectionEnvironmentDto>(),
             Schemas = new List<SchemaDto>()
         };

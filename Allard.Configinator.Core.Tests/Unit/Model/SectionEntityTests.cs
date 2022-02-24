@@ -12,7 +12,7 @@ public class SectionEntityTests
     public void CreateSection()
     {
         // arrange, act
-        var section = new SectionAggregate(new SectionId(0), "development", "name");
+        var section = new SectionAggregate(new SectionId(0), "development", "ns", "name");
 
         // assert
         section.SectionName.Should().Be("name");
@@ -23,7 +23,7 @@ public class SectionEntityTests
     public void AddEnvironment()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "name");
+        var section = new SectionAggregate(new SectionId(0), "Development", "ns","name");
 
         // act
         section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));
@@ -37,7 +37,7 @@ public class SectionEntityTests
     public void AddEnvironmentThrowsExceptionIfNameAlreadyExists()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "name");
+        var section = new SectionAggregate(new SectionId(0), "Development", "ns","name");
 
         // act
         var test = () =>
@@ -54,7 +54,7 @@ public class SectionEntityTests
     public void AddEnvironmentThrowsExceptionIfIdAlreadyExists()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "name");
+        var section = new SectionAggregate(new SectionId(0), "Development", "ns","name");
 
         // act
         section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));

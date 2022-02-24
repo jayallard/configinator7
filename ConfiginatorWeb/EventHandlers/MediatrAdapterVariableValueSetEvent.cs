@@ -11,17 +11,18 @@ namespace ConfiginatorWeb.EventHandlers;
 /// </summary>
 public class MediatrAdapterVariableValueSetEvent : INotificationHandler<MediatorNotification<VariableValueSetEvent>>
 {
-    private readonly List<IEventHandler<VariableValueSetEvent>> _handler;
+    private readonly List<IEventHandler<VariableValueSetEvent>> _handlers;
 
-    public MediatrAdapterVariableValueSetEvent(IEnumerable<IEventHandler<VariableValueSetEvent>> handler,
-        IMediator mediator, IServiceScopeFactory scope)
+    public MediatrAdapterVariableValueSetEvent(IEnumerable<IEventHandler<VariableValueSetEvent>> handler)
     {
-        _handler = Guards.HasValue(handler, nameof(handler)).ToList();
+        _handlers = Guards.HasValue(handler, nameof(handler)).ToList();
     }
 
-    public async Task Handle(MediatorNotification<VariableValueSetEvent> notification,
+    public async Task Handle(
+        MediatorNotification<VariableValueSetEvent> notification,
         CancellationToken cancellationToken)
     {
-        foreach (var handler in _handler) await handler.ExecuteAsync(notification.DomainEvent, cancellationToken);
+        foreach (var handler in _handlers) 
+            await handler.ExecuteAsync(notification.DomainEvent, cancellationToken);
     }
 }

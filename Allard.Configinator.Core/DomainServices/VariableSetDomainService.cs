@@ -29,6 +29,7 @@ public class VariableSetDomainService
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<VariableSetAggregate> CreateVariableSetAsync(
+        string @namespace,
         string variableSetName,
         string environmentType,
         CancellationToken cancellationToken = default)
@@ -37,7 +38,7 @@ public class VariableSetDomainService
             throw new InvalidOperationException("Environment type doesn't exist: " + environmentType);
 
         var id = await _identityService.GetId<VariableSetId>();
-        var variableSet = new VariableSetAggregate(id, null, null, variableSetName, environmentType);
+        var variableSet = new VariableSetAggregate(id, null, null, @namespace, variableSetName, environmentType);
         return variableSet;
     }
 
@@ -49,6 +50,7 @@ public class VariableSetDomainService
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<VariableSetAggregate> CreateVariableSetOverride(
+        string @namespace,
         string variableSetName,
         string baseVariableSetName)
     {
@@ -58,9 +60,13 @@ public class VariableSetDomainService
 
         var id = await _identityService.GetId<VariableSetId>();
         var baseVariableSet = await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(baseVariableSetName));
-        var child = new VariableSetAggregate(id, baseVariableSet.Id, baseVariableSet.VariableSetName, variableSetName,
+        var child = new VariableSetAggregate(id,
+            baseVariableSet.Id,
+            baseVariableSet.VariableSetName,
+            @namespace,
+            variableSetName,
             baseVariableSet.EnvironmentType);
-        baseVariableSet.Play(new VariableSetOverrideCreatedEvent(id, baseVariableSet.Id));
+        baseVariableSet.AddOverride(id);
         return child;
     }
 

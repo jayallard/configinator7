@@ -9,6 +9,8 @@ public interface IUnitOfWork
     IDataChangeTracker<SectionAggregate, SectionId> Sections { get; }
     IDataChangeTracker<VariableSetAggregate, VariableSetId> VariableSets { get; }
     IDataChangeTracker<SchemaAggregate, SchemaId> Schemas { get; }
+    IDataChangeTracker<NamespaceAggregate, NamespaceId> Namespaces { get; }
+
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 

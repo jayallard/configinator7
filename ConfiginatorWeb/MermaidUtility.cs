@@ -22,10 +22,10 @@ public static class MermaidUtility
                 mermaid.AppendLine($"{schema.SchemaName.FullName} --> {to.FullName}");
             }
 
-            foreach (var from in schema.ReferencedBy)
-            {
-                mermaid.AppendLine($"{schema.SchemaName.FullName} <-- {from.FullName}");
-            }
+            // foreach (var from in schema.ReferencedBy)
+            // {
+            //     mermaid.AppendLine($"{from.FullName} --> {schema.SchemaName.FullName}");
+            // }
         }
 
         return mermaid.ToString();

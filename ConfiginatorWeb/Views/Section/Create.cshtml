@@ -14,30 +14,20 @@
     <div class="container">
         <div class="row">
             <div class="col-1">
-                <label for="name">Name</label>
+                <label for="path">Namespace</label>
             </div>
-            <div class="col"-1>
-                <input name="Name" class="form-text" id="name"></input>
+            <div class="col-1">
+                <input name="Namespace" class="form-text" id="namespace"/>
             </div>
         </div>
         <div class="row">
             <div class="col-1">
-                <label for="path">Path</label>
+                <label for="name">Name</label>
             </div>
-            <div class="col-1">
-                <input name="Path" class="form-text" id="path"></input>
+            <div class="col"-1>
+                <input name="Name" class="form-text" id="name"/>
             </div>
         </div>
-        <br/>
-        <h2>Choose Environments</h2>
-        @foreach (var e in Model.Environments)
-        {
-            <div class="row">
-                <div class="col-3">
-                    <input type="checkbox" name="selectedEnvironments" value="@e.EnvironmentName"/>&nbsp;@e.EnvironmentName
-                </div>
-            </div>
-        }
         @Html.ValidationSummary()
         <input type="submit" value="Create" class="btn btn-primary"/>
     </div>

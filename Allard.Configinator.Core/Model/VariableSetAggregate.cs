@@ -14,10 +14,12 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
         VariableSetId? baseId,
         // TODO: temporary
         string? baseVariableSetName,
-        string name,
+        string @namespace,
+        string variableSetName,
         string environmentType)
     {
-        Play(new VariableSetCreatedEvent(id, baseId, baseVariableSetName, name, environmentType));
+        Play(new VariableSetCreatedEvent(id, baseId, baseVariableSetName, @namespace, variableSetName,
+            environmentType));
     }
 
     internal VariableSetAggregate(List<IDomainEvent> events)
@@ -35,6 +37,8 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
     public VariableSetId BaseVariableSetId { get; private set; }
 
     public string EnvironmentType { get; private set; } = string.Empty;
+
+    internal void AddOverride(VariableSetId overrideId) => Play(new VariableSetOverrideCreatedEvent(overrideId, Id));
 
     internal void Play(IDomainEvent evt)
     {

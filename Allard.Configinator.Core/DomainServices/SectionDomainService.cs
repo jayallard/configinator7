@@ -2,7 +2,6 @@
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Schema;
-using Allard.Configinator.Core.Specifications.Schema;
 using Allard.Json;
 using Newtonsoft.Json.Linq;
 
@@ -30,14 +29,14 @@ public class SectionDomainService
         _environmentValidationService = environmentValidationService;
     }
 
-    public async Task<SectionAggregate> CreateSectionAsync(string sectionName)
+    public async Task<SectionAggregate> CreateSectionAsync(string @namespace, string sectionName)
     {
         // make sure section doesn't already exist
         if (await _unitOfWork.Sections.Exists(sectionName))
             throw new InvalidOperationException("Section already exists: " + sectionName);
 
         var id = await _identityService.GetId<SectionId>();
-        var section = new SectionAggregate(id, _environmentValidationService.GetFirstEnvironmentType(), sectionName);
+        var section = new SectionAggregate(id, _environmentValidationService.GetFirstEnvironmentType(), @namespace, sectionName);
         return section;
     }
 

@@ -19,7 +19,7 @@
     {
         <tr>
             <td>
-                @Html.SectionLink(i.Name.Replace("/", " / "), i.SectionId)
+                @Html.SectionLink(i.Namespace, i.Name, i.SectionId)
                 @* @if (i.DeployedIsOutOfDate) *@
                 @* { *@
                 @*     <span class="badge rounded-pill bg-warning">Out of Date</span> *@
@@ -34,20 +34,22 @@
 <a asp-action="Create">Add</a>
 
 <br/><br/>
-<h2>Global Schemas</h2>
+<h2>Schemas</h2>
 <table class="table table-bordered">
     <thead>
     <tr>
+        <th>Namespace</th>
         <th>Name</th>
         <th>Environment Types</th>
         <th>Description</th>
     </tr>
     </thead>
     <tbody>
-    @foreach (var t in Model.GlobalSchemas.OrderBy(kv => kv.SchemaName.FullName))
+    @foreach (var t in Model.Schemas.OrderBy(kv => kv.SchemaName.FullName))
     {
         <tr>
-            <td>@Html.SchemaLink(@t.SchemaName.FullName)</td>
+            <td>@t.Namespace</td>
+            <td>@Html.SchemaLink(t.SchemaName.FullName)</td>
             <td>@string.Join(", ", t.EnvironmentTypes.OrderBy(et => et).ToArray())</td>
             <td>@t.Description</td>
         </tr>

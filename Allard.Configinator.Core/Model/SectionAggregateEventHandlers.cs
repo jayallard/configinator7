@@ -41,6 +41,7 @@ internal static class SectionAggregateEventHandlers
     {
         section.Id = evt.SectionId;
         section.SectionName = evt.SectionName;
+        section.Namespace = evt.Namespace;
         section.InternalEnvironmentTypes.Add(evt.InitialEnvironmentType);
     }
 
