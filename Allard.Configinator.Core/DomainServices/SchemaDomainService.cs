@@ -25,7 +25,6 @@ public class SchemaDomainService
     public async Task<SchemaAggregate> CreateSchemaAsync(
         string @namespace,
         SchemaName schemaName,
-        SectionId? sectionId,
         string? description,
         JsonDocument schema,
         CancellationToken cancellationToken = default)
@@ -49,30 +48,26 @@ public class SchemaDomainService
         // ---------------------------------------------------------------------------------------
         // make sure that all schemas are either global, or are in the same section.
         // ---------------------------------------------------------------------------------------
-        var validationProperties =
-            await GetSchemaValidationProperties(schemaName, sectionId, resolved.References, cancellationToken);
-        SchemaUtility.ValidateSchemasGroup(validationProperties, sectionId);
+        var schemaProperties = new SchemaValidationProperties(@namespace, schemaName);
+        var referenceProperties =
+            await GetReferenceValidationProperties(resolved.References, cancellationToken);
+        SchemaUtility.ValidateSchemaNamespaces(schemaProperties, referenceProperties);
         
         // ---------------------------------------------------------------------------------------
         // All good. create the schema.
         // ---------------------------------------------------------------------------------------
-        return await ReallyCreateSchemaAsync(@namespace,  schemaName, sectionId, description, schema, cancellationToken);
+        return await ReallyCreateSchemaAsync(@namespace,  schemaName, description, schema, cancellationToken);
     }
 
-    private async Task<IEnumerable<SchemaValidationProperties>> GetSchemaValidationProperties(SchemaName schemaName,
-        SectionId sectionId,
-        IEnumerable<SchemaDetail> resolved,
+    private async Task<IEnumerable<SchemaValidationProperties>> GetReferenceValidationProperties(IEnumerable<SchemaDetail> schemas,
         CancellationToken cancellationToken)
     {
         // get all references from the db
-        var reference = await GetSchemasAsync(resolved.Select(r => r.SchemaName), cancellationToken);
+        var reference = await GetSchemasAsync(schemas.Select(r => r.SchemaName), cancellationToken);
 
         // convert the references to SchemaValidationProperties
         var validationInfo = reference
-            .Select(r => new SchemaValidationProperties(r.SchemaName, r.SectionId))
-
-            // add properties for the new schema that we're trying to create.
-            .Union(new[] {new SchemaValidationProperties(schemaName, sectionId)});
+            .Select(r => new SchemaValidationProperties(r.Namespace, r.SchemaName));
         return validationInfo;
     }
 
@@ -89,7 +84,6 @@ public class SchemaDomainService
     private async Task<SchemaAggregate> ReallyCreateSchemaAsync(
         string @namespace,
         SchemaName schemaName,
-        SectionId? sectionId,
         string? description,
         JsonDocument schema, CancellationToken cancellationToken)
     {
@@ -97,18 +91,12 @@ public class SchemaDomainService
         var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
         var schemaAggregate = new SchemaAggregate(
             schemaId, 
-            sectionId, 
+            null,
             firstEnvironmentType,
             @namespace,
             schemaName,
             description, 
             schema);
-
-        if (sectionId == null) return schemaAggregate;
-
-        // TODO: this should be event driven.
-        var section = await _unitOfWork.Sections.GetAsync(sectionId, cancellationToken);
-        section.PlayEvent(new SchemaAddedToSectionEvent(section.Id, schemaId));
         return schemaAggregate;
     }
 

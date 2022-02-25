@@ -90,7 +90,8 @@ var sectionService = scope.ServiceProvider.GetRequiredService<SectionDomainServi
 var variableSetService = scope.ServiceProvider.GetRequiredService<VariableSetDomainService>();
 var schemaService = scope.ServiceProvider.GetRequiredService<SchemaDomainService>();
 
-var kafkaSchema = await schemaService.CreateSchemaAsync("/", new SchemaName("/ppm/kafka/1.0.0"), null, "Kafka config",
+// put the shared schema in the root so that everything can get to it.
+var kafkaSchema = await schemaService.CreateSchemaAsync("/", new SchemaName("/ppm/kafka/1.0.0"), null,
     await GetSchema("__kafka-1.0.0.json"));
 await uow.Schemas.AddAsync(kafkaSchema);
 await schemaService.PromoteSchemaAsync(kafkaSchema.SchemaName, "staging");
@@ -132,7 +133,7 @@ await uow.Sections.AddAsync(section1);
 var env1 = await sectionService.AddEnvironmentToSectionAsync(section1, "development");
 await sectionService.AddEnvironmentToSectionAsync(section1, "development-jay");
 var schema1 =
-    await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("ual-ingestion-service/1.0.0"), section1.Id, null,
+    await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("ual-ingestion-service/1.0.0"), null,
         await GetSchema("1.0.0.json"));
 await uow.Schemas.AddAsync(schema1);
 await schemaService.PromoteSchemaAsync(schema1.SchemaName, "staging");
@@ -141,7 +142,7 @@ await schemaService.PromoteSchemaAsync(schema1.SchemaName, "staging");
 // not the app code. otherwise, the user might add some entities and not others.
 // then, not everything is saved. (example: remove this AddAsync. Then there are entities referencing this schema,
 // but this schema doesn't save to the db
-var schema2 = await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("ual-ingestion-service/2.0.0"), section1.Id, null,
+var schema2 = await schemaService.CreateSchemaAsync("/ual/ingestion-service", new SchemaName("ual-ingestion-service/2.0.0"), null,
     await GetSchema("2.0.0.json"));
 await uow.Schemas.AddAsync(schema2);
 

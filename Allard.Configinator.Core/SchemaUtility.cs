@@ -27,22 +27,20 @@ public static class SchemaUtility
     /// <param name="relatedSchemas"></param>
     /// <param name="sectionId">Optional. If null, a global schema is being validated.</param>
     /// <exception cref="InvalidOperationException"></exception>
-    public static void ValidateSchemasGroup(IEnumerable<SchemaValidationProperties> relatedSchemas,
-        SectionId? sectionId)
+    public static void ValidateSchemaNamespaces(SchemaValidationProperties rootSchema,
+        IEnumerable<SchemaValidationProperties> references)
     {
-        var badSchemas = sectionId == null
-            // global schemas can only refer to global schemas.
-            ? relatedSchemas.Where(s => !s.IsGlobal())
-            
-            // section schemas can refer to global, and it's own schemas of the same
-            // section.
-            : relatedSchemas.Where(s => !s.IsGlobal() && s.OwnerSectionId != sectionId);
-        
-        var bad = badSchemas.ToArray();
-        if (!bad.Any()) return;
-        var badMessage = string.Join(", ", badSchemas.Select(s => s.SchemaName.FullName));
+        var badSchemas = references.Where(r =>
+                !NamespaceUtility.IsSelfOrAscendant(rootSchema.SchemaNamespace, r.SchemaNamespace))
+            .ToList();
+        if (!badSchemas.Any()) return;
+        var bad = badSchemas.Select(b => "\tSchema: " + b.SchemaName.FullName + ", Namespace=" + b.SchemaNamespace).ToArray();
+        var message = string.Join('\n',  bad);
         throw new InvalidOperationException(
-            "The following schemas can't be used, because they don't belong to this section: " + badMessage);
+            "The schema references 1 or more invalid schemas. The schemas are not in an accessible namespace.\n" +
+            "Source\n" + 
+            "\tSchema: " + rootSchema.SchemaName.FullName + ", Namespace=" + rootSchema.SchemaNamespace +
+            "\nBad References\n " + message + "\n");
     }
 }
 
@@ -53,7 +51,4 @@ public static class SchemaUtility
 /// </summary>
 /// <param name="SchemaName"></param>
 /// <param name="OwnerSectionId"></param>
-public record SchemaValidationProperties(SchemaName SchemaName, SectionId? OwnerSectionId)
-{
-    public bool IsGlobal() => OwnerSectionId is null;
-}
+public record SchemaValidationProperties(string SchemaNamespace, SchemaName SchemaName);

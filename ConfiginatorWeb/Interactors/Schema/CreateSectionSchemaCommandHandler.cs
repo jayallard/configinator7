@@ -24,7 +24,6 @@ public class CreateSectionSchemaInteractor : IRequestHandler<CreateSchemaRequest
         CancellationToken cancellationToken)
     {
         var schema = await _schemaDomainService.CreateSchemaAsync(request.Namespace, new SchemaName(request.SchemaName),
-            request.SectionId == null ? null : new SectionId(request.SectionId.Value),
             "description - TODO",
             JsonDocument.Parse(request.SchemaText), cancellationToken);
         await _uow.Schemas.AddAsync(schema, cancellationToken);
@@ -34,9 +33,6 @@ public class CreateSectionSchemaInteractor : IRequestHandler<CreateSchemaRequest
 }
 
 public record CreateSchemaRequest
-    (long? SectionId, string Namespace, string SchemaName, string SchemaText) : IRequest<CreateSchemaResponse>
-{
-    public bool IsGlobal() => SectionId == null;
-}
+    (string Namespace, string SchemaName, string SchemaText) : IRequest<CreateSchemaResponse>;
 
 public record CreateSchemaResponse;

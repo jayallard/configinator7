@@ -23,7 +23,7 @@ public class NamespaceAggregate : AggregateBase<NamespaceId>
     
     internal NamespaceAggregate(NamespaceId namespaceId, string @namespace)
     {
-        Play(new NamespaceCreatedEvent(namespaceId, @namespace));
+        Play(new NamespaceCreatedEvent(namespaceId, NamespaceUtility.NormalizeNamespace(@namespace)));
     }
 
     internal void AddSchema(SchemaId schemaId) => Play(new SchemaAddedToNamespaceEvent(Id, schemaId));

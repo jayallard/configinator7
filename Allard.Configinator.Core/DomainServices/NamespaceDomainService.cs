@@ -17,6 +17,7 @@ public class NamespaceDomainService
 
     public async Task<NamespaceAggregate> GetOrCreateAsync(string @namespace, CancellationToken cancellationToken = default)
     {
+        @namespace = NamespaceUtility.NormalizeNamespace(@namespace);
         if (await _unitOfWork.Namespaces.Exists(new NamespaceIs(@namespace), cancellationToken))
         {
             return await _unitOfWork.Namespaces.FindOneAsync(new NamespaceIs(@namespace), cancellationToken);

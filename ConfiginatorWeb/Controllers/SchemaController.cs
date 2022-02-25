@@ -1,12 +1,13 @@
-﻿using Allard.Configinator.Core.DomainServices;
+﻿using System.ComponentModel.DataAnnotations;
+using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
-using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Schema;
 using ConfiginatorWeb.Interactors.Schema;
 using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ConfiginatorWeb.Controllers;
 
@@ -17,38 +18,51 @@ public class SchemaController : Controller
     private readonly SchemaLoader _schemaLoader;
     private readonly ISectionQueries _sectionQueries;
     private readonly SchemaDomainService _schemaDomainService;
+    private readonly INamespaceQueries _namespaceQueries;
 
     public SchemaController(
         ISectionQueries sectionQueries,
         IMediator mediator,
         EnvironmentValidationService environmentValidationService,
         SchemaLoader schemaLoader,
-        SchemaDomainService schemaDomainService)
+        SchemaDomainService schemaDomainService, 
+        INamespaceQueries namespaceQueries)
     {
         _sectionQueries = sectionQueries;
         _mediator = mediator;
         _environmentValidationService = environmentValidationService;
         _schemaLoader = schemaLoader;
         _schemaDomainService = schemaDomainService;
+        _namespaceQueries = namespaceQueries;
     }
 
     // GET
-    public async Task<IActionResult> AddSchema(long? sectionId, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddSchema(CancellationToken cancellationToken)
     {
-        if (sectionId == null)
+        var ns = (await _namespaceQueries.GetNamespaces())
+            .Select(n => new SelectListItem(n.NamespaceName, n.NamespaceId.ToString()));
+        var model = new AddSchemaViewModel
         {
-            return View(new AddSchemaModel(null, null));
-        }
+            // language=json
+            Schema = "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"ExampleProperty1\": {\n      \"type\": \"string\"\n    }\n  },\n  \"additionalProperties\": false\n}",
+            SchemaName = null,
+            SelectedNamespace = null,
+            Namespaces = ns
+        };
         
-        var section = await _sectionQueries.GetSectionAsync(sectionId.Value, cancellationToken);
-        return View(new AddSchemaModel(sectionId.Value, section.SectionName));
+        return View(model);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddSchema(long? sectionId, string @namespace, string schemaName, string schemaText)
+    public async Task<IActionResult> AddSchema(AddSchemaViewModel model)
     {
-        await _mediator.Send(new CreateSchemaRequest(sectionId, @namespace, schemaName, schemaText));
-        return Json(new {ok = "then"});
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+        
+        await _mediator.Send(new CreateSchemaRequest( model.SelectedNamespace, model.SchemaName, model.Schema));
+        return RedirectToAction("Index", "Section");
     }
     
     [HttpPost]
@@ -104,7 +118,19 @@ public record PromoteModel(string? PromoteTo, bool IsOk, SchemaName SchemaName, 
 
 public record PromoteModelReferenceStatus(SchemaNameDto SchemaName, bool IsOk, ISet<string> EnvironmentTypes);
 
-public record AddSchemaModel(long? SectionId, string? SectionName)
+public class AddSchemaViewModel
 {
-    public bool IsGlobal() => SectionId == null;
+    [Required]
+    [Display(Name = "Schema Name", Description = "name/version. IE:  my-schema/1.0.0")]
+    public string? SchemaName { get; set; }
+
+    [Required]
+    [Display(Name = "JSON Schema")]
+    public string? Schema { get; set; }
+
+    [Required]
+    [Display(Name="Namespace")]
+    public string? SelectedNamespace { get; set; }
+    public IEnumerable<SelectListItem>? Namespaces { get; set; }
+
 }

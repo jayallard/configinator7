@@ -1,63 +1,63 @@
-﻿@using ConfiginatorWeb.Controllers
-@model ConfiginatorWeb.Controllers.AddSchemaModel
+﻿@model ConfiginatorWeb.Controllers.AddSchemaViewModel
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
 
-<script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js">
-</script>
-
-<script type="text/javascript">
-function schemaText() {
-    return $('#txtSchema').val()
-}
-
-function schemaName() {
-    return $('#txtSchemaName').val()
-}
-
-$(document).ready(function() {
-    $('#save').click(function (e){
-        const requestDto = {
-                                     SectionId: '@Model.SectionId',
-                                     SchemaName: schemaName(),
-                                     SchemaText: schemaText(),
-                                 };
-        //alert(JSON.stringify(requestDto));
-        $.post("@Url.Action("AddSchema", "Schema")", requestDto)
-        .done(function (data) {
-            //alert(JSON.stringify(data));
-            if (requestDto.SectionId == null) {
-                document.location.replace('@Url.ActionLink("Index", "Schema")');
-            } else {
-                document.location.replace('@Url.ActionLink("Display", "Section", new {Model.SectionId})');
-            }
-        })
-        .fail(function (x, status, e) {
-            alert(x.responseText);
-        });
-    });
-});
-
-</script>
-
-@if (Model.SectionId is null)
-{
-    <h1>Add a Global Schema</h1>
-}
-else
-{
-    <h1>Add a Schema to a Section</h1>
-    <p>Section: @Model.SectionName</p>
-}
+@* <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"> *@
+@* </script> *@
+@* *@
+@* <script type="text/javascript"> *@
+@* function schemaText() { *@
+@*     return $('#txtSchema').val() *@
+@* } *@
+@* *@
+@* function schemaName() { *@
+@*     return $('#txtSchemaName').val() *@
+@* } *@
+@* *@
+@* $(document).ready(function() { *@
+@*     $('#save').click(function (e){ *@
+@*         const requestDto = { *@
+@*                                      SectionId: '@Model.SectionId', *@
+@*                                      SchemaName: schemaName(), *@
+@*                                      SchemaText: schemaText(), *@
+@*                                  }; *@
+@*         //alert(JSON.stringify(requestDto)); *@
+@*         $.post("@Url.Action("AddSchema", "Schema")", requestDto) *@
+@*         .done(function (data) { *@
+@*             //alert(JSON.stringify(data)); *@
+@*             if (requestDto.SectionId == null) { *@
+@*                 document.location.replace('@Url.ActionLink("Index", "Schema")'); *@
+@*             } else { *@
+@*                 document.location.replace('@Url.ActionLink("Display", "Section", new {Model.SectionId})'); *@
+@*             } *@
+@*         }) *@
+@*         .fail(function (x, status, e) { *@
+@*             alert(x.responseText); *@
+@*         }); *@
+@*     }); *@
+@* }); *@
+@* *@
+@* </script> *@
+<h1>Create Schema</h1>
 <form>
     @Html.AntiForgeryToken()
-    <h2>Schema</h2>
-    Schema Name:&nbsp;<input type="text" name="SchemaName" id="txtSchemaName"/><br/>
-    The schema name is of the format: <code>name/semantic-version</code>. IE: <code>/my/configuration/section/1.0.0</code>
-    <br/><br/>
-    <textarea id="txtSchema" name="Schema" style="width:100%;height: 300px;"></textarea>
-    <button class="btn btn-primary" id="save" type="button">Create</button>
+    <div class="form-group">
+        @Html.LabelFor(m => m.SchemaName)
+        @Html.TextBoxFor(m => m.SchemaName, new {@class = "form-control"})
+        @Html.ValidationMessageFor(x => x.SchemaName, "", new {@class = "text-danger"})
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.SelectedNamespace)<br/>
+        @Html.DropDownListFor(m => m.SelectedNamespace, new SelectList(Model.Namespaces, "Value", "Text"), new {@class = "form-control"})
+        @Html.ValidationMessageFor(x => x.SelectedNamespace, "", new {@class = "text-danger"})
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Schema)<br/>
+        @Html.TextAreaFor(m => m.Schema, new {@class = "form-control", style = "height:300px"})
+        @Html.ValidationMessageFor(x => x.Schema, "", new {@class = "text-danger"})
+    </div> 
+    <input type="submit" class="btn btn-primary"/>
 </form>
