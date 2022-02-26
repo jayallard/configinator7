@@ -9,10 +9,10 @@ public static class NamespaceUtility
         return test.StartsWith(against, StringComparison.OrdinalIgnoreCase);
     }
 
-    public static string NormalizeNamespace(string @namespace)
+    public static string NormalizeNamespace(string? @namespace)
     {
-        if (!@namespace.EndsWith('/')) @namespace += '/';
+        if (@namespace == null) return null;
         if (!@namespace.StartsWith('/')) @namespace = '/' + @namespace;
-        return @namespace;
+        return @namespace.TrimEnd('/');
     }
 }

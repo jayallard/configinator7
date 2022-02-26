@@ -1,6 +1,7 @@
 ﻿using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
+using Allard.Configinator.Core.Specifications.Schema;
 using Allard.Json;
 using ConfiginatorWeb.Models;
 
@@ -46,13 +47,15 @@ public class SectionQueriesCoreRepository : ISectionQueries
             SectionName = section.SectionName,
             Namespace = section.Namespace,
             Environments = new List<SectionEnvironmentDto>(),
+            EnvironmentTypes = section.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase),
             Schemas = new List<SchemaDto>()
         };
 
-        foreach (var schema in section.Schemas)
+        var schemas = await _unitOfWork.Schemas.FindAsync(new SchemaSectionIdIs(section.EntityId), cancellationToken);
+        foreach (var schema in schemas)
         {
-            var schemaDto = await GetSchemaAsync(schema.Id, cancellationToken);
-            dto.Schemas.Add(schemaDto);
+            // todo: inefficient, but convenient
+            dto.Schemas.Add(await GetSchemaAsync(schema.EntityId, cancellationToken));
         }
 
         foreach (var env in section.Environments)
@@ -150,7 +153,7 @@ public class SectionQueriesCoreRepository : ISectionQueries
             Schema = s.Schema,
             EnvironmentTypes = s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase),
             SchemaName = s.SchemaName.ToOutputDto(),
-            SectionId = s.SectionId!.Id,
+            SectionId = s.SectionId?.Id,
             SchemaId = s.Id.Id
         };
     }

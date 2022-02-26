@@ -14,9 +14,9 @@ internal static class SectionAggregateEventHandlers
             case EnvironmentCreatedEvent environmentAdded:
                 AddEnvironment(section, environmentAdded);
                 break;
-            case SchemaAddedToSectionEvent schemaAdded:
-                AddSchema(section, schemaAdded);
-                break;
+            // case SchemaAddedToSectionEvent schemaAdded:
+            //     AddSchema(section, schemaAdded);
+            //     break;
             case ReleaseCreatedEvent releaseCreated:
                 AddRelease(section, releaseCreated);
                 break;
@@ -31,6 +31,9 @@ internal static class SectionAggregateEventHandlers
                 break;
             case ReleaseValueBecameCurrent current:
                 CurrentValue(section, current);
+                break;
+            case SectionPromotedEvent promoted:
+                section.InternalEnvironmentTypes.Add(promoted.EnvironmentType);
                 break;
             default:
                 throw new NotImplementedException("Unhandled event: " + evt.GetType().FullName);
@@ -55,10 +58,10 @@ internal static class SectionAggregateEventHandlers
             evt.EnvironmentName));
     }
 
-    private static void AddSchema(SectionAggregate section, SchemaAddedToSectionEvent evt)
-    {
-        section.InternalSchemas.Add(evt.SchemaId);
-    }
+    // private static void AddSchema(SectionAggregate section, SchemaAddedToSectionEvent evt)
+    // {
+    //     section.InternalSchemas.Add(evt.SchemaId);
+    // }
 
     private static void AddRelease(SectionAggregate section, ReleaseCreatedEvent evt)
     {

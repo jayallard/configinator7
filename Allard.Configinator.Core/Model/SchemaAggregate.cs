@@ -47,6 +47,7 @@ public class SchemaAggregate : AggregateBase<SchemaId>
         {
             case SchemaCreatedEvent created:
                 Id = created.SchemaId;
+                SectionId = created.SectionId;
                 SchemaName = created.Name;
                 Schema = created.Schema;
                 Description = created.Description;

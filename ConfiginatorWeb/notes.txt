@@ -9,11 +9,28 @@
 }
 
 
-    {
-        "properties": { 
-            "blah": { 
-                "type": "string"
-            } 
-        }
+{
+    "properties": { 
+        "blah": { 
+            "type": "string"
+        } 
     }
+}
 
+{
+    "firstName": "Santa",
+    "lastName": "Claus"
+}
+
+
+
+{
+    "firstName": "Santa",
+    "lastName": "Claus",
+    "age": 33,
+    "kafka": {
+       "brokers": "b",
+       "user": "user",
+       "password": "password"
+   }
+}

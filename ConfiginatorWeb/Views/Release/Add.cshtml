@@ -1,4 +1,5 @@
-﻿@model ConfiginatorWeb.Models.Release.EditReleaseView
+﻿@using Allard.Configinator.Core.Model
+@model ConfiginatorWeb.Models.Release.EditReleaseView
 
 @{
     ViewBag.Title = "Create Configuration Release";
@@ -119,20 +120,3 @@ $(document).ready(function() {
     <button type="button" class="btn btn-primary" id="save">Create Release</button>
     <button type="reset" class="btn btn-secondary">Reset</button>
 </form>
-<h2>Preview</h2>
-<p>Coming Soon!</p>
-
-<h2>Variables</h2>
-<p>Coming Soon!</p>
-
-<h2>Schema</h2>
-<div id="@Model.Schemas[0].SchemaName">
-    <pre>@Model.Schemas[0].Schema</pre>
-</div>
-
-@foreach (var schema in Model.Schemas.Skip(1))
-{
-    <div id="@schema.SchemaName" style="display: none">
-        <pre>@schema.Schema.</pre>
-    </div>
-}

@@ -15,6 +15,8 @@ public class SectionDto
     public List<SchemaDto> Schemas { get; set; }
 
     public List<SectionEnvironmentDto> Environments { get; set; }
+    
+    public ISet<string> EnvironmentTypes { get; set; }
 
     public SectionEnvironmentDto GetEnvironment(string environmentName)
     {

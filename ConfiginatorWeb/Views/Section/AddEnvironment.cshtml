@@ -1,0 +1,70 @@
+﻿@using ConfiginatorWeb.Controllers
+@model ConfiginatorWeb.Controllers.AddEnvironmentViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+    var environmentTypes = (List<EnvironmentTypeItemViewData>) ViewData["environmentTypes"];
+    var promoteTo = (string)ViewData["PromoteTo"];
+}
+
+<h2>Add Environment To Section</h2>
+<br/>
+<form method="post">
+    @Html.HiddenFor(m => m.SectionId, Model.SectionId)
+    @foreach (var et in environmentTypes)
+    {
+        <h2>@et.EnvironmentType</h2>
+        <div class="form-group">
+            @foreach (var e in et.EnvironmentItems)
+            {
+                <div class="form-group">
+                    @if (e.IsAlreadyInUse)
+                    {
+                        <input type="checkbox" name="SelectedEnvironments" checked="checked" disabled="disabled"/>
+                    }
+                    else
+                    {
+                        <input type="checkbox" name="SelectedEnvironments" value="@e.EnvironmentName"/>
+                    }
+                    @Html.LabelFor(m => m.SelectedEnvironments, e.EnvironmentName)<br/>
+                </div>
+            }
+        </div>
+        <br/>
+    }
+    @if (Model.CanAdd)
+    {
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Add</button>
+            &nbsp;
+            <button class="btn btn-primary" onclick="document.location.replace(@Url.ActionLink("Display", "Section", new {sectionId = Model.SectionId})">Cancel</button>
+        </div>
+    }
+    else
+    {
+        <div class="form-group">
+            <p>There aren't any environments that can be added.</p>
+            &nbsp;
+            <button type="submit" class="btn btn-secondary" disabled="disabled">Add</button>
+            <button class="btn btn-primary" onclick="document.location.replace(@Url.ActionLink("Display", "Section", new {sectionId = Model.SectionId})">Cancel</button>
+        </div>
+    }
+</form>
+<br/>
+<h2>Promote</h2>
+<p>
+    @if (promoteTo == null)
+    {
+        <div>The section cannot be promoted.</div>
+    }
+    else
+    {
+        <form method="post" action="Promote">
+            <p>Promote the section to <code>@promoteTo</code>.</p>
+            @Html.Hidden("SectionId", Model.SectionId)
+            @Html.Hidden("EnvironmentType", promoteTo)
+            <button type="submit" class="btn btn-primary">Promote</button>
+        </form>
+    }
+</p>

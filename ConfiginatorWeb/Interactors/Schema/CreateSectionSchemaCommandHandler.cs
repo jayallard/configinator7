@@ -7,12 +7,12 @@ using MediatR;
 
 namespace ConfiginatorWeb.Interactors.Schema;
 
-public class CreateSectionSchemaInteractor : IRequestHandler<CreateSchemaRequest, CreateSchemaResponse>
+public class CreateSchemaInteractor : IRequestHandler<CreateSchemaRequest, CreateSchemaResponse>
 {
     private readonly SchemaDomainService _schemaDomainService;
     private readonly IUnitOfWork _uow;
 
-    public CreateSectionSchemaInteractor(
+    public CreateSchemaInteractor(
         IUnitOfWork uow,
         SchemaDomainService schemaDomainService)
     {
@@ -23,7 +23,7 @@ public class CreateSectionSchemaInteractor : IRequestHandler<CreateSchemaRequest
     public async Task<CreateSchemaResponse> Handle(CreateSchemaRequest request,
         CancellationToken cancellationToken)
     {
-        var schema = await _schemaDomainService.CreateSchemaAsync(request.Namespace, new SchemaName(request.SchemaName),
+        var schema = await _schemaDomainService.CreateSchemaAsync(request.SectionId, request.Namespace, new SchemaName(request.SchemaName),
             "description - TODO",
             JsonDocument.Parse(request.SchemaText), cancellationToken);
         await _uow.Schemas.AddAsync(schema, cancellationToken);
@@ -33,6 +33,6 @@ public class CreateSectionSchemaInteractor : IRequestHandler<CreateSchemaRequest
 }
 
 public record CreateSchemaRequest
-    (string Namespace, string SchemaName, string SchemaText) : IRequest<CreateSchemaResponse>;
+    (string Namespace, string SchemaName, string SchemaText, SectionId? SectionId) : IRequest<CreateSchemaResponse>;
 
 public record CreateSchemaResponse;

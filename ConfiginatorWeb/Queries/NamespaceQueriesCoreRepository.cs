@@ -26,17 +26,28 @@ public class NamespaceQueriesCoreRepository : INamespaceQueries
         var sectionIds = ns.SelectMany(n => n.Sections.Select(s => s.Id));
         var sections = _unitOfWork.Sections.FindAsync(new IdIsIn(sectionIds));
 
+        var sectionDtos = (await sections)
+            .Select(s => new NamespaceSectionDto(s.EntityId, s.SectionName))
+            .ToDictionary(s => s.SectionId);
+        
         var schemaDtos = (await schemas)
-            .Select(s => new NamespaceSchemaDto(s.EntityId, s.SchemaName.ToOutputDto()))
+            .Select(s =>
+            {
+                if (s.SectionId == null)
+                {
+                    return new NamespaceSchemaDto(s.EntityId, s.SchemaName.ToOutputDto(), null, null);
+                }
+
+                var sectionId = s.SectionId.Id;
+                return new NamespaceSchemaDto(s.EntityId, s.SchemaName.ToOutputDto(), sectionId,
+                    sectionDtos[sectionId].SectionName);
+            })
             .ToDictionary(s => s.SchemaId);
 
         var variableSetDtos = (await variableSets)
             .Select(vs => new NamespaceVariableSetDto(vs.EntityId, vs.VariableSetName))
             .ToDictionary(vs => vs.VariableSetId);
-
-        var sectionDtos = (await sections)
-            .Select(s => new NamespaceSectionDto(s.EntityId, s.SectionName))
-            .ToDictionary(s => s.SectionId);
+        
         
         var result = ns.Select(n =>
             new NamespaceDto

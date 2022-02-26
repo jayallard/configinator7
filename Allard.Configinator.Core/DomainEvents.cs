@@ -16,6 +16,10 @@ public record SectionCreatedEvent(
     string SectionName,
     string InitialEnvironmentType) : DomainEventBase;
 
+public record SectionPromotedEvent(
+    SectionId SectionId,
+    string EnvironmentType) : DomainEventBase;
+
 /// <summary>
 ///     An environment was added to a configuration section.
 /// </summary>
@@ -33,9 +37,9 @@ public record EnvironmentCreatedEvent(
 /// </summary>
 /// <param name="SectionId"></param>
 /// <param name="Schema"></param>
-public record SchemaAddedToSectionEvent(
-    SectionId SectionId,
-    SchemaId SchemaId) : DomainEventBase;
+// public record SchemaAddedToSectionEvent(
+//     SectionId SectionId,
+//     SchemaId SchemaId) : DomainEventBase;
 
 /// <summary>
 ///     A release was created.

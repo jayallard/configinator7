@@ -5,44 +5,13 @@
     Layout = "_Layout";
 }
 
-@* <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"> *@
-@* </script> *@
-@* *@
-@* <script type="text/javascript"> *@
-@* function schemaText() { *@
-@*     return $('#txtSchema').val() *@
-@* } *@
-@* *@
-@* function schemaName() { *@
-@*     return $('#txtSchemaName').val() *@
-@* } *@
-@* *@
-@* $(document).ready(function() { *@
-@*     $('#save').click(function (e){ *@
-@*         const requestDto = { *@
-@*                                      SectionId: '@Model.SectionId', *@
-@*                                      SchemaName: schemaName(), *@
-@*                                      SchemaText: schemaText(), *@
-@*                                  }; *@
-@*         //alert(JSON.stringify(requestDto)); *@
-@*         $.post("@Url.Action("AddSchema", "Schema")", requestDto) *@
-@*         .done(function (data) { *@
-@*             //alert(JSON.stringify(data)); *@
-@*             if (requestDto.SectionId == null) { *@
-@*                 document.location.replace('@Url.ActionLink("Index", "Schema")'); *@
-@*             } else { *@
-@*                 document.location.replace('@Url.ActionLink("Display", "Section", new {Model.SectionId})'); *@
-@*             } *@
-@*         }) *@
-@*         .fail(function (x, status, e) { *@
-@*             alert(x.responseText); *@
-@*         }); *@
-@*     }); *@
-@* }); *@
-@* *@
-@* </script> *@
 <h1>Create Schema</h1>
-<form>
+@if (Model.IsForSection)
+{
+    <h2>For Section: @Model.SectionName</h2>
+}
+
+<form method="post">
     @Html.AntiForgeryToken()
     <div class="form-group">
         @Html.LabelFor(m => m.SchemaName)
@@ -51,13 +20,16 @@
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.SelectedNamespace)<br/>
-        @Html.DropDownListFor(m => m.SelectedNamespace, new SelectList(Model.Namespaces, "Value", "Text"), new {@class = "form-control"})
+        @Html.DropDownListFor(m => m.SelectedNamespace, (List<SelectListItem>)ViewData["ns"])
         @Html.ValidationMessageFor(x => x.SelectedNamespace, "", new {@class = "text-danger"})
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Schema)<br/>
         @Html.TextAreaFor(m => m.Schema, new {@class = "form-control", style = "height:300px"})
         @Html.ValidationMessageFor(x => x.Schema, "", new {@class = "text-danger"})
-    </div> 
+    </div>
+    @Html.HiddenFor(m => m.SectionId)
+    @Html.HiddenFor(m => m.SectionName)
+    @Html.ValidationSummary(false)
     <input type="submit" class="btn btn-primary"/>
 </form>

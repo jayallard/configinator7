@@ -53,6 +53,7 @@ public class ReleaseController : Controller
         var variableSetName = environment.Releases.LastOrDefault()?.VariableSet?.VariableSetName;
         var schemaName = environment.Releases.LastOrDefault()?.Schema?.SchemaName?.FullName;
         var variableSets = (await _variableSetQueries.GetVariableSetListAsync(cancellationToken))
+            .Where(s => s.EnvironmentType.Equals(environment.EnvironmentType, StringComparison.OrdinalIgnoreCase))
             .Select(s => s.VariableSetName)
             .OrderBy(s => s)
             .ToList();
@@ -63,6 +64,7 @@ public class ReleaseController : Controller
             SectionName = section.SectionName,
             Schemas = section
                 .Schemas
+                .Where(s => s.EnvironmentTypes.Contains(environment.EnvironmentType, StringComparer.OrdinalIgnoreCase))
                 .OrderByDescending(s => s.SchemaName.FullName)
                 .Select(s => new EditSchemaView(
                     s.SchemaName,

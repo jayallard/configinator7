@@ -40,6 +40,15 @@ public class SectionDomainService
         return section;
     }
 
+    public async Task PromoteToEnvironmentType(SectionAggregate section, string environmentType)
+    {
+        var canPromote = _environmentValidationService.CanPromoteSectionTo(section.EnvironmentTypes, environmentType);
+        if (!canPromote)
+            throw new InvalidOperationException(
+                $"Section can't be promoted. Section Name={section.SectionName}, Environment Type={environmentType}");
+        section.PromoteTo(environmentType);
+    }
+
     public async Task<EnvironmentEntity> AddEnvironmentToSectionAsync(
         SectionAggregate section,
         string environmentName)
@@ -62,6 +71,9 @@ public class SectionDomainService
         JsonDocument value,
         CancellationToken cancellationToken)
     {
+        // get the environment
+        var env = section.GetEnvironment(environmentId);
+        
         // get the variable set
         var variableSet = variableSetId == null
             ? null
@@ -71,12 +83,17 @@ public class SectionDomainService
         var jsonNetValue = value.ToJsonNetJson();
 
         // apply the variable replacements
-
         var jsonNetResolved = await JsonUtility.ResolveAsync(jsonNetValue,
             variableSet?.ToValueDictionary() ?? new Dictionary<string, JToken>(), cancellationToken);
 
         // validate against the schema
         var schema = await _unitOfWork.Schemas.GetAsync(schemaId, cancellationToken);
+        if (!schema.EnvironmentTypes.Contains(env.EnviromentType, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"The schema doesn't belong to the environment type. Schema={schema.SchemaName.FullName}, Target Environment Type={env.EnviromentType}");
+        }
+        
         var schemaDetails =
             await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema, cancellationToken);
         var validationErrors = schemaDetails.Root.ResolvedSchema!.Validate(jsonNetResolved);

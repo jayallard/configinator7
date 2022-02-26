@@ -72,7 +72,8 @@ public sealed class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracke
         CancellationToken cancellationToken = default)
     {
         var matches = await FindAsync(specification, cancellationToken);
-        if (matches.Count != 1) throw new InvalidOperationException("The query returned multiple matches");
+        if (matches.Count > 1) throw new InvalidOperationException("The query returned multiple matches");
+        if (matches.Count == 0) throw new InvalidOperationException("The query didn't return a result   ");
         return matches[0];
     }
 

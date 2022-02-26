@@ -20,9 +20,9 @@ public class SectionAggregate : AggregateBase<SectionId>
     }
 
     internal ISet<string> InternalEnvironmentTypes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    internal List<SchemaId> InternalSchemas { get; } = new();
+    //internal List<SchemaId> InternalSchemas { get; } = new();
     internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
-    public IEnumerable<SchemaId> Schemas => InternalSchemas.AsReadOnly();
+    //public IEnumerable<SchemaId> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public string SectionName { get; internal set; }
     public string Namespace { get; internal set; }
@@ -97,6 +97,11 @@ public class SectionAggregate : AggregateBase<SectionId>
         }
 
         PlayEvent(new ReleaseValueBecameCurrent(Id, environmentId, releaseId));
+    }
+
+    internal void PromoteTo(string environmentType)
+    {
+        PlayEvent(new SectionPromotedEvent(Id, environmentType));
     }
 
     /// <summary>

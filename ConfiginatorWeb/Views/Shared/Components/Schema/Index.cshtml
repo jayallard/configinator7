@@ -15,12 +15,15 @@
             }
             @if (schemaInitial.SectionId is null)
             {
-                <b>
-                    <i>Global</i>
-                </b>
+                <span>
+                    Namespace: <i>@schemaInitial.Namespace</i>
+                </span>
             }
             else
             {
+                <span>
+                    Namespace: <i>@schemaInitial.Namespace</i>
+                </span><br/>
                 <span>Section: @Html.SectionLink(schemaInitial.Namespace, schemaInitial.SectionName ?? "BUG", schemaInitial.SectionId.Value) </span>
             }
         </td>
@@ -86,9 +89,9 @@
                     }
                     @if (schema.SectionId is null)
                     {
-                        <b>
-                            <i>Global</i>
-                        </b>
+                        <span>
+                            Namespace: <i>@schemaInitial.Namespace</i>
+                        </span>
                     }
                     else
                     {
@@ -107,7 +110,7 @@
                     </ul>
                     @if (Model.Dtos[reference.SchemaName].PromoteTo != null)
                     {
-                        <a href="#">Promote To @Model.Dtos[reference.SchemaName].PromoteTo</a>
+                        <a asp-action="PromoteIndex" asp-route-schemaName="@reference.SchemaName">Promote To @Model.Dtos[reference.SchemaName].PromoteTo</a>
                     }
                 </td>
             </tr>

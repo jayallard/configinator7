@@ -75,15 +75,11 @@ public class EnvironmentValidationService
     }
 
     // TODO: hack
-    public string? GetNextEnvironmentTypeFor(string environmentType)
+    public string? GetNextSectionEnvironmentType(IEnumerable<string> environmentTypes)
     {
-        if (!IsValidEnvironmentType(environmentType))
-            throw new InvalidOperationException("Invalid environment type: " + environmentType);
-
-        if (environmentType.Equals("development", StringComparison.OrdinalIgnoreCase)) return "staging";
-
-        if (environmentType.Equals("staging", StringComparison.OrdinalIgnoreCase)) return "production";
-
+        var types = environmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (!types.Contains("staging")) return "staging";
+        if (!types.Contains("production")) return "production";
         return null;
     }
 
@@ -97,13 +93,21 @@ public class EnvironmentValidationService
         return null;
     }
 
+    public bool CanPromoteSectionTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType)
+    {
+        return CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
+    }
+
     // hack
-    public bool CanPromoteTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType,
+    public bool CanPromoteSchemaTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType,
         SchemaName schemaName)
     {
-        if (schemaName.Version.IsPrerelease) return false;
+        return !schemaName.Version.IsPrerelease && CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
+    }
+
+    private static bool CanPromoteTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType)
+    {
         var types = assignedEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        if (assignedEnvironmentTypes.Contains(targetEnvironmentType)) return false;
         return targetEnvironmentType.ToLower() switch
         {
             "staging" => !types.Contains("staging"),

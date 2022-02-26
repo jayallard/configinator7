@@ -10,6 +10,10 @@ public class NamespaceDto
     
 }
 
-public record NamespaceSchemaDto(long SchemaId, SchemaNameDto SchemaName);
+public record NamespaceSchemaDto(long SchemaId, SchemaNameDto SchemaName, long? SectionId, string? SectionName)
+{
+    public bool IsForSection => SectionId != null;
+}
+
 public record NamespaceSectionDto(long SectionId, string SectionName);
 public record NamespaceVariableSetDto(long VariableSetId, string VariableSetName);

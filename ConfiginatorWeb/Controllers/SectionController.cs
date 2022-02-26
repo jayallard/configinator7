@@ -1,8 +1,6 @@
 ﻿using Allard.Configinator.Core;
 using Allard.Configinator.Core.DomainServices;
-using Allard.Configinator.Core.Model;
 using ConfiginatorWeb.Interactors.Section;
-using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -14,18 +12,15 @@ public class SectionController : Controller
 {
     private readonly EnvironmentValidationService _environmentValidationService;
     private readonly IMediator _mediator;
-
-    private readonly ISchemaQueries _schemaQueries;
-
-    // TODO: move to query handlers
     private readonly ISectionQueries _sectionQueries;
 
     public SectionController(
         ISectionQueries projections,
-        IMediator mediator, EnvironmentValidationService environmentValidationService, ISchemaQueries schemaQueries)
+        IMediator mediator,
+        EnvironmentValidationService environmentValidationService, ISchemaQueries schemaQueries,
+        SectionDomainService sectionDomainService)
     {
         _environmentValidationService = environmentValidationService;
-        _schemaQueries = schemaQueries;
         _mediator = Guards.HasValue(mediator, nameof(mediator));
         _sectionQueries = Guards.HasValue(projections, nameof(projections));
     }
@@ -50,6 +45,64 @@ public class SectionController : Controller
     }
 
     [HttpPost]
+    public async Task<IActionResult> Promote(long sectionId, string environmentType)
+    {
+        var request = new PromoteSectionRequest(sectionId, environmentType);
+        await _mediator.Send(request);
+        return RedirectToAction("Display", new {sectionId});
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddEnvironment(AddEnvironmentViewModel model)
+    {
+        if (model.SelectedEnvironments != null && model.SelectedEnvironments.Count > 0)
+        {
+            await _mediator.Send(new AddEnvironmentsToSectionRequest(model.SectionId, model.SelectedEnvironments));
+        }
+
+        return RedirectToAction("Display", new {sectionId = model.SectionId});
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AddEnvironment(long sectionId, CancellationToken cancellationToken = default)
+    {
+        var section = await _sectionQueries.GetSectionAsync(sectionId, cancellationToken);
+        var environmentsInUse = section
+            .Environments
+            .Select(e => e.EnvironmentName)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        // get a list of environment types
+        // per environment type, get the environments
+        // per environment, indicate if it's already in use by the section
+        var environmentTypes = _environmentValidationService
+            .EnvironmentTypeNames
+            .Where(e => section.EnvironmentTypes.Contains(e))
+            .Select(et =>
+            {
+                var environments = _environmentValidationService
+                    .EnvironmentNames
+                    .Where(e => e.EnvironmentType.Equals(et, StringComparison.OrdinalIgnoreCase))
+                    .Select(e =>
+                        new EnvironmentItemViewData(e.EnvironmentName, environmentsInUse.Contains(e.EnvironmentName)))
+                    .ToList();
+                return new EnvironmentTypeItemViewData(et, environments);
+            })
+            .ToList();
+
+        ViewData["environmentTypes"] = environmentTypes;
+
+        // -------------------------------------
+        // for promotion section
+        // -------------------------------------
+        var nextEnvironmentType = _environmentValidationService.GetNextSectionEnvironmentType(section.EnvironmentTypes);
+        ViewData["PromoteTo"] = nextEnvironmentType;
+
+        var canAdd = environmentTypes.Any(et => et.EnvironmentItems.Any(e => !e.IsAlreadyInUse));
+        return View(new AddEnvironmentViewModel(sectionId, new List<string>(), canAdd));
+    }
+
+    [HttpPost]
     public async Task<IActionResult> Create(
         string name,
         string @namespace,
@@ -63,7 +116,7 @@ public class SectionController : Controller
                 Name = name,
                 Namespace = @namespace
             };
-            
+
             var result = await _mediator.Send(request);
             return RedirectToAction("Display", new {result.SectionId});
         }
@@ -81,3 +134,11 @@ public class SectionController : Controller
 }
 
 public record SectionIndexView(SectionDto Section);
+
+public record AddEnvironmentViewModel(long SectionId, List<string>? SelectedEnvironments, bool CanAdd);
+
+public record EnvironmentTypesViewData(List<EnvironmentTypeItemViewData> EnvironmentTypes);
+
+public record EnvironmentTypeItemViewData(string EnvironmentType, List<EnvironmentItemViewData> EnvironmentItems);
+
+public record EnvironmentItemViewData(string EnvironmentName, bool IsAlreadyInUse);

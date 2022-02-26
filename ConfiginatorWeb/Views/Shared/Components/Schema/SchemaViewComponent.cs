@@ -31,6 +31,7 @@ public class SchemaViewComponent : ViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(SchemaName schemaName)
     {
+        Guards.HasValue(schemaName, nameof(SchemaName));
         var schema = await _unitOfWork.Schemas.FindOneAsync(SchemaNameIs.Is(schemaName));
         var resolved = await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema);
         var aggregates = await _schemaDomainService.GetSchemasAsync(resolved.AllNames());

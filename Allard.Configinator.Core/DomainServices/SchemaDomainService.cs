@@ -23,6 +23,7 @@ public class SchemaDomainService
     }
 
     public async Task<SchemaAggregate> CreateSchemaAsync(
+        SectionId? sectionId,
         string @namespace,
         SchemaName schemaName,
         string? description,
@@ -33,6 +34,22 @@ public class SchemaDomainService
         // make sure this one doesn't already exist
         await EnsureSchemaDoesntExistAsync(schemaName, cancellationToken);
 
+        // ---------------------------------------------------------------------------------------
+        // if the schema is for a section, make sure they're in the same namespace.
+        // ---------------------------------------------------------------------------------------
+        if (sectionId != null)
+        {
+            var section = await _unitOfWork.Sections.GetAsync(sectionId, cancellationToken);
+            if (!section.Namespace.Equals(@namespace, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("The schema must be in the same namespace as the section.\n" +
+                                                    "Section Namespace=" + section.Namespace +
+                                                    "\nSchema Namespace=" + @namespace +
+                                                    "\nSchema Name=" + schemaName.FullName);
+            }
+        }
+
+        
         // resolve the schema. This returns the schema and its references.
         // this is information only about the schemas and references; it has nothing to do with the
         // aggregates. the schema id isn't present, nor is anything 
@@ -56,7 +73,7 @@ public class SchemaDomainService
         // ---------------------------------------------------------------------------------------
         // All good. create the schema.
         // ---------------------------------------------------------------------------------------
-        return await ReallyCreateSchemaAsync(@namespace,  schemaName, description, schema, cancellationToken);
+        return await ReallyCreateSchemaAsync(sectionId, @namespace,  schemaName, description, schema, cancellationToken);
     }
 
     private async Task<IEnumerable<SchemaValidationProperties>> GetReferenceValidationProperties(IEnumerable<SchemaDetail> schemas,
@@ -82,6 +99,7 @@ public class SchemaDomainService
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     private async Task<SchemaAggregate> ReallyCreateSchemaAsync(
+        SectionId? sectionId,
         string @namespace,
         SchemaName schemaName,
         string? description,
@@ -91,7 +109,7 @@ public class SchemaDomainService
         var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
         var schemaAggregate = new SchemaAggregate(
             schemaId, 
-            null,
+            sectionId,
             firstEnvironmentType,
             @namespace,
             schemaName,
@@ -135,7 +153,7 @@ public class SchemaDomainService
         CancellationToken cancellationToken = default)
     {
         var schema = await _unitOfWork.Schemas.FindOneAsync(SchemaNameIs.Is(schemaName), cancellationToken);
-        var isPromotable = _environmentService.CanPromoteTo(
+        var isPromotable = _environmentService.CanPromoteSchemaTo(
             schema.EnvironmentTypes,
             targetEnvironmentType,
             schema.SchemaName);
