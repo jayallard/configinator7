@@ -1,28 +1,30 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Allard.Configinator.Core;
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ConfiginatorWeb.Interactors.Section;
+namespace ConfiginatorWeb.Interactors.Commands.Section;
 
+/// <summary>
+/// Create a configuration section.
+/// </summary>
 public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, CreateSectionAppResponse>
 {
     private readonly SectionDomainService _service;
     private readonly IUnitOfWork _uow;
 
-
     public CreateSectionInteractor(SectionDomainService service, IUnitOfWork uow)
     {
-        _service = service;
-        _uow = uow;
+        _service = Guards.HasValue(service, nameof(service));
+        _uow = Guards.HasValue(uow, nameof(uow));
     }
 
     public async Task<CreateSectionAppResponse> Handle(CreateSectionAppRequest request,
         CancellationToken cancellationToken)
     {
         var section = await _service.CreateSectionAsync(request.Namespace, request.Name);
-        //foreach (var env in request.EnvironmentNames) await _service.AddEnvironmentToSectionAsync(section, env);
 
         await _uow.Sections.AddAsync(section, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);

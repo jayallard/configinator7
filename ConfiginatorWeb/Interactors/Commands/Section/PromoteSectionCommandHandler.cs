@@ -3,7 +3,7 @@ using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using MediatR;
 
-namespace ConfiginatorWeb.Interactors.Section;
+namespace ConfiginatorWeb.Interactors.Commands.Section;
 
 public class PromoteSectionCommandHandler : IRequestHandler<PromoteSectionRequest, PromoteSectionResponse>
 {

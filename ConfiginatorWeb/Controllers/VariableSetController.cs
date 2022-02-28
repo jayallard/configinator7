@@ -1,5 +1,6 @@
 ﻿using Allard.Configinator.Core;
-using ConfiginatorWeb.Interactors.VariableSets;
+using ConfiginatorWeb.Interactors.Commands.VariableSets;
+using ConfiginatorWeb.Interactors.Queries.VariableSets;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,13 +20,13 @@ public class VariableSetController : Controller
     // GET
     public async Task<IActionResult> Index(string variableSetName, CancellationToken cancellationToken)
     {
-        var variableSet = await _mediator.Send(new VariableSetComposedQuery(variableSetName), cancellationToken);
+        var variableSet = await _mediator.Send(new VariableSetIndexQueryRequest(variableSetName), cancellationToken);
         return View(new EditVariableSetView(variableSet.VariableSet, variableSet.MermaidMarkup));
     }
 
     public async Task<IActionResult> EditValue(string variableSetName, string key, CancellationToken cancellationToken)
     {
-        var variableSet = await _mediator.Send(new VariableSetComposedQuery(variableSetName), cancellationToken);
+        var variableSet = await _mediator.Send(new VariableSetIndexQueryRequest(variableSetName), cancellationToken);
         var variable =
             variableSet.VariableSet.Variables.ContainsKey(key)
                 ? variableSet.VariableSet.Variables[key].Value

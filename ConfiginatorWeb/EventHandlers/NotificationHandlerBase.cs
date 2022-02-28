@@ -15,6 +15,5 @@ public abstract class NotificationHandlerBase<T> : INotificationHandler<Mediator
     {
         foreach (var handler in _handlers) 
             await handler.ExecuteAsync(notification.DomainEvent, cancellationToken);
-
     }
 }

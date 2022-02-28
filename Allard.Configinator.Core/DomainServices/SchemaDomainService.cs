@@ -16,12 +16,23 @@ public class SchemaDomainService
     public SchemaDomainService(IIdentityService identityService, IUnitOfWork unitOfWork,
         EnvironmentValidationService environmentRules, SchemaLoader schemaLoader)
     {
-        _schemaLoader = schemaLoader;
+        _schemaLoader = Guards.HasValue(schemaLoader, nameof(schemaLoader));
         _environmentService = Guards.HasValue(environmentRules, nameof(environmentRules));
         _identityService = Guards.HasValue(identityService, nameof(identityService));
         _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
     }
 
+    /// <summary>
+    /// Create a schema.
+    /// </summary>
+    /// <param name="sectionId">If specified, the schema is for the configuration section.</param>
+    /// <param name="namespace"></param>
+    /// <param name="schemaName"></param>
+    /// <param name="description"></param>
+    /// <param name="schema"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public async Task<SchemaAggregate> CreateSchemaAsync(
         SectionId? sectionId,
         string @namespace,
@@ -50,9 +61,8 @@ public class SchemaDomainService
         }
 
         
-        // resolve the schema. This returns the schema and its references.
-        // this is information only about the schemas and references; it has nothing to do with the
-        // aggregates. the schema id isn't present, nor is anything 
+        // resolve the json schema. This returns raw data about the schema and it's references.
+        // it is not aggregate aware.
         var resolved = await _schemaLoader.ResolveSchemaAsync(schemaName, schema, cancellationToken);
 
         // ---------------------------------------------------------------------------------------
@@ -63,7 +73,7 @@ public class SchemaDomainService
         SchemaUtility.ValidateRootSchema(resolved.Root.ResolvedSchema, schemaName.FullName);
 
         // ---------------------------------------------------------------------------------------
-        // make sure that all schemas are either global, or are in the same section.
+        // make sure that all schemas are in valid namespaces, or are in the same section.
         // ---------------------------------------------------------------------------------------
         var schemaProperties = new SchemaValidationProperties(@namespace, schemaName);
         var referenceProperties =
@@ -92,6 +102,7 @@ public class SchemaDomainService
     /// Actually create the schema.
     /// The schema is known to be valid by the time this is called.
     /// </summary>
+    /// <param name="namespace"></param>
     /// <param name="schemaName"></param>
     /// <param name="sectionId"></param>
     /// <param name="description"></param>
@@ -105,7 +116,7 @@ public class SchemaDomainService
         string? description,
         JsonDocument schema, CancellationToken cancellationToken)
     {
-        var schemaId = await _identityService.GetIdAsync<SchemaId>();
+        var schemaId = await _identityService.GetIdAsync<SchemaId>(cancellationToken);
         var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
         var schemaAggregate = new SchemaAggregate(
             schemaId, 
@@ -131,6 +142,12 @@ public class SchemaDomainService
         if (exists) throw new InvalidOperationException("That schema name is invalid. It is already in use.");
     }
 
+    /// <summary>
+    /// Get 0 or more schemas.
+    /// </summary>
+    /// <param name="schemaNames"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<SchemaAggregate[]> GetSchemasAsync(IEnumerable<SchemaName> schemaNames,
         CancellationToken cancellationToken = default)
     {
@@ -147,25 +164,33 @@ public class SchemaDomainService
         return allUsedSchemas;
     }
 
+    /// <summary>
+    /// Promote a schema from one environment type to another.
+    /// </summary>
+    /// <param name="schemaName"></param>
+    /// <param name="targetEnvironmentType"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public async Task<SchemaAggregate> PromoteSchemaAsync(
         SchemaName schemaName,
         string targetEnvironmentType,
         CancellationToken cancellationToken = default)
     {
         var schema = await _unitOfWork.Schemas.FindOneAsync(SchemaNameIs.Is(schemaName), cancellationToken);
+
+        // make sure the promotion is allowed
         var isPromotable = _environmentService.CanPromoteSchemaTo(
             schema.EnvironmentTypes,
             targetEnvironmentType,
             schema.SchemaName);
 
-
-        // make sure the promotion is allowed
         if (!isPromotable)
             throw new InvalidOperationException($"The schema cannot be promoted to {targetEnvironmentType}");
 
         // if any pre-release schemas are used, make sure pre-release is supported.
         var resolved = await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema, cancellationToken);
-        if (resolved.IsPreRelease() && !_environmentService.IsPreReleaseAllowed(targetEnvironmentType))
+        if (resolved.IsPreRelease() && !EnvironmentValidationService.IsPreReleaseAllowed(targetEnvironmentType))
             throw new InvalidOperationException("The environment type doesn't support pre-releases. EnvironmentType=" +
                                                 targetEnvironmentType);
 

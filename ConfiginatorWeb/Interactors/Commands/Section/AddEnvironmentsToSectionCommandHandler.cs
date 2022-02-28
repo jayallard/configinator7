@@ -1,10 +1,14 @@
-﻿using Allard.Configinator.Core.DomainServices;
+﻿using Allard.Configinator.Core;
+using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using MediatR;
 
-namespace ConfiginatorWeb.Interactors.Section;
+namespace ConfiginatorWeb.Interactors.Commands.Section;
 
+/// <summary>
+/// Add an environment to a section.
+/// </summary>
 public class AddEnvironmentsToSectionCommandHandler : IRequestHandler<AddEnvironmentsToSectionRequest, AddEnvironmentToSectionResponse>
 {
     private readonly SectionDomainService _sectionDomainService;
@@ -12,8 +16,8 @@ public class AddEnvironmentsToSectionCommandHandler : IRequestHandler<AddEnviron
 
     public AddEnvironmentsToSectionCommandHandler(SectionDomainService sectionDomainService, IUnitOfWork uow)
     {
-        _sectionDomainService = sectionDomainService;
-        _uow = uow;
+        _sectionDomainService = Guards.HasValue(sectionDomainService, nameof(sectionDomainService));
+        _uow = Guards.HasValue(uow, nameof(uow));
     }
 
     public async Task<AddEnvironmentToSectionResponse> Handle(AddEnvironmentsToSectionRequest request, CancellationToken cancellationToken)

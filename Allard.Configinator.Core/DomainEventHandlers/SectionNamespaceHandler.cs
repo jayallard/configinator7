@@ -4,6 +4,9 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.DomainEventHandlers;
 
+/// <summary>
+/// When a section is created, add it to the namespace.
+/// </summary>
 public class SectionNamespaceHandler : IEventHandler<SectionCreatedEvent>
 {
     private readonly NamespaceDomainService _namespaceDomainService;

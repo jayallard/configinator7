@@ -11,6 +11,5 @@ public class VariableSetNotificationHandler : NotificationHandlerBase<VariableSe
 {
     public VariableSetNotificationHandler(IEnumerable<IEventHandler<VariableSetCreatedEvent>> handlers) : base(handlers)
     {
-        Console.WriteLine();
     }
 }

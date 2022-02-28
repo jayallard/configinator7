@@ -88,15 +88,26 @@ public class SectionAggregate : AggregateBase<SectionId>
             .GetDeployment(deploymentId);
     }
 
-    internal void SetOutOfDate(EnvironmentId environmentId, ReleaseId releaseId, bool isOutOfDate)
+    internal void SetReleaseValueChanged(EnvironmentId environmentId, ReleaseId releaseId, bool isOutOfDate)
     {
-        if (isOutOfDate)
+        var current = !isOutOfDate;
+        var release = GetRelease(environmentId, releaseId);
+
+        // changed from CURRENT to OUT OF DATE
+        if (!release.IsOutOfDate && isOutOfDate)
         {
             PlayEvent(new ReleaseValueBecameOld(Id, environmentId, releaseId));
             return;
         }
 
-        PlayEvent(new ReleaseValueBecameCurrent(Id, environmentId, releaseId));
+        // changed from OUT OF DATE to CURRENT
+        if (release.IsOutOfDate && current)
+        {
+            PlayEvent(new ReleaseValueBecameCurrent(Id, environmentId, releaseId));
+            return;
+        }
+        
+        // otherwise, nothing changed, so nothing to do
     }
 
     internal void PromoteTo(string environmentType)

@@ -3,28 +3,28 @@ using Allard.Configinator.Core.DomainServices;
 using ConfiginatorWeb.Queries;
 using MediatR;
 
-namespace ConfiginatorWeb.Interactors.VariableSets;
+namespace ConfiginatorWeb.Interactors.Queries.VariableSets;
 
-public class GetVariableSetComposedQuery : IRequestHandler<VariableSetComposedQuery, VariableSetComposedQueryResult>
+public class VariableSetIndexQuery : IRequestHandler<VariableSetIndexQueryRequest, VariableSetIndexQueryResponse>
 {
     private readonly VariableSetDomainService _variableSetDomainService;
 
-    public GetVariableSetComposedQuery(VariableSetDomainService variableSetDomainService)
+    public VariableSetIndexQuery(VariableSetDomainService variableSetDomainService)
     {
         _variableSetDomainService = Guards.HasValue(variableSetDomainService, nameof(variableSetDomainService));
     }
 
-    public async Task<VariableSetComposedQueryResult> Handle(VariableSetComposedQuery request,
+    public async Task<VariableSetIndexQueryResponse> Handle(VariableSetIndexQueryRequest request,
         CancellationToken cancellationToken)
     {
         var variableSetComposed =
             await _variableSetDomainService.GetVariableSetComposedAsync(request.VariableSetName, cancellationToken);
         var mermaid = MermaidUtility.FlowChartForVariableSet(variableSetComposed, request.VariableSetName);
         var dto = VariableSetComposedDto.FromVariableSetComposed(variableSetComposed);
-        return new VariableSetComposedQueryResult(dto, mermaid);
+        return new VariableSetIndexQueryResponse(dto, mermaid);
     }
 }
 
-public record VariableSetComposedQuery(string VariableSetName) : IRequest<VariableSetComposedQueryResult>;
+public record VariableSetIndexQueryRequest(string VariableSetName) : IRequest<VariableSetIndexQueryResponse>;
 
-public record VariableSetComposedQueryResult(VariableSetComposedDto VariableSet, string MermaidMarkup);
+public record VariableSetIndexQueryResponse(VariableSetComposedDto VariableSet, string MermaidMarkup);

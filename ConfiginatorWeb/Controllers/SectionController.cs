@@ -1,6 +1,7 @@
 ﻿using Allard.Configinator.Core;
 using Allard.Configinator.Core.DomainServices;
-using ConfiginatorWeb.Interactors.Section;
+using ConfiginatorWeb.Interactors.Commands.Section;
+using ConfiginatorWeb.Interactors.Queries.Section;
 using ConfiginatorWeb.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -28,13 +29,13 @@ public class SectionController : Controller
     // GET
     public async Task<IActionResult> Index()
     {
-        var view = await _mediator.Send(new ConfigurationIndexRequest());
+        var view = await _mediator.Send(new IndexRequest());
         return View(view);
     }
 
     public async Task<IActionResult> Create()
     {
-        var view = await _mediator.Send(new GetAddSectionViewModel());
+        var view = await _mediator.Send(new AddSectionIndexQueryRequest());
         return View(view);
     }
 

@@ -4,7 +4,7 @@ using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
 using Allard.Configinator.Core.Specifications.Schema;
 using Allard.DomainDrivenDesign;
-using ConfiginatorWeb.Interactors.Section;
+using ConfiginatorWeb.Interactors.Queries.Section;
 using ConfiginatorWeb.Models;
 
 namespace ConfiginatorWeb.Queries;

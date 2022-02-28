@@ -33,74 +33,54 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
     {
         Console.WriteLine("Variable changed: " + evt);
         
-        // get the composer for all variable sets
+        // TODO: super hack. inefficient, but a start... get all releases that use the variable set
+        
+        // find all releases that use the variable.
+        //  NOT DONE - need to work through that. for now, test every release.
+        //  to do:
+        //    1 - the release needs a copy of the variable set as-of when the release was created
+        //    2 - need to calculate all used variables for the release, including nested.
+        //        either calculate and save it to the aggregate (doesn't seem right),
+        //        of calculate on demand from the values stored in #1.
+        // recalculate the value of the release using the release's value, and the new variable.
+        // see if the value has changed, and report it to the aggregate.
+        // the aggregate will then decide what to do about it.
+        // for example: a variable may be value xyz, then 123, then xyz.
+        // the value is current, then out of date, then current.
+        // thus, we don't report only when the value has changed;
+        // we report it either way so the aggregate can update it's state.
+        // todo: consider how much of this logic should be moved into the aggregate.
+        
+        var vsAggregate =
+            await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(evt.VariableSetName), cancellationToken);
         var variableSet =
             await _variableSetDomainService.GetVariableSetComposedAsync(evt.VariableSetName, cancellationToken);
+        var sections = await _unitOfWork.Sections.FindAsync(new All(), cancellationToken);
+        
+        // get the composer for all variable sets
         var values = variableSet.ToValueDictionary();
-        var related = variableSet.GetRelatedVariableSetNames();
-
-        // get all releases that use the variable set and variable
-        var releases =
-            await GetReleasesThatUseToken(evt.VariableSetName, evt.VariableName, related, cancellationToken);
-        foreach (var release in releases)
+        foreach (var section in sections)
         {
-            // use the release's ModelValue, and the current VariableSet values.
-            // Resolve, and see if the new value is different than the release's value.
-            // if so, then the release is out of date.
-            var resolved = await JsonUtility.ResolveAsync(release.Release.ModelValue.ToJsonNetJson(), values,
-                cancellationToken);
-            var changed = !JToken.DeepEquals(resolved, release.Release.ResolvedValue.ToJsonNetJson());
-            release.Section.SetOutOfDate(release.Environment.Id, release.Release.Id, changed);
+            // find all environments of the variable set's environment type
+            var environments = section
+                .Environments
+                .Where(e => e.EnviromentType.Equals(
+                    vsAggregate.EnvironmentType, StringComparison.OrdinalIgnoreCase));
+            foreach (var env in environments)
+            {
+                // find all releases using the variableset
+                var releases = env.Releases.Where(r => r.VariableSetId == vsAggregate.Id);
+                foreach (var release in releases)
+                {
+                    var resolved = await JsonUtility.ResolveAsync(release.ModelValue.ToJsonNetJson(), values,
+                        cancellationToken);
+                    var changed = !JToken.DeepEquals(resolved, release.ResolvedValue.ToJsonNetJson());
+                    section.SetReleaseValueChanged(env.Id, release.Id, changed);
+                }
+            }
         }
-
+        
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-    }
-
-    private async Task<IEnumerable<SectionAggregate>> GetAffectedSections(
-        string variableSetName,
-        string variableName,
-        CancellationToken cancellationToken)
-    {
-        return (await _unitOfWork.Sections.FindAsync(new UsesVariable(variableSetName, variableName),
-                cancellationToken))
-            .ToList();
-    }
-
-    /// <summary>
-    ///     Returns all releases that use the variable set and variable.
-    /// </summary>
-    /// <param name="variableName"></param>
-    /// <param name="relatedVariableSets"></param>
-    /// <param name="cancellationToken"></param>
-    /// <param name="variableSetName"></param>
-    /// <returns></returns>
-    private async Task<IEnumerable<ReleaseDetails>> GetReleasesThatUseToken(
-        string variableSetName,
-        string variableName,
-        ISet<string> relatedVariableSets,
-        CancellationToken cancellationToken)
-    {
-        return (await GetAffectedSections(variableSetName, variableName, cancellationToken))
-            .SelectMany(s =>
-                // sections have environments, environments have releases, releases use variable sets
-                // get all the releases that use the changed variable of the changed variable set
-                s.InternalEnvironments.SelectMany(
-                    e => e.InternalReleases
-                        .Where(r =>
-                            // has a variable set
-                            r.VariableSetId != null
-
-                            // the variable set is in the hierarchy of the variable set that changed.
-                            // IE: if there's a hierarchy of variable sets, then the change
-                            // can affect any release that's using any descendant of the changed
-                            // variable set.
-                            // TODO fix
-                            // && relatedVariableSets.Contains(r.VariableSet.VariableSetName)
-
-                            // the release is using the variable that changed
-                            && r.VariablesInUse.Contains(variableName))
-                        .Select(r => new ReleaseDetails(s, e, r))
-                ));
     }
 
     private record ReleaseDetails(SectionAggregate Section, EnvironmentEntity Environment, ReleaseEntity Release);

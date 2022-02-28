@@ -132,7 +132,7 @@ public class SectionDomainService
         var resolved = jsonNetResolved.ToSystemTextJson();
 
         // all good - create the release
-        var releaseId = await _identityService.GetIdAsync<ReleaseId>();
+        var releaseId = await _identityService.GetIdAsync<ReleaseId>(cancellationToken);
         var variablesInUse = JsonUtility.GetVariableNames(jsonNetValue);
         var evt = new ReleaseCreatedEvent(
             releaseId,

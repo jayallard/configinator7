@@ -4,6 +4,9 @@ using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.DomainEventHandlers;
 
+/// <summary>
+/// When a schema is created, add it to the namespace.
+/// </summary>
 public class SchemaNamespaceHandler : IEventHandler<SchemaCreatedEvent>
 {
     private readonly NamespaceDomainService _namespaceDomainService;

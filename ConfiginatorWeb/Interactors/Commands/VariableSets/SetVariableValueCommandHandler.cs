@@ -2,7 +2,7 @@
 using MediatR;
 using Newtonsoft.Json.Linq;
 
-namespace ConfiginatorWeb.Interactors.VariableSets;
+namespace ConfiginatorWeb.Interactors.Commands.VariableSets;
 
 public class SetVariableValueCommandHandler : IRequestHandler<SetVariableValueCommand, SetVariableValueResponse>
 {

@@ -11,7 +11,7 @@ public class EnvironmentValidationService
     {
         // todo: unique environment types, no duplicate types,
         // no duplicate environments across environment types
-        _rules = rules;
+        _rules = Guards.HasValue(rules, nameof(rules));
     }
 
     /// <summary>
@@ -20,7 +20,7 @@ public class EnvironmentValidationService
     public ISet<string> EnvironmentTypeNames => _rules
         .EnvironmentTypes
         .Select(e => e.Name)
-        .ToHashSet();
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Returns a list of environment types and environments.
@@ -62,14 +62,11 @@ public class EnvironmentValidationService
     }
 
     // TODO: hack
-    public string GetFirstEnvironmentType()
-    {
-        return "development";
-    }
+    public string GetFirstEnvironmentType() => "development";
 
 
     // TODO: hack
-    public bool IsPreReleaseAllowed(string environmentType)
+    public static bool IsPreReleaseAllowed(string environmentType)
     {
         return environmentType.Equals("development", StringComparison.OrdinalIgnoreCase);
     }

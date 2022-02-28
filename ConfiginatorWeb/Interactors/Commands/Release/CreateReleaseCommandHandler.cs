@@ -6,8 +6,11 @@ using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications.Schema;
 using MediatR;
 
-namespace ConfiginatorWeb.Interactors.Release;
+namespace ConfiginatorWeb.Interactors.Commands.Release;
 
+/// <summary>
+/// Create a release for a section/environment
+/// </summary>
 public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest, CreateReleaseResponse>
 {
     private readonly ILogger<CreateReleaseCommandHandler> _logger;

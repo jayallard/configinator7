@@ -1,4 +1,4 @@
-﻿using ConfiginatorWeb.Interactors.Section;
+﻿using ConfiginatorWeb.Interactors.Queries.Section;
 
 namespace ConfiginatorWeb.Queries;
 

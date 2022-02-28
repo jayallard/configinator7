@@ -6,8 +6,14 @@ using Allard.Configinator.Deployer.Abstractions;
 using ConfiginatorWeb.Controllers;
 using MediatR;
 
-namespace ConfiginatorWeb.Interactors.Release;
+namespace ConfiginatorWeb.Interactors.Commands.Release;
 
+/// <summary>
+/// Deploy a Release.
+/// This shouldn't be an interactor... this is a service by itself. Domain service? Maybe.
+/// The deployment itself isn't a domain concern.
+/// For now, it's an interactor.
+/// </summary>
 public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployResponse>
 {
     private readonly IDeployerFactory _deployerFactory;

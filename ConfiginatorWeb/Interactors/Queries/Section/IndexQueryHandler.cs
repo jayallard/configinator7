@@ -1,16 +1,17 @@
-﻿using ConfiginatorWeb.Queries;
+﻿using ConfiginatorWeb.Interactors.Commands.Section;
+using ConfiginatorWeb.Queries;
 using MediatR;
 
-namespace ConfiginatorWeb.Interactors.Section;
+namespace ConfiginatorWeb.Interactors.Queries.Section;
 
-public class ConfigurationIndexRequestHandler : IRequestHandler<ConfigurationIndexRequest, ConfigurationIndexResponse>
+public class IndexQueryHandler : IRequestHandler<IndexRequest, IndexResponse>
 {
     private readonly ISchemaQueries _schemaQueries;
     private readonly ISectionQueries _sectionQueries;
     private readonly IVariableSetQueries _variableSetQueries;
     private readonly INamespaceQueries _namespaceQueries;
 
-    public ConfigurationIndexRequestHandler(ISectionQueries sectionQueries, IVariableSetQueries variableSetQueries,
+    public IndexQueryHandler(ISectionQueries sectionQueries, IVariableSetQueries variableSetQueries,
         ISchemaQueries schemaQueries, INamespaceQueries namespaceQueries)
     {
         _sectionQueries = sectionQueries;
@@ -19,7 +20,7 @@ public class ConfigurationIndexRequestHandler : IRequestHandler<ConfigurationInd
         _namespaceQueries = namespaceQueries;
     }
 
-    public async Task<ConfigurationIndexResponse> Handle(ConfigurationIndexRequest request,
+    public async Task<IndexResponse> Handle(IndexRequest request,
         CancellationToken cancellationToken)
     {
         var sections = _sectionQueries.GetSectionsListAsync(cancellationToken);
@@ -27,13 +28,13 @@ public class ConfigurationIndexRequestHandler : IRequestHandler<ConfigurationInd
         var schemas = _schemaQueries.GetSchemasListAsync(cancellationToken);
         var ns = _namespaceQueries.GetNamespaces();
         
-        return new ConfigurationIndexResponse(await ns, await sections, await variableSets, (await schemas).ToList());
+        return new IndexResponse(await ns, await sections, await variableSets, (await schemas).ToList());
     }
 }
 
-public record ConfigurationIndexRequest : IRequest<ConfigurationIndexResponse>;
+public record IndexRequest : IRequest<IndexResponse>;
 
-public record ConfigurationIndexResponse(
+public record IndexResponse(
     List<NamespaceDto> Namespaces,
     List<SectionListItemDto> Sections,
     List<VariableSetListItemDto> VariableSets,

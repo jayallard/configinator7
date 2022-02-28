@@ -3,7 +3,7 @@ using Allard.Configinator.Core;
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Schema;
-using ConfiginatorWeb.Interactors.Schema;
+using ConfiginatorWeb.Interactors.Commands.Schema;
 using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Queries;
 using MediatR;
