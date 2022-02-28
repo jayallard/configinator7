@@ -10,8 +10,8 @@ public class NamespaceUtilityTests
     [InlineData("/a/b/c/d", "/a/b/c", true)]
     [InlineData("/a/b/cc/d", "/a/b/c", false)]
     [InlineData("/a/b/c", "/", true)]
-    public void IsAscendantOrSelf(string test, string against, bool expectedResult)
+    public void IsAscendantOrSelf(string descendant, string ascendant, bool expectedResult)
     {
-        NamespaceUtility.IsSelfOrAscendant(test, against).Should().Be(expectedResult);
+        NamespaceUtility.IsSelfOrAscendant(ascendant, descendant).Should().Be(expectedResult);
     }
 }

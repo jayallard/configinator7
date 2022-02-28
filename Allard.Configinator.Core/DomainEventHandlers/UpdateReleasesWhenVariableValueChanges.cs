@@ -32,7 +32,7 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
     public async Task ExecuteAsync(VariableValueSetEvent evt, CancellationToken cancellationToken = default)
     {
         Console.WriteLine("Variable changed: " + evt);
-
+        
         // get the composer for all variable sets
         var variableSet =
             await _variableSetDomainService.GetVariableSetComposedAsync(evt.VariableSetName, cancellationToken);

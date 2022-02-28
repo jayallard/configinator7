@@ -17,7 +17,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var ns in Model.Namespaces)
+    @foreach (var ns in Model.Namespaces.OrderBy(n => n.NamespaceName))
     {
         <tr>
             <td>@ns.NamespaceName</td>
@@ -25,25 +25,46 @@
                 <ul>
                     @foreach (var s in ns.Sections)
                     {
-                        <li>@Html.SectionLink(null, s.SectionName, s.SectionId)</li>
+                        <li>
+                            @Html.SectionLink(null, s.SectionName, s.SectionId)
+                            <ul>
+                                @foreach (var e in s.Environments.OrderBy(e => e.EnvironmentName))
+                                {
+                                    <li>@e.EnvironmentName @Html.IsDeployedBadge(e.IsDeployed) @Html.IsOutOfDateBadge(e.IsOutOfDate)</li>
+                                }
+                            </ul>
+                        </li>
                     }
                 </ul>
             </td>
             <td>
                 @foreach (var s in ns.Schemas)
                 {
-                    <li>@Html.SchemaLink(@s.SchemaName.FullName)
+                    <li>
+                        @Html.SchemaLink(@s.SchemaName.FullName)
                         @if (s.IsForSection)
                         {
                             <i>@s.SectionName</i>
                         }
-                        </li>
+                        <ul>
+                            @foreach (var et in s.EnvironmentTypes)
+                            {
+                                <li>@et</li>
+                            }
+                        </ul>
+                    </li>
                 }
             </td>
             <td>
-                @foreach (var vs in ns.VariableSets)
+                @foreach (var byEnvironmentType in ns.VariableSets.GroupBy(vs => vs.EnvironmentType))
                 {
-                    <li>@Html.VariableSetLink(vs.VariableSetName)</li>
+                    <p>@byEnvironmentType.Key</p>
+                    <ul>
+                        @foreach (var vs in byEnvironmentType)
+                        {
+                            <li>@Html.VariableSetLink(vs.VariableSetName)</li>
+                        }
+                    </ul>
                 }
             </td>
         </tr>

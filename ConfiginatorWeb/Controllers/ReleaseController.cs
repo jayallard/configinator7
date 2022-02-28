@@ -1,4 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Allard.Configinator.Core;
+using Allard.Configinator.Core.Model;
+using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Schema;
+using Allard.Configinator.Core.Specifications.Schema;
 using Allard.Json;
 using ConfiginatorWeb.Interactors.Release;
 using ConfiginatorWeb.Models.Release;
@@ -11,17 +16,30 @@ namespace ConfiginatorWeb.Controllers;
 public class ReleaseController : Controller
 {
     private readonly IMediator _mediator;
-    private readonly ISectionQueries _sectionQueries;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IVariableSetQueries _variableSetQueries;
+    private readonly SchemaLoader _schemaLoader;
+    private readonly ISectionQueries _sectionQueries;
+    
 
     public ReleaseController(
-        ISectionQueries sectionQueries,
+        IUnitOfWork unitOfWork,
         IVariableSetQueries variableSetQueries,
-        IMediator mediator)
+        IMediator mediator, 
+        SchemaLoader schemaLoader, ISectionQueries sectionQueries)
     {
-        _sectionQueries = sectionQueries;
+        _unitOfWork = unitOfWork;
         _mediator = mediator;
+        _schemaLoader = schemaLoader;
+        _sectionQueries = sectionQueries;
         _variableSetQueries = variableSetQueries;
+    }
+
+    [HttpGet]
+    public async Task<string> GetSchemaSample(string schemaName)
+    {
+        var resolved = await _schemaLoader.ResolveSchemaAsync(new SchemaName(schemaName));
+        return resolved.Root.ResolvedSchema.ToSampleJson().ToString();
     }
 
     // DEPLOY
@@ -54,14 +72,17 @@ public class ReleaseController : Controller
         var schemaName = environment.Releases.LastOrDefault()?.Schema?.SchemaName?.FullName;
         var variableSets = (await _variableSetQueries.GetVariableSetListAsync(cancellationToken))
             .Where(s => s.EnvironmentType.Equals(environment.EnvironmentType, StringComparison.OrdinalIgnoreCase))
+            .Where(s => NamespaceUtility.IsSelfOrAscendant(s.Namespace, section.Namespace))
             .Select(s => s.VariableSetName)
             .OrderBy(s => s)
             .ToList();
 
         var v = new EditReleaseView
         {
+            Namespace = section.Namespace,
             EnvironmentName = environment.EnvironmentName,
             SectionName = section.SectionName,
+            SectionId = section.SectionId,
             Schemas = section
                 .Schemas
                 .Where(s => s.EnvironmentTypes.Contains(environment.EnvironmentType, StringComparer.OrdinalIgnoreCase))

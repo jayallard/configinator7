@@ -23,6 +23,7 @@ public class VariableSetDomainService
     /// <summary>
     ///     Create a new VariableSet.
     /// </summary>
+    /// <param name="namespace"></param>
     /// <param name="variableSetName"></param>
     /// <param name="environmentType"></param>
     /// <param name="cancellationToken"></param>
@@ -37,7 +38,7 @@ public class VariableSetDomainService
         if (!_environmentValidationService.IsValidEnvironmentType(environmentType))
             throw new InvalidOperationException("Environment type doesn't exist: " + environmentType);
 
-        var id = await _identityService.GetId<VariableSetId>();
+        var id = await _identityService.GetIdAsync<VariableSetId>(cancellationToken);
         var variableSet = new VariableSetAggregate(id, null, null, @namespace, variableSetName, environmentType);
         return variableSet;
     }
@@ -58,8 +59,15 @@ public class VariableSetDomainService
         if (await _unitOfWork.VariableSets.Exists(new VariableSetNameIs(variableSetName)))
             throw new InvalidOperationException("VariableSet already exists: " + variableSetName);
 
-        var id = await _identityService.GetId<VariableSetId>();
+        var id = await _identityService.GetIdAsync<VariableSetId>();
         var baseVariableSet = await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(baseVariableSetName));
+        if (!NamespaceUtility.IsSelfOrAscendant( baseVariableSet.Namespace, @namespace))
+        {
+            throw new InvalidOperationException("The base variable set must be an ascendant of the override." +
+                                                $"\nVariable Set={@baseVariableSet.Namespace}, {baseVariableSet}" +
+                                                $"\nOverride Set={@namespace}, {variableSetName}");
+        }
+        
         var child = new VariableSetAggregate(id,
             baseVariableSet.Id,
             baseVariableSet.VariableSetName,

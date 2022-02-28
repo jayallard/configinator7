@@ -1,0 +1,4 @@
+﻿{
+  "kafka-source": "$$kafka$$",
+  "postgres-target": "$$postgres.connectionstring$$"
+}

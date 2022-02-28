@@ -1,0 +1,32 @@
+﻿{
+  "$id": "/ppm/kafka/1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "postgres-source",
+    "redshift-target"
+  ],
+  "properties": {
+    "postgres-source": {
+      "type": "object",
+      "required": ["connectionString"],
+      "additionalProperties": false,
+      "properties": {
+        "connectionString": {
+          "type": "string"
+        }
+      }
+    },
+    "redshift-target": {
+      "type": "object",
+      "required": ["connectionString"],
+      "additionalProperties": false,
+      "properties": {
+        "connectionString": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

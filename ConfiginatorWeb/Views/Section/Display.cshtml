@@ -36,7 +36,8 @@ $(document).ready(function() {
  });
 </script>
 <h1>Configuration Section</h1>
-<p>@Model.Section.SectionName</p>
+<p>Namespace: @Model.Section.Namespace</p>
+<p>Section: @Model.Section.SectionName</p>
 <h2>Environments</h2>
 <table class="table table-bordered">
     <thead>
@@ -45,7 +46,7 @@ $(document).ready(function() {
         <th>Releases</th>
     </tr>
     </thead>
-    @foreach (var e in Model.Section.Environments)
+    @foreach (var e in Model.Section.Environments.OrderBy(e => e.EnvironmentName))
     {
         <tr>
             <td>@e.EnvironmentName</td>

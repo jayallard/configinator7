@@ -26,7 +26,7 @@ public record SectionPromotedEvent(
 /// <param name="EnvironmentId"></param>
 /// <param name="SectionId"></param>
 /// <param name="EnvironmentName"></param>
-public record EnvironmentCreatedEvent(
+public record EnvironmentAddedToSectionEvent(
     EnvironmentId EnvironmentId,
     SectionId SectionId,
     string EnvironmentType,

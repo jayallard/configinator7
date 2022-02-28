@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using Allard.Configinator.Core;
 using Allard.Configinator.Core.DomainEventHandlers;
@@ -11,6 +12,7 @@ using Allard.Configinator.Infrastructure.Repositories;
 using Allard.DomainDrivenDesign;
 using ConfiginatorWeb.Queries;
 using MediatR;
+using Newtonsoft.Json.Linq;
 using IConfigurationProvider = Allard.Configinator.Deployer.Memory.IConfigurationProvider;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -96,79 +98,122 @@ var kafkaSchema = await schemaService.CreateSchemaAsync(null, "/", new SchemaNam
 await uow.Schemas.AddAsync(kafkaSchema);
 await schemaService.PromoteSchemaAsync(kafkaSchema.SchemaName, "staging");
 
-var variableSetEntity = await variableSetService.CreateVariableSetAsync("ns", "variables1", "development");
+
+
+var variableSetEntity = await variableSetService.CreateVariableSetAsync("demo", "variables1", "development");
 await uow.VariableSets.AddAsync(variableSetEntity);
 variableSetEntity.SetValue("first", "Santa");
 variableSetEntity.SetValue("last", "Claus");
 
-var variableSet2Entity = await variableSetService.CreateVariableSetOverride("ns", "variables2", "variables1");
+var variableSet2Entity = await variableSetService.CreateVariableSetOverride("demo", "variables2", "variables1");
 variableSet2Entity.SetValue("first", "SANTA!!!");
 await uow.VariableSets.AddAsync(variableSet2Entity);
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables2a", "variables2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables3", "variables2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables4", "variables3"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables5a", "variables4"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variables5b", "variables4"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables2a", "variables2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables3", "variables2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables4", "variables3"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables5a", "variables4"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables5b", "variables4"));
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "variablesAB", "variables3"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "yabba", "variablesAB"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "dabbadoo", "variablesAB"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variablesAB", "variables3"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "yabba", "variablesAB"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "dabbadoo", "variablesAB"));
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("ns", "root2", "staging"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "blah1", "root2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "blah2", "root2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "c1", "blah2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("ns", "c2", "blah2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("demo", "root2", "staging"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "blah1", "root2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "blah2", "root2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "c1", "blah2"));
+await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "c2", "blah2"));
 
 
-var modelValue =
-    JsonDocument.Parse(
-        "{ \"firstName\": \"$$first$$\", \"lastName\": \"$$last$$\", \"age\": 44, \"kafka\": { \"brokers\": \"b\", \"user\": \"u\", \"password\": \"p\" } }");
-var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
-var section1 = await sectionService.CreateSectionAsync("/ual/merge-service", "merge-service");
-await uow.Sections.AddAsync(section1);
-await sectionService.PromoteToEnvironmentType(section1, "Staging");
+// -------------------------------------
+// UAL Dev Variable Set
+// -------------------------------------
 
-var env1 = await sectionService.AddEnvironmentToSectionAsync(section1, "development");
-await sectionService.AddEnvironmentToSectionAsync(section1, "development-jay");
-var schema1 =
-    await schemaService.CreateSchemaAsync(section1.Id, "/ual/merge-service",
+var ualDevVariableSet = await variableSetService.CreateVariableSetAsync("/ual", "ual-variables", "development");
+await uow.VariableSets.AddAsync(ualDevVariableSet);
+ualDevVariableSet.SetValue("kafka.bootstrapservers", "localhost:9091");
+ualDevVariableSet.SetValue("kafka.username", "kuser");
+ualDevVariableSet.SetValue("kafka.password", "kpassword");
+ualDevVariableSet.SetValue("redshift.connectionstring", "redshift stuff");
+ualDevVariableSet.SetValue("postgres.connectionstring", "postgres stuff");
+var kafka = new Dictionary<string, object>
+{
+    {"bootstrapservers", "$$kafka.bootstrapservers$$"},
+    {"username", "$$kafka.username$$"},
+    {"password", "$$kafka.password$$"}
+};
+ualDevVariableSet.SetValue("kafka", JObject.FromObject(kafka));
+    
+// -------------------------------------
+// MERGE
+// -------------------------------------
+var mergeValue = await GetValue("merge-service.json");
+
+var mergeSection = await sectionService.CreateSectionAsync("/ual/merge-service", "merge-service");
+await uow.Sections.AddAsync(mergeSection);
+await sectionService.PromoteToEnvironmentType(mergeSection, "Staging");
+
+var mergeDev = await sectionService.AddEnvironmentToSectionAsync(mergeSection, "development");
+await sectionService.AddEnvironmentToSectionAsync(mergeSection, "development-jay");
+var mergeSchema =
+    await schemaService.CreateSchemaAsync(mergeSection.Id, "/ual/merge-service",
         new SchemaName("ual-merge-service/1.0.0"), null,
-        await GetSchema("1.0.0.json"));
-await uow.Schemas.AddAsync(schema1);
-await schemaService.PromoteSchemaAsync(schema1.SchemaName, "staging");
+        await GetSchema("ual-merge-service-1.0.0.json"));
+await uow.Schemas.AddAsync(mergeSchema);
+await schemaService.PromoteSchemaAsync(mergeSchema.SchemaName, "staging");
+
+
+await sectionService.CreateReleaseAsync(mergeSection, mergeDev.Id, ualDevVariableSet.Id, mergeSchema.Id, mergeValue,
+    CancellationToken.None);
+// mergeSection.SetDeployed(mergeDev.Id, mergeRelease.Id, await idService.GetIdAsync<DeploymentId>(),
+//     new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now,
+//     "Initial Setup - from code");
+
+// -------------------------------------
+// INGESTION
+// -------------------------------------
+var ingestionSection = await sectionService.CreateSectionAsync("/ual/ingestion-service", "ingestion-service");
+await uow.Sections.AddAsync(ingestionSection);
 
 // this revealed a bug... need to add the entities to the schema within the service,
 // not the app code. otherwise, the user might add some entities and not others.
 // then, not everything is saved. (example: remove this AddAsync. Then there are entities referencing this schema,
 // but this schema doesn't save to the db
-var schema2 = await schemaService.CreateSchemaAsync(section1.Id, "/ual/merge-service",
-    new SchemaName("ual-merge-service/2.0.0"), null,
-    await GetSchema("2.0.0.json"));
-await uow.Schemas.AddAsync(schema2);
+var ingestionSchema = await schemaService.CreateSchemaAsync(ingestionSection.Id, "/ual/ingestion-service",
+    new SchemaName("ual-ingestion-service/1.0.0"), null,
+    await GetSchema("ual-ingestion-service-1.0.0.json"));
+await uow.Schemas.AddAsync(ingestionSchema);
+var ingestionValue = await GetValue("ingestion-service.json");
+await sectionService.AddEnvironmentToSectionAsync(ingestionSection, "development");
+var ingestionRelease = await sectionService.CreateReleaseAsync(
+    ingestionSection,
+    ingestionSection.Environments.Single().Id,
+    ualDevVariableSet.Id,
+    ingestionSchema.Id,
+    ingestionValue);
+ingestionSection.SetDeployed(
+    ingestionSection.Environments.Single().Id,
+    ingestionRelease.Id,
+    new DeploymentId(33333),
+    new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()),
+    DateTime.Now,
+    "fake deploy");
 
-var release = await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
-    CancellationToken.None);
-section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(),
-    new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now,
-    "Initial Setup - from code");
-
-await sectionService.CreateReleaseAsync(section1, env1.Id, variableSetEntity.Id, schema1.Id, modelValue,
-    CancellationToken.None);
-section1.SetDeployed(env1.Id, release.Id, await idService.GetId<DeploymentId>(),
-    new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now,
-    "Initial Setup - from code");
-
-var section2 = await sectionService.CreateSectionAsync("/ual/ingestion-service", "ingestion-service");
-await uow.Sections.AddAsync(section2);
+await uow.Schemas.AddAsync(ingestionSchema);
 await uow.SaveChangesAsync();
 
 app.Run();
 
 async Task<JsonDocument> GetSchema(string fileName)
 {
-    var f = Path.Combine(Directory.GetCurrentDirectory(), "Schemas", fileName);
+    var f = Path.Combine(Directory.GetCurrentDirectory(), "SetupData", "Schemas", fileName);
+    var json = await File.ReadAllTextAsync(f);
+    return JsonDocument.Parse(json);
+}
+async Task<JsonDocument> GetValue(string fileName)
+{
+    var f = Path.Combine(Directory.GetCurrentDirectory(), "SetupData", "Values", fileName);
     var json = await File.ReadAllTextAsync(f);
     return JsonDocument.Parse(json);
 }

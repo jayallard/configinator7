@@ -23,7 +23,7 @@ public class NamespaceDomainService
             return await _unitOfWork.Namespaces.FindOneAsync(new NamespaceIs(@namespace), cancellationToken);
         }
 
-        var id = await _idService.GetId<NamespaceId>();
+        var id = await _idService.GetIdAsync<NamespaceId>();
         var ns = new NamespaceAggregate(id, @namespace);
         await _unitOfWork.Namespaces.AddAsync(ns, cancellationToken);
         return ns;

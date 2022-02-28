@@ -7,7 +7,7 @@ public class IdentityServiceMemory : IIdentityService
 {
     private readonly Dictionary<Type, long> _ids = new();
 
-    public Task<T> GetId<T>() where T : IIdentity
+    public Task<T> GetIdAsync<T>(CancellationToken cancellationToken = default) where T : IIdentity
     {
         if (_ids.ContainsKey(typeof(T)))
         {

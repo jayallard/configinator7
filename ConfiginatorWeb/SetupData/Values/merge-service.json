@@ -1,0 +1,8 @@
+﻿{
+  "postgres-source": {  
+    "connectionString": "$$postgres.connectionstring$$"
+  },
+  "redshift-target": {
+    "connectionString": "$$redshift.connectionstring$$"
+  }
+}

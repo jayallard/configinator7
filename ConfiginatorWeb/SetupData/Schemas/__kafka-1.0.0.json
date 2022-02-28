@@ -1,17 +1,16 @@
 ﻿{
-  "$id": "/ppm/kafka/1.0.0",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "required": [
-    "brokers",
-    "user",
+    "bootstrapservers",
+    "username",
     "password"
   ],
   "properties": {
-    "brokers": {
+    "bootstrapservers": {
       "type": "string"
     },
-    "user": {
+    "username": {
       "type": "string"
     },
     "password": {

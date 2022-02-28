@@ -1,0 +1,18 @@
+﻿{
+  "$id": "/ppm/kafka/1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "kafka-source",
+    "postgres-target"
+  ],
+  "properties": {
+    "kafka-source": {
+      "$ref": "/ppm/kafka/1.0.0"
+    },
+    "postgres-target": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

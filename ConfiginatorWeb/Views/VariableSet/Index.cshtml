@@ -1,5 +1,6 @@
 ﻿@using Allard.Json
 @using ConfiginatorWeb.Queries
+@using Newtonsoft.Json
 @using Newtonsoft.Json.Linq
 @model ConfiginatorWeb.Controllers.EditVariableSetView
 @{
@@ -58,7 +59,14 @@
                 }
             </td>
             <td>
-                <pre>@t.Value</pre>
+                @if (@t.Value.Type == JTokenType.Object)
+                {
+                    <pre>@t.Value.ToString(Formatting.Indented)</pre>
+                }
+                else
+                {
+                    @t.Value
+                }
             </td>
             <td>
                 @if (t.VariableOrigin is VariableOrigin.Inherited or VariableOrigin.Override)

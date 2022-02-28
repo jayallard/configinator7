@@ -1,5 +1,4 @@
-﻿@using Allard.Configinator.Core.Model
-@model ConfiginatorWeb.Models.Release.EditReleaseView
+﻿@model ConfiginatorWeb.Models.Release.EditReleaseView
 
 @{
     ViewBag.Title = "Create Configuration Release";
@@ -8,17 +7,38 @@
 
 <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js">
 </script>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script type="text/javascript">
 function selectedSchemaName() {
     return $('#ddSchema option:selected').text();
 }
 
-function selectedSchemaDomId() {
-    return $('#ddSchema').val();
+function selectedVariableSetName() {
+    return $('#variableSet option:selected').text();
 }
 
 $(document).ready(function() {
+    $('#btnGenerateSample').click(function (e) {
+        $.get('@Url.ActionLink("GetSchemaSample", "Release")?schemaName=' + selectedSchemaName())
+        .done(function(data) {
+            $('#value').val(data);
+        });
+    });
+    
+    $('#viewVariableSet').click(function () {
+        if (selectedVariableSetName() === '') {
+            return;
+        }
+        window.open('@Url.ActionLink("Index", "VariableSet")?variableSetName=' + selectedVariableSetName());
+    });
+    
+        $('#viewSchema').click(function () {
+            if (selectedSchemaName() === '') {
+                return;
+            }
+            window.open('@Url.ActionLink("SchemaView", "Schema")?schemaName=' + selectedSchemaName());
+        });
+        
     $('#ddSchema').change(function(e) {
         $('[id^=schema-]').hide();
         
@@ -38,7 +58,7 @@ $(document).ready(function() {
         $.post('/Release/Create', requestDto)
         .done(function(data) {
             if (data.success) {
-                document.location.replace("/Section/Display?name=@Model.SectionName")
+                document.location.replace('@Url.ActionLink("Display", "Section", new { Model.SectionId })')
                 return;
             }
             
@@ -51,8 +71,10 @@ $(document).ready(function() {
 
 <h1>Create Release</h1>
 <h3>Configuration Section</h3>
-<p>@Model.SectionName</p>
-<h3>Environment: @Model.EnvironmentName</h3>
+<p>Namespace: @Model.EnvironmentName<br/>
+    Section: @Model.SectionName<br/>
+    Environment: @Model.EnvironmentName
+</p>
 
 <form method="post">
     <div class="container">
@@ -60,7 +82,7 @@ $(document).ready(function() {
             <div class="col-2">
                 Schema
             </div>
-            <div class="col-1">
+            <div class="col-3">
                 <select id="ddSchema">
                     <option></option>
                     @foreach (var s in Model.Schemas)
@@ -74,14 +96,14 @@ $(document).ready(function() {
                             <option value="@s.SchemaName.FullName">@s.SchemaName.FullName</option>
                         }
                     }
-                </select>
+                </select>&nbsp;<a class="fa fa-external-link" id="viewSchema"></a>
             </div>
         </div>
         <div class="row">
             <div class="col-2">
                 Variable Set
             </div>
-            <div class="col-1">
+            <div class="col-3">
                 <select id="variableSet">
                     <!-- I couldn't get Html.DropDownListFor to work for this -->
                     <option></option>
@@ -96,7 +118,7 @@ $(document).ready(function() {
                             <option>@ts</option>
                         }
                     }
-                </select>
+                </select>&nbsp;<a class="fa fa-external-link" id="viewVariableSet"></a>
             </div>
         </div>
     </div>
@@ -113,6 +135,8 @@ $(document).ready(function() {
             </td>
         </tr>
     </table>
+    <p><button type="button" class="btn btn-link" id="btnGenerateSample">Generate Sample</button></p>
+    
     @if (Model.DefaultValue != null)
     {
         <div>The values have been copied from the latest release.</div>
@@ -120,3 +144,6 @@ $(document).ready(function() {
     <button type="button" class="btn btn-primary" id="save">Create Release</button>
     <button type="reset" class="btn btn-secondary">Reset</button>
 </form>
+<br/>
+<i><b>TODO</b> - the schema and variables can be displayed on page; just not done yet.</i>
+<br/>

@@ -38,9 +38,10 @@ public class SectionController : Controller
         return View(view);
     }
 
-    public async Task<IActionResult> Display(long sectionId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Display(long? sectionId, CancellationToken cancellationToken)
     {
-        var section = await _sectionQueries.GetSectionAsync(sectionId, cancellationToken);
+        if (sectionId == null) throw new ArgumentException(nameof(sectionId));
+        var section = await _sectionQueries.GetSectionAsync(sectionId.Value, cancellationToken);
         return View(new SectionIndexView(section));
     }
 

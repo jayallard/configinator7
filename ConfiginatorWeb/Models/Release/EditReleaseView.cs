@@ -1,11 +1,13 @@
-﻿using Allard.Configinator.Core.Model;
-using ConfiginatorWeb.Queries;
+﻿using ConfiginatorWeb.Queries;
 
 namespace ConfiginatorWeb.Models.Release;
 
 public class EditReleaseView
 {
+    public long SectionId { get; set; }
     public string SectionName { get; set; }
+    
+    public string Namespace { get; set; }
     public string EnvironmentName { get; set; }
     public List<EditSchemaView> Schemas { get; set; }
     public string? DefaultValue { get; set; }
@@ -15,11 +17,3 @@ public class EditReleaseView
 }
 
 public record EditSchemaView(SchemaNameDto SchemaName, string Schema);
-
-public class DisplayView
-{
-    public SchemaNameDto SectionName { get; set; }
-    public string EnvironmentName { get; set; }
-    public long ReleaseId { get; set; }
-    public ReleaseEntity Release { get; set; }
-}

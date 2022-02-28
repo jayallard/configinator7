@@ -105,7 +105,7 @@ public class SchemaDomainService
         string? description,
         JsonDocument schema, CancellationToken cancellationToken)
     {
-        var schemaId = await _identityService.GetId<SchemaId>();
+        var schemaId = await _identityService.GetIdAsync<SchemaId>();
         var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
         var schemaAggregate = new SchemaAggregate(
             schemaId, 

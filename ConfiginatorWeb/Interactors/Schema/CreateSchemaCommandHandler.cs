@@ -7,12 +7,12 @@ using MediatR;
 
 namespace ConfiginatorWeb.Interactors.Schema;
 
-public class CreateSchemaInteractor : IRequestHandler<CreateSchemaRequest, CreateSchemaResponse>
+public class CreateSchemaCommandHandler : IRequestHandler<CreateSchemaRequest, CreateSchemaResponse>
 {
     private readonly SchemaDomainService _schemaDomainService;
     private readonly IUnitOfWork _uow;
 
-    public CreateSchemaInteractor(
+    public CreateSchemaCommandHandler(
         IUnitOfWork uow,
         SchemaDomainService schemaDomainService)
     {

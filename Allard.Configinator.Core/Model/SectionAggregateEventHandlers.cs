@@ -11,7 +11,7 @@ internal static class SectionAggregateEventHandlers
             case SectionCreatedEvent create:
                 CreateSection(section, create);
                 break;
-            case EnvironmentCreatedEvent environmentAdded:
+            case EnvironmentAddedToSectionEvent environmentAdded:
                 AddEnvironment(section, environmentAdded);
                 break;
             // case SchemaAddedToSectionEvent schemaAdded:
@@ -50,7 +50,7 @@ internal static class SectionAggregateEventHandlers
 
     private static void AddEnvironment(
         SectionAggregate section,
-        EnvironmentCreatedEvent evt)
+        EnvironmentAddedToSectionEvent evt)
     {
         section.InternalEnvironments.Add(new EnvironmentEntity(
             evt.EnvironmentId,

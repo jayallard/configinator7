@@ -31,6 +31,7 @@ public class ReleaseEntity : EntityBase<ReleaseId>
             .GetVariables(modelValue.ToJsonNetJson())
             .Select(t => t.VariableName)
             .ToImmutableHashSet();
+        Console.WriteLine();
     }
 
     internal List<DeploymentEntity> InternalDeployments { get; } = new();

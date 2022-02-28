@@ -18,7 +18,23 @@ public class SetVariableValueCommandHandler : IRequestHandler<SetVariableValueCo
     {
         var variableSet =
             await _unitOfWork.VariableSets.GetVariableSetAsync(request.VariableSetName, cancellationToken);
-        variableSet.SetValue(request.Key, request.Value);
+
+        // hacky... what's a better way?
+        // see if it's a JObject. if so, treat it as one.
+        var v = request.Value;
+        if (request.Value.Type == JTokenType.String)
+        {
+            try
+            {
+                v = JObject.Parse(request.Value.ToString());
+            }
+            catch
+            {
+                // not a JObject.
+            }
+        }
+        
+        variableSet.SetValue(request.Key, v);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return new SetVariableValueResponse();
     }

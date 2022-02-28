@@ -13,11 +13,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="Schemas\*.*">
+        <None Include="SetupData\*.*">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
     <ItemGroup>
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     </ItemGroup>

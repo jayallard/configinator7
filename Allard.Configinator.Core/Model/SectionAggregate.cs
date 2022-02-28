@@ -30,7 +30,7 @@ public class SectionAggregate : AggregateBase<SectionId>
     /// <summary>
     ///     Gets the environment types that can host this section.
     /// </summary>
-    public IEnumerable<string> EnvironmentTypes => InternalEnvironmentTypes.ToList();
+    public ISet<string> EnvironmentTypes => InternalEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
 
     public EnvironmentEntity GetEnvironment(string name)

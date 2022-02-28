@@ -30,9 +30,9 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
     }
 
     public IReadOnlyCollection<VariableSetId> Children => _children.AsReadOnly();
-
     public string VariableSetName { get; private set; }
-
+public string Namespace { get; private set; }
+    
     public string? BaseVariableSetName { get; private set; }
     public VariableSetId BaseVariableSetId { get; private set; }
 
@@ -56,6 +56,7 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
                 Id = created.VariableSetId;
                 EnvironmentType = created.EnvironmentType;
                 BaseVariableSetName = created.BaseVariableSetName;
+                Namespace = created.Namespace;
                 break;
             }
             case VariableValueSetEvent setter:
@@ -83,6 +84,7 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
         };
     }
 
+    // TODO: change to async
     public void SetValue(string key, JToken value)
     {
         Guards.HasValue(value, nameof(value));

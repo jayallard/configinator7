@@ -18,6 +18,12 @@ public class SchemaLoader
         _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
     }
 
+    public async Task<SchemaInfo> ResolveSchemaAsync(SchemaName schemaName)
+    {
+        var schema = await _unitOfWork.Schemas.FindOneAsync(new SchemaNameIs(schemaName));
+        return await ResolveSchemaAsync(schema.SchemaName, schema.Schema);
+    }
+
     public async Task<SchemaInfo> ResolveSchemaAsync(
         SchemaName schemaName,
         JsonDocument schemaSource,

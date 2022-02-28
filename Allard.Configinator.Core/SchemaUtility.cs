@@ -31,7 +31,7 @@ public static class SchemaUtility
         IEnumerable<SchemaValidationProperties> references)
     {
         var badSchemas = references.Where(r =>
-                !NamespaceUtility.IsSelfOrAscendant(rootSchema.SchemaNamespace, r.SchemaNamespace))
+                !NamespaceUtility.IsSelfOrAscendant(r.SchemaNamespace, rootSchema.SchemaNamespace))
             .ToList();
         if (!badSchemas.Any()) return;
         var bad = badSchemas.Select(b => "\tSchema: " + b.SchemaName.FullName + ", Namespace=" + b.SchemaNamespace).ToArray();
