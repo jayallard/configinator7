@@ -11,6 +11,7 @@
 {
     <p>The Schema can be promoted to <b>@Model.PromoteTo</b>.</p>
     <form action="@Url.ActionLink("Promote")" method="post">
+        @Html.AntiForgeryToken()
         <input type="hidden" name="SchemaName" value="@Model.SchemaName.FullName"/>
         <input type="hidden" name="TargetEnvironmentType" value="@Model.PromoteTo"/>
         <button class="btn btn-primary" type="submit">Promote</button>

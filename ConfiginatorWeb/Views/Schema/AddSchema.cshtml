@@ -1,8 +1,10 @@
-﻿@model ConfiginatorWeb.Controllers.AddSchemaViewModel
+﻿@using ConfiginatorWeb.Interactors.Queries.Section
+@model ConfiginatorWeb.Controllers.AddSchemaViewModel
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+    var imports = ViewData["imports"] as List<SchemaListItemDto>;
 }
 
 <h1>Create Schema</h1>
@@ -33,3 +35,15 @@
     @Html.ValidationSummary(false)
     <input type="submit" class="btn btn-primary"/>
 </form>
+
+@if (imports != null && imports.Any())
+{
+    <h2>Import</h2>
+    <p>The Import will make a copy of the selected schema. This is useful for creating a new version of an existing schema.</p>
+    <ul>
+        @foreach (var import in imports)
+        {
+            <li>@import.SchemaName.FullName</li>
+        }
+    </ul>
+}

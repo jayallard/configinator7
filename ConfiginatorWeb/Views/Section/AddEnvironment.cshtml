@@ -5,12 +5,13 @@
     ViewBag.Title = "title";
     Layout = "_Layout";
     var environmentTypes = (List<EnvironmentTypeItemViewData>) ViewData["environmentTypes"];
-    var promoteTo = (string)ViewData["PromoteTo"];
+    var promoteTo = (string) ViewData["PromoteTo"];
 }
 
 <h2>Add Environment To Section</h2>
 <br/>
 <form method="post">
+    @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.SectionId, Model.SectionId)
     @foreach (var et in environmentTypes)
     {
@@ -61,6 +62,7 @@
     else
     {
         <form method="post" action="Promote">
+            @Html.AntiForgeryToken()
             <p>Promote the section to <code>@promoteTo</code>.</p>
             @Html.Hidden("SectionId", Model.SectionId)
             @Html.Hidden("EnvironmentType", promoteTo)

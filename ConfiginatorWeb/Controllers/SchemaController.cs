@@ -20,6 +20,7 @@ public class SchemaController : Controller
     private readonly ISectionQueries _sectionQueries;
     private readonly SchemaDomainService _schemaDomainService;
     private readonly INamespaceQueries _namespaceQueries;
+    private readonly ISchemaQueries _schemaQueries;
 
     public SchemaController(
         ISectionQueries sectionQueries,
@@ -27,7 +28,7 @@ public class SchemaController : Controller
         EnvironmentValidationService environmentValidationService,
         SchemaLoader schemaLoader,
         SchemaDomainService schemaDomainService,
-        INamespaceQueries namespaceQueries)
+        INamespaceQueries namespaceQueries, ISchemaQueries schemaQueries)
     {
         _sectionQueries = sectionQueries;
         _mediator = mediator;
@@ -35,6 +36,7 @@ public class SchemaController : Controller
         _schemaLoader = schemaLoader;
         _schemaDomainService = schemaDomainService;
         _namespaceQueries = namespaceQueries;
+        _schemaQueries = schemaQueries;
     }
 
     // GET
@@ -72,7 +74,12 @@ public class SchemaController : Controller
         {
             ViewData["ns"] = new List<SelectListItem>
                 {new SelectListItem(model.SelectedNamespace, model.SelectedNamespace)};
-            return;
+            
+            // hack
+            var allSchemas = (await _schemaQueries.GetSchemasListAsync())
+                .Where(s => s.SectionId == model.SectionId)
+                .ToList();
+            ViewData["imports"] = allSchemas;
         }
 
         var ns = (await _namespaceQueries.GetNamespaces())
