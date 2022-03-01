@@ -3,6 +3,7 @@ using Allard.Configinator.Core;
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Schema;
+using Allard.Json;
 using ConfiginatorWeb.Interactors.Commands.Schema;
 using ConfiginatorWeb.Models;
 using ConfiginatorWeb.Queries;
@@ -58,11 +59,6 @@ public class SchemaController : Controller
             SectionName = section?.SectionName
         };
         await SetViewData(model);
-
-
-        Console.WriteLine(section?.Namespace);
-        Console.WriteLine(model.IsForSection);
-
         return View(model);
     }
 
@@ -75,11 +71,12 @@ public class SchemaController : Controller
             ViewData["ns"] = new List<SelectListItem>
                 {new SelectListItem(model.SelectedNamespace, model.SelectedNamespace)};
             
-            // hack
+            // hack - schemas for the section
             var allSchemas = (await _schemaQueries.GetSchemasListAsync())
                 .Where(s => s.SectionId == model.SectionId)
                 .ToList();
             ViewData["imports"] = allSchemas;
+            return;
         }
 
         var ns = (await _namespaceQueries.GetNamespaces())
@@ -127,6 +124,18 @@ public class SchemaController : Controller
     public IActionResult SchemaView(string schemaName)
     {
         return View(new SchemaName(schemaName));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetImportView(string schemaName)
+    {
+        var schemas = await _schemaDomainService.GetSchemasAsync(new[] {new SchemaName(schemaName)});
+        var schema = schemas.Single();
+        var import = new ImportSchemaView(
+            schema.Namespace,
+            schema.SchemaName.FullName, 
+            schema.Schema.RootElement.ToIndented());
+        return Json(import);
     }
 
     [HttpGet]
@@ -188,3 +197,12 @@ public class AddSchemaViewModel
     public long? SectionId { get; set; }
     public string? SectionName { get; set; }
 }
+
+/// <summary>
+/// Add schema page. A schema may be imported and tweaked, then saved as a new version.
+/// This is the dto to provide the schema to copy.
+/// </summary>
+/// <param name="SchemaName"></param>
+/// <param name="Namespace"></param>
+/// <param name="Schema"></param>
+public record ImportSchemaView(string Namespace, string SchemaName, string Schema);

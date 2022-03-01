@@ -13,11 +13,24 @@
     <h2>For Section: @Model.SectionName</h2>
 }
 
+<script>
+function importSchema(schemaName) {
+    $.get('@Url.ActionLink("GetImportView", "Schema")?schemaName=' + schemaName)
+    .done(function(data) {
+        $('#schemaName').val(data.schemaName + ' - COPY');
+        // don't bother with the namespace - the namespace must be the
+        // same as the config section it is for. that is the only ns on the list.
+        $('#schema').val(data.schema);
+    });
+
+}
+</script>
+
 <form method="post">
     @Html.AntiForgeryToken()
     <div class="form-group">
         @Html.LabelFor(m => m.SchemaName)
-        @Html.TextBoxFor(m => m.SchemaName, new {@class = "form-control"})
+        @Html.TextBoxFor(m => m.SchemaName, new {@class = "form-control", id="schemaName"})
         @Html.ValidationMessageFor(x => x.SchemaName, "", new {@class = "text-danger"})
     </div>
     <div class="form-group">
@@ -27,23 +40,24 @@
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Schema)<br/>
-        @Html.TextAreaFor(m => m.Schema, new {@class = "form-control", style = "height:300px"})
+        @Html.TextAreaFor(m => m.Schema, new {@class = "form-control", style = "height:300px", id = "schema" })
         @Html.ValidationMessageFor(x => x.Schema, "", new {@class = "text-danger"})
     </div>
     @Html.HiddenFor(m => m.SectionId)
     @Html.HiddenFor(m => m.SectionName)
     @Html.ValidationSummary(false)
-    <input type="submit" class="btn btn-primary"/>
+    <button type="submit" class="btn btn-primary">Create Schema</button>&nbsp;&nbsp;<button type="reset" class="btn btn-secondary">Reset</button>
 </form>
 
 @if (imports != null && imports.Any())
 {
+    <br/>
     <h2>Import</h2>
     <p>The Import will make a copy of the selected schema. This is useful for creating a new version of an existing schema.</p>
     <ul>
         @foreach (var import in imports)
         {
-            <li>@import.SchemaName.FullName</li>
+            <li><button onclick="importSchema('@import.SchemaName.FullName')" class="btn btn-link">Import</button>@import.SchemaName.FullName</li>
         }
     </ul>
 }
