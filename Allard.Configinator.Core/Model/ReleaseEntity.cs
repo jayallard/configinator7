@@ -19,19 +19,19 @@ public class ReleaseEntity : EntityBase<ReleaseId>
         SchemaId schemaId,
         JsonDocument modelValue,
         JsonDocument resolvedValue,
-        VariableSetId? variableSetIdId)
+        VariableSetId? variableSetIdId,
+        DateTime createDate)
     {
         Id = id;
         SchemaId = schemaId;
         ModelValue = modelValue;
         ResolvedValue = resolvedValue;
         VariableSetId = variableSetIdId;
-        CreateDate = DateTime.Now;
+        CreateDate = createDate;
         VariablesInUse = JsonUtility
             .GetVariables(modelValue.ToJsonNetJson())
             .Select(t => t.VariableName)
             .ToImmutableHashSet();
-        Console.WriteLine();
     }
 
     internal List<DeploymentEntity> InternalDeployments { get; } = new();

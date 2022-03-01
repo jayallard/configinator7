@@ -71,7 +71,8 @@ internal static class SectionAggregateEventHandlers
             evt.SchemaId,
             evt.ModelValue,
             evt.ResolvedValue,
-            evt.VariableSetId);
+            evt.VariableSetId,
+            evt.CreateDate);
         env.InternalReleases.Add(release);
     }
 

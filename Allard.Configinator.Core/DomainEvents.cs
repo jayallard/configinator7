@@ -52,6 +52,7 @@ public record EnvironmentAddedToSectionEvent(
 /// <param name="ResolvedValue"></param>
 /// <param name="VariablesInUse"></param>
 public record ReleaseCreatedEvent(
+    DateTime CreateDate,
     ReleaseId ReleaseId,
     EnvironmentId EnvironmentId,
     SectionId SectionId,

@@ -135,6 +135,7 @@ public class SectionDomainService
         var releaseId = await _identityService.GetIdAsync<ReleaseId>(cancellationToken);
         var variablesInUse = JsonUtility.GetVariableNames(jsonNetValue);
         var evt = new ReleaseCreatedEvent(
+            DateTime.UtcNow,
             releaseId,
             environmentId,
             section.Id,

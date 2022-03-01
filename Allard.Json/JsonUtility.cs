@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
 namespace Allard.Json;
@@ -15,10 +16,10 @@ public static class JsonUtility
     {
         return json
             .Descendants()
-            .Select(GetTokenNameAndPath)
-            .Where(v => v != null)
-            .Select(v => v!.Value);
+            .SelectMany(GetVariables);
     }
+
+    private static readonly Regex _variableRegex = new (@"\$\$(.*?)\$\$", RegexOptions.Compiled);
 
     /// <summary>
     ///     Return the name and path of the variable within the value.
@@ -26,14 +27,17 @@ public static class JsonUtility
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    private static (string VariableName, string JsonPath)? GetTokenNameAndPath(JToken value)
+    private static IEnumerable<(string VariableName, string JsonPath)> GetVariables(JToken value)
     {
-        if (value.Type != JTokenType.String) return null;
-        var v = value.Value<string>();
-        return
-            IsToken(v)
-                ? new ValueTuple<string, string>(v!.Substring(2, v.Length - 4), value.Path)
-                : null;
+        if (value.Type != JTokenType.String) return Array.Empty<ValueTuple<string, string>>();
+        var variables = _variableRegex.Matches(value.Value<string>()!);
+        if (!variables.Any()) return Array.Empty<ValueTuple<string, string>>();
+
+        var result = variables
+            .Select(v =>
+                new ValueTuple<string, string>(v.Value.Replace("$$", string.Empty), value.Path))
+            .ToArray();
+        return result;
     }
 
     /// <summary>
@@ -41,7 +45,7 @@ public static class JsonUtility
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    private static bool IsToken(string? value)
+    private static bool IsVariable(string? value)
     {
         return value != null &&
                value.StartsWith("$$", StringComparison.OrdinalIgnoreCase)
@@ -166,15 +170,51 @@ public static class JsonUtility
             {
                 var remainingVariables =
                     GetVariables(resolved)
-                        .ToList();
+                        .GroupBy(v => v.JsonPath)
+                        .ToArray();
 
                 if (!remainingVariables.Any()) return resolved;
-
-                foreach (var (tokenName, path) in remainingVariables)
+                foreach (var p in remainingVariables)
                 {
-                    var variableName = variables[tokenName];
-                    var property = (JProperty) resolved.SelectToken(path)!.Parent!;
-                    property.Value = variableName.DeepClone();
+                    // if there's only one variable, then replace the entire node.
+                    if (p.Count() == 1)
+                    {
+                        var variableName = variables[p.First().VariableName];
+                        var property = (JProperty) resolved.SelectToken(p.First().JsonPath)!.Parent!;
+                        property.Value = variableName.DeepClone();
+                        continue;
+                    }
+                    
+                    // if there are multiple, then the node must be of type string.
+                    var node = (JProperty)resolved.SelectToken(p.Key)!.Parent!;
+                    if (node.Value.Type != JTokenType.String)
+                    {
+                        throw new InvalidOperationException(
+                            "Invalid substitution. Multiple variable are specified for the JSON path, but the node at the JSON path isn't a string. JSON Path=" +
+                            p.Key);
+                    }
+
+                    // get the original value
+                    var value = node.Value.Value<string>();
+                    
+                    // iterate all the tokens for this path,
+                    // and make the substitutions.
+                    foreach (var (variableName, _) in p)
+                    {
+                        var variableValue = variables[variableName];
+                        if (variableValue.Type != JTokenType.String)
+                        {
+                            throw new InvalidOperationException(
+                                "Invalid substitution. The variable value must be a string. TODO: elaborate");
+                        }
+
+                        value = value.Replace(
+                            "$$" + variableName + "$$", 
+                            variableValue.Value<string>(),
+                            StringComparison.OrdinalIgnoreCase);
+                    }
+
+                    node.Value = value;
                 }
             }
 

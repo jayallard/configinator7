@@ -135,8 +135,10 @@ await uow.VariableSets.AddAsync(ualDevVariableSet);
 ualDevVariableSet.SetValue("kafka.bootstrapservers", "localhost:9091");
 ualDevVariableSet.SetValue("kafka.username", "kuser");
 ualDevVariableSet.SetValue("kafka.password", "kpassword");
-ualDevVariableSet.SetValue("redshift.connectionstring", "redshift stuff");
-ualDevVariableSet.SetValue("postgres.connectionstring", "postgres stuff");
+ualDevVariableSet.SetValue("redshift.connectionstring", "redshift");
+ualDevVariableSet.SetValue("postgres.connectionstring", "Database=SomethingCool;Server=TheCloud&UserId=$$postgres.username$$;Password=$$postgres.password$$");
+ualDevVariableSet.SetValue("postgres.username", "PG-USER");
+ualDevVariableSet.SetValue("postgres.password", "PG-PASSWORD");
 var kafka = new Dictionary<string, object>
 {
     {"bootstrapservers", "$$kafka.bootstrapservers$$"},

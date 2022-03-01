@@ -31,8 +31,6 @@ public class SchemaAggregate : AggregateBase<SchemaId>
     }
 
     public SectionId? SectionId { get; private set; }
-
-    public bool IsGlobalSchema => SectionId == null;
     public string Namespace { get; private set; }
     public string? Description { get; private set; }
     public IEnumerable<string> EnvironmentTypes => _environmentTypes.ToList();

@@ -82,16 +82,4 @@ public class SchemaLoader
 
         return referenceResolver;
     }
-
-    // private static void EnsureSchemaCanBeUsed(SectionId? rootSectionId,
-    //     SchemaAggregate referenceJson)
-    // {
-    //     // if the the reference is a global, all good. anything can use it.
-    //     // global can refer to global, and section can refer to global
-    //     if (referenceJson.IsGlobalSchema) return;
-    //
-    //     // if the root is global, but refers to a section... bad schema!
-    //     if (rootSectionId is null && referenceJson.SectionId is not null)
-    //         throw new InvalidOperationException("A global schema can't refer to a section schema.");
-    // }
 }
