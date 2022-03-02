@@ -18,9 +18,10 @@
     }
 </style>
 <h1>Variable Set</h1>
-<p>@Model.VariableSet.VariableSetName</p>
-<h2>Values</h2>
-<table class="table table-bordered">
+<p>Namespace: @Model.VariableSet.Namespace</p>
+<p>Variable Set Name: @Model.VariableSet.VariableSetName</p>
+<h2>Variables</h2>
+<table class="table table-bordered" style="display: @(Model.VariableSet.Variables.Values.Any() ? "inline" : "none")">
     <thead>
     <tr>
         <th>Variable Name</th>
@@ -115,6 +116,14 @@
         </tr>
     }
 </table>
+<br/>
+@if (!Model.VariableSet.Variables.Values.Any())
+{
+    <i>No Variables</i>
+    <br/><br/>
+}
+<a asp-action="AddVariable" asp-route-variableSetName="@Model.VariableSet.VariableSetName">Add Variable</a>
+    <br/><br/>
 <h2>Releases</h2>
 <p>
     TODO

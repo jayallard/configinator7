@@ -6,11 +6,10 @@ public class VariableSetComposedDto
 {
     public string? Base { get; set; }
     public string VariableSetName { get; set; }
-
     public long VariableSetId { get; set; }
+    public string Namespace { get; set; }
     public Dictionary<string, VariableComposedDto> Variables { get; set; }
-
-
+    
     public static VariableSetComposedDto FromVariableSetComposed(VariableSetComposed variableSet)
     {
         return new VariableSetComposedDto

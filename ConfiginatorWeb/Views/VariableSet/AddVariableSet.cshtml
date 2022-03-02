@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model ConfiginatorWeb.Interactors.Commands.VariableSets.AddVariableRequest
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+    var environmentTypes = (ISet<string>) ViewData["EnvironmentTypes"];
+}
+
+<h2>Add Variable Set</h2>
+<form method="post">
+    <div>
+        @Html.LabelFor(m => m.VariableSetName, "Variable Set name")
+        @Html.TextBoxFor(m => m.VariableSetName, new {@class = "form-control form-text"})
+    </div>
+    <div>
+        @Html.LabelFor(m => m.EnvironmentType, "Environment Type")
+        @Html.DropDownListFor(m => m.EnvironmentType, environmentTypes
+            .Select(nt => new SelectListItem(nt, nt)).ToList(), new {@class = "form-control"})
+    </div>
+    <div>
+        @Html.LabelFor(m => m.Namespace, "Namespace")
+        @Html.TextBoxFor(m => m.Namespace, new {@class = "form-control form-text"})
+    </div>
+    <br/>
+    @Html.ValidationSummary(false)
+    <button type="submit" class="btn btn-primary">Create</button>
+    &nbsp;&nbsp;<button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+</form>

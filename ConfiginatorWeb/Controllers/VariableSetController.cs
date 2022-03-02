@@ -1,4 +1,5 @@
 ﻿using Allard.Configinator.Core;
+using Allard.Configinator.Core.DomainServices;
 using ConfiginatorWeb.Interactors.Commands.VariableSets;
 using ConfiginatorWeb.Interactors.Queries.VariableSets;
 using ConfiginatorWeb.Queries;
@@ -10,10 +11,16 @@ namespace ConfiginatorWeb.Controllers;
 
 public class VariableSetController : Controller
 {
+    private readonly ILogger<VariableSetController> _logger;
     private readonly IMediator _mediator;
+    private readonly EnvironmentValidationService _environmentService;
 
-    public VariableSetController(IMediator mediator)
+    public VariableSetController(
+        IMediator mediator,
+        EnvironmentValidationService environmentService, ILogger<VariableSetController> logger)
     {
+        _environmentService = environmentService;
+        _logger = logger;
         _mediator = Guards.HasValue(mediator, nameof(mediator));
     }
 
@@ -51,6 +58,50 @@ public class VariableSetController : Controller
         var command = new SetVariableValueCommand(variableSetName, key, value);
         await _mediator.Send(command, cancellationToken);
         return RedirectToAction("index", new {variableSetName});
+    }
+
+    [HttpGet]
+    public IActionResult AddVariableSet()
+    {
+        ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypeNames;
+        return View(new AddVariableRequest());
+    }
+
+    [HttpGet]
+    public IActionResult AddVariable(string variableSetName)
+    {
+        var model = new CreateVariableRequest {VariableSetName = variableSetName};
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddVariable(CreateVariableRequest request)
+    {
+        await _mediator.Send(request);
+        return RedirectToAction("EditValue", new {request.VariableSetName, request.Key});
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddVariableSet(AddVariableRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypeNames;
+            return View();
+        }
+
+        try
+        {
+            await _mediator.Send(request);
+            return RedirectToAction("Index", new {request.VariableSetName});
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "AddVariableSet");
+            ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypeNames;
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View();
+        }
     }
 }
 
