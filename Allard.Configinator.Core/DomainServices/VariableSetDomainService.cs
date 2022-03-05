@@ -40,6 +40,7 @@ public class VariableSetDomainService
 
         var id = await _identityService.GetIdAsync<VariableSetId>(cancellationToken);
         var variableSet = new VariableSetAggregate(id, null, null, @namespace, variableSetName, environmentType);
+        await _unitOfWork.VariableSets.AddAsync(variableSet, cancellationToken);
         return variableSet;
     }
 
@@ -53,14 +54,15 @@ public class VariableSetDomainService
     public async Task<VariableSetAggregate> CreateVariableSetOverride(
         string @namespace,
         string variableSetName,
-        string baseVariableSetName)
+        string baseVariableSetName,
+        CancellationToken cancellationToken = default)
     {
         // make sure the new name doesn't already exist
-        if (await _unitOfWork.VariableSets.Exists(new VariableSetNameIs(variableSetName)))
+        if (await _unitOfWork.VariableSets.Exists(new VariableSetNameIs(variableSetName), cancellationToken))
             throw new InvalidOperationException("VariableSet already exists: " + variableSetName);
 
-        var id = await _identityService.GetIdAsync<VariableSetId>();
-        var baseVariableSet = await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(baseVariableSetName));
+        var id = await _identityService.GetIdAsync<VariableSetId>(cancellationToken);
+        var baseVariableSet = await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(baseVariableSetName), cancellationToken);
         if (!NamespaceUtility.IsSelfOrAscendant(baseVariableSet.Namespace, @namespace))
             throw new InvalidOperationException("The base variable set must be an ascendant of the override." +
                                                 $"\nVariable Set={baseVariableSet.Namespace}, {baseVariableSet}" +
@@ -72,7 +74,10 @@ public class VariableSetDomainService
             @namespace,
             variableSetName,
             baseVariableSet.EnvironmentType);
+        
+        // TODO event driven
         baseVariableSet.AddOverride(id);
+        await _unitOfWork.VariableSets.AddAsync(child, cancellationToken);
         return child;
     }
 

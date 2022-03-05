@@ -125,6 +125,7 @@ public class SchemaDomainService
             schemaName,
             description,
             schema);
+        await _unitOfWork.Schemas.AddAsync(schemaAggregate, cancellationToken);
         return schemaAggregate;
     }
 

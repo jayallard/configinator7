@@ -7,12 +7,10 @@ public class EnvironmentValidationService
 {
     private readonly EnvironmentRules _rules;
 
-    public EnvironmentValidationService(EnvironmentRules rules)
-    {
+    public EnvironmentValidationService(EnvironmentRules rules) =>
         // todo: unique environment types, no duplicate types,
         // no duplicate environments across environment types
         _rules = Guards.HasValue(rules, nameof(rules));
-    }
 
     /// <summary>
     ///     Gets the list of environment types.
@@ -25,54 +23,37 @@ public class EnvironmentValidationService
     /// <summary>
     ///     Returns a list of environment types and environments.
     /// </summary>
-    public List<(string EnvironmentType, string EnvironmentName)> EnvironmentNames
-    {
-        get
-        {
-            var x = _rules.EnvironmentTypes
-                .SelectMany(et => et.AllowedEnvironments
-                    .Select(e => (EnvironmentTypeName: et.Name, e)));
-            return x.ToList();
-        }
-    }
+    public IEnumerable<(string EnvironmentType, string EnvironmentName)> EnvironmentNames =>
+        _rules.EnvironmentTypes
+            .SelectMany(et => et.AllowedEnvironments
+                .Select(e => (EnvironmentTypeName: et.Name, e)))
+            .ToArray();
 
     /// <summary>
     ///     Returns true if the environment name is valid for the environment type.
     /// </summary>
     /// <param name="environmentName"></param>
     /// <returns></returns>
-    public bool IsValidEnvironmentName(string environmentName)
-    {
-        return _rules.EnvironmentTypes.Any(et =>
+    public bool IsValidEnvironmentName(string environmentName) =>
+        _rules.EnvironmentTypes.Any(et =>
             et.AllowedEnvironments.Contains(environmentName, StringComparer.OrdinalIgnoreCase));
-    }
 
-    public bool IsValidEnvironmentType(string environmentType)
-    {
-        return _rules
+    public bool IsValidEnvironmentType(string environmentType) =>
+        _rules
             .EnvironmentTypes
             .Any(et => et.Name.Equals(environmentType, StringComparison.OrdinalIgnoreCase));
-    }
 
-    public string GetEnvironmentType(string environmentName)
-    {
-        return EnvironmentNames
+    public string GetEnvironmentType(string environmentName) =>
+        EnvironmentNames
             .Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase))
             .EnvironmentType;
-    }
 
     // TODO: hack
-    public string GetFirstEnvironmentType()
-    {
-        return "development";
-    }
-
-
+    public string GetFirstEnvironmentType() => "development";
+    
     // TODO: hack
-    public static bool IsPreReleaseAllowed(string environmentType)
-    {
-        return environmentType.Equals("development", StringComparison.OrdinalIgnoreCase);
-    }
+    public static bool IsPreReleaseAllowed(string environmentType) =>
+        environmentType.Equals("development", StringComparison.OrdinalIgnoreCase);
 
     // TODO: hack
     public string? GetNextSectionEnvironmentType(IEnumerable<string> environmentTypes)
@@ -93,17 +74,13 @@ public class EnvironmentValidationService
         return null;
     }
 
-    public bool CanPromoteSectionTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType)
-    {
-        return CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
-    }
+    public bool CanPromoteSectionTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType) =>
+        CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
 
     // hack
     public bool CanPromoteSchemaTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType,
-        SchemaName schemaName)
-    {
-        return !schemaName.Version.IsPrerelease && CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
-    }
+        SchemaName schemaName) =>
+        !schemaName.Version.IsPrerelease && CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
 
     private static bool CanPromoteTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType)
     {

@@ -44,7 +44,8 @@ public sealed class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracke
 
     public Task AddAsync(TAggregate entity, CancellationToken cancellationToken = default)
     {
-        // todo: exception if already exists
+        if (_localData.Any(d => d.EntityId == entity.EntityId))
+            throw new InvalidOperationException("The entity aggregate has already been added.");
         _localData.Add(entity);
         return Task.CompletedTask;
     }

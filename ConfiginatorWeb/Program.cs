@@ -95,46 +95,35 @@ var schemaService = scope.ServiceProvider.GetRequiredService<SchemaDomainService
 // put the shared schema in the root so that everything can get to it.
 var kafkaSchema = await schemaService.CreateSchemaAsync(null, "/", new SchemaName("/ppm/kafka/1.0.0"), null,
     await GetSchema("__kafka-1.0.0.json"));
-await uow.Schemas.AddAsync(kafkaSchema);
 await schemaService.PromoteSchemaAsync(kafkaSchema.SchemaName, "staging");
 
 
 var variableSetEntity = await variableSetService.CreateVariableSetAsync("demo", "variables1", "development");
-await uow.VariableSets.AddAsync(variableSetEntity);
 variableSetEntity.SetValue("first", "Santa");
 variableSetEntity.SetValue("last", "Claus");
 
 var variableSet2Entity = await variableSetService.CreateVariableSetOverride("demo", "variables2", "variables1");
 variableSet2Entity.SetValue("first", "SANTA!!!");
-await uow.VariableSets.AddAsync(variableSet2Entity);
 
-await uow.VariableSets.AddAsync(
-    await variableSetService.CreateVariableSetOverride("demo", "variables2a", "variables2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables3", "variables2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables4", "variables3"));
-await uow.VariableSets.AddAsync(
-    await variableSetService.CreateVariableSetOverride("demo", "variables5a", "variables4"));
-await uow.VariableSets.AddAsync(
-    await variableSetService.CreateVariableSetOverride("demo", "variables5b", "variables4"));
+await variableSetService.CreateVariableSetOverride("demo", "variables2a", "variables2");
+await variableSetService.CreateVariableSetOverride("demo", "variables3", "variables2");
+await variableSetService.CreateVariableSetOverride("demo", "variables4", "variables3");
+await variableSetService.CreateVariableSetOverride("demo", "variables5a", "variables4");
+await variableSetService.CreateVariableSetOverride("demo", "variables5b", "variables4");
+await variableSetService.CreateVariableSetOverride("demo", "variablesAB", "variables3");
+await variableSetService.CreateVariableSetOverride("demo", "yabba", "variablesAB");
+await variableSetService.CreateVariableSetOverride("demo", "dabbadoo", "variablesAB");
 
-await uow.VariableSets.AddAsync(
-    await variableSetService.CreateVariableSetOverride("demo", "variablesAB", "variables3"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "yabba", "variablesAB"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "dabbadoo", "variablesAB"));
-
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetAsync("demo", "root2", "staging"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "blah1", "root2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "blah2", "root2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "c1", "blah2"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "c2", "blah2"));
-
+await variableSetService.CreateVariableSetAsync("demo", "root2", "staging");
+await variableSetService.CreateVariableSetOverride("demo", "blah1", "root2");
+await variableSetService.CreateVariableSetOverride("demo", "blah2", "root2");
+await variableSetService.CreateVariableSetOverride("demo", "c1", "blah2");
 
 // -------------------------------------
 // UAL Dev Variable Set
 // -------------------------------------
 
 var ualDevVariableSet = await variableSetService.CreateVariableSetAsync("/ual", "ual-variables", "development");
-await uow.VariableSets.AddAsync(ualDevVariableSet);
 ualDevVariableSet.SetValue("kafka.bootstrapservers", "localhost:9091");
 ualDevVariableSet.SetValue("kafka.username", "kuser");
 ualDevVariableSet.SetValue("kafka.password", "kpassword");
@@ -157,7 +146,6 @@ ualDevVariableSet.SetValue("kafka", JObject.FromObject(kafka));
 var mergeValue = await GetValue("merge-service.json");
 
 var mergeSection = await sectionService.CreateSectionAsync("/ual/merge-service", "merge-service");
-await uow.Sections.AddAsync(mergeSection);
 await sectionService.PromoteToEnvironmentType(mergeSection, "Staging");
 
 var mergeDev = await sectionService.AddEnvironmentToSectionAsync(mergeSection, "development");
@@ -166,7 +154,6 @@ var mergeSchema =
     await schemaService.CreateSchemaAsync(mergeSection.Id, "/ual/merge-service",
         new SchemaName("ual-merge-service/1.0.0"), null,
         await GetSchema("ual-merge-service-1.0.0.json"));
-await uow.Schemas.AddAsync(mergeSchema);
 await schemaService.PromoteSchemaAsync(mergeSchema.SchemaName, "staging");
 
 
@@ -180,16 +167,10 @@ await sectionService.CreateReleaseAsync(mergeSection, mergeDev.Id, ualDevVariabl
 // INGESTION
 // -------------------------------------
 var ingestionSection = await sectionService.CreateSectionAsync("/ual/ingestion-service", "ingestion-service");
-await uow.Sections.AddAsync(ingestionSection);
 
-// this revealed a bug... need to add the entities to the schema within the service,
-// not the app code. otherwise, the user might add some entities and not others.
-// then, not everything is saved. (example: remove this AddAsync. Then there are entities referencing this schema,
-// but this schema doesn't save to the db
 var ingestionSchema = await schemaService.CreateSchemaAsync(ingestionSection.Id, "/ual/ingestion-service",
     new SchemaName("ual-ingestion-service/1.0.0"), null,
     await GetSchema("ual-ingestion-service-1.0.0.json"));
-await uow.Schemas.AddAsync(ingestionSchema);
 var ingestionValue = await GetValue("ingestion-service.json");
 await sectionService.AddEnvironmentToSectionAsync(ingestionSection, "development");
 var ingestionRelease = await sectionService.CreateReleaseAsync(
@@ -203,7 +184,6 @@ ingestionSection.SetDeployed(new DeploymentId(33333),
     ingestionSection.Environments.Single().Id,
     new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now, "fake deploy");
 
-await uow.Schemas.AddAsync(ingestionSchema);
 await uow.SaveChangesAsync();
 
 app.Run();
