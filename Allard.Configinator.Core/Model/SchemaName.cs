@@ -22,6 +22,6 @@ public record SchemaName
 
     public static SchemaName Parse(string name)
     {
-        return new(name);
+        return new SchemaName(name);
     }
 }

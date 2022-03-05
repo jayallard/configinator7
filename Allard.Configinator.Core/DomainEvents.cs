@@ -50,7 +50,6 @@ public record EnvironmentAddedToSectionEvent(
 /// <param name="SchemaId"></param>
 /// <param name="ModelValue"></param>
 /// <param name="ResolvedValue"></param>
-/// <param name="VariablesInUse"></param>
 public record ReleaseCreatedEvent(
     DateTime CreateDate,
     ReleaseId ReleaseId,
@@ -59,8 +58,7 @@ public record ReleaseCreatedEvent(
     SchemaId SchemaId,
     VariableSetId? VariableSetId,
     JsonDocument ModelValue,
-    JsonDocument ResolvedValue,
-    HashSet<string> VariablesInUse) : DomainEventBase;
+    JsonDocument ResolvedValue) : DomainEventBase;
 
 /// <summary>
 ///     A variable set was created.

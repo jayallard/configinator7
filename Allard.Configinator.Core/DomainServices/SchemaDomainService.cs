@@ -23,7 +23,7 @@ public class SchemaDomainService
     }
 
     /// <summary>
-    /// Create a schema.
+    ///     Create a schema.
     /// </summary>
     /// <param name="sectionId">If specified, the schema is for the configuration section.</param>
     /// <param name="namespace"></param>
@@ -52,15 +52,13 @@ public class SchemaDomainService
         {
             var section = await _unitOfWork.Sections.GetAsync(sectionId, cancellationToken);
             if (!section.Namespace.Equals(@namespace, StringComparison.OrdinalIgnoreCase))
-            {
                 throw new InvalidOperationException("The schema must be in the same namespace as the section.\n" +
                                                     "Section Namespace=" + section.Namespace +
                                                     "\nSchema Namespace=" + @namespace +
                                                     "\nSchema Name=" + schemaName.FullName);
-            }
         }
 
-        
+
         // resolve the json schema. This returns raw data about the schema and it's references.
         // it is not aggregate aware.
         var resolved = await _schemaLoader.ResolveSchemaAsync(schemaName, schema, cancellationToken);
@@ -79,14 +77,15 @@ public class SchemaDomainService
         var referenceProperties =
             await GetReferenceValidationProperties(resolved.References, cancellationToken);
         SchemaUtility.ValidateSchemaNamespaces(schemaProperties, referenceProperties);
-        
+
         // ---------------------------------------------------------------------------------------
         // All good. create the schema.
         // ---------------------------------------------------------------------------------------
-        return await ReallyCreateSchemaAsync(sectionId, @namespace,  schemaName, description, schema, cancellationToken);
+        return await ReallyCreateSchemaAsync(sectionId, @namespace, schemaName, description, schema, cancellationToken);
     }
 
-    private async Task<IEnumerable<SchemaValidationProperties>> GetReferenceValidationProperties(IEnumerable<SchemaDetail> schemas,
+    private async Task<IEnumerable<SchemaValidationProperties>> GetReferenceValidationProperties(
+        IEnumerable<SchemaDetail> schemas,
         CancellationToken cancellationToken)
     {
         // get all references from the db
@@ -99,8 +98,8 @@ public class SchemaDomainService
     }
 
     /// <summary>
-    /// Actually create the schema.
-    /// The schema is known to be valid by the time this is called.
+    ///     Actually create the schema.
+    ///     The schema is known to be valid by the time this is called.
     /// </summary>
     /// <param name="namespace"></param>
     /// <param name="schemaName"></param>
@@ -119,18 +118,18 @@ public class SchemaDomainService
         var schemaId = await _identityService.GetIdAsync<SchemaId>(cancellationToken);
         var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
         var schemaAggregate = new SchemaAggregate(
-            schemaId, 
+            schemaId,
             sectionId,
             firstEnvironmentType,
             @namespace,
             schemaName,
-            description, 
+            description,
             schema);
         return schemaAggregate;
     }
 
     /// <summary>
-    /// Throws an exception if the schema doesn't exist.
+    ///     Throws an exception if the schema doesn't exist.
     /// </summary>
     /// <param name="schemaName"></param>
     /// <param name="cancellationToken"></param>
@@ -143,7 +142,7 @@ public class SchemaDomainService
     }
 
     /// <summary>
-    /// Get 0 or more schemas.
+    ///     Get 0 or more schemas.
     /// </summary>
     /// <param name="schemaNames"></param>
     /// <param name="cancellationToken"></param>
@@ -165,7 +164,7 @@ public class SchemaDomainService
     }
 
     /// <summary>
-    /// Promote a schema from one environment type to another.
+    ///     Promote a schema from one environment type to another.
     /// </summary>
     /// <param name="schemaName"></param>
     /// <param name="targetEnvironmentType"></param>

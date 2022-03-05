@@ -1,4 +1,5 @@
-﻿using Allard.DomainDrivenDesign;
+﻿using System.Text.Json;
+using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Model;
 
@@ -20,8 +21,10 @@ public class SectionAggregate : AggregateBase<SectionId>
     }
 
     internal ISet<string> InternalEnvironmentTypes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
     //internal List<SchemaId> InternalSchemas { get; } = new();
     internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
+
     //public IEnumerable<SchemaId> Schemas => InternalSchemas.AsReadOnly();
     public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
     public string SectionName { get; internal set; }
@@ -31,6 +34,13 @@ public class SectionAggregate : AggregateBase<SectionId>
     ///     Gets the environment types that can host this section.
     /// </summary>
     public ISet<string> EnvironmentTypes => InternalEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    internal EnvironmentEntity AddEnvironment(EnvironmentId environmentId, string environmentType,
+        string environmentName)
+    {
+        PlayEvent(new EnvironmentAddedToSectionEvent(environmentId, Id, environmentType, environmentName));
+        return GetEnvironment(environmentName);
+    }
 
 
     public EnvironmentEntity GetEnvironment(string name)
@@ -54,13 +64,12 @@ public class SectionAggregate : AggregateBase<SectionId>
         return GetEnvironment(environmentId).InternalReleases.GetRelease(releaseId);
     }
 
-    public DeploymentEntity SetDeployed(
-        EnvironmentId environmentId,
+    public DeploymentEntity SetDeployed(DeploymentId deploymentId,
         ReleaseId releaseId,
-        DeploymentId deploymentId,
+        EnvironmentId environmentId,
         DeploymentResult deploymentResult,
         DateTime deploymentDate,
-        string? notes)
+        string? notes = null)
     {
         var release = GetRelease(environmentId, releaseId);
         release.InternalDeployments.EnsureDeploymentDoesntExist(deploymentId);
@@ -104,9 +113,8 @@ public class SectionAggregate : AggregateBase<SectionId>
         if (release.IsOutOfDate && current)
         {
             PlayEvent(new ReleaseValueBecameCurrent(Id, environmentId, releaseId));
-            return;
         }
-        
+
         // otherwise, nothing changed, so nothing to do
     }
 
@@ -146,5 +154,25 @@ public class SectionAggregate : AggregateBase<SectionId>
             deployed.Release.Id,
             $"Replaced by ReleaseId={deployed.Release.Id.Id}, Deployment Id={deploymentId.Id}");
         PlayEvent(removedEvent);
+    }
+
+    internal ReleaseEntity CreateRelease(ReleaseId releaseId,
+        EnvironmentId environmentId,
+        VariableSetId? variableSetId,
+        SchemaId schemaId,
+        JsonDocument value,
+        JsonDocument resolved)
+    {
+        var evt = new ReleaseCreatedEvent(
+            DateTime.UtcNow,
+            releaseId,
+            environmentId,
+            Id,
+            schemaId,
+            variableSetId,
+            value,
+            resolved);
+        PlayEvent(evt);
+        return GetRelease(environmentId, releaseId);
     }
 }

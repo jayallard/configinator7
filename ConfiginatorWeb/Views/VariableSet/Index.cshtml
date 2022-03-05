@@ -1,7 +1,7 @@
 ﻿@using Allard.Json
-@using ConfiginatorWeb.Queries
-@using Newtonsoft.Json
 @using Newtonsoft.Json.Linq
+@using Newtonsoft.Json
+@using ConfiginatorWeb.Queries
 @model ConfiginatorWeb.Controllers.EditVariableSetView
 @{
     ViewBag.Title = "title";
@@ -60,7 +60,7 @@
                 }
             </td>
             <td>
-                @if (@t.Value.Type == JTokenType.Object)
+                @if (t.Value.Type == JTokenType.Object)
                 {
                     <pre>@t.Value.ToString(Formatting.Indented)</pre>
                 }
@@ -120,10 +120,11 @@
 @if (!Model.VariableSet.Variables.Values.Any())
 {
     <i>No Variables</i>
-    <br/><br/>
+    <br/>
+    <br/>
 }
 <a asp-action="AddVariable" asp-route-variableSetName="@Model.VariableSet.VariableSetName">Add Variable</a>
-    <br/><br/>
+<br/><br/>
 <h2>Releases</h2>
 <p>
     TODO

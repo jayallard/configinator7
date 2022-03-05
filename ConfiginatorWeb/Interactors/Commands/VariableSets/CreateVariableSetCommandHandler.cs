@@ -7,8 +7,8 @@ namespace ConfiginatorWeb.Interactors.Commands.VariableSets;
 
 public class CreateVariableSetCommandHandler : IRequestHandler<AddVariableRequest, AddVariableResponse>
 {
-    private readonly VariableSetDomainService _variableSetDomainService;
     private readonly IUnitOfWork _uow;
+    private readonly VariableSetDomainService _variableSetDomainService;
 
     public CreateVariableSetCommandHandler(VariableSetDomainService variableSetDomainService, IUnitOfWork uow)
     {
@@ -19,9 +19,9 @@ public class CreateVariableSetCommandHandler : IRequestHandler<AddVariableReques
     public async Task<AddVariableResponse> Handle(AddVariableRequest request, CancellationToken cancellationToken)
     {
         var vs = await _variableSetDomainService.CreateVariableSetAsync(
-            request.Namespace, 
+            request.Namespace,
             request.VariableSetName,
-            request.EnvironmentType, 
+            request.EnvironmentType,
             cancellationToken);
         await _uow.VariableSets.AddAsync(vs, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
@@ -31,12 +31,11 @@ public class CreateVariableSetCommandHandler : IRequestHandler<AddVariableReques
 
 public class AddVariableRequest : IRequest<AddVariableResponse>
 {
-    [Required]
-    public string VariableSetName { get; set; }
-    [Required]
-    public string EnvironmentType { get; set; }
-    [Required]
-    public string Namespace { get; set; }
+    [Required] public string VariableSetName { get; set; }
+
+    [Required] public string EnvironmentType { get; set; }
+
+    [Required] public string Namespace { get; set; }
 }
 
 public record AddVariableResponse;

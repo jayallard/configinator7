@@ -17,11 +17,11 @@ public class SchemaController : Controller
 {
     private readonly EnvironmentValidationService _environmentValidationService;
     private readonly IMediator _mediator;
-    private readonly SchemaLoader _schemaLoader;
-    private readonly ISectionQueries _sectionQueries;
-    private readonly SchemaDomainService _schemaDomainService;
     private readonly INamespaceQueries _namespaceQueries;
+    private readonly SchemaDomainService _schemaDomainService;
+    private readonly SchemaLoader _schemaLoader;
     private readonly ISchemaQueries _schemaQueries;
+    private readonly ISectionQueries _sectionQueries;
 
     public SchemaController(
         ISectionQueries sectionQueries,
@@ -69,8 +69,8 @@ public class SchemaController : Controller
         if (model.IsForSection)
         {
             ViewData["ns"] = new List<SelectListItem>
-                {new SelectListItem(model.SelectedNamespace, model.SelectedNamespace)};
-            
+                {new(model.SelectedNamespace, model.SelectedNamespace)};
+
             // hack - schemas for the section
             var allSchemas = (await _schemaQueries.GetSchemasListAsync())
                 .Where(s => s.SectionId == model.SectionId)
@@ -99,9 +99,9 @@ public class SchemaController : Controller
         {
             await _mediator.Send(new CreateSchemaRequest(model.SelectedNamespace, model.SchemaName, model.Schema,
                 model.IsForSection ? new SectionId(model.SectionId.Value) : null));
-            
-            return model.IsForSection 
-                ? RedirectToAction("Display", "Section", new {model.SectionId}) 
+
+            return model.IsForSection
+                ? RedirectToAction("Display", "Section", new {model.SectionId})
                 : RedirectToAction("Index", "Section");
         }
         catch (Exception ex)
@@ -133,7 +133,7 @@ public class SchemaController : Controller
         var schema = schemas.Single();
         var import = new ImportSchemaView(
             schema.Namespace,
-            schema.SchemaName.FullName, 
+            schema.SchemaName.FullName,
             schema.Schema.RootElement.ToIndented());
         return Json(import);
     }
@@ -199,8 +199,8 @@ public class AddSchemaViewModel
 }
 
 /// <summary>
-/// Add schema page. A schema may be imported and tweaked, then saved as a new version.
-/// This is the dto to provide the schema to copy.
+///     Add schema page. A schema may be imported and tweaked, then saved as a new version.
+///     This is the dto to provide the schema to copy.
 /// </summary>
 /// <param name="SchemaName"></param>
 /// <param name="Namespace"></param>

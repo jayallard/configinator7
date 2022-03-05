@@ -9,10 +9,10 @@ using MediatR;
 namespace ConfiginatorWeb.Interactors.Commands.Release;
 
 /// <summary>
-/// Deploy a Release.
-/// This shouldn't be an interactor... this is a service by itself. Domain service? Maybe.
-/// The deployment itself isn't a domain concern.
-/// For now, it's an interactor.
+///     Deploy a Release.
+///     This shouldn't be an interactor... this is a service by itself. Domain service? Maybe.
+///     The deployment itself isn't a domain concern.
+///     For now, it's an interactor.
 /// </summary>
 public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployResponse>
 {
@@ -55,8 +55,8 @@ public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployRes
                 .AsReadOnly());
 
         // todo: convert start date and notes to an object
-        section.SetDeployed(env.Id, new ReleaseId(request.ReleaseId), deploymentId, coreResult, startDate,
-            request.Notes);
+        section.SetDeployed(deploymentId, new ReleaseId(request.ReleaseId), env.Id,
+            coreResult, startDate, request.Notes);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return new DeployResponse(deploymentId.Id);
     }

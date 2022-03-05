@@ -14,7 +14,8 @@ public class AddSectionQueryHandler : IRequestHandler<AddSectionIndexQueryReques
             Guards.HasValue(environmentValidationService, nameof(environmentValidationService));
     }
 
-    public Task<AddSectionIndexQueryResponse> Handle(AddSectionIndexQueryRequest indexQueryRequest, CancellationToken cancellationToken)
+    public Task<AddSectionIndexQueryResponse> Handle(AddSectionIndexQueryRequest indexQueryRequest,
+        CancellationToken cancellationToken)
     {
         var environments = _environmentValidationService
             .EnvironmentNames
@@ -25,5 +26,7 @@ public class AddSectionQueryHandler : IRequestHandler<AddSectionIndexQueryReques
 }
 
 public record AddSectionIndexQueryRequest : IRequest<AddSectionIndexQueryResponse>;
+
 public record AddSectionIndexQueryResponse(List<AddSectionQueryEnvironment> Environments);
+
 public record AddSectionQueryEnvironment(string EnvironmentType, string EnvironmentName);

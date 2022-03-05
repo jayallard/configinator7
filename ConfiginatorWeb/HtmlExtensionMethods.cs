@@ -30,12 +30,13 @@ public static class HtmlExtensionMethods
                 : "");
     }
 
-    public static IHtmlContent SectionLink(this IHtmlHelper helper, string? @namespace, string sectionName, long sectionId)
+    public static IHtmlContent SectionLink(this IHtmlHelper helper, string? @namespace, string sectionName,
+        long sectionId)
     {
         var prefix = string.IsNullOrWhiteSpace(@namespace)
             ? string.Empty
             : @namespace + "/";
-        return helper.ActionLink( prefix + sectionName, "Display", "Section", new {sectionId});
+        return helper.ActionLink(prefix + sectionName, "Display", "Section", new {sectionId});
     }
 
     public static IHtmlContent ReleaseLink(this IHtmlHelper helper, long sectionId, long environmentId,

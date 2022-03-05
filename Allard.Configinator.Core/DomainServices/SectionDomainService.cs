@@ -29,15 +29,17 @@ public class SectionDomainService
         _environmentValidationService = environmentValidationService;
     }
 
-    public async Task<SectionAggregate> CreateSectionAsync(string @namespace, string sectionName)
+    public async Task<SectionAggregate> CreateSectionAsync(string @namespace, string sectionName,
+        CancellationToken cancellationToken = default)
     {
         // make sure section doesn't already exist
-        if (await _unitOfWork.Sections.Exists(sectionName))
+        if (await _unitOfWork.Sections.Exists(sectionName, cancellationToken))
             throw new InvalidOperationException("Section already exists: " + sectionName);
 
-        var id = await _identityService.GetIdAsync<SectionId>();
+        var id = await _identityService.GetIdAsync<SectionId>(cancellationToken);
         var section = new SectionAggregate(id, _environmentValidationService.GetFirstEnvironmentType(), @namespace,
             sectionName);
+        await _unitOfWork.Sections.AddAsync(section, cancellationToken);
         return section;
     }
 
@@ -62,13 +64,10 @@ public class SectionDomainService
         section.InternalEnvironments.EnsureEnvironmentDoesntExist(environmentName);
         var environmentType = _environmentValidationService.GetEnvironmentType(environmentName);
         if (!section.EnvironmentTypes.Contains(environmentType))
-        {
             throw new InvalidOperationException($"The section doesn't support the {environmentType} environment type.");
-        }
 
-        var id = await _identityService.GetIdAsync<EnvironmentId>();
-        section.PlayEvent(new EnvironmentAddedToSectionEvent(id, section.Id, environmentType, environmentName));
-        return section.GetEnvironment(environmentName);
+        var environmentId = await _identityService.GetIdAsync<EnvironmentId>();
+        return section.AddEnvironment(environmentId, environmentType, environmentName);
     }
 
     public async Task<ReleaseEntity> CreateReleaseAsync(
@@ -84,11 +83,9 @@ public class SectionDomainService
 
         // make sure that the schema is available to the environment
         var schema = await _unitOfWork.Schemas.GetAsync(schemaId, cancellationToken);
-        if (!schema.EnvironmentTypes.Contains(env.EnviromentType, StringComparer.OrdinalIgnoreCase))
-        {
+        if (!schema.EnvironmentTypes.Contains(env.EnvironmentType, StringComparer.OrdinalIgnoreCase))
             throw new InvalidOperationException(
-                $"The schema doesn't belong to the environment type. Schema={schema.SchemaName.FullName}, Target Environment Type={env.EnviromentType}");
-        }
+                $"The schema doesn't belong to the environment type. Schema={schema.SchemaName.FullName}, Target Environment Type={env.EnvironmentType}");
 
         // get the variable set (if there is one)
         VariableSetComposed? variables = null;
@@ -97,21 +94,17 @@ public class SectionDomainService
             var variableSet = await _unitOfWork.VariableSets.GetAsync(variableSetId, cancellationToken);
 
             // make sure the the variable set is the correct environment type
-            if (!variableSet.EnvironmentType.Equals(env.EnviromentType, StringComparison.OrdinalIgnoreCase))
-            {
+            if (!variableSet.EnvironmentType.Equals(env.EnvironmentType, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException(
-                    $"The variable set isn't the same environment type as the environment");
-            }
+                    "The variable set isn't the same environment type as the environment");
 
             // make sure the vs namespace is valid for this section
             if (!NamespaceUtility.IsSelfOrAscendant(variableSet.Namespace, section.Namespace))
-            {
                 throw new InvalidOperationException(
                     "The variable set namespace must be at or above the section's namespace."
                     + "\nVariable set Name = " + variableSet.VariableSetName
                     + "\nVariable Set Namespace = " + variableSet.Namespace
                     + "\nSection Namespace = " + section.Namespace);
-            }
 
             variables = await _variableSetDomainService.GetVariableSetComposedAsync(variableSetId, cancellationToken);
         }
@@ -133,18 +126,6 @@ public class SectionDomainService
 
         // all good - create the release
         var releaseId = await _identityService.GetIdAsync<ReleaseId>(cancellationToken);
-        var variablesInUse = JsonUtility.GetVariableNames(jsonNetValue);
-        var evt = new ReleaseCreatedEvent(
-            DateTime.UtcNow,
-            releaseId,
-            environmentId,
-            section.Id,
-            schemaId,
-            variableSetId,
-            value,
-            resolved,
-            variablesInUse);
-        section.PlayEvent(evt);
-        return section.GetRelease(environmentId, releaseId);
+        return section.CreateRelease(releaseId, environmentId, variableSetId, schemaId, value, resolved);
     }
 }

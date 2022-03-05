@@ -5,7 +5,6 @@ namespace Allard.Configinator.Core.Tests.Unit;
 
 public class NamespaceUtilityTests
 {
-
     [Theory]
     [InlineData("/a/b/c/d", "/a/b/c", true)]
     [InlineData("/a/b/cc/d", "/a/b/c", false)]

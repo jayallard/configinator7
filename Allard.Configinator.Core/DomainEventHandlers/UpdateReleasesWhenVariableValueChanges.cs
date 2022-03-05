@@ -32,9 +32,9 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
     public async Task ExecuteAsync(VariableValueSetEvent evt, CancellationToken cancellationToken = default)
     {
         Console.WriteLine("Variable changed: " + evt);
-        
+
         // TODO: super hack. inefficient, but a start... get all releases that use the variable set
-        
+
         // find all releases that use the variable.
         //  NOT DONE - need to work through that. for now, test every release.
         //  to do:
@@ -50,13 +50,13 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
         // thus, we don't report only when the value has changed;
         // we report it either way so the aggregate can update it's state.
         // todo: consider how much of this logic should be moved into the aggregate.
-        
+
         var vsAggregate =
             await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(evt.VariableSetName), cancellationToken);
         var variableSet =
             await _variableSetDomainService.GetVariableSetComposedAsync(evt.VariableSetName, cancellationToken);
         var sections = await _unitOfWork.Sections.FindAsync(new All(), cancellationToken);
-        
+
         // get the composer for all variable sets
         var values = variableSet.ToValueDictionary();
         foreach (var section in sections)
@@ -64,7 +64,7 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
             // find all environments of the variable set's environment type
             var environments = section
                 .Environments
-                .Where(e => e.EnviromentType.Equals(
+                .Where(e => e.EnvironmentType.Equals(
                     vsAggregate.EnvironmentType, StringComparison.OrdinalIgnoreCase));
             foreach (var env in environments)
             {
@@ -79,7 +79,7 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
                 }
             }
         }
-        
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 

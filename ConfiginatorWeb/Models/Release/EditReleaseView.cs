@@ -6,7 +6,7 @@ public class EditReleaseView
 {
     public long SectionId { get; set; }
     public string SectionName { get; set; }
-    
+
     public string Namespace { get; set; }
     public string EnvironmentName { get; set; }
     public List<EditSchemaView> Schemas { get; set; }

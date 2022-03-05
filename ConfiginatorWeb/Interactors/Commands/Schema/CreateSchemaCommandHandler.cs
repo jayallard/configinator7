@@ -8,11 +8,11 @@ using MediatR;
 namespace ConfiginatorWeb.Interactors.Commands.Schema;
 
 /// <summary>
-/// Create a schema.
-/// The schema is created within a namespace.
-/// It may be assigned to a configuration section, or not.
-/// If not, it is a schema that may be referred to by other schemas
-/// within the same namespace or any of its ascendants.
+///     Create a schema.
+///     The schema is created within a namespace.
+///     It may be assigned to a configuration section, or not.
+///     If not, it is a schema that may be referred to by other schemas
+///     within the same namespace or any of its ascendants.
 /// </summary>
 public class CreateSchemaCommandHandler : IRequestHandler<CreateSchemaRequest, CreateSchemaResponse>
 {
@@ -30,7 +30,8 @@ public class CreateSchemaCommandHandler : IRequestHandler<CreateSchemaRequest, C
     public async Task<CreateSchemaResponse> Handle(CreateSchemaRequest request,
         CancellationToken cancellationToken)
     {
-        var schema = await _schemaDomainService.CreateSchemaAsync(request.SectionId, request.Namespace, new SchemaName(request.SchemaName),
+        var schema = await _schemaDomainService.CreateSchemaAsync(request.SectionId, request.Namespace,
+            new SchemaName(request.SchemaName),
             "description - TODO",
             JsonDocument.Parse(request.SchemaText), cancellationToken);
         await _uow.Schemas.AddAsync(schema, cancellationToken);

@@ -24,7 +24,7 @@ public class Junk
             "/a/b/c1/d/e1",
             "/a/b/c1/d/e2"
         };
-        
+
         //   /a/b/c1
         //
     }
@@ -37,11 +37,7 @@ public class Junk
         var x = (HashSet<string>) read;
         x.Add("boom");
 
-        foreach (var item in x)
-        {
-            _testOutputHelper.WriteLine(item);
-        }
-        
+        foreach (var item in x) _testOutputHelper.WriteLine(item);
     }
 
     [Fact]

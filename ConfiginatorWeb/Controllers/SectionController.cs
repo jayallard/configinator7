@@ -58,9 +58,7 @@ public class SectionController : Controller
     public async Task<IActionResult> AddEnvironment(AddEnvironmentViewModel model)
     {
         if (model.SelectedEnvironments != null && model.SelectedEnvironments.Count > 0)
-        {
             await _mediator.Send(new AddEnvironmentsToSectionRequest(model.SectionId, model.SelectedEnvironments));
-        }
 
         return RedirectToAction("Display", new {sectionId = model.SectionId});
     }

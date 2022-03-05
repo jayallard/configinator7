@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ConfiginatorWeb.Interactors.Commands.Section;
 
 /// <summary>
-/// Create a configuration section.
+///     Create a configuration section.
 /// </summary>
 public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, CreateSectionAppResponse>
 {

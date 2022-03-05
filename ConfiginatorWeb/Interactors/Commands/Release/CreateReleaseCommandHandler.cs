@@ -9,7 +9,7 @@ using MediatR;
 namespace ConfiginatorWeb.Interactors.Commands.Release;
 
 /// <summary>
-/// Create a release for a section/environment
+///     Create a release for a section/environment
 /// </summary>
 public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseRequest, CreateReleaseResponse>
 {

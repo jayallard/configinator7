@@ -62,7 +62,10 @@ public class EnvironmentValidationService
     }
 
     // TODO: hack
-    public string GetFirstEnvironmentType() => "development";
+    public string GetFirstEnvironmentType()
+    {
+        return "development";
+    }
 
 
     // TODO: hack

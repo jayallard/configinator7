@@ -14,7 +14,7 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     /// <param name="modelValue"></param>
     /// <param name="resolvedValue"></param>
     /// <param name="variableSetIdId"></param>
-    internal ReleaseEntity(
+    public ReleaseEntity(
         ReleaseId id,
         SchemaId schemaId,
         JsonDocument modelValue,

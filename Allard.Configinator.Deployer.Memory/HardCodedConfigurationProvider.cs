@@ -14,7 +14,7 @@ public class HardCodedConfigurationProvider : IConfigurationProvider
                 UserName = "e1-username",
                 Password = "e1-password"
             });
-        
+
         if (request.DeploymentEnvironment.EnvironmentName.StartsWith("staging"))
             return Task.FromResult(new MemoryDeploymentConfiguration
             {

@@ -9,7 +9,9 @@
   "properties": {
     "postgres-source": {
       "type": "object",
-      "required": ["connectionString"],
+      "required": [
+        "connectionString"
+      ],
       "additionalProperties": false,
       "properties": {
         "connectionString": {
@@ -19,7 +21,9 @@
     },
     "redshift-target": {
       "type": "object",
-      "required": ["connectionString"],
+      "required": [
+        "connectionString"
+      ],
       "additionalProperties": false,
       "properties": {
         "connectionString": {

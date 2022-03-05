@@ -1,27 +1,38 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Linq;
+using Allard.Configinator.Core.Model;
+using FluentAssertions;
 using Xunit;
+using static Allard.Configinator.Core.Tests.TestUtility;
 
 namespace Allard.Configinator.Core.Tests.Unit.Model;
 
 public class ReleaseEntityTests
 {
     [Fact]
-    public async Task CreateDeployment()
+    public void CreateDeployment()
     {
-        throw new NotImplementedException();
-        // // arrange
-        // var section = CreateTestSection();
-        // var env = section.Environments.Single();
-        // var release = await section.CreateReleaseAsync(env.Id, new ReleaseId(22), null, Schema1Id, JsonDocument.Parse("{}"));
-        //
-        // // act
-        // var date = DateTime.Now;
-        // var deployment = section.SetDeployed(env.Id, release.Id, NewDeploymentId(0), date);
-        //
-        // // assert
-        // release.Deployments.Single().Should().Be(deployment);
-        // deployment.IsDeployed.Should().BeTrue();
+        // arrange
+        var section = CreateTestSection();
+        var env = section.Environments.Single();
+        var release = section.CreateRelease(
+            NewReleaseId(3),
+            env.Id,
+            new VariableSetId(15),
+            new SchemaId(12),
+            EmptyDoc(),
+            EmptyDoc());
+
+        // act
+        var date = DateTime.Now;
+        var deployment = section.SetDeployed(NewDeploymentId(0),
+            release.Id,
+            env.Id,
+            EmptyDeploymentResult(), date);
+
+        // assert
+        release.Deployments.Single().Should().Be(deployment);
+        deployment.Status.Should().Be(DeploymentStatus.Deployed);
     }
 
     /// <summary>
@@ -33,35 +44,36 @@ public class ReleaseEntityTests
     ///     NOTE: releases can be redeployed. That's a different scenario not covered by this test.
     /// </summary>
     [Fact]
-    public async Task SetToRemoveWhenUndeployed()
+    public void SetToRemovedWhenRemoved()
     {
-        throw new NotImplementedException();
-        // var section = CreateTestSection();
-        //
-        // var env = section.Environments.Single();
-        // var release1 = await section.CreateReleaseAsync(env.Id, new ReleaseId(22), null, Schema1Id, JsonDocument.Parse("{}"));
-        // var release2 = await section.CreateReleaseAsync(env.Id, new ReleaseId(23), null, Schema1Id, JsonDocument.Parse("{}"));
-        //
-        // release1.IsDeployed.Should().BeFalse();
-        // release2.IsDeployed.Should().BeFalse();
-        // section.SetDeployed(env.Id, release1.Id, new DeploymentId(1), DateTime.Now);
-        //
-        // // deploy release 1
-        // release1.IsDeployed.Should().BeTrue();
-        // release1.Deployments.Single().IsDeployed.Should().BeTrue();
-        // release1.Deployments.Single().RemovedDate.Should().BeNull();
-        // release1.Deployments.Single().RemoveReason.Should().BeNull();
-        // release2.IsDeployed.Should().BeFalse();
-        //
-        // // deploy release 2
-        // section.SetDeployed(env.Id, release2.Id, new DeploymentId(2), DateTime.Now);
-        // release1.IsDeployed.Should().BeFalse();
-        // release1.Deployments.Single().IsDeployed.Should().BeFalse();
-        // release1.Deployments.Single().RemovedDate.Should().NotBeNull();
-        // release1.Deployments.Single().RemoveReason.Should().NotBeNull();
-        // release2.IsDeployed.Should().BeTrue();
-        // release2.Deployments.Single().IsDeployed.Should().BeTrue();
-        // release2.Deployments.Single().RemovedDate.Should().BeNull();
-        // release2.Deployments.Single().RemoveReason.Should().BeNull();
+        var section = CreateTestSection();
+
+        var env = section.Environments.Single();
+        var release1 = section.CreateRelease(NewReleaseId(22), env.Id, NewVariableSetId(28), NewSchemaId(29),
+            EmptyDoc(), EmptyDoc());
+        var release2 = section.CreateRelease(NewReleaseId(23), env.Id, new VariableSetId(29), new SchemaId(30),
+            EmptyDoc(), EmptyDoc());
+
+        release1.IsDeployed.Should().BeFalse();
+        release2.IsDeployed.Should().BeFalse();
+        section.SetDeployed(new DeploymentId(1), release1.Id, env.Id, EmptyDeploymentResult(), DateTime.Now);
+
+        // deploy release 1
+        release1.IsDeployed.Should().BeTrue();
+        release1.Deployments.Single().Status.Should().Be(DeploymentStatus.Deployed);
+        release1.Deployments.Single().RemovedDate.Should().BeNull();
+        release1.Deployments.Single().RemoveReason.Should().BeNull();
+        release2.IsDeployed.Should().BeFalse();
+
+        // deploy release 2
+        section.SetDeployed(NewDeploymentId(2), release2.Id, env.Id, EmptyDeploymentResult(), DateTime.Now);
+        release1.IsDeployed.Should().BeFalse();
+        release1.Deployments.Single().Status.Should().Be(DeploymentStatus.Removed);
+        release1.Deployments.Single().RemovedDate.Should().NotBeNull();
+        release1.Deployments.Single().RemoveReason.Should().NotBeNull();
+        release2.IsDeployed.Should().BeTrue();
+        release2.Deployments.Single().Status.Should().Be(DeploymentStatus.Deployed);
+        release2.Deployments.Single().RemovedDate.Should().BeNull();
+        release2.Deployments.Single().RemoveReason.Should().BeNull();
     }
 }

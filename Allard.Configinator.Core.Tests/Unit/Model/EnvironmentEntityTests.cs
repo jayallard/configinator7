@@ -1,5 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Text.Json;
+using Allard.Configinator.Core.Model;
+using FluentAssertions;
 using Xunit;
 
 namespace Allard.Configinator.Core.Tests.Unit.Model;
@@ -7,58 +9,21 @@ namespace Allard.Configinator.Core.Tests.Unit.Model;
 public class EnvironmentEntityTests
 {
     [Fact]
-    public async Task AddRelease()
+    public void AddRelease()
     {
-        throw new NotImplementedException();
-        // // arrange
-        // var section = CreateTestSection();
-        // var environment1 = section.GetEnvironment("test1");
-        //
-        // // act
-        // var release = await section.CreateReleaseAsync(
-        //     environment1.Id,
-        //     NewReleaseId(0),
-        //     null,
-        //     Schema1Id,
-        //     JsonDocument.Parse("{}"));
-        //
-        // // assert
-        // environment1.Releases.Single().Should().Be(release);
-    }
+        // arrange
+        var section = CreateTestSection();
+        var environment1 = section.GetEnvironment("test1");
 
-    [Fact]
-    public async Task AddReleaseThrowsExceptionIfReleaseIdExists()
-    {
-        throw new NotImplementedException();
-        // // arrange
-        // var section = CreateTestSection();
-        // var environment1 = section.GetEnvironment("test1");
-        //
-        // // act
-        // await section.CreateReleaseAsync(
-        //     environment1.Id,
-        //     NewReleaseId(0),
-        //     null,
-        //     Schema1Id,
-        //     JsonDocument.Parse("{}"));
-        //
-        // var test = () =>
-        // {
-        //     section.CreateReleaseAsync(
-        //             environment1.Id,
-        //             NewReleaseId(0),
-        //             null,
-        //             Schema1Id,
-        //             JsonDocument.Parse("{}"))
-        //         // TODO: how do we test an exception async?
-        //         .Wait();
-        // };
-        //
-        // // assert
-        // test
-        //     .Should()
-        //     .ThrowExactly<AggregateException>()
-        //     .WithInnerException<InvalidOperationException>()
-        //     .WithMessage("Release already exists. Id=0");
+        // act
+        var release = section.CreateRelease(
+            NewReleaseId(0),
+            environment1.Id,
+            new VariableSetId(0), new SchemaId(0),
+            JsonDocument.Parse("{}"),
+            JsonDocument.Parse("{}"));
+
+        // assert
+        environment1.Releases.Single().Should().Be(release);
     }
 }

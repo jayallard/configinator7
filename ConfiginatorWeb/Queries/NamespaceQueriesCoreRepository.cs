@@ -41,9 +41,8 @@ public class NamespaceQueriesCoreRepository : INamespaceQueries
             .Select(s =>
             {
                 if (s.SectionId == null)
-                {
-                    return new NamespaceSchemaDto(s.EntityId, s.SchemaName.ToOutputDto(), null, null, s.EnvironmentTypes.ToList());
-                }
+                    return new NamespaceSchemaDto(s.EntityId, s.SchemaName.ToOutputDto(), null, null,
+                        s.EnvironmentTypes.ToList());
 
                 var sectionId = s.SectionId.Id;
                 return new NamespaceSchemaDto(s.EntityId, s.SchemaName.ToOutputDto(), sectionId,

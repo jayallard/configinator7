@@ -30,17 +30,17 @@ function importSchema(schemaName) {
     @Html.AntiForgeryToken()
     <div class="form-group">
         @Html.LabelFor(m => m.SchemaName)
-        @Html.TextBoxFor(m => m.SchemaName, new {@class = "form-control", id="schemaName"})
+        @Html.TextBoxFor(m => m.SchemaName, new {@class = "form-control", id = "schemaName"})
         @Html.ValidationMessageFor(x => x.SchemaName, "", new {@class = "text-danger"})
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.SelectedNamespace)<br/>
-        @Html.DropDownListFor(m => m.SelectedNamespace, (List<SelectListItem>)ViewData["ns"])
+        @Html.DropDownListFor(m => m.SelectedNamespace, (List<SelectListItem>) ViewData["ns"])
         @Html.ValidationMessageFor(x => x.SelectedNamespace, "", new {@class = "text-danger"})
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Schema)<br/>
-        @Html.TextAreaFor(m => m.Schema, new {@class = "form-control", style = "height:300px", id = "schema" })
+        @Html.TextAreaFor(m => m.Schema, new {@class = "form-control", style = "height:300px", id = "schema"})
         @Html.ValidationMessageFor(x => x.Schema, "", new {@class = "text-danger"})
     </div>
     @Html.HiddenFor(m => m.SectionId)
@@ -57,7 +57,9 @@ function importSchema(schemaName) {
     <ul>
         @foreach (var import in imports)
         {
-            <li><button onclick="importSchema('@import.SchemaName.FullName')" class="btn btn-link">Import</button>@import.SchemaName.FullName</li>
+            <li>
+                <button onclick="importSchema('@import.SchemaName.FullName')" class="btn btn-link">Import</button>@import.SchemaName.FullName
+            </li>
         }
     </ul>
 }

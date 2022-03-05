@@ -12,10 +12,10 @@ namespace ConfiginatorWeb.Views.Shared.Components.Schema;
 
 public class SchemaViewComponent : ViewComponent
 {
-    private readonly SchemaLoader _schemaLoader;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly EnvironmentValidationService _environmentValidationService;
     private readonly SchemaDomainService _schemaDomainService;
+    private readonly SchemaLoader _schemaLoader;
+    private readonly IUnitOfWork _unitOfWork;
 
     public SchemaViewComponent(
         SchemaLoader schemaLoader,
@@ -41,15 +41,18 @@ public class SchemaViewComponent : ViewComponent
                 .Select(s => new SchemaDto
                 {
                     Schema = s.Schema,
-                    
+
                     // HACK - blocking
-                    SectionName = s.SectionId == null ? null : _unitOfWork.Sections.GetAsync(s.SectionId).Result.SectionName,
+                    SectionName = s.SectionId == null
+                        ? null
+                        : _unitOfWork.Sections.GetAsync(s.SectionId).Result.SectionName,
                     EnvironmentTypes = s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase),
                     SchemaName = s.SchemaName.ToOutputDto(),
                     SectionId = s.SectionId?.Id,
                     SchemaId = s.Id.Id,
                     Namespace = s.Namespace,
-                    PromoteTo = _environmentValidationService.GetNextSchemaEnvironmentType(s.EnvironmentTypes, s.SchemaName.Version) 
+                    PromoteTo = _environmentValidationService.GetNextSchemaEnvironmentType(s.EnvironmentTypes,
+                        s.SchemaName.Version)
                 })
                 .ToDictionary(s => s.SchemaName.FullName, s => s);
 

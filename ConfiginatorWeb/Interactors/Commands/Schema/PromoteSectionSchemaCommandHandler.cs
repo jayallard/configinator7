@@ -8,8 +8,8 @@ using MediatR;
 namespace ConfiginatorWeb.Interactors.Commands.Schema;
 
 /// <summary>
-/// Promote a schema from one environment type to another.
-/// IE: dev -> staging -> production
+///     Promote a schema from one environment type to another.
+///     IE: dev -> staging -> production
 /// </summary>
 public class PromoteSectionSchemaCommandHandler : IRequestHandler<PromoteSchemaRequest, PromoteSchemaResponse>
 {
@@ -27,7 +27,8 @@ public class PromoteSectionSchemaCommandHandler : IRequestHandler<PromoteSchemaR
     public async Task<PromoteSchemaResponse> Handle(PromoteSchemaRequest request, CancellationToken cancellationToken)
     {
         var schema = await _uow.Schemas.FindOneAsync(SchemaNameIs.Is(request.SchemaName), cancellationToken);
-        await _schemaDomainService.PromoteSchemaAsync(new SchemaName(request.SchemaName), request.TargetEnvironmentType, cancellationToken);
+        await _schemaDomainService.PromoteSchemaAsync(new SchemaName(request.SchemaName), request.TargetEnvironmentType,
+            cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
         return new PromoteSchemaResponse(schema.EntityId, request.SchemaName);
     }

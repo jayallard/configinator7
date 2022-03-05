@@ -7,7 +7,7 @@ namespace ConfiginatorWeb.Queries;
 public class SectionDto
 {
     public string SectionName { get; set; }
-    
+
     public string Namespace { get; set; }
 
     public long SectionId { get; set; }
@@ -15,7 +15,7 @@ public class SectionDto
     public List<SchemaDto> Schemas { get; set; }
 
     public List<SectionEnvironmentDto> Environments { get; set; }
-    
+
     public ISet<string> EnvironmentTypes { get; set; }
 
     public SectionEnvironmentDto GetEnvironment(string environmentName)
@@ -47,6 +47,7 @@ public class SchemaDto
 }
 
 public record SchemaNameDto(string Name, SemanticVersion Version, string FullName);
+
 public class SectionEnvironmentDto
 {
     public string EnvironmentName { get; set; }

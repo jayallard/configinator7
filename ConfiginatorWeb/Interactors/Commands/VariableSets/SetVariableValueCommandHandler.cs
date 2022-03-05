@@ -23,7 +23,6 @@ public class SetVariableValueCommandHandler : IRequestHandler<SetVariableValueCo
         // see if it's a JObject. if so, treat it as one.
         var v = request.Value;
         if (request.Value.Type == JTokenType.String)
-        {
             try
             {
                 v = JObject.Parse(request.Value.ToString());
@@ -32,8 +31,7 @@ public class SetVariableValueCommandHandler : IRequestHandler<SetVariableValueCo
             {
                 // not a JObject.
             }
-        }
-        
+
         variableSet.SetValue(request.Key, v);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return new SetVariableValueResponse();

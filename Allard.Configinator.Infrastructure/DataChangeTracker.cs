@@ -15,9 +15,11 @@ public sealed class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracke
         _repository = Guards.HasValue(repository, nameof(repository));
     }
 
-    public async Task<bool> Exists(ISpecification<TAggregate> specification, CancellationToken cancellationToken = default)
+    public async Task<bool> Exists(ISpecification<TAggregate> specification,
+        CancellationToken cancellationToken = default)
     {
-        return _localData.Any(specification.IsSatisfied) || await _repository.ExistsAsync(specification, cancellationToken);
+        return _localData.Any(specification.IsSatisfied) ||
+               await _repository.ExistsAsync(specification, cancellationToken);
     }
 
     public async Task<List<TAggregate>> FindAsync(ISpecification<TAggregate> specification,

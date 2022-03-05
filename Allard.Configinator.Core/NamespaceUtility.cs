@@ -7,7 +7,8 @@ public static class NamespaceUtility
         // ascendant:   /a/b/c/d
         // descendant:  /a/b/c/d/e
         ascendant = NormalizeNamespace(ascendant);
-        descendant = NormalizeNamespace(descendant);
+        if (ascendant != "/") ascendant += "/";
+        descendant = NormalizeNamespace(descendant) + '/';
         return descendant.StartsWith(ascendant, StringComparison.OrdinalIgnoreCase);
     }
 

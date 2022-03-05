@@ -20,9 +20,9 @@ public static class SchemaUtility
     }
 
     /// <summary>
-    /// The schemas are all related to each other.
-    /// Make sure they are allowed to be related to each other.
-    /// IE: a schema owned by section #3 can't refer to a schema owned by section #4.
+    ///     The schemas are all related to each other.
+    ///     Make sure they are allowed to be related to each other.
+    ///     IE: a schema owned by section #3 can't refer to a schema owned by section #4.
     /// </summary>
     /// <param name="relatedSchemas"></param>
     /// <param name="sectionId">Optional. If null, a global schema is being validated.</param>
@@ -34,20 +34,21 @@ public static class SchemaUtility
                 !NamespaceUtility.IsSelfOrAscendant(r.SchemaNamespace, rootSchema.SchemaNamespace))
             .ToList();
         if (!badSchemas.Any()) return;
-        var bad = badSchemas.Select(b => "\tSchema: " + b.SchemaName.FullName + ", Namespace=" + b.SchemaNamespace).ToArray();
-        var message = string.Join('\n',  bad);
+        var bad = badSchemas.Select(b => "\tSchema: " + b.SchemaName.FullName + ", Namespace=" + b.SchemaNamespace)
+            .ToArray();
+        var message = string.Join('\n', bad);
         throw new InvalidOperationException(
             "The schema references 1 or more invalid schemas. The schemas are not in an accessible namespace.\n" +
-            "Source\n" + 
+            "Source\n" +
             "\tSchema: " + rootSchema.SchemaName.FullName + ", Namespace=" + rootSchema.SchemaNamespace +
             "\nBad References\n " + message + "\n");
     }
 }
 
 /// <summary>
-/// This is the bare-bones information needed to run the validations
-/// in schema utility. This is needed because sometimes we need to validate
-/// things about the Schema before the schema has been loaded into an aggregate.
+///     This is the bare-bones information needed to run the validations
+///     in schema utility. This is needed because sometimes we need to validate
+///     things about the Schema before the schema has been loaded into an aggregate.
 /// </summary>
 /// <param name="SchemaName"></param>
 /// <param name="OwnerSectionId"></param>

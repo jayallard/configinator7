@@ -61,13 +61,11 @@ public class VariableSetDomainService
 
         var id = await _identityService.GetIdAsync<VariableSetId>();
         var baseVariableSet = await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(baseVariableSetName));
-        if (!NamespaceUtility.IsSelfOrAscendant( baseVariableSet.Namespace, @namespace))
-        {
+        if (!NamespaceUtility.IsSelfOrAscendant(baseVariableSet.Namespace, @namespace))
             throw new InvalidOperationException("The base variable set must be an ascendant of the override." +
-                                                $"\nVariable Set={@baseVariableSet.Namespace}, {baseVariableSet}" +
+                                                $"\nVariable Set={baseVariableSet.Namespace}, {baseVariableSet}" +
                                                 $"\nOverride Set={@namespace}, {variableSetName}");
-        }
-        
+
         var child = new VariableSetAggregate(id,
             baseVariableSet.Id,
             baseVariableSet.VariableSetName,

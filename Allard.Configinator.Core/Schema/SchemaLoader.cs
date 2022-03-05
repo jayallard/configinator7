@@ -67,8 +67,8 @@ public class SchemaLoader
                     .FromJsonAsync(schemaRef.ToString(), ".", s => Resolve(referenceSchemaName, s, tracker),
                         CancellationToken.None).Result;
                 tracker.SetSchema(
-                    referenceJson.SchemaName, 
-                    referenceJson.Schema, 
+                    referenceJson.SchemaName,
+                    referenceJson.Schema,
                     referenceSchema);
             }
 

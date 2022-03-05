@@ -11,7 +11,7 @@ Variable Set: @Model.VariableSetName
 <form method="post">
     @Html.HiddenFor(m => m.VariableSetName)
     @Html.LabelFor(m => m.Key)
-    @Html.TextBoxFor(m => m.Key, new {@class="form-text"})
+    @Html.TextBoxFor(m => m.Key, new {@class = "form-text"})
     <br/><br/>
     <button class="btn btn-primary">Add</button>
     &nbsp;&nbsp;<button class="btn btn-secondary" onclick="@Url.ActionLink("Index", "VariableSet", new {Model.VariableSetName})">Cancel</button>

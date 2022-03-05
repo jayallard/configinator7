@@ -15,16 +15,16 @@ namespace ConfiginatorWeb.Controllers;
 public class ReleaseController : Controller
 {
     private readonly IMediator _mediator;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IVariableSetQueries _variableSetQueries;
     private readonly SchemaLoader _schemaLoader;
     private readonly ISectionQueries _sectionQueries;
-    
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IVariableSetQueries _variableSetQueries;
+
 
     public ReleaseController(
         IUnitOfWork unitOfWork,
         IVariableSetQueries variableSetQueries,
-        IMediator mediator, 
+        IMediator mediator,
         SchemaLoader schemaLoader, ISectionQueries sectionQueries)
     {
         _unitOfWork = unitOfWork;

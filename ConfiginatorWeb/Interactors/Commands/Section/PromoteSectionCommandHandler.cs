@@ -26,4 +26,5 @@ public class PromoteSectionCommandHandler : IRequestHandler<PromoteSectionReques
 }
 
 public record PromoteSectionRequest(long SectionId, string EnvironmentType) : IRequest<PromoteSectionResponse>;
+
 public record PromoteSectionResponse;

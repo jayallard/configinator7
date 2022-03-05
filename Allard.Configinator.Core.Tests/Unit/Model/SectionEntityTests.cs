@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Allard.Configinator.Core.Model;
 using FluentAssertions;
 using Xunit;
@@ -23,7 +22,7 @@ public class SectionEntityTests
     public void AddEnvironment()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "ns","name");
+        var section = new SectionAggregate(new SectionId(0), "Development", "ns", "name");
 
         // act
         section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));
@@ -31,40 +30,5 @@ public class SectionEntityTests
         // assert
         section.Environments.Single().Id.Id.Should().Be(25);
         section.Environments.Single().EnvironmentName.Should().Be("dev");
-    }
-
-    [Fact]
-    public void AddEnvironmentThrowsExceptionIfNameAlreadyExists()
-    {
-        // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "ns","name");
-
-        // act
-        var test = () =>
-            section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));
-
-        // assert
-        test
-            .Should()
-            .ThrowExactly<InvalidOperationException>()
-            .WithMessage("Environment already exists. Name=dev");
-    }
-
-    [Fact]
-    public void AddEnvironmentThrowsExceptionIfIdAlreadyExists()
-    {
-        // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "ns","name");
-
-        // act
-        section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));
-        var test = () =>
-            section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev2"));
-
-        // assert
-        test
-            .Should()
-            .ThrowExactly<InvalidOperationException>()
-            .WithMessage("Environment already exists. Id=25");
     }
 }

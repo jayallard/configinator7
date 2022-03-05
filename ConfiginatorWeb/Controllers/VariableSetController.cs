@@ -11,9 +11,9 @@ namespace ConfiginatorWeb.Controllers;
 
 public class VariableSetController : Controller
 {
+    private readonly EnvironmentValidationService _environmentService;
     private readonly ILogger<VariableSetController> _logger;
     private readonly IMediator _mediator;
-    private readonly EnvironmentValidationService _environmentService;
 
     public VariableSetController(
         IMediator mediator,

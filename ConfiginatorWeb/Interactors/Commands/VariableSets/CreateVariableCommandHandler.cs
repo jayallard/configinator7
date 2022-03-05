@@ -20,11 +20,9 @@ public class CreateVariableCommandHandler : IRequestHandler<CreateVariableReques
         var vs = await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(request.VariableSetName),
             cancellationToken);
         if (vs.ToVariableSet().Variables.ContainsKey(request.Key))
-        {
             // todo: move to the domain... breakup set value to add and update
             throw new InvalidOperationException("Variable already exists");
-        }
-        
+
         vs.SetValue(request.Key, string.Empty);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return new CreateVariableResponse();

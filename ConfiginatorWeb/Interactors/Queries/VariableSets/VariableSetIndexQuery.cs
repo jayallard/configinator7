@@ -9,8 +9,8 @@ namespace ConfiginatorWeb.Interactors.Queries.VariableSets;
 
 public class VariableSetIndexQuery : IRequestHandler<VariableSetIndexQueryRequest, VariableSetIndexQueryResponse>
 {
-    private readonly VariableSetDomainService _variableSetDomainService;
     private readonly IUnitOfWork _uow;
+    private readonly VariableSetDomainService _variableSetDomainService;
 
     public VariableSetIndexQuery(VariableSetDomainService variableSetDomainService, IUnitOfWork uow)
     {

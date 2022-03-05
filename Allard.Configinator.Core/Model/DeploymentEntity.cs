@@ -2,7 +2,7 @@
 
 public class DeploymentEntity : EntityBase<DeploymentId>
 {
-    internal DeploymentEntity(
+    public DeploymentEntity(
         DeploymentId id,
         DateTime deploymentDate,
         DeploymentResult deploymentResult,
@@ -18,7 +18,6 @@ public class DeploymentEntity : EntityBase<DeploymentId>
     public DateTime DeploymentDate { get; }
     public DateTime? RemovedDate { get; private set; }
     public string? RemoveReason { get; private set; }
-
     public DeploymentStatus Status { get; private set; }
     public DeploymentResult? DeploymentResult { get; }
     public string? Notes { get; }

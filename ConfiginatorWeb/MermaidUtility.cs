@@ -17,10 +17,7 @@ public static class MermaidUtility
         foreach (var schema in schemas)
         {
             mermaid.AppendLine(schema.SchemaName.FullName);
-            foreach (var to in schema.RefersTo)
-            {
-                mermaid.AppendLine($"{schema.SchemaName.FullName} --> {to.FullName}");
-            }
+            foreach (var to in schema.RefersTo) mermaid.AppendLine($"{schema.SchemaName.FullName} --> {to.FullName}");
 
             // foreach (var from in schema.ReferencedBy)
             // {
@@ -30,6 +27,7 @@ public static class MermaidUtility
 
         return mermaid.ToString();
     }
+
     /// <summary>
     ///     Create the mermaid js diagram for the variable set hierarchy.
     /// </summary>

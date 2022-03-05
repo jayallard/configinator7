@@ -11,6 +11,9 @@ public class NamespaceIs : ISpecification<NamespaceAggregate>
     }
 
     public string Namespace { get; }
-    public bool IsSatisfied(NamespaceAggregate obj) =>
-        obj.Namespace.Equals(Namespace, StringComparison.OrdinalIgnoreCase);
+
+    public bool IsSatisfied(NamespaceAggregate obj)
+    {
+        return obj.Namespace.Equals(Namespace, StringComparison.OrdinalIgnoreCase);
+    }
 }

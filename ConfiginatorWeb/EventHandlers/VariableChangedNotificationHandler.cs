@@ -5,7 +5,8 @@ namespace ConfiginatorWeb.EventHandlers;
 
 public class VariableChangedNotificationHandler : NotificationHandlerBase<VariableValueSetEvent>
 {
-    public VariableChangedNotificationHandler(IEnumerable<IEventHandler<VariableValueSetEvent>> handlers) : base(handlers)
+    public VariableChangedNotificationHandler(IEnumerable<IEventHandler<VariableValueSetEvent>> handlers) :
+        base(handlers)
     {
     }
 }

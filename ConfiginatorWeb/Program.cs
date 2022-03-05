@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Text.Json;
 using Allard.Configinator.Core;
 using Allard.Configinator.Core.DomainEventHandlers;
@@ -20,6 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
 builder.Services
     // infrastructure miscellaneous
     .AddScoped<IEventPublisher, MediatorPublisher>()
@@ -99,7 +99,6 @@ await uow.Schemas.AddAsync(kafkaSchema);
 await schemaService.PromoteSchemaAsync(kafkaSchema.SchemaName, "staging");
 
 
-
 var variableSetEntity = await variableSetService.CreateVariableSetAsync("demo", "variables1", "development");
 await uow.VariableSets.AddAsync(variableSetEntity);
 variableSetEntity.SetValue("first", "Santa");
@@ -109,13 +108,17 @@ var variableSet2Entity = await variableSetService.CreateVariableSetOverride("dem
 variableSet2Entity.SetValue("first", "SANTA!!!");
 await uow.VariableSets.AddAsync(variableSet2Entity);
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables2a", "variables2"));
+await uow.VariableSets.AddAsync(
+    await variableSetService.CreateVariableSetOverride("demo", "variables2a", "variables2"));
 await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables3", "variables2"));
 await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables4", "variables3"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables5a", "variables4"));
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variables5b", "variables4"));
+await uow.VariableSets.AddAsync(
+    await variableSetService.CreateVariableSetOverride("demo", "variables5a", "variables4"));
+await uow.VariableSets.AddAsync(
+    await variableSetService.CreateVariableSetOverride("demo", "variables5b", "variables4"));
 
-await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "variablesAB", "variables3"));
+await uow.VariableSets.AddAsync(
+    await variableSetService.CreateVariableSetOverride("demo", "variablesAB", "variables3"));
 await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "yabba", "variablesAB"));
 await uow.VariableSets.AddAsync(await variableSetService.CreateVariableSetOverride("demo", "dabbadoo", "variablesAB"));
 
@@ -136,7 +139,8 @@ ualDevVariableSet.SetValue("kafka.bootstrapservers", "localhost:9091");
 ualDevVariableSet.SetValue("kafka.username", "kuser");
 ualDevVariableSet.SetValue("kafka.password", "kpassword");
 ualDevVariableSet.SetValue("redshift.connectionstring", "redshift");
-ualDevVariableSet.SetValue("postgres.connectionstring", "Database=SomethingCool;Server=TheCloud&UserId=$$postgres.username$$;Password=$$postgres.password$$");
+ualDevVariableSet.SetValue("postgres.connectionstring",
+    "Database=SomethingCool;Server=TheCloud&UserId=$$postgres.username$$;Password=$$postgres.password$$");
 ualDevVariableSet.SetValue("postgres.username", "PG-USER");
 ualDevVariableSet.SetValue("postgres.password", "PG-PASSWORD");
 var kafka = new Dictionary<string, object>
@@ -146,7 +150,7 @@ var kafka = new Dictionary<string, object>
     {"password", "$$kafka.password$$"}
 };
 ualDevVariableSet.SetValue("kafka", JObject.FromObject(kafka));
-    
+
 // -------------------------------------
 // MERGE
 // -------------------------------------
@@ -194,13 +198,10 @@ var ingestionRelease = await sectionService.CreateReleaseAsync(
     ualDevVariableSet.Id,
     ingestionSchema.Id,
     ingestionValue);
-ingestionSection.SetDeployed(
-    ingestionSection.Environments.Single().Id,
+ingestionSection.SetDeployed(new DeploymentId(33333),
     ingestionRelease.Id,
-    new DeploymentId(33333),
-    new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()),
-    DateTime.Now,
-    "fake deploy");
+    ingestionSection.Environments.Single().Id,
+    new DeploymentResult(true, new List<DeploymentResultMessage>().AsReadOnly()), DateTime.Now, "fake deploy");
 
 await uow.Schemas.AddAsync(ingestionSchema);
 await uow.SaveChangesAsync();
@@ -213,6 +214,7 @@ async Task<JsonDocument> GetSchema(string fileName)
     var json = await File.ReadAllTextAsync(f);
     return JsonDocument.Parse(json);
 }
+
 async Task<JsonDocument> GetValue(string fileName)
 {
     var f = Path.Combine(Directory.GetCurrentDirectory(), "SetupData", "Values", fileName);

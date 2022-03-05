@@ -41,7 +41,7 @@
                 @foreach (var s in ns.Schemas)
                 {
                     <li>
-                        @Html.SchemaLink(@s.SchemaName.FullName)
+                        @Html.SchemaLink(s.SchemaName.FullName)
                         @if (s.IsForSection)
                         {
                             <i>@s.SectionName</i>

@@ -2,7 +2,6 @@
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Specifications;
-using Allard.Configinator.Core.Specifications.Schema;
 using Allard.DomainDrivenDesign;
 using ConfiginatorWeb.Interactors.Queries.Section;
 using ConfiginatorWeb.Models;
@@ -22,7 +21,7 @@ public class SchemaQueriesCoreRepository : ISchemaQueries
     {
         return Query(new All(), cancellationToken);
     }
-    
+
     private async Task<List<SchemaListItemDto>> Query(ISpecification<SchemaAggregate> specification,
         CancellationToken cancellationToken)
     {

@@ -29,6 +29,6 @@ public static class ExtensionMethods
 
     public static SchemaNameDto ToOutputDto(this SchemaName name)
     {
-        return new(name.Name, name.Version, name.FullName);
+        return new SchemaNameDto(name.Name, name.Version, name.FullName);
     }
 }

@@ -19,7 +19,7 @@ public class SectionQueriesCoreRepository : ISectionQueries
     public async Task<List<SectionListItemDto>> GetSectionsListAsync(CancellationToken cancellationToken = default)
     {
         var items = (await _unitOfWork.Sections.FindAsync(new All(), cancellationToken))
-            .Select(s => new SectionListItemDto(s.Id.Id,  s.Namespace, s.SectionName,
+            .Select(s => new SectionListItemDto(s.Id.Id, s.Namespace, s.SectionName,
                 s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase)))
             .ToList();
         return items;
@@ -53,10 +53,8 @@ public class SectionQueriesCoreRepository : ISectionQueries
 
         var schemas = await _unitOfWork.Schemas.FindAsync(new SchemaSectionIdIs(section.EntityId), cancellationToken);
         foreach (var schema in schemas)
-        {
             // todo: inefficient, but convenient
             dto.Schemas.Add(await GetSchemaAsync(schema.EntityId, cancellationToken));
-        }
 
         foreach (var env in section.Environments)
         {
@@ -65,7 +63,7 @@ public class SectionQueriesCoreRepository : ISectionQueries
             {
                 EnvironmentId = env.Id.Id,
                 EnvironmentName = env.EnvironmentName,
-                EnvironmentType = env.EnviromentType,
+                EnvironmentType = env.EnvironmentType,
                 Releases = new List<SectionReleaseDto>()
             };
             dto.Environments.Add(envDto);

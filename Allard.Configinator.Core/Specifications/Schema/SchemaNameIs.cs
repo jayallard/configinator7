@@ -20,11 +20,11 @@ public class SchemaNameIs : ISpecification<SchemaAggregate>
 
     public static SchemaNameIs Is(string schemaName)
     {
-        return new(new SchemaName(schemaName));
+        return new SchemaNameIs(new SchemaName(schemaName));
     }
 
     public static SchemaNameIs Is(SchemaName schemaName)
     {
-        return new(schemaName);
+        return new SchemaNameIs(schemaName);
     }
 }

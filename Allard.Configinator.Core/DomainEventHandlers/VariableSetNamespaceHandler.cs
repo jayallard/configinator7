@@ -5,7 +5,7 @@ using Allard.DomainDrivenDesign;
 namespace Allard.Configinator.Core.DomainEventHandlers;
 
 /// <summary>
-/// When a variable set is created, add it to the namespace.
+///     When a variable set is created, add it to the namespace.
 /// </summary>
 public class VariableSetNamespaceHandler : IEventHandler<VariableSetCreatedEvent>
 {
@@ -13,7 +13,7 @@ public class VariableSetNamespaceHandler : IEventHandler<VariableSetCreatedEvent
     private readonly IUnitOfWork _unitOfWork;
 
     public VariableSetNamespaceHandler(
-        NamespaceDomainService namespaceDomainService, 
+        NamespaceDomainService namespaceDomainService,
         IUnitOfWork unitOfWork)
     {
         _namespaceDomainService = namespaceDomainService;

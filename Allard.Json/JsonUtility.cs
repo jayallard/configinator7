@@ -6,6 +6,8 @@ namespace Allard.Json;
 
 public static class JsonUtility
 {
+    private static readonly Regex _variableRegex = new(@"\$\$(.*?)\$\$", RegexOptions.Compiled);
+
     /// <summary>
     ///     Returns all variables found the document.
     ///     Variables are string values of the format $$token-name$$.
@@ -18,8 +20,6 @@ public static class JsonUtility
             .Descendants()
             .SelectMany(GetVariables);
     }
-
-    private static readonly Regex _variableRegex = new (@"\$\$(.*?)\$\$", RegexOptions.Compiled);
 
     /// <summary>
     ///     Return the name and path of the variable within the value.
@@ -184,32 +184,28 @@ public static class JsonUtility
                         property.Value = variableName.DeepClone();
                         continue;
                     }
-                    
+
                     // if there are multiple, then the node must be of type string.
-                    var node = (JProperty)resolved.SelectToken(p.Key)!.Parent!;
+                    var node = (JProperty) resolved.SelectToken(p.Key)!.Parent!;
                     if (node.Value.Type != JTokenType.String)
-                    {
                         throw new InvalidOperationException(
                             "Invalid substitution. Multiple variable are specified for the JSON path, but the node at the JSON path isn't a string. JSON Path=" +
                             p.Key);
-                    }
 
                     // get the original value
                     var value = node.Value.Value<string>();
-                    
+
                     // iterate all the tokens for this path,
                     // and make the substitutions.
                     foreach (var (variableName, _) in p)
                     {
                         var variableValue = variables[variableName];
                         if (variableValue.Type != JTokenType.String)
-                        {
                             throw new InvalidOperationException(
                                 "Invalid substitution. The variable value must be a string. TODO: elaborate");
-                        }
 
                         value = value.Replace(
-                            "$$" + variableName + "$$", 
+                            "$$" + variableName + "$$",
                             variableValue.Value<string>(),
                             StringComparison.OrdinalIgnoreCase);
                     }

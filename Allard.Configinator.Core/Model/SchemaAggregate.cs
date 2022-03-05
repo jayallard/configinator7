@@ -14,7 +14,6 @@ public class SchemaAggregate : AggregateBase<SchemaId>
         InternalSourceEvents.Clear();
     }
 
-
     internal SchemaAggregate(
         SchemaId schemaId,
         SectionId? sectionId,
@@ -34,7 +33,6 @@ public class SchemaAggregate : AggregateBase<SchemaId>
     public string Namespace { get; private set; }
     public string? Description { get; private set; }
     public IEnumerable<string> EnvironmentTypes => _environmentTypes.ToList();
-
     public SchemaName SchemaName { get; private set; }
     public JsonDocument Schema { get; private set; }
 

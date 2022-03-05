@@ -31,14 +31,17 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
 
     public IReadOnlyCollection<VariableSetId> Children => _children.AsReadOnly();
     public string VariableSetName { get; private set; }
-public string Namespace { get; private set; }
-    
+    public string Namespace { get; private set; }
+
     public string? BaseVariableSetName { get; private set; }
     public VariableSetId BaseVariableSetId { get; private set; }
 
     public string EnvironmentType { get; private set; } = string.Empty;
 
-    internal void AddOverride(VariableSetId overrideId) => Play(new VariableSetOverrideCreatedEvent(overrideId, Id));
+    internal void AddOverride(VariableSetId overrideId)
+    {
+        Play(new VariableSetOverrideCreatedEvent(overrideId, Id));
+    }
 
     internal void Play(IDomainEvent evt)
     {
@@ -76,7 +79,7 @@ public string Namespace { get; private set; }
 
     public VariableSet ToVariableSet()
     {
-        return new()
+        return new VariableSet
         {
             BaseVariableSetName = BaseVariableSetName,
             VariableSetName = VariableSetName,
