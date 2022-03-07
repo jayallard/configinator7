@@ -26,6 +26,7 @@ function selectedVariableSetId() {
 }
 
 function preview() {
+    $("#schemaErrors ul").empty()
     if (selectedSchemaName() === '') {
         $('#preview').text('Choose a schema');
         return;
@@ -40,7 +41,6 @@ function preview() {
         variableSetId: selectedVariableSetId()
     };
     
-    $("#schemaErrors ul").empty()
     const url = '@Url.ActionLink("Preview")';
     $('#preview').text(url);
     

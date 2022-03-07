@@ -196,15 +196,15 @@ public static class JsonUtility
                         var variable = variables[p.First().VariableName];
                         if (variable.Type == JTokenType.Object)
                         {
-                            var property = (JProperty) resolved.SelectToken(p.First().JsonPath)!.Parent!;
-                            // if (!property.Value.ToString().Equals("$$" + p.First().VariableName + "$$",
-                            //         StringComparison.OrdinalIgnoreCase))
-                            // {
-                            //     throw new InvalidOperationException(
-                            //         "The variable is a node, but the property value is a string. Invalid value=" + property.Value<string>());
-                            // }
+                            var property = resolved.SelectToken(p.First().JsonPath);
+                            if (!property.Value<string>().Trim().Equals("$$" + p.First().VariableName + "$$",
+                                    StringComparison.OrdinalIgnoreCase))
+                            {
+                                throw new InvalidOperationException(
+                                    "The variable is a node, but the property value is a string. Invalid value=" + property.Value<string>());
+                            }
 
-                            property.Value = variable.DeepClone();
+                            ((JProperty)property.Parent).Value = variable.DeepClone();
                             continue;
                         }
                     }
