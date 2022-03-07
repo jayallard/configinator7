@@ -8,13 +8,13 @@ namespace Allard.Configinator.Core.DomainServices;
 
 public class SchemaDomainService
 {
-    private readonly EnvironmentValidationService _environmentService;
+    private readonly EnvironmentDomainService _environmentService;
     private readonly IIdentityService _identityService;
     private readonly SchemaLoader _schemaLoader;
     private readonly IUnitOfWork _unitOfWork;
 
     public SchemaDomainService(IIdentityService identityService, IUnitOfWork unitOfWork,
-        EnvironmentValidationService environmentRules, SchemaLoader schemaLoader)
+        EnvironmentDomainService environmentRules, SchemaLoader schemaLoader)
     {
         _schemaLoader = Guards.HasValue(schemaLoader, nameof(schemaLoader));
         _environmentService = Guards.HasValue(environmentRules, nameof(environmentRules));
@@ -41,6 +41,8 @@ public class SchemaDomainService
         JsonDocument schema,
         CancellationToken cancellationToken = default)
     {
+        @namespace = NamespaceUtility.NormalizeNamespace(@namespace);
+        
         // schemas are globally unique
         // make sure this one doesn't already exist
         await EnsureSchemaDoesntExistAsync(schemaName, cancellationToken);
@@ -54,8 +56,8 @@ public class SchemaDomainService
             if (!section.Namespace.Equals(@namespace, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("The schema must be in the same namespace as the section.\n" +
                                                     "Section Namespace=" + section.Namespace +
-                                                    "\nSchema Namespace=" + @namespace +
-                                                    "\nSchema Name=" + schemaName.FullName);
+                                                    ",\nSchema Namespace=" + @namespace +
+                                                    ",\nSchema Name=" + schemaName.FullName);
         }
 
 
@@ -151,8 +153,10 @@ public class SchemaDomainService
     public async Task<SchemaAggregate[]> GetSchemasAsync(IEnumerable<SchemaName> schemaNames,
         CancellationToken cancellationToken = default)
     {
+        var s = schemaNames.ToArray();
+        
         // now, get all of the schema aggregates for the schemas in use.
-        var allUsedSchemaTasks = schemaNames
+        var allUsedSchemaTasks = s
             // todo: convert to a FIND with all of the names
             .Select(async name => await _unitOfWork.Schemas.FindOneAsync(SchemaNameIs.Is(name), cancellationToken))
             .ToArray();
@@ -161,6 +165,11 @@ public class SchemaDomainService
         var allUsedSchemas = allUsedSchemaTasks
             .Select(s => s.Result)
             .ToArray();
+        if (s.Length != allUsedSchemas.Length)
+        {
+            throw new InvalidOperationException("1 or more of the schemas doesn't exist.");
+        }
+        
         return allUsedSchemas;
     }
 
@@ -172,7 +181,7 @@ public class SchemaDomainService
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task<SchemaAggregate> PromoteSchemaAsync(
+    public async Task PromoteSchemaAsync(
         SchemaName schemaName,
         string targetEnvironmentType,
         CancellationToken cancellationToken = default)
@@ -190,7 +199,7 @@ public class SchemaDomainService
 
         // if any pre-release schemas are used, make sure pre-release is supported.
         var resolved = await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema, cancellationToken);
-        if (resolved.IsPreRelease() && !EnvironmentValidationService.IsPreReleaseAllowed(targetEnvironmentType))
+        if (resolved.IsPreRelease() && !EnvironmentDomainService.IsPreReleaseAllowed(targetEnvironmentType))
             throw new InvalidOperationException("The environment type doesn't support pre-releases. EnvironmentType=" +
                                                 targetEnvironmentType);
 
@@ -205,7 +214,6 @@ public class SchemaDomainService
                     $"The schema, '{schema.SchemaName.FullName}', can't be promoted to '{targetEnvironmentType}'. It refers to '{referencedSchema.SchemaName}', which isn't assigned to '{targetEnvironmentType}'.");
         }
 
-        schema.Play(new SchemaPromotedEvent(schema.Id, targetEnvironmentType));
-        return schema;
+        schema.Promote(targetEnvironmentType);
     }
 }

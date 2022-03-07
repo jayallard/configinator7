@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 namespace Allard.Configinator.Core.DomainEventHandlers;
 
 /// <summary>
+///     Determine which releases are out of date when a variable value changes.
 ///     When a variable value is updated, then find all releases that use the variable.
 ///     Resolve the release's model value against the current versions of the variable sets.
 ///     If the resolved value is different than the release's resolved value, then the
@@ -68,7 +69,7 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
                     vsAggregate.EnvironmentType, StringComparison.OrdinalIgnoreCase));
             foreach (var env in environments)
             {
-                // find all releases using the variableset
+                // find all releases using the variable set
                 var releases = env.Releases.Where(r => r.VariableSetId == vsAggregate.Id);
                 foreach (var release in releases)
                 {
@@ -82,6 +83,4 @@ public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValu
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
-
-    private record ReleaseDetails(SectionAggregate Section, EnvironmentEntity Environment, ReleaseEntity Release);
 }

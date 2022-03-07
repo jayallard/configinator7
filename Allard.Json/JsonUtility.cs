@@ -168,29 +168,47 @@ public static class JsonUtility
             // todo: detect circular reference
             for (var i = 0; i < maxIterations; i++)
             {
+                var x = GetVariables(resolved);
                 var remainingVariables =
-                    GetVariables(resolved)
+                    x
                         .GroupBy(v => v.JsonPath)
                         .ToArray();
 
                 if (!remainingVariables.Any()) return resolved;
                 foreach (var p in remainingVariables)
                 {
-                    // if there's only one variable, then replace the entire node.
-                    if (p.Count() == 1)
-                    {
-                        var variableName = variables[p.First().VariableName];
-                        var property = (JProperty) resolved.SelectToken(p.First().JsonPath)!.Parent!;
-                        property.Value = variableName.DeepClone();
-                        continue;
-                    }
-
-                    // if there are multiple, then the node must be of type string.
+                    // if there are multiple variables, then the node must be of type string.
+                    // IE:   "MyValue": "$$aa$$ blah blah $$bb$$"
                     var node = (JProperty) resolved.SelectToken(p.Key)!.Parent!;
-                    if (node.Value.Type != JTokenType.String)
+                    if (p.Count() > 1 && node.Value.Type != JTokenType.String)
+                    {
                         throw new InvalidOperationException(
                             "Invalid substitution. Multiple variable are specified for the JSON path, but the node at the JSON path isn't a string. JSON Path=" +
                             p.Key);
+                    }
+
+                    // if there's one variable, and the value of the variable is an object, then
+                    // replace the node.
+                    // IE:     "Kafka": "$$kafka$$"      $$kafka$$ is an object.
+                    // becomes:  "Kafka": { ... } 
+                    if (p.Count() == 1)
+                    {
+                        var variable = variables[p.First().VariableName];
+                        if (variable.Type == JTokenType.Object)
+                        {
+                            var property = (JProperty) resolved.SelectToken(p.First().JsonPath)!.Parent!;
+                            // if (!property.Value.ToString().Equals("$$" + p.First().VariableName + "$$",
+                            //         StringComparison.OrdinalIgnoreCase))
+                            // {
+                            //     throw new InvalidOperationException(
+                            //         "The variable is a node, but the property value is a string. Invalid value=" + property.Value<string>());
+                            // }
+
+                            property.Value = variable.DeepClone();
+                            continue;
+                        }
+                    }
+
 
                     // get the original value
                     var value = node.Value.Value<string>();

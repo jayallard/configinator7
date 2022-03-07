@@ -13,8 +13,49 @@ function selectedSchemaName() {
     return $('#ddSchema option:selected').text();
 }
 
+function selectedSchemaId() {
+    return $('#ddSchema option:selected').val();
+}
+
 function selectedVariableSetName() {
     return $('#variableSet option:selected').text();
+}
+
+function selectedVariableSetId() {
+    return $('#variableSet option:selected').val();
+}
+
+function preview() {
+    if (selectedSchemaName() === '') {
+        $('#preview').text('Choose a schema');
+        return;
+    }
+    
+    const value = $('#value').val().trim();
+    const request = {
+        value: value,
+        sectionId: @Model.SectionId,
+        environmentId: @Model.EnvironmentId,
+        schemaId: selectedSchemaId(),
+        variableSetId: selectedVariableSetId()
+    };
+    
+    $("#schemaErrors ul").empty()
+    const url = '@Url.ActionLink("Preview")';
+    $('#preview').text(url);
+    
+    //alert(value);
+    
+    $.post(url,  request)
+    .done(function(data) {
+        $('#preview').text(data.json);
+        if (data.errors.length > 0) {
+            //alert('schema errors');
+            $.each(data.errors, function (index, item){
+                $("#schemaErrors ul").append("<li>" + item + '</li>');
+            });
+        }
+    });
 }
 
 $(document).ready(function() {
@@ -32,19 +73,19 @@ $(document).ready(function() {
         window.open('@Url.ActionLink("Index", "VariableSet")?variableSetName=' + selectedVariableSetName());
     });
     
-        $('#viewSchema').click(function () {
-            if (selectedSchemaName() === '') {
-                return;
-            }
-            window.open('@Url.ActionLink("SchemaView", "Schema")?schemaName=' + selectedSchemaName());
-        });
+    $('#viewSchema').click(function () {
+        if (selectedSchemaName() === '') {
+            return;
+        }
+        window.open('@Url.ActionLink("SchemaView", "Schema")?schemaName=' + selectedSchemaName());
+    });
         
     $('#ddSchema').change(function(e) {
-        $('[id^=schema-]').hide();
-        
-        //const selectedSchemaId = '#' + $(this).val();
-        $('#' + selectedSchemaDomId()).show(); 
     });
+    
+    $('#refreshPreview').click(function (e) {
+        preview();
+     });
     
     $('#save').click(function (e){
         const requestDto = {
@@ -52,7 +93,7 @@ $(document).ready(function() {
                                      EnvironmentName: '@Model.EnvironmentName',
                                      SchemaName: selectedSchemaName(),
                                      Value: $('#value').val(),
-                                     VariableSetName: $('#variableSet').val()
+                                     VariableSetName: selectedVariableSetName()
                                  };
         //alert(JSON.stringify(requestDto));
         $.post('/Release/Create', requestDto)
@@ -66,6 +107,8 @@ $(document).ready(function() {
         });
     });
 });
+
+
 
 </script>
 
@@ -91,14 +134,15 @@ $(document).ready(function() {
                     {
                         @if (string.Equals(Model.DefaultSchemaName, s.SchemaName.FullName, StringComparison.OrdinalIgnoreCase))
                         {
-                            <option selected="selected" value="@s.SchemaName.FullName">@s.SchemaName.FullName</option>
+                            <option selected="selected" value="@s.SchemaId">@s.SchemaName.FullName</option>
                         }
                         else
                         {
-                            <option value="@s.SchemaName.FullName">@s.SchemaName.FullName</option>
+                            <option value="@s.SchemaId">@s.SchemaName.FullName</option>
                         }
                     }
-                </select>&nbsp;<a class="fa fa-external-link" id="viewSchema"></a>
+                </select><a class="fa fa-external-link" id="viewSchema"></a> <button type="button" class="btn btn-link" id="btnGenerateSample">Generate Sample</button>
+
             </div>
         </div>
         <div class="row">
@@ -109,15 +153,15 @@ $(document).ready(function() {
                 <select id="variableSet">
                     <!-- I couldn't get Html.DropDownListFor to work for this -->
                     <option></option>
-                    @foreach (var ts in Model.VariableSetNames)
+                    @foreach (var ts in Model.VariableSet)
                     {
-                        @if (string.Equals(Model.DefaultVariableSetName, ts, StringComparison.OrdinalIgnoreCase))
+                        @if (string.Equals(Model.DefaultVariableSetName, ts.VariableSetName, StringComparison.OrdinalIgnoreCase))
                         {
-                            <option selected="selected" value="@ts">@ts</option>
+                            <option selected="selected" value="@ts.VariableSetId">@ts.VariableSetName</option>
                         }
                         else
                         {
-                            <option>@ts</option>
+                            <option value="@ts.VariableSetId">@ts.VariableSetName</option>
                         }
                     }
                 </select>&nbsp;<a class="fa fa-external-link" id="viewVariableSet"></a>
@@ -129,17 +173,27 @@ $(document).ready(function() {
         <thead>
         <tr>
             <th>Value</th>
+            <th style="padding-left: 25px">Preview</th>
         </tr>
         </thead>
         <tr>
             <td style="vertical-align: top; width: 50%;">
                 <textarea style="width:100%; height: 200px" id="value">@Model.DefaultValue</textarea>
             </td>
+            <td style="vertical-align: top; width: 50%; padding-left: 25px">
+                <pre id="preview"></pre>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td style="padding-left:25px">
+                <span class="fa fa-refresh" style="cursor: pointer" aria-hidden="true" id="refreshPreview">&nbsp;</span>
+                <div id="schemaErrors" class="text-danger">
+                    <ul></ul>
+                </div>
+            </td>
         </tr>
     </table>
-    <p>
-        <button type="button" class="btn btn-link" id="btnGenerateSample">Generate Sample</button>
-    </p>
 
     @if (Model.DefaultValue != null)
     {

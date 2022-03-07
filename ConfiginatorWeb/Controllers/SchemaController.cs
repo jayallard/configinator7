@@ -15,7 +15,7 @@ namespace ConfiginatorWeb.Controllers;
 
 public class SchemaController : Controller
 {
-    private readonly EnvironmentValidationService _environmentValidationService;
+    private readonly EnvironmentDomainService _environmentDomainService;
     private readonly IMediator _mediator;
     private readonly INamespaceQueries _namespaceQueries;
     private readonly SchemaDomainService _schemaDomainService;
@@ -26,14 +26,14 @@ public class SchemaController : Controller
     public SchemaController(
         ISectionQueries sectionQueries,
         IMediator mediator,
-        EnvironmentValidationService environmentValidationService,
+        EnvironmentDomainService environmentDomainService,
         SchemaLoader schemaLoader,
         SchemaDomainService schemaDomainService,
         INamespaceQueries namespaceQueries, ISchemaQueries schemaQueries)
     {
         _sectionQueries = sectionQueries;
         _mediator = mediator;
-        _environmentValidationService = environmentValidationService;
+        _environmentDomainService = environmentDomainService;
         _schemaLoader = schemaLoader;
         _schemaDomainService = schemaDomainService;
         _namespaceQueries = namespaceQueries;
@@ -50,7 +50,7 @@ public class SchemaController : Controller
         {
             // language=json
             Schema =
-                "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"ExampleProperty1\": {\n      \"type\": \"string\"\n    }\n  },\n  \"additionalProperties\": false\n}",
+                "{\n  \"type\": \"object\",\n \"required\": [ \"ExampleProperty1\" ],  \"properties\": {\n    \"ExampleProperty1\": {\n      \"type\": \"string\"\n    }\n  },\n  \"additionalProperties\": false\n}",
             SchemaName = null,
 
             // bug: shouldn't have to use the utility here. it shouldn't be wrong in the db.
@@ -146,7 +146,7 @@ public class SchemaController : Controller
             .Single();
 
         // figure out what we're trying to promote to
-        var nextEnvironmentType = _environmentValidationService.GetNextSchemaEnvironmentType(schema.EnvironmentTypes,
+        var nextEnvironmentType = _environmentDomainService.GetNextSchemaEnvironmentType(schema.EnvironmentTypes,
             schema.SchemaName.Version);
 
         // resolve the schema

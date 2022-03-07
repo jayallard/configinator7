@@ -11,17 +11,16 @@ namespace ConfiginatorWeb.Controllers;
 
 public class SectionController : Controller
 {
-    private readonly EnvironmentValidationService _environmentValidationService;
+    private readonly EnvironmentDomainService _environmentDomainService;
     private readonly IMediator _mediator;
     private readonly ISectionQueries _sectionQueries;
 
     public SectionController(
         ISectionQueries projections,
         IMediator mediator,
-        EnvironmentValidationService environmentValidationService, ISchemaQueries schemaQueries,
-        SectionDomainService sectionDomainService)
+        EnvironmentDomainService environmentDomainService)
     {
-        _environmentValidationService = environmentValidationService;
+        _environmentDomainService = Guards.HasValue(environmentDomainService, nameof(environmentDomainService));
         _mediator = Guards.HasValue(mediator, nameof(mediator));
         _sectionQueries = Guards.HasValue(projections, nameof(projections));
     }
@@ -75,12 +74,12 @@ public class SectionController : Controller
         // get a list of environment types
         // per environment type, get the environments
         // per environment, indicate if it's already in use by the section
-        var environmentTypes = _environmentValidationService
+        var environmentTypes = _environmentDomainService
             .EnvironmentTypeNames
             .Where(e => section.EnvironmentTypes.Contains(e))
             .Select(et =>
             {
-                var environments = _environmentValidationService
+                var environments = _environmentDomainService
                     .EnvironmentNames
                     .Where(e => e.EnvironmentType.Equals(et, StringComparison.OrdinalIgnoreCase))
                     .Select(e =>
@@ -95,7 +94,7 @@ public class SectionController : Controller
         // -------------------------------------
         // for promotion section
         // -------------------------------------
-        var nextEnvironmentType = _environmentValidationService.GetNextSectionEnvironmentType(section.EnvironmentTypes);
+        var nextEnvironmentType = _environmentDomainService.GetNextSectionEnvironmentType(section.EnvironmentTypes);
         ViewData["PromoteTo"] = nextEnvironmentType;
 
         var canAdd = environmentTypes.Any(et => et.EnvironmentItems.Any(e => !e.IsAlreadyInUse));
@@ -136,8 +135,6 @@ public class SectionController : Controller
 public record SectionIndexView(SectionDto Section);
 
 public record AddEnvironmentViewModel(long SectionId, List<string>? SelectedEnvironments, bool CanAdd);
-
-public record EnvironmentTypesViewData(List<EnvironmentTypeItemViewData> EnvironmentTypes);
 
 public record EnvironmentTypeItemViewData(string EnvironmentType, List<EnvironmentItemViewData> EnvironmentItems);
 

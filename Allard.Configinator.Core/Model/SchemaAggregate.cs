@@ -36,6 +36,11 @@ public class SchemaAggregate : AggregateBase<SchemaId>
     public SchemaName SchemaName { get; private set; }
     public JsonDocument Schema { get; private set; }
 
+    internal void Promote(string targetEnvironmentType)
+    {
+        Play(new SchemaPromotedEvent(Id, targetEnvironmentType));
+    }
+
     internal void Play(IDomainEvent evt)
     {
         InternalSourceEvents.Add(evt);

@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Allard.Configinator.Core;
+using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
-using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Schema;
 using Allard.Json;
 using ConfiginatorWeb.Interactors.Commands.Release;
@@ -17,20 +18,20 @@ public class ReleaseController : Controller
     private readonly IMediator _mediator;
     private readonly SchemaLoader _schemaLoader;
     private readonly ISectionQueries _sectionQueries;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IVariableSetQueries _variableSetQueries;
-
+    private readonly SectionDomainService _sectionDomainService;
 
     public ReleaseController(
-        IUnitOfWork unitOfWork,
         IVariableSetQueries variableSetQueries,
         IMediator mediator,
-        SchemaLoader schemaLoader, ISectionQueries sectionQueries)
+        SchemaLoader schemaLoader,
+        ISectionQueries sectionQueries,
+        SectionDomainService sectionDomainService)
     {
-        _unitOfWork = unitOfWork;
         _mediator = mediator;
         _schemaLoader = schemaLoader;
         _sectionQueries = sectionQueries;
+        _sectionDomainService = sectionDomainService;
         _variableSetQueries = variableSetQueries;
     }
 
@@ -72,14 +73,15 @@ public class ReleaseController : Controller
         var variableSets = (await _variableSetQueries.GetVariableSetListAsync(cancellationToken))
             .Where(s => s.EnvironmentType.Equals(environment.EnvironmentType, StringComparison.OrdinalIgnoreCase))
             .Where(s => NamespaceUtility.IsSelfOrAscendant(s.Namespace, section.Namespace))
-            .Select(s => s.VariableSetName)
-            .OrderBy(s => s)
+            .Select(s => new EditSchemaVariableView(s.VariableSetName, s.VariableSetId))
+            .OrderBy(s => s.VariableSetName)
             .ToList();
 
         var v = new EditReleaseView
         {
             Namespace = section.Namespace,
             EnvironmentName = environment.EnvironmentName,
+            EnvironmentId = environment.EnvironmentId,
             SectionName = section.SectionName,
             SectionId = section.SectionId,
             Schemas = section
@@ -88,13 +90,14 @@ public class ReleaseController : Controller
                 .OrderByDescending(s => s.SchemaName.FullName)
                 .Select(s => new EditSchemaView(
                     s.SchemaName,
+                    s.SchemaId,
                     s.Schema.RootElement.ToString()))
                 .ToList(),
 
             DefaultValue = value,
             DefaultVariableSetName = variableSetName,
             DefaultSchemaName = schemaName,
-            VariableSetNames = variableSets
+            VariableSet = variableSets
         };
 
         return View(v);
@@ -185,6 +188,32 @@ public class ReleaseController : Controller
         var view = (object) new DisplayDeploymentView(section, env, release, deployment);
         return View(view);
     }
+
+    [HttpPost]
+    public async Task<PreviewResponse> Preview(PreviewRequest request)
+    {
+        try
+        {
+            var resolvedValue = await _sectionDomainService.ResolveValue(
+                new SectionId(request.SectionId),
+                new EnvironmentId(request.EnvironmentId),
+                request.VariableSetId == null
+                    ? null
+                    : new VariableSetId(request.VariableSetId.Value),
+                new SchemaId(request.SchemaId),
+                JsonDocument.Parse(request.Value));
+            return new PreviewResponse(resolvedValue.RootElement.ToIndented(), Array.Empty<string>());
+        }
+        catch (SchemaValidationFailedException ex)
+        {
+            return new PreviewResponse(ex.InvalidJson.RootElement.ToIndented(), ex.Errors.Select(e => e.ToString()));
+        }
+        catch (Exception ex)
+        {
+            // TODO - capture the json and specific variable errors
+            return new PreviewResponse("{ \"TODO\" : {}}", new[] {ex.Message});
+        }
+    }
 }
 
 public record DisplayDeploymentView(
@@ -237,3 +266,7 @@ public class HttpDeployRequest : IRequest<DeployResponse>
 }
 
 public record DeployResponse(long DeploymentId);
+
+public record PreviewRequest(long SectionId, long EnvironmentId, long SchemaId, long? VariableSetId, string Value);
+
+public record PreviewResponse(string Json, IEnumerable<string> Errors);

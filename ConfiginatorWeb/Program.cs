@@ -31,7 +31,7 @@ builder.Services
     .AddTransient<SectionDomainService>()
     .AddTransient<VariableSetDomainService>()
     .AddTransient<SchemaDomainService>()
-    .AddSingleton<EnvironmentValidationService>()
+    .AddSingleton<EnvironmentDomainService>()
     .AddTransient<NamespaceDomainService>()
 
     // event handlers - HACK

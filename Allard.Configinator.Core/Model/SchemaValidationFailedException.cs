@@ -1,14 +1,17 @@
-﻿using NJsonSchema.Validation;
+﻿using System.Text.Json;
+using NJsonSchema.Validation;
 
 namespace Allard.Configinator.Core.Model;
 
 public class SchemaValidationFailedException : Exception
 {
-    public SchemaValidationFailedException(List<ValidationError> errors)
+    public SchemaValidationFailedException(JsonDocument invalidJson, List<ValidationError> errors)
         : base("Schema validation failed:\n" + string.Join("\n", errors.Select(e => " - " + e)))
     {
-        Errors = errors.ToList();
+        InvalidJson = invalidJson;
+        Errors = errors.ToList().AsReadOnly();
     }
 
-    public List<ValidationError> Errors { get; }
+    public JsonDocument InvalidJson { get; }
+    public IReadOnlyCollection<ValidationError> Errors { get; }
 }

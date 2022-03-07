@@ -16,8 +16,8 @@ public class VariableSetNamespaceHandler : IEventHandler<VariableSetCreatedEvent
         NamespaceDomainService namespaceDomainService,
         IUnitOfWork unitOfWork)
     {
-        _namespaceDomainService = namespaceDomainService;
-        _unitOfWork = unitOfWork;
+        _namespaceDomainService = Guards.HasValue(namespaceDomainService, nameof(namespaceDomainService));
+        _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
     }
 
     public async Task ExecuteAsync(VariableSetCreatedEvent evt, CancellationToken cancellationToken = default)

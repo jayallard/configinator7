@@ -7,13 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="NJsonSchema" Version="10.6.7"/>
-        <PackageReference Include="NuGet.Versioning" Version="6.0.0"/>
+        <PackageReference Include="NJsonSchema" Version="10.6.7" />
+        <PackageReference Include="NuGet.Versioning" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allard.DomainDrivenDesign\Allard.DomainDrivenDesign.csproj"/>
-        <ProjectReference Include="..\Allard.Json\Allard.Json.csproj"/>
+        <ProjectReference Include="..\Allard.DomainDrivenDesign\Allard.DomainDrivenDesign.csproj" />
+        <ProjectReference Include="..\Allard.Json\Allard.Json.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -12,6 +12,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services
+            .AddScoped<INamespaceRepository, NamespaceRepositoryMemory>()
             .AddScoped<ISectionRepository, SectionRepositoryMemory>()
             .AddScoped<IVariableSetRepository, VariableSetRepositoryMemory>()
             .AddScoped<ISchemaRepository, SchemaRepositoryMemory>()

@@ -23,7 +23,6 @@ public class CreateVariableSetCommandHandler : IRequestHandler<AddVariableReques
             request.VariableSetName,
             request.EnvironmentType,
             cancellationToken);
-        await _uow.VariableSets.AddAsync(vs, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
         return new AddVariableResponse();
     }
@@ -31,6 +30,7 @@ public class CreateVariableSetCommandHandler : IRequestHandler<AddVariableReques
 
 public class AddVariableRequest : IRequest<AddVariableResponse>
 {
+    public string? BaseVariableSetName { get; set; }
     [Required] public string VariableSetName { get; set; }
 
     [Required] public string EnvironmentType { get; set; }

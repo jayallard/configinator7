@@ -3,11 +3,11 @@ using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.DomainServices;
 
-public class EnvironmentValidationService
+public class EnvironmentDomainService
 {
     private readonly EnvironmentRules _rules;
 
-    public EnvironmentValidationService(EnvironmentRules rules) =>
+    public EnvironmentDomainService(EnvironmentRules rules) =>
         // todo: unique environment types, no duplicate types,
         // no duplicate environments across environment types
         _rules = Guards.HasValue(rules, nameof(rules));

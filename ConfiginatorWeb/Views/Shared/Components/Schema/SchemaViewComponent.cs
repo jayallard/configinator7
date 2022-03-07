@@ -12,7 +12,7 @@ namespace ConfiginatorWeb.Views.Shared.Components.Schema;
 
 public class SchemaViewComponent : ViewComponent
 {
-    private readonly EnvironmentValidationService _environmentValidationService;
+    private readonly EnvironmentDomainService _environmentDomainService;
     private readonly SchemaDomainService _schemaDomainService;
     private readonly SchemaLoader _schemaLoader;
     private readonly IUnitOfWork _unitOfWork;
@@ -20,12 +20,12 @@ public class SchemaViewComponent : ViewComponent
     public SchemaViewComponent(
         SchemaLoader schemaLoader,
         IUnitOfWork unitOfWork,
-        EnvironmentValidationService environmentValidationService,
+        EnvironmentDomainService environmentDomainService,
         SchemaDomainService schemaDomainService)
     {
         _schemaLoader = schemaLoader;
         _unitOfWork = unitOfWork;
-        _environmentValidationService = environmentValidationService;
+        _environmentDomainService = environmentDomainService;
         _schemaDomainService = schemaDomainService;
     }
 
@@ -51,7 +51,7 @@ public class SchemaViewComponent : ViewComponent
                     SectionId = s.SectionId?.Id,
                     SchemaId = s.Id.Id,
                     Namespace = s.Namespace,
-                    PromoteTo = _environmentValidationService.GetNextSchemaEnvironmentType(s.EnvironmentTypes,
+                    PromoteTo = _environmentDomainService.GetNextSchemaEnvironmentType(s.EnvironmentTypes,
                         s.SchemaName.Version)
                 })
                 .ToDictionary(s => s.SchemaName.FullName, s => s);

@@ -6,18 +6,18 @@ namespace ConfiginatorWeb.Interactors.Queries.Section;
 
 public class AddSectionQueryHandler : IRequestHandler<AddSectionIndexQueryRequest, AddSectionIndexQueryResponse>
 {
-    private readonly EnvironmentValidationService _environmentValidationService;
+    private readonly EnvironmentDomainService _environmentDomainService;
 
-    public AddSectionQueryHandler(EnvironmentValidationService environmentValidationService)
+    public AddSectionQueryHandler(EnvironmentDomainService environmentDomainService)
     {
-        _environmentValidationService =
-            Guards.HasValue(environmentValidationService, nameof(environmentValidationService));
+        _environmentDomainService =
+            Guards.HasValue(environmentDomainService, nameof(environmentDomainService));
     }
 
     public Task<AddSectionIndexQueryResponse> Handle(AddSectionIndexQueryRequest indexQueryRequest,
         CancellationToken cancellationToken)
     {
-        var environments = _environmentValidationService
+        var environments = _environmentDomainService
             .EnvironmentNames
             .Select(e => new AddSectionQueryEnvironment(e.EnvironmentType, e.EnvironmentName))
             .ToList();

@@ -11,13 +11,13 @@ namespace ConfiginatorWeb.Controllers;
 
 public class VariableSetController : Controller
 {
-    private readonly EnvironmentValidationService _environmentService;
+    private readonly EnvironmentDomainService _environmentService;
     private readonly ILogger<VariableSetController> _logger;
     private readonly IMediator _mediator;
 
     public VariableSetController(
         IMediator mediator,
-        EnvironmentValidationService environmentService, ILogger<VariableSetController> logger)
+        EnvironmentDomainService environmentService, ILogger<VariableSetController> logger)
     {
         _environmentService = environmentService;
         _logger = logger;
@@ -61,13 +61,6 @@ public class VariableSetController : Controller
     }
 
     [HttpGet]
-    public IActionResult AddVariableSet()
-    {
-        ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypeNames;
-        return View(new AddVariableRequest());
-    }
-
-    [HttpGet]
     public IActionResult AddVariable(string variableSetName)
     {
         var model = new CreateVariableRequest {VariableSetName = variableSetName};
@@ -79,6 +72,13 @@ public class VariableSetController : Controller
     {
         await _mediator.Send(request);
         return RedirectToAction("EditValue", new {request.VariableSetName, request.Key});
+    }
+
+    [HttpGet]
+    public IActionResult AddVariableSet()
+    {
+        ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypeNames;
+        return View(new AddVariableRequest());
     }
 
     [HttpPost]

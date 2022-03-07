@@ -26,14 +26,23 @@ public class VariableSetQueriesCoreRepository : IVariableSetQueries
                 // create mermaid diagram for each root variable set
                 // it's a root if it doesn't have a base
                 if (t.BaseVariableSetName != null)
-                    return new VariableSetListItemDto(t.Namespace, t.VariableSetName, t.EnvironmentType,
+                    return new VariableSetListItemDto(
+                        t.EntityId,
+                        t.Namespace, 
+                        t.VariableSetName, 
+                        t.EnvironmentType,
                         t.BaseVariableSetName,
                         null);
                 var composed =
                     await _variableSetDomainService.GetVariableSetComposedAsync(t.VariableSetName, cancellationToken);
                 var mermaid = MermaidUtility.FlowChartForVariableSet(composed, t.VariableSetName);
-                return new VariableSetListItemDto(t.Namespace, t.VariableSetName, t.EnvironmentType,
-                    t.BaseVariableSetName, mermaid);
+                return new VariableSetListItemDto(
+                    t.EntityId,
+                    t.Namespace, 
+                    t.VariableSetName, 
+                    t.EnvironmentType,
+                    t.BaseVariableSetName, 
+                    mermaid);
             }).ToList();
         await Task.WhenAll(list);
         return list.Select(l => l.Result).ToList();

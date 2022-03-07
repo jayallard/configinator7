@@ -34,7 +34,6 @@ public class CreateSchemaCommandHandler : IRequestHandler<CreateSchemaRequest, C
             new SchemaName(request.SchemaName),
             "description - TODO",
             JsonDocument.Parse(request.SchemaText), cancellationToken);
-        await _uow.Schemas.AddAsync(schema, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
         return new CreateSchemaResponse();
     }

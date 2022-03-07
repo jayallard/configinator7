@@ -15,7 +15,7 @@
 
 <script>
 function importSchema(schemaName) {
-    $.get('@Url.ActionLink("GetImportView", "Schema")?schemaName=' + schemaName)
+    $.get('@Url.ActionLink("GetImportView", "Schema")?schemaName=' + encodeURIComponent(schemaName))
     .done(function(data) {
         $('#schemaName').val(data.schemaName + ' - COPY');
         // don't bother with the namespace - the namespace must be the

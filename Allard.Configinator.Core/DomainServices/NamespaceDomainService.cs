@@ -15,6 +15,12 @@ public class NamespaceDomainService
         _idService = Guards.HasValue(idService, nameof(idService));
     }
 
+    /// <summary>
+    /// Get or create a namespace.
+    /// </summary>
+    /// <param name="namespace"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<NamespaceAggregate> GetOrCreateAsync(string @namespace,
         CancellationToken cancellationToken = default)
     {

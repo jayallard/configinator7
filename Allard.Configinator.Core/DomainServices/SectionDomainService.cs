@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Xml.Serialization;
 using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.Configinator.Core.Schema;
@@ -9,7 +10,7 @@ namespace Allard.Configinator.Core.DomainServices;
 
 public class SectionDomainService
 {
-    private readonly EnvironmentValidationService _environmentValidationService;
+    private readonly EnvironmentDomainService _environmentDomainService;
     private readonly IIdentityService _identityService;
     private readonly SchemaLoader _schemaLoader;
     private readonly IUnitOfWork _unitOfWork;
@@ -20,24 +21,25 @@ public class SectionDomainService
         IUnitOfWork unitOfWork,
         VariableSetDomainService variableSetDomainService,
         SchemaLoader schemaLoader,
-        EnvironmentValidationService environmentValidationService)
+        EnvironmentDomainService environmentDomainService)
     {
         _identityService = identityService;
         _unitOfWork = unitOfWork;
         _variableSetDomainService = variableSetDomainService;
         _schemaLoader = schemaLoader;
-        _environmentValidationService = environmentValidationService;
+        _environmentDomainService = environmentDomainService;
     }
 
     public async Task<SectionAggregate> CreateSectionAsync(string @namespace, string sectionName,
         CancellationToken cancellationToken = default)
     {
         // make sure section doesn't already exist
+        @namespace = NamespaceUtility.NormalizeNamespace(@namespace);
         if (await _unitOfWork.Sections.Exists(sectionName, cancellationToken))
             throw new InvalidOperationException("Section already exists: " + sectionName);
 
         var id = await _identityService.GetIdAsync<SectionId>(cancellationToken);
-        var section = new SectionAggregate(id, _environmentValidationService.GetFirstEnvironmentType(), @namespace,
+        var section = new SectionAggregate(id, _environmentDomainService.GetFirstEnvironmentType(), @namespace,
             sectionName);
         await _unitOfWork.Sections.AddAsync(section, cancellationToken);
         return section;
@@ -46,7 +48,7 @@ public class SectionDomainService
     public Task PromoteToEnvironmentType(SectionAggregate section, string environmentType,
         CancellationToken cancellationToken = default)
     {
-        var canPromote = _environmentValidationService.CanPromoteSectionTo(section.EnvironmentTypes, environmentType);
+        var canPromote = _environmentDomainService.CanPromoteSectionTo(section.EnvironmentTypes, environmentType);
         if (!canPromote)
             throw new InvalidOperationException(
                 $"Section can't be promoted. Section Name={section.SectionName}, Environment Type={environmentType}");
@@ -58,11 +60,11 @@ public class SectionDomainService
         SectionAggregate section,
         string environmentName)
     {
-        if (!_environmentValidationService.IsValidEnvironmentName(environmentName))
+        if (!_environmentDomainService.IsValidEnvironmentName(environmentName))
             throw new InvalidOperationException("Invalid environment name: " + environmentName);
 
         section.InternalEnvironments.EnsureEnvironmentDoesntExist(environmentName);
-        var environmentType = _environmentValidationService.GetEnvironmentType(environmentName);
+        var environmentType = _environmentDomainService.GetEnvironmentType(environmentName);
         if (!section.EnvironmentTypes.Contains(environmentType))
             throw new InvalidOperationException($"The section doesn't support the {environmentType} environment type.");
 
@@ -78,7 +80,38 @@ public class SectionDomainService
         JsonDocument value,
         CancellationToken cancellationToken = default)
     {
+        // all good - create the release
+        var resolvedValue = await ResolveValue(section.Id, environmentId, variableSetId, schemaId, value, cancellationToken);
+        var releaseId = await _identityService.GetIdAsync<ReleaseId>(cancellationToken);
+        return section.CreateRelease(releaseId, environmentId, variableSetId, schemaId, value, resolvedValue);
+    }
+
+    /// <summary>
+    /// Convert the "value" to a resolved value.
+    /// The value may contain variables. This will swap the variables for
+    /// their values, then validate against the schema.
+    /// If schema validation fails, an exception will be thrown.
+    /// If all is well, it will return the resolved value.
+    /// </summary>
+    /// <param name="section"></param>
+    /// <param name="environmentId"></param>
+    /// <param name="variableSetId"></param>
+    /// <param name="schemaId"></param>
+    /// <param name="value"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="SchemaValidationFailedException"></exception>
+    public async Task<JsonDocument> ResolveValue(
+        SectionId sectionId,
+        EnvironmentId environmentId,
+        VariableSetId? variableSetId,
+        SchemaId schemaId,
+        JsonDocument value,
+        CancellationToken cancellationToken = default)
+    {
         // get the environment
+        var section = await _unitOfWork.Sections.GetAsync(sectionId, cancellationToken);
         var env = section.GetEnvironment(environmentId);
 
         // make sure that the schema is available to the environment
@@ -103,8 +136,8 @@ public class SectionDomainService
                 throw new InvalidOperationException(
                     "The variable set namespace must be at or above the section's namespace."
                     + "\nVariable set Name = " + variableSet.VariableSetName
-                    + "\nVariable Set Namespace = " + variableSet.Namespace
-                    + "\nSection Namespace = " + section.Namespace);
+                    + ",\nVariable Set Namespace = " + variableSet.Namespace
+                    + ",\nSection Namespace = " + section.Namespace);
 
             variables = await _variableSetDomainService.GetVariableSetComposedAsync(variableSetId, cancellationToken);
         }
@@ -119,13 +152,9 @@ public class SectionDomainService
         var schemaDetails =
             await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema, cancellationToken);
         var validationErrors = schemaDetails.Root.ResolvedSchema!.Validate(jsonNetResolved);
-        if (validationErrors.Any()) throw new SchemaValidationFailedException(validationErrors.ToList());
+        if (validationErrors.Any()) throw new SchemaValidationFailedException(jsonNetResolved.ToSystemTextJson(), validationErrors.ToList());
 
         // convert the json.net to system.text.json
-        var resolved = jsonNetResolved.ToSystemTextJson();
-
-        // all good - create the release
-        var releaseId = await _identityService.GetIdAsync<ReleaseId>(cancellationToken);
-        return section.CreateRelease(releaseId, environmentId, variableSetId, schemaId, value, resolved);
+        return jsonNetResolved.ToSystemTextJson();
     }
 }

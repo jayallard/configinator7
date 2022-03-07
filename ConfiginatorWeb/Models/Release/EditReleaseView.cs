@@ -9,11 +9,16 @@ public class EditReleaseView
 
     public string Namespace { get; set; }
     public string EnvironmentName { get; set; }
+    
+    public long EnvironmentId { get; set; }
     public List<EditSchemaView> Schemas { get; set; }
     public string? DefaultValue { get; set; }
-    public List<string> VariableSetNames { get; set; }
+    public List<EditSchemaVariableView> VariableSet { get; set; }
     public string? DefaultVariableSetName { get; set; }
     public string? DefaultSchemaName { get; set; }
 }
 
-public record EditSchemaView(SchemaNameDto SchemaName, string Schema);
+public record EditSchemaView(SchemaNameDto SchemaName, long SchemaId, string Schema);
+
+public record EditSchemaVariableView(string VariableSetName, long VariableSetId);
+

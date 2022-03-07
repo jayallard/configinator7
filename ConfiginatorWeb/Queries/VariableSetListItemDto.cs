@@ -1,5 +1,9 @@
 ﻿namespace ConfiginatorWeb.Queries;
 
-public record VariableSetListItemDto(string Namespace, string VariableSetName, string? EnvironmentType,
+public record VariableSetListItemDto(
+    long VariableSetId,
+    string Namespace, 
+    string VariableSetName, 
+    string? EnvironmentType,
     string? BaseVariableSetName,
     string? Mermaid);

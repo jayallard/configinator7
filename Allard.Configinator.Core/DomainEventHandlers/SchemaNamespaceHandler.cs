@@ -14,8 +14,8 @@ public class SchemaNamespaceHandler : IEventHandler<SchemaCreatedEvent>
 
     public SchemaNamespaceHandler(NamespaceDomainService namespaceDomainService, IUnitOfWork unitOfWork)
     {
-        _namespaceDomainService = namespaceDomainService;
-        _unitOfWork = unitOfWork;
+        _namespaceDomainService = Guards.HasValue(namespaceDomainService, nameof(namespaceDomainService));
+        _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
     }
 
     public async Task ExecuteAsync(SchemaCreatedEvent evt, CancellationToken cancellationToken = default)

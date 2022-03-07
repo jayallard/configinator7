@@ -10,6 +10,10 @@
 <h2>Add Variable Set</h2>
 <form method="post">
     <div>
+        @Html.LabelFor(m => m.BaseVariableSetName, "Base Variable Set");
+        TODO
+    </div>
+    <div>
         @Html.LabelFor(m => m.VariableSetName, "Variable Set name")
         @Html.TextBoxFor(m => m.VariableSetName, new {@class = "form-control form-text"})
     </div>

@@ -7,15 +7,15 @@ namespace Allard.Configinator.Core.DomainServices;
 
 public class VariableSetDomainService
 {
-    private readonly EnvironmentValidationService _environmentValidationService;
+    private readonly EnvironmentDomainService _environmentDomainService;
     private readonly IIdentityService _identityService;
     private readonly IUnitOfWork _unitOfWork;
 
     public VariableSetDomainService(IUnitOfWork unitOfWork, IIdentityService identityService,
-        EnvironmentValidationService environmentValidationService)
+        EnvironmentDomainService environmentDomainService)
     {
-        _environmentValidationService =
-            Guards.HasValue(environmentValidationService, nameof(environmentValidationService));
+        _environmentDomainService =
+            Guards.HasValue(environmentDomainService, nameof(environmentDomainService));
         _unitOfWork = Guards.HasValue(unitOfWork, nameof(unitOfWork));
         _identityService = Guards.HasValue(identityService, nameof(identityService));
     }
@@ -35,7 +35,8 @@ public class VariableSetDomainService
         string environmentType,
         CancellationToken cancellationToken = default)
     {
-        if (!_environmentValidationService.IsValidEnvironmentType(environmentType))
+        @namespace = NamespaceUtility.NormalizeNamespace(@namespace);
+        if (!_environmentDomainService.IsValidEnvironmentType(environmentType))
             throw new InvalidOperationException("Environment type doesn't exist: " + environmentType);
 
         var id = await _identityService.GetIdAsync<VariableSetId>(cancellationToken);
@@ -57,6 +58,8 @@ public class VariableSetDomainService
         string baseVariableSetName,
         CancellationToken cancellationToken = default)
     {
+        @namespace = NamespaceUtility.NormalizeNamespace(@namespace);
+        
         // make sure the new name doesn't already exist
         if (await _unitOfWork.VariableSets.Exists(new VariableSetNameIs(variableSetName), cancellationToken))
             throw new InvalidOperationException("VariableSet already exists: " + variableSetName);

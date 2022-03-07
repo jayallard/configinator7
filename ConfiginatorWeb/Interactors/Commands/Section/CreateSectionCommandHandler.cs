@@ -24,9 +24,8 @@ public class CreateSectionInteractor : IRequestHandler<CreateSectionAppRequest, 
     public async Task<CreateSectionAppResponse> Handle(CreateSectionAppRequest request,
         CancellationToken cancellationToken)
     {
-        var section = await _service.CreateSectionAsync(request.Namespace, request.Name);
+        var section = await _service.CreateSectionAsync(request.Namespace, request.Name, cancellationToken);
 
-        await _uow.Sections.AddAsync(section, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
         return new CreateSectionAppResponse(section.EntityId);
     }
