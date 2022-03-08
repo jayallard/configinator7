@@ -6,7 +6,7 @@ namespace Allard.Json;
 
 public static class JsonUtility
 {
-    private static readonly Regex _variableRegex = new(@"\$\$(.*?)\$\$", RegexOptions.Compiled);
+    private static readonly Regex VariableRegex = new(@"\$\$(.*?)\$\$", RegexOptions.Compiled);
 
     /// <summary>
     ///     Returns all variables found the document.
@@ -14,12 +14,10 @@ public static class JsonUtility
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static IEnumerable<(string VariableName, string JsonPath)> GetVariables(JObject json)
-    {
-        return json
+    public static IEnumerable<(string VariableName, string JsonPath)> GetVariables(JObject json) =>
+        json
             .Descendants()
             .SelectMany(GetVariables);
-    }
 
     /// <summary>
     ///     Return the name and path of the variable within the value.
@@ -30,7 +28,7 @@ public static class JsonUtility
     private static IEnumerable<(string VariableName, string JsonPath)> GetVariables(JToken value)
     {
         if (value.Type != JTokenType.String) return Array.Empty<ValueTuple<string, string>>();
-        var variables = _variableRegex.Matches(value.Value<string>()!);
+        var variables = VariableRegex.Matches(value.Value<string>()!);
         if (!variables.Any()) return Array.Empty<ValueTuple<string, string>>();
 
         var result = variables
