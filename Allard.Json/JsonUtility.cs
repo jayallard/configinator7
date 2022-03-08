@@ -41,29 +41,15 @@ public static class JsonUtility
     }
 
     /// <summary>
-    ///     Returns true if the string variable is a variable.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    private static bool IsVariable(string? value)
-    {
-        return value != null &&
-               value.StartsWith("$$", StringComparison.OrdinalIgnoreCase)
-               && value.EndsWith("$$", StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
     ///     Returns all of the variables used by a Json object.
     ///     Variables are string values of the format $$token-name$$.
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static HashSet<string> GetVariableNames(JObject json)
-    {
-        return GetVariables(json)
+    public static HashSet<string> GetVariableNames(JObject json) =>
+        GetVariables(json)
             .Select(t => t.VariableName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
-    }
 
     /// <summary>
     ///     Returns a list of all variables required by the value.
@@ -142,10 +128,8 @@ public static class JsonUtility
         return references;
     }
 
-    public static string ToIndented(this JsonElement json)
-    {
-        return JsonSerializer.Serialize(json, new JsonSerializerOptions {WriteIndented = true});
-    }
+    public static string ToIndented(this JsonElement json) =>
+        JsonSerializer.Serialize(json, new JsonSerializerOptions {WriteIndented = true});
 
     public static Task<JObject> ResolveAsync(
         JObject model,
@@ -165,83 +149,103 @@ public static class JsonUtility
             var resolved = (JObject) model.DeepClone();
 
             // max of 10 iterations
+            // need this because resolving one variable could result in pulling in more variables
             // todo: detect circular reference
             for (var i = 0; i < maxIterations; i++)
             {
-                var x = GetVariables(resolved);
-                var remainingVariables =
-                    x
+                var variablesPerPath =
+                    GetVariables(resolved)
                         .GroupBy(v => v.JsonPath)
                         .ToArray();
 
-                if (!remainingVariables.Any()) return resolved;
-                foreach (var p in remainingVariables)
+                if (!variablesPerPath.Any()) return resolved;
+                foreach (var variablePath in variablesPerPath)
                 {
-                    // if there are multiple variables, then the node must be of type string.
-                    // IE:   "MyValue": "$$aa$$ blah blah $$bb$$"
-                    var node = (JProperty) resolved.SelectToken(p.Key)!.Parent!;
-                    if (p.Count() > 1 && node.Value.Type != JTokenType.String)
+                    var targetProperty = (JProperty) resolved.SelectToken(variablePath.Key)!.Parent!;
+                    if (variablePath.Count() == 1)
                     {
-                        throw new InvalidOperationException(
-                            "Invalid substitution. Multiple variable are specified for the JSON path, but the node at the JSON path isn't a string. JSON Path=" +
-                            p.Key);
+                        // if the value is exactly a single variable, then set the value
+                        var processed = ProcessValueWithSingleVariable(
+                            variablePath.First().VariableName,
+                            variablePath.First().JsonPath, 
+                            resolved);
+                        if (processed) continue;
                     }
 
-                    // if there's one variable, and the value of the variable is an object, then
-                    // replace the node.
-                    // IE:     "Kafka": "$$kafka$$"      $$kafka$$ is an object.
-                    // becomes:  "Kafka": { ... } 
-                    if (p.Count() == 1)
-                    {
-                        var variable = variables[p.First().VariableName];
-                        var property = resolved.SelectToken(p.First().JsonPath);
-                        var propertyValue = property.Value<string>().Trim();
-                        var valueIsExactlyOneToken = propertyValue.Equals("$$" + p.First().VariableName + "$$",
-                            StringComparison.OrdinalIgnoreCase);
-                        
-                        if (valueIsExactlyOneToken)
-                        {
-                            ((JProperty) property.Parent).Value = variable.DeepClone();
-                            continue;
-                        }
-
-                        // if there are multiple variables/literals, then the variable value,
-                        // can't be an object
-                        if (variable.Type == JTokenType.Object)
-                        {
-                            throw new InvalidOperationException(
-                                "The variable is a node, but the property value is a string. Invalid value=" +
-                                property.Value<string>());
-                        }
-                    }
-
-                    // get the original value
-                    var value = node.Value.Value<string>();
-
-                    // iterate all the tokens for this path,
-                    // and make the substitutions.
-                    foreach (var (variableName, _) in p)
-                    {
-                        var variableValue = variables[variableName];
-                        // TODO: guid, etc.
-                        if (variableValue.Type != JTokenType.String
-                            && variableValue.Type != JTokenType.Boolean
-                            && variableValue.Type != JTokenType.Integer
-                            && variableValue.Type != JTokenType.Float)
-                            throw new InvalidOperationException(
-                                "Invalid substitution. The variable value must be a string. TODO: elaborate");
-
-                        value = value.Replace(
-                            "$$" + variableName + "$$",
-                            variableValue.Value<string>(),
-                            StringComparison.OrdinalIgnoreCase);
-                    }
-
-                    node.Value = value;
+                    // it's a string with multiple variables
+                    var value = SubstituteScalarValues(targetProperty, variablePath);
+                    targetProperty.Value = value;
                 }
             }
 
             throw new InvalidOperationException($"Unable to resolve within {maxIterations} iterations.");
         }
+
+        // there is only one variable at the Json Path.
+        // the value is either exactly the one variable, or is a string with the variable embedded.
+        // IE:  "$$first$$" or "blah blah $$first$$ blah blah"
+        // if it's EXACTLY the one variable, then this will process it and return true.
+        // otherwise, it will return false so the caller can proceed with
+        // substitution.
+        bool ProcessValueWithSingleVariable(string variableName, string jsonPath, JToken resolved)
+        {
+            var property = resolved.SelectToken(jsonPath);
+            var propertyValue = property.Value<string>().Trim();
+            var variableValue = GetVariableValue(variableName);
+
+            // Yes: "$$first$$" - trimmed
+            // Not: "hi there $$v$$"
+            // Not: "$$a$$ $$b$$"
+            var valueIsExactlyOneToken = propertyValue
+                .Equals("$$" + variableName + "$$", StringComparison.OrdinalIgnoreCase);
+            if (!valueIsExactlyOneToken) return false;
+            ((JProperty) property.Parent).Value = variableValue.DeepClone();
+            return true;
+
+        }
+
+        // get the variable from the dictionary.
+        // if it doesn't exist, throw an exception.
+        JToken GetVariableValue(string variableName)
+        {
+            if (variables.TryGetValue(variableName, out var value)) return value;
+            throw new InvalidOperationException("The variable doesn't exist: " + variableName);
+        }
+
+        // a string value with more than one variable.  IE:  "$$last$$, $$first$$ $$middle$$"        
+        string SubstituteScalarValues(JProperty targetProperty,
+            IEnumerable<(string VariableName, string JsonPath)> variablesForPath)
+        {
+            // get the original value
+            var value = targetProperty.Value.Value<string>()!;
+
+            // iterate all the tokens for this path,
+            // and make the substitutions.
+            foreach (var (variableName, _) in variablesForPath)
+            {
+                var variableValue = GetVariableValue(variableName);
+                EnsureIsScalar(variableName, variableValue);
+                value = value.Replace(
+                    "$$" + variableName + "$$",
+                    variableValue.Value<string>(),
+                    StringComparison.OrdinalIgnoreCase);
+            }
+
+            return value;
+        }
     }
+
+    private static void EnsureIsScalar(string variableName, JToken value)
+    {
+        if (IsScalar(value.Type)) return;
+        throw new InvalidOperationException(
+            $"The value of $${variableName}$$ must be a scalar.");
+    }
+
+    private static bool IsScalar(JTokenType type) =>
+        // TODO: guid, etc.
+        type is JTokenType.String
+            or JTokenType.Boolean
+            or JTokenType.Integer
+            or JTokenType.Float;
 }

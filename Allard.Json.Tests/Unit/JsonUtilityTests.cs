@@ -23,6 +23,12 @@ public class JsonUtilityTests
      */
 
 
+    /// <summary>
+    /// Test all sorts of stuff.
+    /// Create a value with a bunch of variables,
+    /// then resolve it, and make sure
+    /// it comes out as expected.
+    /// </summary>
     [Fact]
     public async Task ReplaceValues()
     {
@@ -60,7 +66,12 @@ public class JsonUtilityTests
             {"float", 88.3}
         };
 
+        // act
+        // this is what it is
         var actual = await JsonUtility.ResolveAsync(model, variables);
+        
+        // assert
+        // this is what it should be
         var expected = new
         {
             floatValue = 88.3,
@@ -78,8 +89,8 @@ public class JsonUtilityTests
             }
         }.ToJObject();
 
-        // _testOutputHelper.WriteLine(expected.Root.ToString());
-        // _testOutputHelper.WriteLine(actual.Root.ToString());
+        _testOutputHelper.WriteLine(expected.Root.ToString());
+        _testOutputHelper.WriteLine(actual.Root.ToString());
         JToken.DeepEquals(actual, expected).Should().BeTrue();
     }
 
@@ -178,6 +189,7 @@ public class JsonUtilityTests
                 Do = "$$object$$",
                 PersonalAttributes = new
                 {
+                    BlahBlah = "$$color$$ $$first$$ $$last$$ $$whatever$$",
                     FavoriteColor = "$$color$$",
                     SomethingElse = "Hi there",
                     NestAgain = new
@@ -212,7 +224,8 @@ public class JsonUtilityTests
             {"notused2", "not used2"},
             {"notused3", "not used3"},
             {"notused4", "not used4"},
-            {"fowl", "chicken"}
+            {"fowl", "chicken"},
+            {"whatever", "boo"}
         };
 
         // -----------------------------------------------------------
@@ -223,7 +236,58 @@ public class JsonUtilityTests
         // -----------------------------------------------------------
         // assert
         // -----------------------------------------------------------
-        usedVariables.Count.Should().Be(7);
-        usedVariables.Should().Contain(new[] {"allergies", "first", "last", "age", "color", "object", "fowl"});
+        usedVariables.Count.Should().Be(8);
+        usedVariables.Should().Contain(new[] {"allergies", "first", "last", "age", "color", "object", "fowl", "whatever"});
+    }
+
+    [Fact]
+    public async Task ThrowExceptionIfVariableNotFound()
+    {
+        // arrange
+        var value = new
+        {
+            Name = "Not Found $$object$$"
+        }.ToJObject();
+        var variables = new Dictionary<string, JToken>();
+
+        // act
+        var test = async () => await JsonUtility.ResolveAsync(value, variables);
+        
+        // assert
+        await test
+            .Should()
+            .ThrowAsync<InvalidOperationException>()
+            .WithMessage("The variable doesn't exist: object");
+    }
+
+    /// <summary>
+    /// If a value CONTAINS a variable, and the variable is an object,
+    /// then it's invalid.
+    /// IE:    "this is $$object$$ not allowed!"
+    ///        "$$object$$ $$somethingElse$$"
+    /// If the value was exactly a variable, that'd be allowed. (See other tests)
+    /// </summary>
+    [Fact]
+    public async Task StringValueCantHaveObjectVariable()
+    {
+        // arrange
+        var value = new
+        {
+            Name = "Not Allowed $$object$$"
+        }.ToJObject();
+
+        var variables = new Dictionary<string, JToken>
+        {
+            {"object", new {go = "boom"}.ToJObject()}
+        };
+
+        // act
+        var test = async () => await JsonUtility.ResolveAsync(value, variables);
+
+        // assert
+        await test
+            .Should()
+            .ThrowAsync<InvalidOperationException>()
+            .WithMessage("The value of $$object$$ must be a scalar.");
     }
 }
