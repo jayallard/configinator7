@@ -194,21 +194,26 @@ public static class JsonUtility
                     if (p.Count() == 1)
                     {
                         var variable = variables[p.First().VariableName];
-                        if (variable.Type == JTokenType.Object)
+                        var property = resolved.SelectToken(p.First().JsonPath);
+                        var propertyValue = property.Value<string>().Trim();
+                        var valueIsExactlyOneToken = propertyValue.Equals("$$" + p.First().VariableName + "$$",
+                            StringComparison.OrdinalIgnoreCase);
+                        
+                        if (valueIsExactlyOneToken)
                         {
-                            var property = resolved.SelectToken(p.First().JsonPath);
-                            if (!property.Value<string>().Trim().Equals("$$" + p.First().VariableName + "$$",
-                                    StringComparison.OrdinalIgnoreCase))
-                            {
-                                throw new InvalidOperationException(
-                                    "The variable is a node, but the property value is a string. Invalid value=" + property.Value<string>());
-                            }
-
-                            ((JProperty)property.Parent).Value = variable.DeepClone();
+                            ((JProperty) property.Parent).Value = variable.DeepClone();
                             continue;
                         }
-                    }
 
+                        // if there are multiple variables/literals, then the variable value,
+                        // can't be an object
+                        if (variable.Type == JTokenType.Object)
+                        {
+                            throw new InvalidOperationException(
+                                "The variable is a node, but the property value is a string. Invalid value=" +
+                                property.Value<string>());
+                        }
+                    }
 
                     // get the original value
                     var value = node.Value.Value<string>();
@@ -218,7 +223,11 @@ public static class JsonUtility
                     foreach (var (variableName, _) in p)
                     {
                         var variableValue = variables[variableName];
-                        if (variableValue.Type != JTokenType.String)
+                        // TODO: guid, etc.
+                        if (variableValue.Type != JTokenType.String
+                            && variableValue.Type != JTokenType.Boolean
+                            && variableValue.Type != JTokenType.Integer
+                            && variableValue.Type != JTokenType.Float)
                             throw new InvalidOperationException(
                                 "Invalid substitution. The variable value must be a string. TODO: elaborate");
 
