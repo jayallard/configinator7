@@ -35,7 +35,7 @@ public class VariableSetDomainService
         string environmentType,
         CancellationToken cancellationToken = default)
     {
-        if (!_environmentDomainService.IsValidEnvironmentType(environmentType))
+        if (!_environmentDomainService.EnvironmentTypeExists(environmentType))
             throw new InvalidOperationException("Environment type doesn't exist: " + environmentType);
 
         var id = await _identityService.GetIdAsync<VariableSetId>(cancellationToken);

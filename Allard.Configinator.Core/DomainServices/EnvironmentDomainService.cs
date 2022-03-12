@@ -34,11 +34,11 @@ public class EnvironmentDomainService
     /// </summary>
     /// <param name="environmentName"></param>
     /// <returns></returns>
-    public bool IsValidEnvironmentName(string environmentName) =>
+    public bool EnvironmentExists(string environmentName) =>
         _rules.EnvironmentTypes.Any(et =>
             et.AllowedEnvironments.Contains(environmentName, StringComparer.OrdinalIgnoreCase));
 
-    public bool IsValidEnvironmentType(string environmentType) =>
+    public bool EnvironmentTypeExists(string environmentType) =>
         _rules
             .EnvironmentTypes
             .Any(et => et.Name.Equals(environmentType, StringComparison.OrdinalIgnoreCase));

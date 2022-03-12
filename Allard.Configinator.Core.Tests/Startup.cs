@@ -15,6 +15,12 @@ namespace Allard.Configinator.Core.Tests;
 
 public class Startup
 {
+    public void ConfigureHost(IHostBuilder hostBuilder)
+    {
+        hostBuilder.ConfigureHostConfiguration(b => b
+            .AddJsonFile("appsettings.json")
+            .AddEnvironmentVariables());
+    }
     public void ConfigureServices(IServiceCollection services, HostBuilderContext host)
     {
         // infrastructure miscellaneous

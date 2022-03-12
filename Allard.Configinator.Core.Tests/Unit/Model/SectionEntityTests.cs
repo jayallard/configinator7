@@ -11,7 +11,7 @@ public class SectionEntityTests
     public void CreateSection()
     {
         // arrange, act
-        var section = new SectionAggregate(new SectionId(0), "development", "ns", "name");
+        var section = new SectionAggregate(new SectionId(0), "development", "/ns", "name");
 
         // assert
         section.SectionName.Should().Be("name");
@@ -22,7 +22,7 @@ public class SectionEntityTests
     public void AddEnvironment()
     {
         // arrange
-        var section = new SectionAggregate(new SectionId(0), "Development", "ns", "name");
+        var section = new SectionAggregate(new SectionId(0), "Development", "/ns", "name");
 
         // act
         section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));

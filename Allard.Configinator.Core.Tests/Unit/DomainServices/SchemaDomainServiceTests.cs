@@ -164,7 +164,7 @@ public class SchemaDomainServiceTests
     /// A section's schema must be in the same namespace as the exception.
     /// </summary>
     [Fact]
-    public async Task ThrowExceptionIfSectionSchemaNotInTheSameNaemspaceAsTheSection()
+    public async Task ThrowExceptionIfSectionSchemaNotInTheSameNamespaceAsTheSection()
     {
         var section = await _sectionService.CreateSectionAsync("/a/b/c", "test-section");
         var test = async () => await _schemaService.CreateSchemaAsync(section.Id,

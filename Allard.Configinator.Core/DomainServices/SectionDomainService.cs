@@ -50,7 +50,7 @@ public class SectionDomainService
         var canPromote = _environmentDomainService.CanPromoteSectionTo(section.EnvironmentTypes, environmentType);
         if (!canPromote)
             throw new InvalidOperationException(
-                $"Section can't be promoted. Section Name={section.SectionName}, Environment Type={environmentType}");
+                $"Section can't be promoted. Section Name={section.SectionName}, Target Environment Type={environmentType}");
         section.PromoteTo(environmentType);
         return Task.CompletedTask;
     }
@@ -59,8 +59,8 @@ public class SectionDomainService
         SectionAggregate section,
         string environmentName)
     {
-        if (!_environmentDomainService.IsValidEnvironmentName(environmentName))
-            throw new InvalidOperationException("Invalid environment name: " + environmentName);
+        if (!_environmentDomainService.EnvironmentExists(environmentName))
+            throw new InvalidOperationException("The environment doesn't exist: " + environmentName);
 
         section.InternalEnvironments.EnsureEnvironmentDoesntExist(environmentName);
         var environmentType = _environmentDomainService.GetEnvironmentType(environmentName);
