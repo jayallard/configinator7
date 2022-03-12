@@ -91,8 +91,12 @@ public class SectionDomainService
     /// their values, then validate against the schema.
     /// If schema validation fails, an exception will be thrown.
     /// If all is well, it will return the resolved value.
+    /// This is the method used by CreateRelease.
+    /// It is PUBLIC so that the client can preview the json
+    /// of a release rather than create the release.
     /// </summary>
     /// <param name="section"></param>
+    /// <param name="sectionId"></param>
     /// <param name="environmentId"></param>
     /// <param name="variableSetId"></param>
     /// <param name="schemaId"></param>
@@ -117,43 +121,52 @@ public class SectionDomainService
         var schema = await _unitOfWork.Schemas.GetAsync(schemaId, cancellationToken);
         if (!schema.EnvironmentTypes.Contains(env.EnvironmentType, StringComparer.OrdinalIgnoreCase))
             throw new InvalidOperationException(
-                $"The schema doesn't belong to the environment type. Schema={schema.SchemaName.FullName}, Target Environment Type={env.EnvironmentType}");
+                $"The schema doesn't belong to the release's environment type. Schema={schema.SchemaName.FullName}, Target Environment Type={env.EnvironmentType}");
 
-        // get the variable set (if there is one)
-        VariableSetComposed? variables = null;
-        if (variableSetId != null)
-        {
-            var variableSet = await _unitOfWork.VariableSets.GetAsync(variableSetId, cancellationToken);
-
-            // make sure the the variable set is the correct environment type
-            if (!variableSet.EnvironmentType.Equals(env.EnvironmentType, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException(
-                    "The variable set isn't the same environment type as the environment");
-
-            // make sure the vs namespace is valid for this section
-            if (!NamespaceUtility.IsSelfOrAscendant(variableSet.Namespace, section.Namespace))
-                throw new InvalidOperationException(
-                    "The variable set namespace must be at or above the section's namespace."
-                    + "\nVariable set Name = " + variableSet.VariableSetName
-                    + ",\nVariable Set Namespace = " + variableSet.Namespace
-                    + ",\nSection Namespace = " + section.Namespace);
-
-            variables = await _variableSetDomainService.GetVariableSetComposedAsync(variableSetId, cancellationToken);
-        }
 
         // convert the value to a json.net value, which is needed for schema validation
         var jsonNetValue = value.ToJsonNetJson();
+
+        // get the variable set (if there is one)
+        var variables = await GetAndValidateVariableSet(variableSetId, env, section, cancellationToken);
 
         // apply the variable replacements
         var jsonNetResolved = await JsonUtility.ResolveAsync(jsonNetValue,
             variables?.ToValueDictionary() ?? new Dictionary<string, JToken>(), cancellationToken);
 
+        // get the schema and all of it's references
         var schemaDetails =
             await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema, cancellationToken);
         var validationErrors = schemaDetails.Root.ResolvedSchema!.Validate(jsonNetResolved);
         if (validationErrors.Any()) throw new SchemaValidationFailedException(jsonNetResolved.ToSystemTextJson(), validationErrors.ToList());
 
+        // finally done
         // convert the json.net to system.text.json
         return jsonNetResolved.ToSystemTextJson();
+    }
+
+    private async Task<VariableSetComposed?> GetAndValidateVariableSet(
+        VariableSetId? variableSetId,
+        EnvironmentEntity env,
+        SectionAggregate section,
+        CancellationToken cancellationToken)
+    {
+        if (variableSetId == null) return null;
+        var variableSet = await _unitOfWork.VariableSets.GetAsync(variableSetId, cancellationToken);
+
+        // make sure the the variable set is the correct environment type
+        if (!variableSet.EnvironmentType.Equals(env.EnvironmentType, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException(
+                "The variable set isn't the same environment type as the release");
+
+        // make sure the variable set namespace is valid for this section
+        if (!NamespaceUtility.IsSelfOrAscendant(variableSet.Namespace, section.Namespace))
+            throw new InvalidOperationException(
+                "The variable set namespace must be at or above the section's namespace."
+                + "\nVariable set Name = " + variableSet.VariableSetName
+                + ",\nVariable Set Namespace = " + variableSet.Namespace
+                + ",\nSection Namespace = " + section.Namespace);
+
+        return await _variableSetDomainService.GetVariableSetComposedAsync(variableSetId, cancellationToken);
     }
 }

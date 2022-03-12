@@ -18,6 +18,11 @@ public static class TestUtility
             "{\n  \"properties\": {\n    \"something\": {\n      \"type\": \"string\"\n    }\n  }\n}");
     }
 
+    public static JsonDocument TestValue()
+    {
+        return JsonDocument.Parse("{ \"something\": \"value\" }");
+    }
+
     public static DeploymentResult EmptyDeploymentResult()
     {
         return new(true, new List<DeploymentResultMessage>().AsReadOnly());
