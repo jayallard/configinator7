@@ -29,8 +29,8 @@
             <td>
                 <a
                     asp-action="DisplayRelease"
-                    asp-route-sectionName="@Model.SelectedSection.SectionName"
-                    asp-route-environmentName="@Model.SelectedEnvironment.EnvironmentName"
+                    asp-route-sectionId="@Model.SelectedSection.SectionId"
+                    asp-route-environmentId="@Model.SelectedEnvironment.EnvironmentId"
                     asp-route-releaseId="@h.Release.ReleaseId">
                     @h.Release.ReleaseId
                 </a>

@@ -140,6 +140,10 @@ var kafka = new Dictionary<string, object>
 };
 ualDevVariableSet.SetValue("kafka", JObject.FromObject(kafka));
 
+
+await variableSetService.CreateVariableSetOverride("/ual", "ual-variables-jay", "ual-variables");
+
+
 // -------------------------------------
 // MERGE
 // -------------------------------------

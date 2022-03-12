@@ -39,7 +39,6 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
     public IDataChangeTracker<SchemaAggregate, SchemaId> Schemas { get; }
     public IDataChangeTracker<NamespaceAggregate, NamespaceId> Namespaces { get; }
 
-
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var events =

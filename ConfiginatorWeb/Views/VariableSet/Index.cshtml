@@ -28,6 +28,7 @@
         <th></th>
         <th>Value</th>
         <th>Parent Values</th>
+        <th>Used By</th>
     </tr>
     </thead>
     @foreach (var t in Model.VariableSet.Variables.Values.OrderBy(t => t.Name))
@@ -113,6 +114,7 @@
                     }
                 }
             </td>
+            <td></td>
         </tr>
     }
 </table>
@@ -125,9 +127,10 @@
 }
 <a asp-action="AddVariable" asp-route-variableSetName="@Model.VariableSet.VariableSetName">Add Variable</a>
 <br/><br/>
+<b>TODO: add button to COPY to another environment. Include option to include or exclude the values.</b>
 <h2>Releases</h2>
 <p>
-    TODO
+    TODO - releases that use the variable set
 </p>
 <ul>
     <li>/a/b/c</li>

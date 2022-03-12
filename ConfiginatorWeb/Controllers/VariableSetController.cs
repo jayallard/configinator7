@@ -17,7 +17,8 @@ public class VariableSetController : Controller
 
     public VariableSetController(
         IMediator mediator,
-        EnvironmentDomainService environmentService, ILogger<VariableSetController> logger)
+        EnvironmentDomainService environmentService, 
+        ILogger<VariableSetController> logger)
     {
         _environmentService = environmentService;
         _logger = logger;

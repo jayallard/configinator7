@@ -34,7 +34,7 @@ public class DeployCommandHandler : IRequestHandler<HttpDeployRequest, DeployRes
         var section = await _unitOfWork.Sections.GetAsync(new SectionId(request.SectionId), cancellationToken);
         var env = section.GetEnvironment(new EnvironmentId(request.EnvironmentId));
         var release = env.Releases.GetRelease(new ReleaseId(request.ReleaseId));
-        var deploymentId = await _identityService.GetIdAsync<DeploymentId>();
+        var deploymentId = await _identityService.GetIdAsync<DeploymentId>(cancellationToken);
 
         var deployRequest = new DeployRequest
         {
