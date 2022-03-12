@@ -35,7 +35,6 @@ public class VariableSetDomainService
         string environmentType,
         CancellationToken cancellationToken = default)
     {
-        @namespace = NamespaceUtility.NormalizeNamespace(@namespace);
         if (!_environmentDomainService.IsValidEnvironmentType(environmentType))
             throw new InvalidOperationException("Environment type doesn't exist: " + environmentType);
 
@@ -58,8 +57,6 @@ public class VariableSetDomainService
         string baseVariableSetName,
         CancellationToken cancellationToken = default)
     {
-        @namespace = NamespaceUtility.NormalizeNamespace(@namespace);
-        
         // make sure the new name doesn't already exist
         if (await _unitOfWork.VariableSets.Exists(new VariableSetNameIs(variableSetName), cancellationToken))
             throw new InvalidOperationException("VariableSet already exists: " + variableSetName);

@@ -8,13 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.4.0"/>
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="NJsonSchema" Version="10.6.7"/>
-        <PackageReference Include="xunit" Version="2.4.1"/>
-        <PackageReference Include="Xunit.DependencyInjection" Version="8.3.0"/>
+        <PackageReference Include="FluentAssertions" Version="6.4.0" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="NJsonSchema" Version="10.6.7" />
+        <PackageReference Include="xunit" Version="2.4.1" />
+        <PackageReference Include="Xunit.DependencyInjection" Version="8.3.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -41,12 +41,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allard.Configinator.Core\Allard.Configinator.Core.csproj"/>
-        <ProjectReference Include="..\Allard.Configinator.Infrastructure\Allard.Configinator.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Allard.Configinator.Core\Allard.Configinator.Core.csproj" />
+        <ProjectReference Include="..\Allard.Configinator.Infrastructure\Allard.Configinator.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Unit\OrganizationPathHierarchy.cs"/>
+        <Compile Remove="Unit\OrganizationPathHierarchy.cs" />
     </ItemGroup>
 
 </Project>

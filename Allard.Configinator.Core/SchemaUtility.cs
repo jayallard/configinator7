@@ -12,7 +12,7 @@ public static class SchemaUtility
     /// </summary>
     /// <param name="schema"></param>
     /// <param name="schemaName"></param>
-    public static void ValidateRootSchema(JsonSchema schema, string schemaName)
+    public static void EnsureValidSchema(JsonSchema schema, string schemaName)
     {
         // make sure it has at least one property.
         if (schema.Properties.Count == 0)

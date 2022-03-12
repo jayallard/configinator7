@@ -34,7 +34,6 @@ public class SectionDomainService
         CancellationToken cancellationToken = default)
     {
         // make sure section doesn't already exist
-        @namespace = NamespaceUtility.NormalizeNamespace(@namespace);
         if (await _unitOfWork.Sections.Exists(sectionName, cancellationToken))
             throw new InvalidOperationException("Section already exists: " + sectionName);
 

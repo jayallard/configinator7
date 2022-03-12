@@ -39,10 +39,10 @@ public class Startup
 
             // database
             .AddScoped<IUnitOfWork, UnitOfWorkMemory>()
-            .AddSingleton<ISectionRepository, SectionRepositoryMemory>()
-            .AddSingleton<IVariableSetRepository, VariableSetRepositoryMemory>()
-            .AddSingleton<ISchemaRepository, SchemaRepositoryMemory>()
-            .AddSingleton<INamespaceRepository, NamespaceRepositoryMemory>();
+            .AddScoped<ISectionRepository, SectionRepositoryMemory>()
+            .AddScoped<IVariableSetRepository, VariableSetRepositoryMemory>()
+            .AddScoped<ISchemaRepository, SchemaRepositoryMemory>()
+            .AddScoped<INamespaceRepository, NamespaceRepositoryMemory>();
 
         // hack
         var environmentRules = new EnvironmentRules();

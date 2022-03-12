@@ -11,6 +11,13 @@ public static class TestUtility
         return JsonDocument.Parse("{}");
     }
 
+    public static JsonDocument TestSchema()
+    {
+        //lang=json
+        return JsonDocument.Parse(
+            "{\n  \"properties\": {\n    \"something\": {\n      \"type\": \"string\"\n    }\n  }\n}");
+    }
+
     public static DeploymentResult EmptyDeploymentResult()
     {
         return new(true, new List<DeploymentResultMessage>().AsReadOnly());

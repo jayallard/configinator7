@@ -7,7 +7,7 @@ public class NamespaceIs : ISpecification<NamespaceAggregate>
 {
     public NamespaceIs(string @namespace)
     {
-        Namespace = NamespaceUtility.NormalizeNamespace(@namespace);
+        Namespace = @namespace;
     }
 
     public string Namespace { get; }

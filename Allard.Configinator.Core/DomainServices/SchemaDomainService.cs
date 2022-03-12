@@ -41,8 +41,6 @@ public class SchemaDomainService
         JsonDocument schema,
         CancellationToken cancellationToken = default)
     {
-        @namespace = NamespaceUtility.NormalizeNamespace(@namespace);
-        
         // schemas are globally unique
         // make sure this one doesn't already exist
         await EnsureSchemaDoesntExistAsync(schemaName, cancellationToken);
@@ -70,10 +68,10 @@ public class SchemaDomainService
         // the json value {} is a valid schema, but is useless.
         // this check makes sure that the schema is at least minimally useful
         // ---------------------------------------------------------------------------------------
-        SchemaUtility.ValidateRootSchema(resolved.Root.ResolvedSchema, schemaName.FullName);
+        SchemaUtility.EnsureValidSchema(resolved.Root.ResolvedSchema, schemaName.FullName);
 
         // ---------------------------------------------------------------------------------------
-        // make sure that all schemas are in valid namespaces, or are in the same section.
+        // make sure that all schemas are in valid namespaces
         // ---------------------------------------------------------------------------------------
         var schemaProperties = new SchemaValidationProperties(@namespace, schemaName);
         var referenceProperties =
@@ -141,7 +139,7 @@ public class SchemaDomainService
         CancellationToken cancellationToken = default)
     {
         var exists = await _unitOfWork.Schemas.Exists(SchemaNameIs.Is(schemaName), cancellationToken);
-        if (exists) throw new InvalidOperationException("That schema name is invalid. It is already in use.");
+        if (exists) throw new InvalidOperationException("The schema name is already in use. SchemaName=" + schemaName.FullName);
     }
 
     /// <summary>

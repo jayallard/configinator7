@@ -54,7 +54,7 @@ public class SchemaController : Controller
             SchemaName = null,
 
             // bug: shouldn't have to use the utility here. it shouldn't be wrong in the db.
-            SelectedNamespace = NamespaceUtility.NormalizeNamespace(section?.Namespace),
+            SelectedNamespace = section?.Namespace,
             SectionId = sectionId,
             SectionName = section?.SectionName
         };

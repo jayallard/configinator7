@@ -17,7 +17,7 @@ public class NamespaceAggregate : AggregateBase<NamespaceId>
 
     public NamespaceAggregate(NamespaceId namespaceId, string @namespace)
     {
-        Play(new NamespaceCreatedEvent(namespaceId, NamespaceUtility.NormalizeNamespace(@namespace)));
+        Play(new NamespaceCreatedEvent(namespaceId, @namespace));
     }
 
     public ISet<SchemaId> Schemas => _schemas.ToHashSet();
