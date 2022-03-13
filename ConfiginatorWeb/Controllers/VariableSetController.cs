@@ -104,6 +104,13 @@ public class VariableSetController : Controller
             return View();
         }
     }
+
+    [HttpGet]
+    public IActionResult GetVariableSet(string variableSetName)
+    {
+        var results = _mediator.Send(new VariableSetValuesQueryRequest(variableSetName));
+        return Json(results);
+    }
 }
 
 public record EditVariableSetView(VariableSetComposedDto VariableSet, string MermaidJsDiagram);

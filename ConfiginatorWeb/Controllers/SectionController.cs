@@ -40,7 +40,7 @@ public class SectionController : Controller
 
     public async Task<IActionResult> Display(long? sectionId, CancellationToken cancellationToken)
     {
-        if (sectionId == null) throw new ArgumentException(nameof(sectionId));
+        if (sectionId == null) throw new ArgumentNullException(nameof(sectionId));
         var section = await _sectionQueries.GetSectionAsync(sectionId.Value, cancellationToken);
         return View(new SectionIndexView(section));
     }

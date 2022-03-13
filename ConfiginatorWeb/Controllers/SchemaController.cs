@@ -85,7 +85,6 @@ public class SchemaController : Controller
         ViewData["ns"] = ns;
     }
 
-
     [HttpPost]
     public async Task<IActionResult> AddSchema(AddSchemaViewModel model)
     {

@@ -1,27 +1,20 @@
-﻿using Allard.Configinator.Core.DomainServices;
+﻿using System.Collections.Concurrent;
+using Allard.Configinator.Core.DomainServices;
 using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Infrastructure;
 
 public class IdentityServiceMemory : IIdentityService
 {
-    private readonly Dictionary<Type, long> _ids = new();
+    private readonly ConcurrentDictionary<Type, long> _ids = new();
 
     public Task<T> GetIdAsync<T>(CancellationToken cancellationToken = default) where T : IIdentity
     {
-        if (_ids.ContainsKey(typeof(T)))
-        {
-            var id = _ids[typeof(T)] + 1;
-            _ids[typeof(T)] = id;
-            return Task.FromResult(Create<T>(id));
-        }
-
-        _ids[typeof(T)] = 0;
-        return Task.FromResult(Create<T>(0));
+        var value = _ids.AddOrUpdate(typeof(T), 1, (id, count) => count + 1);
+        var id = Create<T>(value);
+        return Task.FromResult(id);
     }
 
-    private static T Create<T>(long value)
-    {
-        return (T) Activator.CreateInstance(typeof(T), value)!;
-    }
+    private static T Create<T>(long value) =>
+        (T) Activator.CreateInstance(typeof(T), value)!;
 }

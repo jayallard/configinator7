@@ -31,21 +31,22 @@ public class SchemaViewComponent : ViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(SchemaName schemaName)
     {
+        // TODO: this only shows the schema and it's references.
+        // if the schema is referred to by other schemas, it doesn't show
+        // them
         Guards.HasValue(schemaName, nameof(SchemaName));
         var schema = await _unitOfWork.Schemas.FindOneAsync(SchemaNameIs.Is(schemaName));
         var resolved = await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema);
         var aggregates = await _schemaDomainService.GetSchemasAsync(resolved.AllNames());
-        var dtos =
+        var dtosTasks =
             aggregates
                 // todo: move this
-                .Select(s => new SchemaDto
+                .Select(async s => new SchemaDto
                 {
                     Schema = s.Schema,
-
-                    // HACK - blocking
                     SectionName = s.SectionId == null
                         ? null
-                        : _unitOfWork.Sections.GetAsync(s.SectionId).Result.SectionName,
+                        : (await _unitOfWork.Sections.GetAsync(s.SectionId)).SectionName,
                     EnvironmentTypes = s.EnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase),
                     SchemaName = s.SchemaName.ToOutputDto(),
                     SectionId = s.SectionId?.Id,
@@ -54,11 +55,9 @@ public class SchemaViewComponent : ViewComponent
                     PromoteTo = _environmentDomainService.GetNextSchemaEnvironmentType(s.EnvironmentTypes,
                         s.SchemaName.Version)
                 })
-                .ToDictionary(s => s.SchemaName.FullName, s => s);
-
-
-        // var resolved = await _loader.ResolveSchemaAsync(new SchemaName(schema.SchemaName.FullName), schema.Schema);
-        // var dto = resolved.ToOutputDto();
+                .ToArray();
+        await Task.WhenAll(dtosTasks);
+        var dtos = dtosTasks.ToDictionary(s => s.Result.SchemaName.FullName, s => s.Result);
         var mermaid = MermaidUtility.FlowChartForSchemas(resolved.References.Union(new[] {resolved.Root}),
             resolved.Root.SchemaName);
         var view = (IViewComponentResult) View("Index", new SchemaIndexView(resolved.ToOutputDto(), dtos, mermaid));

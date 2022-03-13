@@ -58,6 +58,33 @@ function preview() {
     });
 }
 
+function loadVariableSet() {
+    //alert(selectedVariableSetName());
+    const tbody = $('#vsRows');
+    tbody.empty()
+    
+    const vs = selectedVariableSetName();
+    if (vs === '') {
+        $('#vs').hide();
+        return;
+    }
+    
+    $('#vsHeading').text('Variable Set: ' + vs);
+    const url = '@Url.ActionLink("GetVariableSet", "VariableSet")?variableSetName=' + encodeURIComponent(vs);
+    $.get(url)
+    .done(function (data){
+        $('#vs').show();
+        $.each(data.result.values, function (r, item) {
+            // todo: do this programatically.. first attempts failed
+            tbody.append("<tr><td>" + item.name + '</td><td>' + item.value + '</td></tr>');
+         });
+    });
+    // .error(function(e) {
+    //     alert(e);
+    //  });
+}
+    
+
 $(document).ready(function() {
     $('#btnGenerateSample').click(function (e) {
         $.get('@Url.ActionLink("GetSchemaSample", "Release")?schemaName=' + selectedSchemaName())
@@ -80,7 +107,8 @@ $(document).ready(function() {
         window.open('@Url.ActionLink("SchemaView", "Schema")?schemaName=' + selectedSchemaName());
     });
         
-    $('#ddSchema').change(function(e) {
+    $('#variableSet').change(function(e) {
+        loadVariableSet();
     });
     
     $('#refreshPreview').click(function (e) {
@@ -106,10 +134,9 @@ $(document).ready(function() {
             alert(JSON.stringify(data));
         });
     });
+    
+    loadVariableSet();
 });
-
-
-
 </script>
 
 <h1>Create Release</h1>
@@ -164,7 +191,7 @@ $(document).ready(function() {
                             <option value="@ts.VariableSetId">@ts.VariableSetName</option>
                         }
                     }
-                </select>&nbsp;<a class="fa fa-external-link" id="viewVariableSet"></a>
+                </select>
             </div>
         </div>
     </div>
@@ -203,5 +230,18 @@ $(document).ready(function() {
     <button type="reset" class="btn btn-secondary">Reset</button>
 </form>
 <br/>
-<i><b>TODO</b> - the schema and variables can be displayed on page; just not done yet.</i>
-<br/>
+<div class="container" id="vs">
+    <h2 id="vsHeading">Variable Set</h2>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tbody id="vsRows">
+        <tr><td>a</td><td>b</td><td>c</td></tr>
+        </tbody>
+    </table>
+    <a class="btn btn-link" id="viewVariableSet">Edit</a>
+</div>

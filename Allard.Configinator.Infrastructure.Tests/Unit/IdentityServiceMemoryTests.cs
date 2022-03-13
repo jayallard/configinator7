@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Allard.Configinator.Core.Model;
 using FluentAssertions;
 using Xunit;
@@ -21,5 +23,23 @@ public class IdentityServiceMemoryTests
         (await service.GetIdAsync<SchemaId>()).Id.Should().Be(1);
         (await service.GetIdAsync<SchemaId>()).Id.Should().Be(2);
         (await service.GetIdAsync<SchemaId>()).Id.Should().Be(3);
+    }
+
+    [Fact]
+    public void Concurrency()
+    {
+        var service = new IdentityServiceMemory();
+        var threads = Enumerable
+            .Range(0, 50)
+            .Select(i =>
+            {
+                var thread = new Thread(() =>
+                {
+                    var _ = service.GetIdAsync<SchemaId>().Result;
+                });
+                thread.Start();
+                return thread;
+            });
+        foreach (var thread in threads) thread.Join();
     }
 }
