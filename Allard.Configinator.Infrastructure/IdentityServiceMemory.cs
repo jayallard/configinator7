@@ -10,7 +10,7 @@ public class IdentityServiceMemory : IIdentityService
 
     public Task<T> GetIdAsync<T>(CancellationToken cancellationToken = default) where T : IIdentity
     {
-        var value = _ids.AddOrUpdate(typeof(T), 1, (id, count) => count + 1);
+        var value = _ids.AddOrUpdate(typeof(T), 0, (id, count) => count + 1);
         var id = Create<T>(value);
         return Task.FromResult(id);
     }

@@ -1,95 +1,171 @@
-﻿using Allard.Configinator.Core.Model;
+﻿using System.Collections.Immutable;
+using Allard.Configinator.Core.Model;
 using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.DomainServices;
 
 public class EnvironmentDomainService
 {
-    private readonly EnvironmentRules _rules;
-
-    public EnvironmentDomainService(EnvironmentRules rules) =>
-        // todo: unique environment types, no duplicate types,
-        // no duplicate environments across environment types
-        _rules = Guards.HasValue(rules, nameof(rules));
+    private readonly Dictionary<string, EnvironmentType> _byEnvironmentType;
+    private readonly Dictionary<string, EnvironmentType> _byEnvironment;
+    private readonly List<string> _promotionOrder;
+    
+    /// <summary>
+    /// Gets the first environment type in the promotion order.
+    /// </summary>
+    public string FirstEnvironmentType { get; }
+    
+    /// <summary>
+    /// Gets the last environment in the promotion order.
+    /// </summary>
+    public string LastEnvironmentType { get; }
 
     /// <summary>
-    ///     Gets the list of environment types.
+    /// Gets all of the environment names.
     /// </summary>
-    public ISet<string> EnvironmentTypeNames => _rules
-        .EnvironmentTypes
-        .Select(e => e.Name)
-        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    public ImmutableHashSet<string> EnvironmentNames { get; }
+    
+    /// <summary>
+    /// Gets all of the environment type names.
+    /// </summary>
+    public ImmutableHashSet<string> EnvironmentTypeNames { get; }
 
     /// <summary>
-    ///     Returns a list of environment types and environments.
+    /// Gets all of the environment type objects.
     /// </summary>
-    public IEnumerable<(string EnvironmentType, string EnvironmentName)> EnvironmentNames =>
-        _rules.EnvironmentTypes
-            .SelectMany(et => et.AllowedEnvironments
-                .Select(e => (EnvironmentTypeName: et.Name, e)))
-            .ToArray();
+    public IEnumerable<EnvironmentType> EnvironmentTypes => _byEnvironmentType.Values.Select(e => e.Clone());
+
+    /// <summary>
+    /// Initializes a new instance of the EnvironmentDomainService class.
+    /// </summary>
+    /// <param name="rules"></param>
+    public EnvironmentDomainService(EnvironmentRules rules)
+    {
+        Guards.HasValue(rules, nameof(rules));
+        rules.EnsureIsValidRuleSet();
+        _byEnvironmentType =
+            rules.EnvironmentTypes.ToDictionary(et => et.EnvironmentTypeName, et => et,
+                StringComparer.OrdinalIgnoreCase);
+        _byEnvironment = rules
+            .EnvironmentTypes
+            .SelectMany(et => et.AllowedEnvironments.Select(e => new {Environment = e, EnvironmentType = et}))
+            .ToDictionary(e => e.Environment, e => e.EnvironmentType, StringComparer.OrdinalIgnoreCase);
+        EnvironmentNames = _byEnvironment.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+        EnvironmentTypeNames = _byEnvironmentType.Values.SelectMany(r => r.AllowedEnvironments)
+            .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+
+        _promotionOrder = rules.NamesInPromotionOrder();
+        FirstEnvironmentType = _promotionOrder.First();
+        LastEnvironmentType = _promotionOrder.Last();
+    }
 
     /// <summary>
     ///     Returns true if the environment name is valid for the environment type.
     /// </summary>
     /// <param name="environmentName"></param>
     /// <returns></returns>
-    public bool EnvironmentExists(string environmentName) =>
-        _rules.EnvironmentTypes.Any(et =>
-            et.AllowedEnvironments.Contains(environmentName, StringComparer.OrdinalIgnoreCase));
+    public bool EnvironmentExists(string environmentName) => EnvironmentNames.Contains(environmentName);
 
-    public bool EnvironmentTypeExists(string environmentType) =>
-        _rules
-            .EnvironmentTypes
-            .Any(et => et.Name.Equals(environmentType, StringComparison.OrdinalIgnoreCase));
+    /// <summary>
+    /// Returns true if the Environment Type exists.
+    /// </summary>
+    /// <param name="environmentType"></param>
+    /// <returns></returns>
+    public bool EnvironmentTypeExists(string environmentType) => EnvironmentTypeNames.Contains(environmentType);
 
-    public string GetEnvironmentType(string environmentName) =>
-        EnvironmentNames
-            .Single(e => e.EnvironmentName.Equals(environmentName, StringComparison.OrdinalIgnoreCase))
-            .EnvironmentType;
+    /// <summary>
+    /// Gets the environment type that the environment belongs to.
+    /// </summary>
+    /// <param name="environmentName"></param>
+    /// <returns></returns>
+    public string GetEnvironmentType(string environmentName) => _byEnvironment[environmentName].EnvironmentTypeName;
 
-    // TODO: hack
-    public string GetFirstEnvironmentType() => "development";
-    
+    /// <summary>
+    /// Gets the first environment type in the promotion order.
+    /// </summary>
+    /// <returns></returns>
+    public string GetFirstEnvironmentType() => FirstEnvironmentType;
+
     // TODO: hack
     public static bool IsPreReleaseAllowed(string environmentType) =>
         environmentType.Equals("development", StringComparison.OrdinalIgnoreCase);
 
-    // TODO: hack
-    public string? GetNextSectionEnvironmentType(IEnumerable<string> environmentTypes)
+    /// <summary>
+    /// Returns the next environment type in the promotion order.
+    /// IE: if the promotion order is a -> b -> c -> d -> e
+    /// and the list is (a, b, c), this will return d.
+    /// </summary>
+    /// <param name="environmentTypes"></param>
+    /// <returns></returns>
+    public string? GetNextEnvironmentType(IEnumerable<string> environmentTypes)
     {
-        var types = environmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        if (!types.Contains("staging")) return "staging";
-        if (!types.Contains("production")) return "production";
-        return null;
+        var highest = GetHighestEnvironmentType(environmentTypes);
+        return highest == null 
+            ? null 
+            : _byEnvironmentType[highest].Next;
+    }
+    
+
+    /// <summary>
+    /// Give a list of environment types, find the one that is
+    /// the highest in the promotion order.
+    /// IE: if the promotion order is dev -> staging -> production,
+    /// and the parameter value is (dev, staging), this will return staging.
+    /// </summary>
+    /// <param name="environmentTypes"></param>
+    /// <returns></returns>
+    private string? GetHighestEnvironmentType(IEnumerable<string> environmentTypes)
+    {
+        var highest = _promotionOrder
+            .Join(environmentTypes, l => l, r => r, (l, r) => l)
+            .ToArray();
+        return highest.LastOrDefault();
     }
 
-    // hack
+    /// <summary>
+    /// Returns the next environment type for a schema.
+    /// </summary>
+    /// <param name="assignedEnvironmentTypes"></param>
+    /// <param name="version"></param>
+    /// <returns></returns>
     public string? GetNextSchemaEnvironmentType(IEnumerable<string> assignedEnvironmentTypes, SemanticVersion version)
     {
-        if (version.IsPrerelease) return null;
-        var types = assignedEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        if (!types.Contains("staging")) return "staging";
-        if (!types.Contains("production")) return "production";
-        return null;
+        // TODO: consider moving this to the schema service.
+        return version.IsPrerelease 
+            ? null 
+            : GetNextEnvironmentType(assignedEnvironmentTypes);
     }
 
+    /// <summary>
+    /// Returns true if the section can be prompted to the target environment type.
+    /// </summary>
+    /// <param name="assignedEnvironmentTypes"></param>
+    /// <param name="targetEnvironmentType"></param>
+    /// <returns></returns>
     public bool CanPromoteSectionTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType) =>
         CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
 
-    // hack
+    /// <summary>
+    /// Returns TRUE if the schema can be promoted to the target environment type.
+    /// </summary>
+    /// <param name="assignedEnvironmentTypes"></param>
+    /// <param name="targetEnvironmentType"></param>
+    /// <param name="schemaName"></param>
+    /// <returns></returns>
     public bool CanPromoteSchemaTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType,
         SchemaName schemaName) =>
         !schemaName.Version.IsPrerelease && CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
 
-    private static bool CanPromoteTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType)
+    
+    /// <summary>
+    /// Returns true if an item can be promoted to the target environment type.
+    /// </summary>
+    /// <param name="assignedEnvironmentTypes"></param>
+    /// <param name="targetEnvironmentType"></param>
+    /// <returns></returns>
+    private bool CanPromoteTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType)
     {
-        var types = assignedEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        return targetEnvironmentType.ToLower() switch
-        {
-            "staging" => !types.Contains("staging"),
-            "production" => types.Contains("staging") && !types.Contains("production"),
-            _ => false
-        };
+        var next = GetNextEnvironmentType(assignedEnvironmentTypes);
+        return next != null && targetEnvironmentType.Equals(next, StringComparison.OrdinalIgnoreCase);
     }
 }

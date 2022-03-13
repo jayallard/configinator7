@@ -56,7 +56,7 @@ public class SectionController : Controller
     [HttpPost]
     public async Task<IActionResult> AddEnvironment(AddEnvironmentViewModel model)
     {
-        if (model.SelectedEnvironments != null && model.SelectedEnvironments.Count > 0)
+        if (model.SelectedEnvironments is {Count: > 0})
             await _mediator.Send(new AddEnvironmentsToSectionRequest(model.SectionId, model.SelectedEnvironments));
 
         return RedirectToAction("Display", new {sectionId = model.SectionId});
@@ -75,37 +75,33 @@ public class SectionController : Controller
         // per environment type, get the environments
         // per environment, indicate if it's already in use by the section
         var environmentTypes = _environmentDomainService
-            .EnvironmentTypeNames
-            .Where(e => section.EnvironmentTypes.Contains(e))
+            .EnvironmentTypes
+            .Where(et => section.EnvironmentTypes.Contains(et.EnvironmentTypeName, StringComparer.OrdinalIgnoreCase))
             .Select(et =>
             {
-                var environments = _environmentDomainService
-                    .EnvironmentNames
-                    .Where(e => e.EnvironmentType.Equals(et, StringComparison.OrdinalIgnoreCase))
-                    .Select(e =>
-                        new EnvironmentItemViewData(e.EnvironmentName, environmentsInUse.Contains(e.EnvironmentName)))
-                    .ToList();
-                return new EnvironmentTypeItemViewData(et, environments);
+                var env = et.AllowedEnvironments.Select(e =>
+                    new EnvironmentItemViewData(e, environmentsInUse.Contains(e)));
+                return new EnvironmentTypeItemViewData(et.EnvironmentTypeName, env.ToList());
             })
             .ToList();
-
         ViewData["environmentTypes"] = environmentTypes;
 
         // -------------------------------------
         // for promotion section
         // -------------------------------------
-        var nextEnvironmentType = _environmentDomainService.GetNextSectionEnvironmentType(section.EnvironmentTypes);
+        var nextEnvironmentType = _environmentDomainService.GetNextEnvironmentType(section.EnvironmentTypes);
         ViewData["PromoteTo"] = nextEnvironmentType;
 
-        var canAdd = environmentTypes.Any(et => et.EnvironmentItems.Any(e => !e.IsAlreadyInUse));
+        var canAdd = environmentTypes
+            .SelectMany(et => et.EnvironmentItems)
+            .Any(e => !e.IsAlreadyInUse);
         return View(new AddEnvironmentViewModel(sectionId, new List<string>(), canAdd));
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(
         string name,
-        string @namespace,
-        List<string> selectedEnvironments)
+        string @namespace)
     {
         if (!ModelState.IsValid) return View();
         try

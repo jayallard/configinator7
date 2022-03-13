@@ -22,7 +22,6 @@
         <th>Remove Reason</th>
     </tr>
     </thead>
-    <!-- only showing deployments. de-deployment was ugly output, and not useful -->
     @foreach (var h in Model.Deployments.OrderByDescending(d => d.Deployment.DeploymentDate))
     {
         <tr>

@@ -18,7 +18,8 @@ public class AddSectionQueryHandler : IRequestHandler<AddSectionIndexQueryReques
         CancellationToken cancellationToken)
     {
         var environments = _environmentDomainService
-            .EnvironmentNames
+            .EnvironmentTypes
+            .SelectMany(et => et.AllowedEnvironments.Select(e => new AddSectionQueryEnvironment(et.EnvironmentTypeName, e)))
             .Select(e => new AddSectionQueryEnvironment(e.EnvironmentType, e.EnvironmentName))
             .ToList();
         return Task.FromResult(new AddSectionIndexQueryResponse(environments));
