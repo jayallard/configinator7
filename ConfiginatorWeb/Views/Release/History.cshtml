@@ -7,7 +7,7 @@
 
 <h2>Deploy History</h2>
 <p>
-    Configuration Name: <a asp-action="display" asp-controller="Section" asp-route-name="@Model.SelectedSection.SectionName">@Model.SelectedSection.SectionName</a><br/>
+    Configuration Name: <a asp-action="display" asp-controller="Section" asp-route-sectionId="@Model.SelectedSection.SectionId">@Model.SelectedSection.SectionName</a><br/>
     Environment: @Model.SelectedEnvironment.EnvironmentName<br/>
 </p>
 <table class="table">
