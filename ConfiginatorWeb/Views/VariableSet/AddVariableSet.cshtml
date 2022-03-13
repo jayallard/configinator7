@@ -9,6 +9,7 @@
 
 <h2>Add Variable Set</h2>
 <form method="post">
+    @Html.AntiForgeryToken();
     <div>
         @Html.LabelFor(m => m.BaseVariableSetName, "Base Variable Set");
         TODO

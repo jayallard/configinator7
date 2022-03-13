@@ -9,6 +9,7 @@
 Variable Set: @Model.VariableSetName
 <br/><br/>
 <form method="post">
+    @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.VariableSetName)
     @Html.LabelFor(m => m.Key)
     @Html.TextBoxFor(m => m.Key, new {@class = "form-text"})

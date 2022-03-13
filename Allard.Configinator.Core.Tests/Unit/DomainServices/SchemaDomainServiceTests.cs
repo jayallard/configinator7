@@ -189,4 +189,25 @@ public class SchemaDomainServiceTests
             TestSchema());
         schema.SectionId.Should().Be(section.Id);
     }
+
+    /// <summary>
+    /// If the rules don't support pre release in the first environment,
+    /// then can't create a pre-release schema.
+    /// </summary>
+    /// <exception cref="NotImplementedException"></exception>
+    [Fact]
+    public void CantCreatePreReleaseSchemaIfPreReleaseNotSupported()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// dev -> staging -> production
+    /// If a schema in dev is PRE RELEASE, but staging doesn't allow PRE RELEASE, then it can't be promoted.
+    /// </summary>
+    [Fact]
+    public void CantPromotePreReleaseIfPreReleaseNotSupported()
+    {
+        throw new NotImplementedException();
+    }
 }

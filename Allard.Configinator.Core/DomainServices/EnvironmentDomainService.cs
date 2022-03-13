@@ -9,16 +9,16 @@ public class EnvironmentDomainService
     private readonly Dictionary<string, EnvironmentType> _byEnvironmentType;
     private readonly Dictionary<string, EnvironmentType> _byEnvironment;
     private readonly List<string> _promotionOrder;
-    
+
     /// <summary>
     /// Gets the first environment type in the promotion order.
     /// </summary>
-    public string FirstEnvironmentType { get; }
-    
+    public EnvironmentType FirstEnvironmentType => _byEnvironmentType[_promotionOrder.First()].Clone();
+
     /// <summary>
     /// Gets the last environment in the promotion order.
     /// </summary>
-    public string LastEnvironmentType { get; }
+    public EnvironmentType LastEnvironmentType => _byEnvironmentType[_promotionOrder.Last()].Clone();
 
     /// <summary>
     /// Gets all of the environment names.
@@ -55,8 +55,6 @@ public class EnvironmentDomainService
             .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
         _promotionOrder = rules.NamesInPromotionOrder();
-        FirstEnvironmentType = _promotionOrder.First();
-        LastEnvironmentType = _promotionOrder.Last();
     }
 
     /// <summary>
@@ -78,17 +76,16 @@ public class EnvironmentDomainService
     /// </summary>
     /// <param name="environmentName"></param>
     /// <returns></returns>
-    public string GetEnvironmentType(string environmentName) => _byEnvironment[environmentName].EnvironmentTypeName;
+    public EnvironmentType GetEnvironmentType(string environmentName) => _byEnvironment[environmentName].Clone();
 
     /// <summary>
     /// Gets the first environment type in the promotion order.
     /// </summary>
     /// <returns></returns>
-    public string GetFirstEnvironmentType() => FirstEnvironmentType;
+    public EnvironmentType GetFirstEnvironmentType() => FirstEnvironmentType;
 
-    // TODO: hack
-    public static bool IsPreReleaseAllowed(string environmentType) =>
-        environmentType.Equals("development", StringComparison.OrdinalIgnoreCase);
+    public bool IsPreReleaseAllowed(string environmentType) =>
+        _byEnvironmentType[environmentType].SupportsPreRelease;
 
     /// <summary>
     /// Returns the next environment type in the promotion order.
@@ -130,10 +127,14 @@ public class EnvironmentDomainService
     /// <returns></returns>
     public string? GetNextSchemaEnvironmentType(IEnumerable<string> assignedEnvironmentTypes, SemanticVersion version)
     {
-        // TODO: consider moving this to the schema service.
-        return version.IsPrerelease 
-            ? null 
-            : GetNextEnvironmentType(assignedEnvironmentTypes);
+        var next = GetNextEnvironmentType(assignedEnvironmentTypes);
+        if (next == null) return null;
+
+        // if the schema isn't a prerelease, then return the next environment type.
+        // if the schema is a prerelease, then return the next environment type only if it supports prerelease.
+        return (version.IsPrerelease && _byEnvironmentType[next].SupportsPreRelease) || !version.IsPrerelease
+            ? next
+            : null;
     }
 
     /// <summary>

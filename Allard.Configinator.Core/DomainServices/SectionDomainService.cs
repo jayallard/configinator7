@@ -38,7 +38,7 @@ public class SectionDomainService
             throw new InvalidOperationException("Section already exists: " + sectionName);
 
         var id = await _identityService.GetIdAsync<SectionId>(cancellationToken);
-        var section = new SectionAggregate(id, _environmentDomainService.GetFirstEnvironmentType(), @namespace,
+        var section = new SectionAggregate(id, _environmentDomainService.GetFirstEnvironmentType().EnvironmentTypeName, @namespace,
             sectionName);
         await _unitOfWork.Sections.AddAsync(section, cancellationToken);
         return section;
@@ -63,7 +63,7 @@ public class SectionDomainService
             throw new InvalidOperationException("The environment doesn't exist: " + environmentName);
 
         section.InternalEnvironments.EnsureEnvironmentDoesntExist(environmentName);
-        var environmentType = _environmentDomainService.GetEnvironmentType(environmentName);
+        var environmentType = _environmentDomainService.GetEnvironmentType(environmentName).EnvironmentTypeName;
         if (!section.EnvironmentTypes.Contains(environmentType))
             throw new InvalidOperationException($"The section doesn't support the {environmentType} environment type.");
 

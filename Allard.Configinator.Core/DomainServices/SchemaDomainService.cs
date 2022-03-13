@@ -58,6 +58,19 @@ public class SchemaDomainService
                                                     ",\nSchema Name=" + schemaName.FullName);
         }
 
+        // ---------------------------------------------------------------------------------------
+        // if it's a prerelease, make sure prerelease is supported
+        // ---------------------------------------------------------------------------------------
+        if (schemaName.Version.IsPrerelease)
+        {
+            var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
+            if (!firstEnvironmentType.SupportsPreRelease)
+            {
+                throw new InvalidOperationException("PreRelease isn't supported. Environment Type: " +
+                                                    firstEnvironmentType.EnvironmentTypeName);
+            }
+        }
+
 
         // resolve the json schema. This returns raw data about the schema and it's references.
         // it is not aggregate aware.
@@ -116,7 +129,7 @@ public class SchemaDomainService
         JsonDocument schema, CancellationToken cancellationToken)
     {
         var schemaId = await _identityService.GetIdAsync<SchemaId>(cancellationToken);
-        var firstEnvironmentType = _environmentService.GetFirstEnvironmentType();
+        var firstEnvironmentType = _environmentService.GetFirstEnvironmentType().EnvironmentTypeName;
         var schemaAggregate = new SchemaAggregate(
             schemaId,
             sectionId,
@@ -197,7 +210,7 @@ public class SchemaDomainService
 
         // if any pre-release schemas are used, make sure pre-release is supported.
         var resolved = await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema, cancellationToken);
-        if (resolved.IsPreRelease() && !EnvironmentDomainService.IsPreReleaseAllowed(targetEnvironmentType))
+        if (resolved.IsPreRelease() && !_environmentService.IsPreReleaseAllowed(targetEnvironmentType))
             throw new InvalidOperationException("The environment type doesn't support pre-releases. EnvironmentType=" +
                                                 targetEnvironmentType);
 

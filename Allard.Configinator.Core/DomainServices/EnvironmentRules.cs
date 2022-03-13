@@ -47,9 +47,31 @@ public class EnvironmentRules
 
         // find all the NEXT that don't exist.
         var invalidNextEnvironmentTypes = nextEnvironmentTypes.Where(n => !environmentTypes.Contains(n!)).ToArray();
-        if (!invalidNextEnvironmentTypes.Any()) return;
-        var error = string.Join(",", invalidNextEnvironmentTypes);
-        throw new InvalidOperationException("Invalid Next Environment Types: " + error);
+        if (invalidNextEnvironmentTypes.Any())
+        {
+            var error = string.Join(",", invalidNextEnvironmentTypes);
+            throw new InvalidOperationException("Invalid Next Environment Types: " + error);
+        }
+
+        // make sure that once PRE RELEASE isn't allowed, it isn't subsequently allowed again.
+        // IE: if allowed in dev, but not staging, it can't be allowed in production.
+        var inOrder = NamesInPromotionOrder();
+        var isAllowed = EnvironmentTypes.Single(et => et.EnvironmentTypeName.Equals(inOrder[0])).SupportsPreRelease;
+        foreach (var et in inOrder.Skip(1))
+        {
+            var next = EnvironmentTypes.Single(et => et.EnvironmentTypeName.Equals(inOrder[0]));
+            switch (next.SupportsPreRelease)
+            {
+                case false:
+                    isAllowed = false;
+                    continue;
+                case true when !isAllowed:
+                    throw new InvalidOperationException(
+                        "The environment type can't support PreRelease because the prior environment type does not: " +
+                        next.EnvironmentTypeName);
+            }
+        }
+
     }
 
     private static void EnsureUnique<T>(IEnumerable<T> items, string itemType)
@@ -93,10 +115,7 @@ public class EnvironmentRules
     {
         return new EnvironmentRules
         {
-            EnvironmentTypes =
-                EnvironmentTypes is null
-                    ? null
-                    : EnvironmentTypes.Select(et => et.Clone()).ToList()
+            EnvironmentTypes = EnvironmentTypes.Select(et => et.Clone()).ToList()
         };
     }
 }
@@ -115,11 +134,14 @@ public class EnvironmentType
     public string[] AllowedEnvironments { get; set; }
 
     public string? Next { get; set; }
+    
+    public bool SupportsPreRelease { get; set; }
 
     public EnvironmentType Clone() => new()
     {
         EnvironmentTypeName = EnvironmentTypeName,
         AllowedEnvironments = AllowedEnvironments,
-        Next = Next
+        Next = Next,
+        SupportsPreRelease = SupportsPreRelease
     };
 }
