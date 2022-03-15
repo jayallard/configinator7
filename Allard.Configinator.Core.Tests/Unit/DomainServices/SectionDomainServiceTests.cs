@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
@@ -25,7 +24,7 @@ public class SectionDomainServiceTests
     public async Task ThrowExceptionIfNameExists()
     {
         await _sectionService.CreateSectionAsync("/ns", "name");
-        var test = async () => await _sectionService.CreateSectionAsync("/ns", "name");
+        var test = () => _sectionService.CreateSectionAsync("/ns", "name");
         await test
             .Should()
             .ThrowExactlyAsync<InvalidOperationException>()
@@ -56,7 +55,7 @@ public class SectionDomainServiceTests
     public async Task CantAddEnvironmentToSectionIfEnvironmentDoesntExist()
     {
         var section = await _sectionService.CreateSectionAsync("/ns", "section");
-        var test = async () => await _sectionService.AddEnvironmentToSectionAsync(section, "go-boom");
+        var test = () => _sectionService.AddEnvironmentToSectionAsync(section, "go-boom");
         await test
             .Should()
             .ThrowAsync<InvalidOperationException>()
@@ -73,7 +72,7 @@ public class SectionDomainServiceTests
     public async Task CantAddEnvironmentIfEnvironmentTypeDoesntExistInSection()
     {
         var section = await _sectionService.CreateSectionAsync("/ns", "section");
-        var test = async () => await _sectionService.AddEnvironmentToSectionAsync(section, "Staging");
+        var test = () => _sectionService.AddEnvironmentToSectionAsync(section, "Staging");
         await test
             .Should()
             .ThrowAsync<InvalidOperationException>()
@@ -101,7 +100,7 @@ public class SectionDomainServiceTests
 
         // will fail because the release is staging,
         // but the schema hasn't been promoted to staging.
-        var test = async () => await _sectionService.CreateReleaseAsync(
+        var test = () => _sectionService.CreateReleaseAsync(
             section,
             section.GetEnvironment("staging").Id,
             null,
@@ -137,7 +136,7 @@ public class SectionDomainServiceTests
 
         // will fail because the release is staging,
         // but the schema hasn't been promoted to staging.
-        var test = async () => await _sectionService.CreateReleaseAsync(
+        var test = () => _sectionService.CreateReleaseAsync(
             section,
             section.GetEnvironment("development").Id,
             variableSet.Id,

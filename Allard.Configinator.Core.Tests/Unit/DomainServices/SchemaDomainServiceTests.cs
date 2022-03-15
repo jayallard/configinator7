@@ -36,7 +36,7 @@ public class SchemaDomainServiceTests
             null,
             TestUtility.TestSchema());
 
-        var test = async () => await _schemaService.CreateSchemaAsync(
+        var test = () => _schemaService.CreateSchemaAsync(
             null,
             "/test",
             new SchemaName("a/1.0.0"),
@@ -54,7 +54,7 @@ public class SchemaDomainServiceTests
     [Fact]
     public async Task CantCreateIfSchemaIsInvalid()
     {
-        var test = async () => await _schemaService.CreateSchemaAsync(
+        var test = () => _schemaService.CreateSchemaAsync(
             null,
             "/test",
             new SchemaName("b/1.0.0"),
@@ -175,7 +175,7 @@ public class SchemaDomainServiceTests
     public async Task ThrowExceptionIfSectionSchemaNotInTheSameNamespaceAsTheSection()
     {
         var section = await _sectionService.CreateSectionAsync("/a/b/c", "test-section");
-        var test = async () => await _schemaService.CreateSchemaAsync(section.Id,
+        var test = () => _schemaService.CreateSchemaAsync(section.Id,
             "/a/b",
             new SchemaName("awesome/1.0.0"),
             null,
@@ -222,12 +222,12 @@ public class SchemaDomainServiceTests
         });
         var loader = new SchemaLoader(uow);
         var schemasService = new SchemaDomainService(identity, uow, envService, loader);
-        var test = async () =>
-            await schemasService.CreateSchemaAsync(null, "/a/b/c", new SchemaName("x/y/1.0.0-prerelease+12345"), null,
+        var test = () =>
+            schemasService.CreateSchemaAsync(null, "/a/b/c", new SchemaName("x/y/1.0.0-prerelease+12345"), null,
                 TestSchema());
         await test.Should()
-            .ThrowAsync<InvalidOperationException>(
-                "zan't create schema. PreRelease isn't supported. Environment Type: development");
+            .ThrowAsync<InvalidOperationException>()
+            .WithMessage("PreRelease isn't supported. Environment Type: development");
     }
 
     /// <summary>
@@ -270,6 +270,7 @@ public class SchemaDomainServiceTests
         await test
             .Should()
             .ThrowAsync<InvalidOperationException>()
-            .WithMessage("The schema can't be promoted because PreRelease schemas aren't supported in the target environment type. Target Environment Type=staging");
+            .WithMessage(
+                "The schema can't be promoted because PreRelease schemas aren't supported in the target environment type. Target Environment Type=staging");
     }
 }
