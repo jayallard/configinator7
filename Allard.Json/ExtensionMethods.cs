@@ -16,10 +16,10 @@ public static class ExtensionMethods
         return JObject.Parse(json.RootElement.ToString());
     }
 
-    public static JToken ToJsonNetJson(this JsonElement json)
-    {
-        return JToken.Parse(json.ToString());
-    }
+    // public static JToken ToJsonNetJson(this JsonElement json)
+    // {
+    //     return JToken.Parse(json.ToString());
+    // }
 
     public static string PrettyPrint(this JsonDocument doc)
     {

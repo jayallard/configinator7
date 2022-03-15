@@ -18,7 +18,7 @@ namespace Allard.Configinator.Core.DomainEventHandlers;
 ///     The password variable value is changed to XYZ.
 ///     The existing release is now out of date because the password has changed.
 /// </summary>
-public class UpdateReleasesWhenVariableValueChanges : IEventHandler<VariableValueSetEvent>
+public class UpdateReleasesWhenVariableValueChanges : IDomainEventHandler<VariableValueSetEvent>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly VariableSetDomainService _variableSetDomainService;

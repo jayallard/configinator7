@@ -5,7 +5,7 @@ namespace ConfiginatorWeb.EventHandlers;
 
 public class SectionCreatedNotificationHandler : NotificationHandlerBase<SectionCreatedEvent>
 {
-    public SectionCreatedNotificationHandler(IEnumerable<IEventHandler<SectionCreatedEvent>> handlers) : base(handlers)
+    public SectionCreatedNotificationHandler(IEnumerable<IDomainEventHandler<SectionCreatedEvent>> handlers) : base(handlers)
     {
     }
 }

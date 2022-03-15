@@ -6,9 +6,9 @@ namespace ConfiginatorWeb.EventHandlers;
 
 public abstract class NotificationHandlerBase<T> : INotificationHandler<MediatorNotification<T>> where T : IDomainEvent
 {
-    private readonly List<IEventHandler<T>> _handlers;
+    private readonly List<IDomainEventHandler<T>> _handlers;
 
-    protected NotificationHandlerBase(IEnumerable<IEventHandler<T>> handlers)
+    protected NotificationHandlerBase(IEnumerable<IDomainEventHandler<T>> handlers)
     {
         _handlers = handlers.ToList();
     }

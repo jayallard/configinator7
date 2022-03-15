@@ -17,8 +17,11 @@ public class EnvironmentRules
             .Where(et => et is not null), "Next Environment Type");
 
         // every environment type links to the next environment type, except for the last one.
+        // dev -> staging -> production - production.next = null
+        // dev. dev.next = null
         if (EnvironmentTypes.Count > 1)
         {
+            // multiple environment types
             var nullCount = EnvironmentTypes.Count(et => et.Next is null);
             if (nullCount > 1)
             {
@@ -26,20 +29,17 @@ public class EnvironmentRules
                     "Every environment type must have a NEXT value, except for the last one.");
             }
         }
-        else
+        else if (EnvironmentTypes.Single().Next != null)
         {
-            // only on environment type. makes ure it doesn't have a next.
-            if (EnvironmentTypes.Single().Next != null)
-            {
-                throw new InvalidOperationException("There is only one environment type. It cannot have a NET value.");
-            }
+            throw new InvalidOperationException("There is only one environment type. It cannot have a NET value.");
         }
 
         // make sure every NEXT is valid, and each is only used once.
         // valid: dev -> staging -> production
         // invalid: dev -> dev -> staging
         // invalid: dev -> staging -> dev
-        var environmentTypes = EnvironmentTypes.Select(r => r.EnvironmentTypeName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var environmentTypes = EnvironmentTypes.Select(r => r.EnvironmentTypeName)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
         var nextEnvironmentTypes = EnvironmentTypes
             .Select(r => r.Next)
             .Where(n => n is not null)
@@ -71,12 +71,11 @@ public class EnvironmentRules
                         next.EnvironmentTypeName);
             }
         }
-
     }
 
     private static void EnsureUnique<T>(IEnumerable<T> items, string itemType)
     {
-        // environment types must be unique
+        // items of type itemType must be unique.
         var duplicateItems = items
             .GroupBy(i => i)
             .Where(et => et.Count() > 1)
@@ -134,7 +133,7 @@ public class EnvironmentType
     public string[] AllowedEnvironments { get; set; }
 
     public string? Next { get; set; }
-    
+
     public bool SupportsPreRelease { get; set; }
 
     public EnvironmentType Clone() => new()

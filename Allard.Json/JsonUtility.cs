@@ -6,6 +6,9 @@ namespace Allard.Json;
 
 public static class JsonUtility
 {
+    /// <summary>
+    /// Parts of a string that begin and end with $$.
+    /// </summary>
     private static readonly Regex VariableRegex = new(@"\$\$(.*?)\$\$", RegexOptions.Compiled);
 
     /// <summary>
@@ -27,10 +30,18 @@ public static class JsonUtility
     /// <returns></returns>
     private static IEnumerable<(string VariableName, string JsonPath)> GetVariables(JToken value)
     {
+        // if not a string, there aren't any variables.
         if (value.Type != JTokenType.String) return Array.Empty<ValueTuple<string, string>>();
+        
+        // find the matches
         var variables = VariableRegex.Matches(value.Value<string>()!);
+        
+        // if not matches, get out.
         if (!variables.Any()) return Array.Empty<ValueTuple<string, string>>();
 
+        // extract the variable names, and the json path.
+        // all of the variables will have the same json path; they are
+        // all coming from the same node.
         var result = variables
             .Select(v =>
                 new ValueTuple<string, string>(v.Value.Replace("$$", string.Empty), value.Path))
@@ -95,12 +106,12 @@ public static class JsonUtility
     private static IDictionary<string, ISet<string>?> GetReferencedVariables(
         IDictionary<string, JToken> variableElements)
     {
-        var references = new Dictionary<string, ISet<string>?>(StringComparer.OrdinalIgnoreCase);
+        var refersTo = new Dictionary<string, ISet<string>?>(StringComparer.OrdinalIgnoreCase);
         foreach (var (key, jsonNode) in variableElements)
         {
             // if we previously encountered this variable, then
             // move along
-            if (references.ContainsKey(key))
+            if (refersTo.ContainsKey(key))
                 // already processed this one
                 continue;
 
@@ -113,17 +124,17 @@ public static class JsonUtility
             if (jsonNode.Type == JTokenType.Object)
             {
                 var variables = GetVariableNames((JObject) jsonNode).ToHashSet(StringComparer.OrdinalIgnoreCase);
-                references.Add(key, variables);
+                refersTo.Add(key, variables);
                 continue;
             }
 
             // if it's not an object, then there aren't any child variables.
             // add it to the dictionary so that we know it's a valid name,
             // but it doesn't have any children.
-            references.Add(key, null);
+            refersTo.Add(key, null);
         }
 
-        return references;
+        return refersTo;
     }
 
     public static string ToIndented(this JsonElement json) =>

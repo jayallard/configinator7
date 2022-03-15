@@ -43,8 +43,8 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
     {
         var events =
             (await Sections.GetEvents(cancellationToken))
-            .Union(await VariableSets.GetEvents(cancellationToken))
-            .Union(await Schemas.GetEvents(cancellationToken))
+            .Concat(await VariableSets.GetEvents(cancellationToken))
+            .Concat(await Schemas.GetEvents(cancellationToken))
             .OrderBy(e => e.EventDate)
             .ToList();
 

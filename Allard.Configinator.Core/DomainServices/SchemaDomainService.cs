@@ -205,10 +205,11 @@ public class SchemaDomainService
             targetEnvironmentType,
             schema.SchemaName);
 
-        // if any pre-release schemas are used, make sure pre-release is supported.
         var resolved = await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema, cancellationToken);
 
         // make sure all references exist in the target environment type
+        // IE: if the schema is being promoted to STAGING,
+        // then all referenced schemas must already be in STAGING.
         foreach (var r in resolved.References)
         {
             var referencedSchema =

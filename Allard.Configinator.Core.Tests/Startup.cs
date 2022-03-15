@@ -38,10 +38,10 @@ public class Startup
             .AddTransient<NamespaceDomainService>()
 
             // event handlers - HACK
-            .AddScoped<IEventHandler<VariableValueSetEvent>, UpdateReleasesWhenVariableValueChanges>()
-            .AddScoped<IEventHandler<SchemaCreatedEvent>, SchemaNamespaceHandler>()
-            .AddScoped<IEventHandler<SectionCreatedEvent>, SectionNamespaceHandler>()
-            .AddScoped<IEventHandler<VariableSetCreatedEvent>, VariableSetNamespaceHandler>()
+            .AddScoped<IDomainEventHandler<VariableValueSetEvent>, UpdateReleasesWhenVariableValueChanges>()
+            .AddScoped<IDomainEventHandler<SchemaCreatedEvent>, SchemaNamespaceHandler>()
+            .AddScoped<IDomainEventHandler<SectionCreatedEvent>, SectionNamespaceHandler>()
+            .AddScoped<IDomainEventHandler<VariableSetCreatedEvent>, VariableSetNamespaceHandler>()
 
             // database
             .AddScoped<IUnitOfWork, UnitOfWorkMemory>()

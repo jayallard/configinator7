@@ -7,7 +7,7 @@ namespace Allard.Configinator.Core.DomainEventHandlers;
 /// <summary>
 ///     When a schema is created, add it to the namespace.
 /// </summary>
-public class SchemaNamespaceHandler : IEventHandler<SchemaCreatedEvent>
+public class SchemaNamespaceHandler : IDomainEventHandler<SchemaCreatedEvent>
 {
     private readonly NamespaceDomainService _namespaceDomainService;
     private readonly IUnitOfWork _unitOfWork;

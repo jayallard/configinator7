@@ -9,7 +9,7 @@ namespace ConfiginatorWeb.EventHandlers;
 /// </summary>
 public class VariableSetNotificationHandler : NotificationHandlerBase<VariableSetCreatedEvent>
 {
-    public VariableSetNotificationHandler(IEnumerable<IEventHandler<VariableSetCreatedEvent>> handlers) : base(handlers)
+    public VariableSetNotificationHandler(IEnumerable<IDomainEventHandler<VariableSetCreatedEvent>> handlers) : base(handlers)
     {
     }
 }

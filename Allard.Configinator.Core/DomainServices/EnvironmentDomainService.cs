@@ -4,6 +4,10 @@ using NuGet.Versioning;
 
 namespace Allard.Configinator.Core.DomainServices;
 
+/// <summary>
+/// Environment type names are unique.
+/// Environment names are unique across all environment types.
+/// </summary>
 public class EnvironmentDomainService
 {
     private readonly Dictionary<string, EnvironmentType> _byEnvironmentType;
@@ -14,11 +18,6 @@ public class EnvironmentDomainService
     /// Gets all of the environment names.
     /// </summary>
     public ImmutableHashSet<string> EnvironmentNames { get; }
-
-    /// <summary>
-    /// Gets all of the environment type names.
-    /// </summary>
-    public ImmutableHashSet<string> EnvironmentTypeNames { get; }
 
     /// <summary>
     /// Gets all of the environment type objects.
@@ -33,17 +32,18 @@ public class EnvironmentDomainService
     {
         Guards.HasValue(rules, nameof(rules));
         rules.EnsureIsValidRuleSet();
+        
+        // store the environment types by environment type
         _byEnvironmentType =
             rules.EnvironmentTypes.ToDictionary(et => et.EnvironmentTypeName, et => et,
                 StringComparer.OrdinalIgnoreCase);
+        
+        // store the environment types by environment name
         _byEnvironment = rules
             .EnvironmentTypes
             .SelectMany(et => et.AllowedEnvironments.Select(e => new {Environment = e, EnvironmentType = et}))
             .ToDictionary(e => e.Environment, e => e.EnvironmentType, StringComparer.OrdinalIgnoreCase);
-        EnvironmentNames = _byEnvironment.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
-        EnvironmentTypeNames = _byEnvironmentType.Values.SelectMany(r => r.AllowedEnvironments)
-            .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
-
+        
         _promotionOrder = rules.NamesInPromotionOrder();
     }
 
@@ -52,22 +52,27 @@ public class EnvironmentDomainService
     /// </summary>
     /// <param name="environmentName"></param>
     /// <returns></returns>
-    public bool EnvironmentExists(string environmentName) => EnvironmentNames.Contains(environmentName);
+    public bool EnvironmentExists(string environmentName) => _byEnvironment.ContainsKey(environmentName);
 
     /// <summary>
     /// Returns true if the Environment Type exists.
     /// </summary>
     /// <param name="environmentType"></param>
     /// <returns></returns>
-    public bool EnvironmentTypeExists(string environmentType) => EnvironmentTypeNames.Contains(environmentType);
+    public bool EnvironmentTypeExists(string environmentType) => _byEnvironmentType.ContainsKey(environmentType);
 
     /// <summary>
-    /// Gets the environment type that the environment belongs to.
+    /// Get an environment type by name.
     /// </summary>
     /// <param name="environmentTypeName"></param>
     /// <returns></returns>
     public EnvironmentType GetEnvironmentType(string environmentTypeName) => _byEnvironmentType[environmentTypeName].Clone();
 
+    /// <summary>
+    /// Get the environment type for an enviornment.
+    /// </summary>
+    /// <param name="environmentName"></param>
+    /// <returns></returns>
     public EnvironmentType GetEnvironmentTypeForEnvironment(string environmentName) => _byEnvironment[environmentName].Clone();
 
     /// <summary>
@@ -117,7 +122,7 @@ public class EnvironmentDomainService
     /// <returns></returns>
     public string? GetNextSchemaEnvironmentType(IEnumerable<string> assignedEnvironmentTypes, SemanticVersion version)
     {
-        // TODO: doens't belong here.. move this to the appropriate service
+        // TODO: doesn't belong here.. move this to the appropriate service
         var next = GetNextEnvironmentType(assignedEnvironmentTypes);
         if (next == null) return null;
 

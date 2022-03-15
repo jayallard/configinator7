@@ -78,7 +78,7 @@ public class VariableSetController : Controller
     [HttpGet]
     public IActionResult AddVariableSet()
     {
-        ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypeNames;
+        ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypes.Select(et => et.EnvironmentTypeName).ToArray();
         return View(new AddVariableRequest());
     }
 
@@ -87,7 +87,7 @@ public class VariableSetController : Controller
     {
         if (!ModelState.IsValid)
         {
-            ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypeNames;
+            ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypes.Select(et => et.EnvironmentTypeName).ToArray();
             return View();
         }
 
@@ -99,7 +99,7 @@ public class VariableSetController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "AddVariableSet");
-            ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypeNames;
+            ViewData["EnvironmentTypes"] = _environmentService.EnvironmentTypes.Select(et => et.EnvironmentTypeName).ToArray();
             ModelState.AddModelError(string.Empty, ex.Message);
             return View();
         }

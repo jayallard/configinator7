@@ -37,7 +37,7 @@ public class VariableSetDomainService
     {
         if (!_environmentDomainService.EnvironmentTypeExists(environmentType))
             throw new InvalidOperationException("Environment type doesn't exist: " + environmentType);
-
+        await EnsureVariableSetDoesntExistAsync(variableSetName, cancellationToken);
         var id = await _identityService.GetIdAsync<VariableSetId>(cancellationToken);
         var variableSet = new VariableSetAggregate(id, null, null, @namespace, variableSetName, environmentType);
         await _unitOfWork.VariableSets.AddAsync(variableSet, cancellationToken);
@@ -58,14 +58,12 @@ public class VariableSetDomainService
         CancellationToken cancellationToken = default)
     {
         // make sure the new name doesn't already exist
-        if (await _unitOfWork.VariableSets.Exists(new VariableSetNameIs(variableSetName), cancellationToken))
-            throw new InvalidOperationException("VariableSet already exists: " + variableSetName);
-
+        await EnsureVariableSetDoesntExistAsync(variableSetName, cancellationToken);
         var id = await _identityService.GetIdAsync<VariableSetId>(cancellationToken);
         var baseVariableSet = await _unitOfWork.VariableSets.FindOneAsync(new VariableSetNameIs(baseVariableSetName), cancellationToken);
         if (!NamespaceUtility.IsSelfOrAscendant(baseVariableSet.Namespace, @namespace))
-            throw new InvalidOperationException("The base variable set must be an ascendant of the override." +
-                                                $"\nVariable Set={baseVariableSet.Namespace}, {baseVariableSet}" +
+            throw new InvalidOperationException("The base variable set must be in an self/ascendant namespace of the override." +
+                                                $"\nVariable Set={baseVariableSet.Namespace}, {baseVariableSet.VariableSetName}" +
                                                 $"\nOverride Set={@namespace}, {variableSetName}");
 
         var child = new VariableSetAggregate(id,
@@ -96,5 +94,13 @@ public class VariableSetDomainService
         var variableSetName =
             (await _unitOfWork.VariableSets.GetAsync(variableSetId, cancellationToken)).VariableSetName;
         return await GetVariableSetComposedAsync(variableSetName, cancellationToken);
+    }
+    
+    private async Task EnsureVariableSetDoesntExistAsync(
+        string variableSetName,
+        CancellationToken cancellationToken = default)
+    {
+        var exists = await _unitOfWork.VariableSets.Exists(new VariableSetNameIs(variableSetName), cancellationToken);
+        if (exists) throw new InvalidOperationException("The variable set name is already in use. Variable Set Name=" + variableSetName);
     }
 }

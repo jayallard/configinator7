@@ -41,7 +41,7 @@ public class SchemaAggregate : AggregateBase<SchemaId>
         Play(new SchemaPromotedEvent(Id, targetEnvironmentType));
     }
 
-    internal void Play(IDomainEvent evt)
+    private void Play(IDomainEvent evt)
     {
         InternalSourceEvents.Add(evt);
         switch (evt)
