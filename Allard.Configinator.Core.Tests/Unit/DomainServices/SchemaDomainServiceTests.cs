@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Model;
+using Allard.Configinator.Core.Repositories;
+using Allard.Configinator.Core.Schema;
 using FluentAssertions;
+using NSubstitute;
 using Xunit;
 
 namespace Allard.Configinator.Core.Tests.Unit.DomainServices;
@@ -12,11 +16,14 @@ public class SchemaDomainServiceTests
 {
     private readonly SchemaDomainService _schemaService;
     private readonly SectionDomainService _sectionService;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public SchemaDomainServiceTests(SchemaDomainService schemaService, SectionDomainService sectionService)
+    public SchemaDomainServiceTests(SchemaDomainService schemaService, SectionDomainService sectionService,
+        IUnitOfWork unitOfWork)
     {
         _schemaService = schemaService;
         _sectionService = sectionService;
+        _unitOfWork = unitOfWork;
     }
 
     [Fact]
@@ -83,7 +90,7 @@ public class SchemaDomainServiceTests
         var schema =
             JsonDocument.Parse(
                 "{\n  \"properties\": {\n    \"something\": {\n      \"$ref\": \"reference/2.2.2\"\n    }\n  }\n}");
-        
+
         // create the reference schema
         await _schemaService.CreateSchemaAsync(
             null,
@@ -134,14 +141,14 @@ public class SchemaDomainServiceTests
 
 
         // create the reference schema
-        var referenceAggregate = await _schemaService.CreateSchemaAsync(
+        await _schemaService.CreateSchemaAsync(
             null,
             "/a/b/c",
             new SchemaName("reference/2.2.2"),
             null,
             referencedSchema);
 
-        // create the schema that users the reference schema
+        // create the schema that uses the reference schema
         // if the reference schema is the same namespace, or an
         // ascendant, it will work.
         var schemaAggregate = await _schemaService.CreateSchemaAsync(
@@ -153,11 +160,12 @@ public class SchemaDomainServiceTests
 
         // will fail. can't promote the schema to STAGING, 
         // because REFERENCE doesn't exist in staging.
-        var test = async () => await _schemaService.PromoteSchemaAsync(schemaAggregate.SchemaName, "Staging");
+        var test = () => _schemaService.PromoteSchemaAsync(schemaAggregate.SchemaName, "staging");
         await test
             .Should()
             .ThrowAsync<InvalidOperationException>()
-            .WithMessage("The schema, 'base/1.1.1', can't be promoted to 'Staging'. It refers to 'SchemaName { Version = 2.2.2, Name = reference, FullName = reference/2.2.2 }', which isn't assigned to 'Staging'.");
+            .WithMessage(
+                "The schema, 'base/1.1.1', can't be promoted to 'Staging'. It refers to 'SchemaName { Version = 2.2.2, Name = reference, FullName = reference/2.2.2 }', which isn't assigned to 'Staging'.");
     }
 
     /// <summary>
@@ -196,9 +204,30 @@ public class SchemaDomainServiceTests
     /// </summary>
     /// <exception cref="NotImplementedException"></exception>
     [Fact]
-    public void CantCreatePreReleaseSchemaIfPreReleaseNotSupported()
+    public async Task CantCreatePreReleaseSchemaIfPreReleaseNotSupported()
     {
-        throw new NotImplementedException();
+        var identity = Substitute.For<IIdentityService>();
+        var uow = Substitute.For<IUnitOfWork>();
+        var envService = new EnvironmentDomainService(new EnvironmentRules
+        {
+            EnvironmentTypes = new List<EnvironmentType>
+            {
+                new()
+                {
+                    EnvironmentTypeName = "development",
+                    SupportsPreRelease = false,
+                    AllowedEnvironments = Array.Empty<string>()
+                }
+            }
+        });
+        var loader = new SchemaLoader(uow);
+        var schemasService = new SchemaDomainService(identity, uow, envService, loader);
+        var test = async () =>
+            await schemasService.CreateSchemaAsync(null, "/a/b/c", new SchemaName("x/y/1.0.0-prerelease+12345"), null,
+                TestSchema());
+        await test.Should()
+            .ThrowAsync<InvalidOperationException>(
+                "zan't create schema. PreRelease isn't supported. Environment Type: development");
     }
 
     /// <summary>
@@ -206,8 +235,41 @@ public class SchemaDomainServiceTests
     /// If a schema in dev is PRE RELEASE, but staging doesn't allow PRE RELEASE, then it can't be promoted.
     /// </summary>
     [Fact]
-    public void CantPromotePreReleaseIfPreReleaseNotSupported()
+    public async Task CantPromotePreReleaseIfPreReleaseNotSupported()
     {
-        throw new NotImplementedException();
+        var identity = Substitute.For<IIdentityService>();
+        identity.GetIdAsync<SchemaId>().ReturnsForAnyArgs(new SchemaId(33));
+        var envService = new EnvironmentDomainService(new EnvironmentRules
+        {
+            EnvironmentTypes = new List<EnvironmentType>
+            {
+                new()
+                {
+                    EnvironmentTypeName = "development",
+                    SupportsPreRelease = true,
+                    AllowedEnvironments = Array.Empty<string>(),
+                    Next = "staging"
+                },
+                new()
+                {
+                    EnvironmentTypeName = "staging",
+                    SupportsPreRelease = false,
+                    AllowedEnvironments = Array.Empty<string>()
+                }
+            }
+        });
+        var loader = new SchemaLoader(_unitOfWork);
+        var schemasService = new SchemaDomainService(identity, _unitOfWork, envService, loader);
+
+        // create works, because DEV supports prerelease.
+        var schema = await schemasService.CreateSchemaAsync(null, "/a/b/c",
+            new SchemaName("x/y/1.0.0-prerelease+12345"), null, TestSchema());
+
+        // promote will fail because staging doesn't support prerelease
+        var test = () => schemasService.PromoteSchemaAsync(schema.SchemaName, "staging");
+        await test
+            .Should()
+            .ThrowAsync<InvalidOperationException>()
+            .WithMessage("The schema can't be promoted because PreRelease schemas aren't supported in the target environment type. Target Environment Type=staging");
     }
 }

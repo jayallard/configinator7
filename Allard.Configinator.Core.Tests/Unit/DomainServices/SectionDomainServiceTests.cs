@@ -45,7 +45,7 @@ public class SectionDomainServiceTests
         await test
             .Should()
             .ThrowExactlyAsync<InvalidOperationException>()
-            .WithMessage("Section can't be promoted. Section Name=section, Target Environment Type=Production");
+            .WithMessage("The schema can't be promoted because the target environment type is out of order. Target Environment Type=Production");
     }
 
     /// <summary>

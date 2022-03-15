@@ -90,7 +90,7 @@ public class SectionController : Controller
         // for promotion section
         // -------------------------------------
         var nextEnvironmentType = _environmentDomainService.GetNextEnvironmentType(section.EnvironmentTypes);
-        ViewData["PromoteTo"] = nextEnvironmentType;
+        ViewData["PromoteTo"] = nextEnvironmentType?.EnvironmentTypeName;
 
         var canAdd = environmentTypes
             .SelectMany(et => et.EnvironmentItems)

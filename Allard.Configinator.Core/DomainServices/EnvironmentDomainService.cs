@@ -11,20 +11,10 @@ public class EnvironmentDomainService
     private readonly List<string> _promotionOrder;
 
     /// <summary>
-    /// Gets the first environment type in the promotion order.
-    /// </summary>
-    public EnvironmentType FirstEnvironmentType => _byEnvironmentType[_promotionOrder.First()].Clone();
-
-    /// <summary>
-    /// Gets the last environment in the promotion order.
-    /// </summary>
-    public EnvironmentType LastEnvironmentType => _byEnvironmentType[_promotionOrder.Last()].Clone();
-
-    /// <summary>
     /// Gets all of the environment names.
     /// </summary>
     public ImmutableHashSet<string> EnvironmentNames { get; }
-    
+
     /// <summary>
     /// Gets all of the environment type names.
     /// </summary>
@@ -74,18 +64,17 @@ public class EnvironmentDomainService
     /// <summary>
     /// Gets the environment type that the environment belongs to.
     /// </summary>
-    /// <param name="environmentName"></param>
+    /// <param name="environmentTypeName"></param>
     /// <returns></returns>
-    public EnvironmentType GetEnvironmentType(string environmentName) => _byEnvironment[environmentName].Clone();
+    public EnvironmentType GetEnvironmentType(string environmentTypeName) => _byEnvironmentType[environmentTypeName].Clone();
+
+    public EnvironmentType GetEnvironmentTypeForEnvironment(string environmentName) => _byEnvironment[environmentName].Clone();
 
     /// <summary>
     /// Gets the first environment type in the promotion order.
     /// </summary>
     /// <returns></returns>
-    public EnvironmentType GetFirstEnvironmentType() => FirstEnvironmentType;
-
-    public bool IsPreReleaseAllowed(string environmentType) =>
-        _byEnvironmentType[environmentType].SupportsPreRelease;
+    public EnvironmentType GetFirstEnvironmentType() => _byEnvironmentType[_promotionOrder.First()].Clone();
 
     /// <summary>
     /// Returns the next environment type in the promotion order.
@@ -94,14 +83,15 @@ public class EnvironmentDomainService
     /// </summary>
     /// <param name="environmentTypes"></param>
     /// <returns></returns>
-    public string? GetNextEnvironmentType(IEnumerable<string> environmentTypes)
+    public EnvironmentType? GetNextEnvironmentType(IEnumerable<string> environmentTypes)
     {
         var highest = GetHighestEnvironmentType(environmentTypes);
-        return highest == null 
-            ? null 
-            : _byEnvironmentType[highest].Next;
+        if (highest == null) return null;
+        var next = _byEnvironmentType[highest].Next;
+        return next == null
+            ? null
+            : _byEnvironmentType[next].Clone();
     }
-    
 
     /// <summary>
     /// Give a list of environment types, find the one that is
@@ -113,10 +103,10 @@ public class EnvironmentDomainService
     /// <returns></returns>
     private string? GetHighestEnvironmentType(IEnumerable<string> environmentTypes)
     {
-        var highest = _promotionOrder
-            .Join(environmentTypes, l => l, r => r, (l, r) => l)
-            .ToArray();
-        return highest.LastOrDefault();
+        return
+            _promotionOrder
+                .Join(environmentTypes, l => l, r => r, (l, r) => l)
+                .LastOrDefault();
     }
 
     /// <summary>
@@ -127,13 +117,14 @@ public class EnvironmentDomainService
     /// <returns></returns>
     public string? GetNextSchemaEnvironmentType(IEnumerable<string> assignedEnvironmentTypes, SemanticVersion version)
     {
+        // TODO: doens't belong here.. move this to the appropriate service
         var next = GetNextEnvironmentType(assignedEnvironmentTypes);
         if (next == null) return null;
 
         // if the schema isn't a prerelease, then return the next environment type.
         // if the schema is a prerelease, then return the next environment type only if it supports prerelease.
-        return (version.IsPrerelease && _byEnvironmentType[next].SupportsPreRelease) || !version.IsPrerelease
-            ? next
+        return (version.IsPrerelease && next.SupportsPreRelease) || !version.IsPrerelease
+            ? next.EnvironmentTypeName
             : null;
     }
 
@@ -143,8 +134,8 @@ public class EnvironmentDomainService
     /// <param name="assignedEnvironmentTypes"></param>
     /// <param name="targetEnvironmentType"></param>
     /// <returns></returns>
-    public bool CanPromoteSectionTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType) =>
-        CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
+    public void EnsureCanPromoteSectionTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType) =>
+        EnsureCanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
 
     /// <summary>
     /// Returns TRUE if the schema can be promoted to the target environment type.
@@ -153,20 +144,35 @@ public class EnvironmentDomainService
     /// <param name="targetEnvironmentType"></param>
     /// <param name="schemaName"></param>
     /// <returns></returns>
-    public bool CanPromoteSchemaTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType,
-        SchemaName schemaName) =>
-        !schemaName.Version.IsPrerelease && CanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
+    public void EnsureCanPromoteSchemaTo(
+        IEnumerable<string> assignedEnvironmentTypes,
+        string targetEnvironmentType,
+        SchemaName schemaName)
+    {
+        if (schemaName.Version.IsPrerelease && !GetEnvironmentType(targetEnvironmentType).SupportsPreRelease)
+        {
+            throw new InvalidOperationException(
+                "The schema can't be promoted because PreRelease schemas aren't supported in the target environment type. Target Environment Type=" +
+                targetEnvironmentType);
+        }
 
-    
+        EnsureCanPromoteTo(assignedEnvironmentTypes, targetEnvironmentType);
+    }
+
     /// <summary>
     /// Returns true if an item can be promoted to the target environment type.
     /// </summary>
     /// <param name="assignedEnvironmentTypes"></param>
     /// <param name="targetEnvironmentType"></param>
     /// <returns></returns>
-    private bool CanPromoteTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType)
+    private void EnsureCanPromoteTo(IEnumerable<string> assignedEnvironmentTypes, string targetEnvironmentType)
     {
         var next = GetNextEnvironmentType(assignedEnvironmentTypes);
-        return next != null && targetEnvironmentType.Equals(next, StringComparison.OrdinalIgnoreCase);
+        if (next == null || !targetEnvironmentType.Equals(next.EnvironmentTypeName, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "The schema can't be promoted because the target environment type is out of order. Target Environment Type=" +
+                targetEnvironmentType);
+        }
     }
 }

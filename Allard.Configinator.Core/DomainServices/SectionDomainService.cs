@@ -47,10 +47,7 @@ public class SectionDomainService
     public Task PromoteToEnvironmentType(SectionAggregate section, string environmentType,
         CancellationToken cancellationToken = default)
     {
-        var canPromote = _environmentDomainService.CanPromoteSectionTo(section.EnvironmentTypes, environmentType);
-        if (!canPromote)
-            throw new InvalidOperationException(
-                $"Section can't be promoted. Section Name={section.SectionName}, Target Environment Type={environmentType}");
+        _environmentDomainService.EnsureCanPromoteSectionTo(section.EnvironmentTypes, environmentType);
         section.PromoteTo(environmentType);
         return Task.CompletedTask;
     }
@@ -63,7 +60,7 @@ public class SectionDomainService
             throw new InvalidOperationException("The environment doesn't exist: " + environmentName);
 
         section.InternalEnvironments.EnsureEnvironmentDoesntExist(environmentName);
-        var environmentType = _environmentDomainService.GetEnvironmentType(environmentName).EnvironmentTypeName;
+        var environmentType = _environmentDomainService.GetEnvironmentTypeForEnvironment(environmentName).EnvironmentTypeName;
         if (!section.EnvironmentTypes.Contains(environmentType))
             throw new InvalidOperationException($"The section doesn't support the {environmentType} environment type.");
 

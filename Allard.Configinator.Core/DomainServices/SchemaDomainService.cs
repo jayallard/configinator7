@@ -200,19 +200,13 @@ public class SchemaDomainService
         var schema = await _unitOfWork.Schemas.FindOneAsync(SchemaNameIs.Is(schemaName), cancellationToken);
 
         // make sure the promotion is allowed
-        var isPromotable = _environmentService.CanPromoteSchemaTo(
+        _environmentService.EnsureCanPromoteSchemaTo(
             schema.EnvironmentTypes,
             targetEnvironmentType,
             schema.SchemaName);
 
-        if (!isPromotable)
-            throw new InvalidOperationException($"The schema cannot be promoted to {targetEnvironmentType}");
-
         // if any pre-release schemas are used, make sure pre-release is supported.
         var resolved = await _schemaLoader.ResolveSchemaAsync(schema.SchemaName, schema.Schema, cancellationToken);
-        if (resolved.IsPreRelease() && !_environmentService.IsPreReleaseAllowed(targetEnvironmentType))
-            throw new InvalidOperationException("The environment type doesn't support pre-releases. EnvironmentType=" +
-                                                targetEnvironmentType);
 
         // make sure all references exist in the target environment type
         foreach (var r in resolved.References)
