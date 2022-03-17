@@ -9,6 +9,6 @@ public abstract class EntityBase<TIdentity> : IEntity
     [JsonInclude]
     public TIdentity Id { get; internal set; }
     
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     public long EntityId => Id.Id;
 }

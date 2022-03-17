@@ -1,6 +1,5 @@
-﻿using Allard.DomainDrivenDesign;
-using Newtonsoft.Json;
-
+﻿using System.Text.Json.Serialization;
+using Allard.DomainDrivenDesign;
 namespace Allard.Configinator.Core;
 
 public abstract class AggregateBase<TIdentity> : EntityBase<TIdentity>, IAggregate

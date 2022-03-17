@@ -1,4 +1,5 @@
-﻿using Allard.DomainDrivenDesign;
+﻿using System.Text.Json.Serialization;
+using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Model;
 
@@ -7,6 +8,10 @@ public class NamespaceAggregate : AggregateBase<NamespaceId>
     private readonly ISet<SchemaId> _schemas = new HashSet<SchemaId>();
     private readonly ISet<SectionId> _sections = new HashSet<SectionId>();
     private readonly ISet<VariableSetId> _variableSets = new HashSet<VariableSetId>();
+
+    public NamespaceAggregate()
+    {
+    }
 
     internal NamespaceAggregate(List<IDomainEvent> events)
     {
@@ -20,10 +25,32 @@ public class NamespaceAggregate : AggregateBase<NamespaceId>
         Play(new NamespaceCreatedEvent(namespaceId, @namespace));
     }
 
-    public ISet<SchemaId> Schemas => _schemas.ToHashSet();
-    public ISet<VariableSetId> VariableSets => _variableSets.ToHashSet();
-    public ISet<SectionId> Sections => _sections.ToHashSet();
-    public string Namespace { get; private set; }
+    [JsonInclude]
+    public ISet<SchemaId> Schemas
+    {
+        get => _schemas.ToHashSet();
+        internal init => _schemas = value.ToHashSet();
+    }
+
+    [JsonInclude]
+    public ISet<VariableSetId> VariableSets
+    {
+        get => _variableSets.ToHashSet();
+        internal init => _variableSets = value.ToHashSet();
+    }
+
+    [JsonInclude]
+    public ISet<SectionId> Sections
+    {
+        get => _sections.ToHashSet();
+        internal init => _sections = value.ToHashSet();
+    }
+    
+    [JsonInclude]
+    public string Namespace { 
+        get;
+        private set; 
+    }
 
     internal void AddSchema(SchemaId schemaId)
     {
