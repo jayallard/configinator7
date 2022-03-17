@@ -11,6 +11,9 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
 
     private bool _disposed;
 
+    private static readonly List<IDomainEvent> _allEventsTempHack = new();
+    public static IReadOnlyCollection<IDomainEvent> AllEventsTempHack => _allEventsTempHack.AsReadOnly();
+
     public UnitOfWorkMemory(
         ISectionRepository sectionRepository,
         IVariableSetRepository variableSetRepository,
@@ -47,6 +50,7 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
             .Concat(await Schemas.GetEvents(cancellationToken))
             .OrderBy(e => e.EventDate)
             .ToList();
+        _allEventsTempHack.AddRange(events);
 
         // write the changes, then publish events.
         await Sections.SaveChangesAsync(cancellationToken);

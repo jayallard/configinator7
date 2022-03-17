@@ -10,13 +10,13 @@
 <p>These are the underlying event-sourcing events, not publicly published domain events.</p>
 
 <table class="table table-bordered">
-    @foreach (var e in Model)
+    @foreach (var e in Model.OrderByDescending(e => e.EventDate))
     {
         <tr>
             <td>@e.EventDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
             <td>@e.GetType().Name</td>
             <td>
-                <pre>@JsonConvert.SerializeObject(e)</pre>
+                <pre>@(JsonConvert.SerializeObject(e, Formatting.Indented))</pre>
             </td>
         </tr>
     }

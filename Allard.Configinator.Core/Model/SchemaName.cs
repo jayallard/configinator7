@@ -4,15 +4,15 @@ namespace Allard.Configinator.Core.Model;
 
 public record SchemaName
 {
-    public SchemaName(string name)
+    public SchemaName(string fullName)
     {
-        var slash = name.LastIndexOf("/", StringComparison.OrdinalIgnoreCase);
+        var slash = fullName.LastIndexOf("/", StringComparison.OrdinalIgnoreCase);
         if (slash < 1)
-            throw new InvalidOperationException("Invalid schema name: " + name + ". Naming convention is name/Version");
+            throw new InvalidOperationException("Invalid schema name: " + fullName + ". Naming convention is name/Version");
 
-        Name = name[..slash];
-        Version = SemanticVersion.Parse(name[(slash + 1)..]);
-        FullName = name;
+        Name = fullName[..slash];
+        Version = SemanticVersion.Parse(fullName[(slash + 1)..]);
+        FullName = fullName;
     }
 
     public SemanticVersion Version { get; }

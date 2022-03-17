@@ -13,42 +13,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="95bd6066-1631-4501-8f48-2227ff96b9a7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.Configinator/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.Configinator/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.Configinator/.idea/indexLayout.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.Configinator/.idea/statistic.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.Configinator/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Allard.Configinator.Core.Tests/Unit/DomainServices/VariableSetDomainServiceTests.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Configinator.sln.DotSettings" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Configinator.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Configinator7/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Configinator7/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Configinator7/.idea/indexLayout.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Configinator7/.idea/statistic.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Configinator7/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core.Tests/Startup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core.Tests/Startup.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/DomainEventHandlers/SchemaNamespaceHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/DomainEventHandlers/SchemaNamespaceHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/DomainEventHandlers/SectionNamespaceHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/DomainEventHandlers/SectionNamespaceHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/DomainEventHandlers/UpdateReleasesWhenVariableValueChanges.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/DomainEventHandlers/UpdateReleasesWhenVariableValueChanges.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/DomainEventHandlers/VariableSetNamespaceHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/DomainEventHandlers/VariableSetNamespaceHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/DomainServices/EnvironmentDomainService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/DomainServices/EnvironmentDomainService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/DomainServices/EnvironmentRules.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/DomainServices/EnvironmentRules.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/DomainServices/SchemaDomainService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/DomainServices/SchemaDomainService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/DomainServices/VariableSetDomainService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/DomainServices/VariableSetDomainService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/Model/SchemaAggregate.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/Model/SchemaAggregate.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Infrastructure/Repositories/UnitOfWorkMemory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Infrastructure/Repositories/UnitOfWorkMemory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.DomainDrivenDesign/IEventHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.DomainDrivenDesign/IDomainEventHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.DomainDrivenDesign/SpecificationExtensionMethods.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Json/ExtensionMethods.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Json/ExtensionMethods.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Allard.Json/JsonUtility.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Json/JsonUtility.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Configinator7.sln" beforeDir="false" afterPath="$PROJECT_DIR$/Configinator.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfiginatorWeb/Controllers/VariableSetController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfiginatorWeb/Controllers/VariableSetController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/NotificationHandlerBase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/NotificationHandlerBase.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/SchemaCreatedNotificationHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/SchemaCreatedNotificationHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/SectionCreatedNotificationHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/SectionCreatedNotificationHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/VariableChangedNotificationHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/VariableChangedNotificationHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/VariableSetCreatedNotificationHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfiginatorWeb/EventHandlers/VariableSetCreatedNotificationHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfiginatorWeb/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfiginatorWeb/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Configinator7/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Configinator7/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Allard.Configinator.Core/Model/VariableSetAggregate.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Allard.Configinator.Core/Model/VariableSetAggregate.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -366,7 +332,7 @@
       <workItem from="1647055754521" duration="35967000" />
       <workItem from="1647313131272" duration="6275000" />
       <workItem from="1647345809124" duration="3147000" />
-      <workItem from="1647353077481" duration="7797000" />
+      <workItem from="1647353077481" duration="9618000" />
     </task>
     <servers />
   </component>

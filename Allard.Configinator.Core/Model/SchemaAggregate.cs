@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Model;
@@ -6,6 +7,10 @@ namespace Allard.Configinator.Core.Model;
 public class SchemaAggregate : AggregateBase<SchemaId>
 {
     private readonly HashSet<string> _environmentTypes = new();
+
+    public SchemaAggregate()
+    {
+    }
 
     internal SchemaAggregate(List<IDomainEvent> events)
     {
@@ -29,12 +34,20 @@ public class SchemaAggregate : AggregateBase<SchemaId>
         Play(new SchemaCreatedEvent(schemaId, sectionId, @namespace, name, description, environmentType, schema));
     }
 
-    public SectionId? SectionId { get; private set; }
-    public string Namespace { get; private set; }
-    public string? Description { get; private set; }
-    public IEnumerable<string> EnvironmentTypes => _environmentTypes.ToList();
-    public SchemaName SchemaName { get; private set; }
-    public JsonDocument Schema { get; private set; }
+    [JsonInclude] public SectionId? SectionId { get; private set; }
+
+    [JsonInclude] public string Namespace { get; private set; }
+    [JsonInclude] public string? Description { get; private set; }
+
+    [JsonInclude]
+    public IEnumerable<string> EnvironmentTypes
+    {
+        get => _environmentTypes.ToList();
+        private init => _environmentTypes = value.ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+    
+    [JsonInclude] public SchemaName SchemaName { get; private set; }
+    [JsonInclude] public JsonDocument Schema { get; private set; }
 
     internal void Promote(string targetEnvironmentType)
     {

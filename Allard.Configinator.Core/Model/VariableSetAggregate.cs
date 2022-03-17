@@ -53,13 +53,13 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
                 _children.Add(overrideCreated.VariableSetId);
                 break;
             }
-            case VariableSetCreatedEvent created:
+            case VariableSetCreatedEvent setCreated:
             {
-                VariableSetName = created.VariableSetName;
-                Id = created.VariableSetId;
-                EnvironmentType = created.EnvironmentType;
-                BaseVariableSetName = created.BaseVariableSetName;
-                Namespace = created.Namespace;
+                VariableSetName = setCreated.VariableSetName;
+                Id = setCreated.VariableSetId;
+                EnvironmentType = setCreated.EnvironmentType;
+                BaseVariableSetName = setCreated.BaseVariableSetName;
+                Namespace = setCreated.Namespace;
                 break;
             }
             case VariableValueSetEvent setter:
@@ -67,9 +67,9 @@ public class VariableSetAggregate : AggregateBase<VariableSetId>
                 _variables[setter.VariableName] = setter.Value;
                 break;
             }
-            case VariableValueCreatedEvent creator:
+            case VariableValueCreatedEvent variableCreated:
             {
-                _variables[creator.VariableName] = creator.Value;
+                _variables[variableCreated.VariableName] = variableCreated.Value;
                 break;
             }
             default:

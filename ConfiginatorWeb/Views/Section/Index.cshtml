@@ -46,6 +46,7 @@
                         {
                             <i>@s.SectionName</i>
                         }
+                        @Html.IsPreReleaseSchema(s.SchemaName.Version.IsPrerelease)
                         <ul>
                             @foreach (var et in s.EnvironmentTypes)
                             {
