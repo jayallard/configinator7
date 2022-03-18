@@ -25,7 +25,7 @@ public class SectionEntityTests
         var section = new SectionAggregate(new SectionId(0), "Development", "/ns", "name");
 
         // act
-        section.InternalEnvironments.Add(new EnvironmentEntity(new EnvironmentId(25), "development", "dev"));
+        section.AddEnvironment(new EnvironmentId(25), "development", "dev");
 
         // assert
         section.Environments.Single().Id.Id.Should().Be(25);

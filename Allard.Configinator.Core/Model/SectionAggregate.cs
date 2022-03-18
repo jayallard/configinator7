@@ -1,10 +1,19 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Immutable;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Allard.DomainDrivenDesign;
 
 namespace Allard.Configinator.Core.Model;
 
 public class SectionAggregate : AggregateBase<SectionId>
 {
+    private readonly ISet<string> _environmentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    private readonly List<EnvironmentEntity> _environments = new();
+
+    public SectionAggregate()
+    {
+    }
+    
     internal SectionAggregate(SectionId id, string initialEnvironmentType, string @namespace, string sectionName)
     {
         Guards.HasValue(id, nameof(id));
@@ -20,24 +29,33 @@ public class SectionAggregate : AggregateBase<SectionId>
         InternalSourceEvents.Clear();
     }
 
-    internal ISet<string> InternalEnvironmentTypes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-    //internal List<SchemaId> InternalSchemas { get; } = new();
-    internal List<EnvironmentEntity> InternalEnvironments { get; } = new();
-
-    //public IEnumerable<SchemaId> Schemas => InternalSchemas.AsReadOnly();
-    public IEnumerable<EnvironmentEntity> Environments => InternalEnvironments.AsReadOnly();
-    public string SectionName { get; internal set; }
-    public string Namespace { get; internal set; }
+    [JsonInclude]
+    public string SectionName { get; private set; }
+    
+    [JsonInclude]
+    public string Namespace { get; private set; }
 
     /// <summary>
     ///     Gets the environment types that can host this section.
     /// </summary>
-    public ISet<string> EnvironmentTypes => InternalEnvironmentTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+    [JsonInclude]
+    public ISet<string> EnvironmentTypes
+    {
+        get => _environmentTypes.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+        internal init => _environmentTypes = value.ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
+    [JsonInclude]
+    public IEnumerable<EnvironmentEntity> Environments
+    {
+        get => _environments.AsReadOnly();
+        internal init => _environments = value.ToList();
+    }
 
     internal EnvironmentEntity AddEnvironment(EnvironmentId environmentId, string environmentType,
         string environmentName)
     {
+        // validations are in the section service
         PlayEvent(new EnvironmentAddedToSectionEvent(environmentId, Id, environmentType, environmentName));
         return GetEnvironment(environmentName);
     }
@@ -45,23 +63,17 @@ public class SectionAggregate : AggregateBase<SectionId>
 
     public EnvironmentEntity GetEnvironment(string name)
     {
-        return InternalEnvironments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
+        return _environments.Single(e => e.EnvironmentName.Equals(name, StringComparison.OrdinalIgnoreCase));
     }
 
     public EnvironmentEntity GetEnvironment(EnvironmentId environmentId)
     {
-        return InternalEnvironments.GetEnvironment(environmentId);
-    }
-
-    internal void PlayEvent(IDomainEvent evt)
-    {
-        SectionAggregateEventHandlers.Play(this, evt);
-        InternalSourceEvents.Add(evt);
+        return _environments.GetEnvironment(environmentId);
     }
 
     public ReleaseEntity GetRelease(EnvironmentId environmentId, ReleaseId releaseId)
     {
-        return GetEnvironment(environmentId).InternalReleases.GetRelease(releaseId);
+        return GetEnvironment(environmentId)._releases.GetRelease(releaseId);
     }
 
     public DeploymentEntity SetDeployed(DeploymentId deploymentId,
@@ -72,7 +84,7 @@ public class SectionAggregate : AggregateBase<SectionId>
         string? notes = null)
     {
         var release = GetRelease(environmentId, releaseId);
-        release.InternalDeployments.EnsureDeploymentDoesntExist(deploymentId);
+        release._deployments.EnsureDeploymentDoesntExist(deploymentId);
 
         // create the new deployment.
         var deployedEvt = new ReleaseDeployedEvent(
@@ -93,7 +105,7 @@ public class SectionAggregate : AggregateBase<SectionId>
         DeploymentId deploymentId)
     {
         return GetRelease(environmentId, releaseId)
-            .InternalDeployments
+            ._deployments
             .GetDeployment(deploymentId);
     }
 
@@ -129,10 +141,10 @@ public class SectionAggregate : AggregateBase<SectionId>
     /// </summary>
     /// <param name="environmentId"></param>
     /// <param name="releaseId"></param>
-    /// <param name="deploymentId"></param>
-    internal void SetActiveDeploymentToRemoved(
+    /// <param name="newDeploymentId">TODO: do we really need this? awkward.</param>
+    protected internal void SetActiveDeploymentToRemoved(
         EnvironmentId environmentId,
-        DeploymentId deploymentId)
+        DeploymentId newDeploymentId)
     {
         // see if any deployment for any release in the environment is
         // currently deployed.
@@ -140,7 +152,7 @@ public class SectionAggregate : AggregateBase<SectionId>
         var deployed = GetEnvironment(environmentId)
             .Releases
             .SelectMany(r => r.Deployments
-                .Where(d => d.Id != deploymentId)
+                .Where(d => d.Id != newDeploymentId)
                 .Where(d => d.Status == DeploymentStatus.Deployed)
                 .Select(d => new {Release = r, Deployment = d})
             )
@@ -152,7 +164,7 @@ public class SectionAggregate : AggregateBase<SectionId>
             Id,
             environmentId,
             deployed.Release.Id,
-            $"Replaced by ReleaseId={deployed.Release.Id.Id}, Deployment Id={deploymentId.Id}");
+            $"Replaced by ReleaseId={deployed.Release.Id.Id}, Deployment Id={newDeploymentId.Id}");
         PlayEvent(removedEvent);
     }
 
@@ -174,5 +186,73 @@ public class SectionAggregate : AggregateBase<SectionId>
             resolved);
         PlayEvent(evt);
         return GetRelease(environmentId, releaseId);
+    }
+
+    private void PlayEvent(IDomainEvent evt)
+    {
+        switch (evt)
+        {
+            case SectionCreatedEvent create:
+                Id = create.SectionId;
+                SectionName = create.SectionName;
+                Namespace = create.Namespace;
+                _environmentTypes.Add(create.InitialEnvironmentType);
+                break;
+            case EnvironmentAddedToSectionEvent environmentAdded:
+                _environments.Add(new EnvironmentEntity(
+                    environmentAdded.EnvironmentId,
+                    environmentAdded.EnvironmentType,
+                    environmentAdded.EnvironmentName));
+                break;
+            case ReleaseCreatedEvent releaseCreated:
+            {
+                var env = GetEnvironment(releaseCreated.EnvironmentId);
+                var release = new ReleaseEntity(
+                    releaseCreated.ReleaseId,
+                    releaseCreated.SchemaId,
+                    releaseCreated.ModelValue,
+                    releaseCreated.ResolvedValue,
+                    releaseCreated.VariableSetId,
+                    releaseCreated.CreateDate);
+                env._releases.Add(release);
+                break;
+            }
+            case ReleaseDeployedEvent deployed:
+            {
+                // if an active deployment exists, remove it
+                SetActiveDeploymentToRemoved(deployed.EnvironmentId, deployed.DeploymentId);
+
+                var release = GetRelease(deployed.EnvironmentId, deployed.ReleaseId);
+                release.SetDeployed(true);
+                release._deployments.Add(new DeploymentEntity(
+                    deployed.DeploymentId,
+                    deployed.DeploymentDate,
+                    deployed.DeploymentResult,
+                    deployed.Notes));
+                break;
+            }
+            case DeploymentRemovedEvent removed:
+            {
+                // todo: need a property for the date
+                var release = GetRelease(removed.EnvironmentId, removed.ReleaseId);
+                release.SetDeployed(false);
+                release._deployments.GetDeployment(removed.DeploymentId)
+                    .RemovedDeployment(removed.EventDate, removed.RemoveReason);
+                break;
+            }
+            case ReleaseValueBecameOld outOfDate:
+                GetRelease(outOfDate.EnvironmentId, outOfDate.ReleaseId).SetOutOfDate(true);
+                break;
+            case ReleaseValueBecameCurrent current:
+                GetRelease(current.EnvironmentId, current.ReleaseId).SetOutOfDate(false);
+                break;
+            case SectionPromotedEvent promoted:
+                _environmentTypes.Add(promoted.EnvironmentType);
+                break;
+            default:
+                throw new NotImplementedException("Unhandled event: " + evt.GetType().FullName);
+        }
+
+        InternalSourceEvents.Add(evt);
     }
 }

@@ -58,7 +58,7 @@ public class MemoryDeployer : IDeployer
         catch (Exception ex)
         {
             // sad face. :(
-            result.AddError("DeployAsync", "Boom", "Exception Occurred", ex);
+            result.AddError("DeployAsync", "Boom", "Exception Occurred", ex.ToString());
             return result;
         }
     }

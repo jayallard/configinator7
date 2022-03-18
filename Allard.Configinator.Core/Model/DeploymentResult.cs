@@ -7,4 +7,4 @@ public record DeploymentResult(
     IReadOnlyCollection<DeploymentResultMessage> Messages);
 
 public record DeploymentResultMessage(string Source, string Key, LogLevel Severity, string Message,
-    Exception? Exception = null);
+    string? Exception = null);

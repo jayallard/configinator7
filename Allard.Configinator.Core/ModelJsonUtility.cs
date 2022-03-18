@@ -12,11 +12,13 @@ public static class ModelJsonUtility
 
     public static JsonSerializerOptions CreateJsonSerializerOptions() => new()
     {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters =
         {
             new SemanticVersionSerializer(),
             new IdConverterFactory(),
-            new SchemaNameConverter()
+            new SchemaNameConverter(),
+            new JsonStringEnumConverter()
         },
         WriteIndented = true
     };
@@ -64,6 +66,9 @@ public class IdConverterFactory : JsonConverterFactory
         if (typeToConvert == typeof(NamespaceId)) return new EntityIdConverter<NamespaceId>();
         if (typeToConvert == typeof(VariableSetId)) return new EntityIdConverter<VariableSetId>();
         if (typeToConvert == typeof(SectionId)) return new EntityIdConverter<SectionId>();
+        if (typeToConvert == typeof(EnvironmentId)) return new EntityIdConverter<EnvironmentId>();
+        if (typeToConvert == typeof(ReleaseId)) return new EntityIdConverter<ReleaseId>();
+        if (typeToConvert == typeof(DeploymentId)) return new EntityIdConverter<DeploymentId>();
         throw new InvalidOperationException("Unhandled type: " + typeToConvert.FullName);
     }
 }

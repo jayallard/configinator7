@@ -26,17 +26,7 @@ public class NamespaceAggregateSerializationTests
             VariableSets = new[] {new VariableSetId(22), new VariableSetId(23)}.ToHashSet()
         };
 
-        // act
-        var serialized = ModelJsonUtility.Serialize(ns);
-        _testOutputHelper.WriteLine(serialized);
-        var deserialized = ModelJsonUtility.Deserialize<NamespaceAggregate>(serialized);
-        
         // assert
-        deserialized.Id.Should().Be(ns.Id);
-        deserialized.Namespace.Should().Be(ns.Namespace);
-        deserialized.Schemas.Should().BeEquivalentTo(ns.Schemas);
-        deserialized.Sections.Should().BeEquivalentTo(ns.Sections);
-        deserialized.VariableSets.Should().BeEquivalentTo(ns.VariableSets);
-        deserialized.EntityId.Should().Be(deserialized.EntityId);
+        EnsureSerializesAndDeserializesToSameThing(ns, _testOutputHelper);
     }
 }

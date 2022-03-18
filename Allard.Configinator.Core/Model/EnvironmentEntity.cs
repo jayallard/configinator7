@@ -1,7 +1,11 @@
-﻿namespace Allard.Configinator.Core.Model;
+﻿using System.Text.Json.Serialization;
+
+namespace Allard.Configinator.Core.Model;
 
 public class EnvironmentEntity : EntityBase<EnvironmentId>
 {
+    protected internal readonly List<ReleaseEntity> _releases = new();
+
     public EnvironmentEntity(
         EnvironmentId id,
         string environmentType,
@@ -12,8 +16,13 @@ public class EnvironmentEntity : EntityBase<EnvironmentId>
         EnvironmentName = environmentName;
     }
 
-    internal List<ReleaseEntity> InternalReleases { get; } = new();
-    public IEnumerable<ReleaseEntity> Releases => InternalReleases.AsReadOnly();
-    public string EnvironmentType { get; }
-    public string EnvironmentName { get; }
+    [JsonInclude]
+    public IEnumerable<ReleaseEntity> Releases
+    {
+        get => _releases.AsReadOnly();
+        private init => _releases = value.ToList();
+    }
+
+    public string EnvironmentType { get; private init; }
+    public string EnvironmentName { get; private init; }
 }

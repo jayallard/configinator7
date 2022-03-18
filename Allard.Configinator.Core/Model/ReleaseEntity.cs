@@ -1,11 +1,18 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Allard.Json;
 
 namespace Allard.Configinator.Core.Model;
 
 public class ReleaseEntity : EntityBase<ReleaseId>
 {
+    protected internal readonly List<DeploymentEntity> _deployments = new();
+
+    public ReleaseEntity()
+    {
+    }
+
     /// <summary>
     ///     Initializes a new instance of the ReleaseEntity class.
     /// </summary>
@@ -34,19 +41,25 @@ public class ReleaseEntity : EntityBase<ReleaseId>
             .ToImmutableHashSet();
     }
 
-    internal List<DeploymentEntity> InternalDeployments { get; } = new();
-    public IEnumerable<DeploymentEntity> Deployments => InternalDeployments.AsReadOnly();
+    [JsonInclude]
+    public IEnumerable<DeploymentEntity> Deployments
+    {
+        get => _deployments.AsReadOnly();
+        private init => _deployments = value.ToList();
+    }
 
     /// <summary>
     ///     Gets the configuration value with optional variables.
     /// </summary>
-    public JsonDocument ModelValue { get; }
+    [JsonInclude]
+    public JsonDocument ModelValue { get; private init; }
 
     /// <summary>
     ///     Gets the resolved configuration value. This is the ModelValue
     ///     with the variable replacements completed.
     /// </summary>
-    public JsonDocument ResolvedValue { get; }
+    [JsonInclude]
+    public JsonDocument ResolvedValue { get; private init; }
 
     /// <summary>
     ///     Gets or sets the variable set used for this release.
@@ -56,17 +69,20 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     /// </summary>
     // BUG: variable sets are mutable. this needs a copy, or variable sets need to be versioned.
     // versioned variable sets would be a lot more complicated
-    public VariableSetId? VariableSetId { get; }
+    [JsonInclude]
+    public VariableSetId? VariableSetId { get; private init; }
 
     /// <summary>
     ///     The schema used for this release.
     /// </summary>
-    public SchemaId SchemaId { get; }
+    [JsonInclude]
+    public SchemaId SchemaId { get; private init; }
 
     /// <summary>
     ///     Gets the date that the release was created.
     /// </summary>
-    public DateTime CreateDate { get; }
+    [JsonInclude]
+    public DateTime CreateDate { get; private init; }
 
     /// <summary>
     ///     Gets a value indicating whether this release is currently deployed.
@@ -80,7 +96,8 @@ public class ReleaseEntity : EntityBase<ReleaseId>
     /// </summary>
     public bool IsOutOfDate { get; private set; }
 
-    public ImmutableHashSet<string> VariablesInUse { get; }
+    [JsonInclude]
+    public ImmutableHashSet<string> VariablesInUse { get; private init; }
 
     /// <summary>
     ///     Set the value of the IsDeployed property.

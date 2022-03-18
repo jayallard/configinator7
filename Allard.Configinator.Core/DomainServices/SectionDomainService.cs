@@ -59,7 +59,7 @@ public class SectionDomainService
         if (!_environmentDomainService.EnvironmentExists(environmentName))
             throw new InvalidOperationException("The environment doesn't exist: " + environmentName);
 
-        section.InternalEnvironments.EnsureEnvironmentDoesntExist(environmentName);
+        section.Environments.EnsureEnvironmentDoesntExist(environmentName);
         var environmentType = _environmentDomainService.GetEnvironmentTypeForEnvironment(environmentName).EnvironmentTypeName;
         if (!section.EnvironmentTypes.Contains(environmentType))
             throw new InvalidOperationException($"The section doesn't support the {environmentType} environment type.");

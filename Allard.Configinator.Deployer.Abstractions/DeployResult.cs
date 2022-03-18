@@ -11,7 +11,7 @@ public class DeployResult
 
     public bool IsSuccess => _messages.Any() && _messages.All(m => m.Severity != LogLevel.Error);
 
-    public DeployResult AddError(string source, string key, string message, Exception? exception = null)
+    public DeployResult AddError(string source, string key, string message, string? exception = null)
     {
         _messages.Add(new DeployResultMessage(source, key, LogLevel.Error, message, exception));
         return this;
@@ -31,4 +31,4 @@ public class DeployResult
 }
 
 public record DeployResultMessage(string Source, string Key, LogLevel Severity, string Message,
-    Exception? Exception = null);
+    string? Exception = null);

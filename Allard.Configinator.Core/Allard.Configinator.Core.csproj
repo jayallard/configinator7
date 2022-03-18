@@ -7,8 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="NJsonSchema" Version="10.6.7" />
-        <PackageReference Include="NuGet.Versioning" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+        <PackageReference Include="NJsonSchema" Version="10.6.10" />
+        <PackageReference Include="NuGet.Versioning" Version="6.1.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,11 +25,4 @@
             <_Parameter1>Allard.Configinator.Infrastructure.Tests</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
-
-    <ItemGroup>
-        <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-            <HintPath>..\..\..\..\..\Program Files\dotnet\shared\Microsoft.AspNetCore.App\6.0.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-
 </Project>

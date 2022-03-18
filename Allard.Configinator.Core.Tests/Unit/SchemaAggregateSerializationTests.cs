@@ -39,33 +39,13 @@ public class SchemaAggregateSerializationTests
         schema.Promote("production");
 
         // act
-        var serialized = ModelJsonUtility.Serialize(schema);
-        var deserialized = ModelJsonUtility.Deserialize<SchemaAggregate>(serialized);
-
-        // assert
-        deserialized!.Description.Should().Be(schema.Description);
-        deserialized.Namespace.Should().Be(schema.Namespace);
-        deserialized.EnvironmentTypes.Should().BeEquivalentTo(schema.EnvironmentTypes);
-        deserialized.SchemaName.Should().Be(schema.SchemaName);
-        deserialized.SectionId.Should().Be(schema.SectionId);
-
-        var expectedSchema = TestSchema().ToJsonNetJson();
-        var actualSchema = deserialized.Schema.ToJsonNetJson();
-        JToken.DeepEquals(expectedSchema, actualSchema).Should().BeTrue();
-
-        // var serialized2 = JsonSerializer.Serialize(deserialized, Options);
-        // _testOutputHelper.WriteLine(serialized);
-        // _testOutputHelper.WriteLine("---------------------------------");
-        // _testOutputHelper.WriteLine(serialized2);
+        EnsureSerializesAndDeserializesToSameThing(schema, _testOutputHelper);
     }
 
     [Fact]
     public async Task SemanticVersionTest()
     {
         var version = SemanticVersion.Parse("1.0.0-prerelease+3333");
-        var serialized = ModelJsonUtility.Serialize(version);
-        _testOutputHelper.WriteLine(serialized);
-        var deserialized = ModelJsonUtility.Deserialize<SemanticVersion>(serialized);
-        deserialized.Should().Be(version);
+        EnsureSerializesAndDeserializesToSameThing(version, _testOutputHelper);
     }
 }

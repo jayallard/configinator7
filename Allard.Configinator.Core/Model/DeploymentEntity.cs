@@ -1,4 +1,6 @@
-﻿namespace Allard.Configinator.Core.Model;
+﻿using System.Text.Json.Serialization;
+
+namespace Allard.Configinator.Core.Model;
 
 public class DeploymentEntity : EntityBase<DeploymentId>
 {
@@ -15,9 +17,15 @@ public class DeploymentEntity : EntityBase<DeploymentId>
         Notes = notes;
     }
 
-    public DateTime DeploymentDate { get; }
+    [JsonInclude]
+    public DateTime DeploymentDate { get; private init; }
+    
+    [JsonInclude]
     public DateTime? RemovedDate { get; private set; }
+    [JsonInclude]
     public string? RemoveReason { get; private set; }
+    
+    [JsonInclude]
     public DeploymentStatus Status { get; private set; }
     public DeploymentResult? DeploymentResult { get; }
     public string? Notes { get; }
