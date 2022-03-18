@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Allard.Configinator.Core.Model;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Allard.Configinator.Core.Tests.Unit;
+namespace Allard.Configinator.Core.Tests.Unit.Model;
 
-public class SectionSerializationTests
+public class SectionAggregateSerializationTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public SectionSerializationTests(ITestOutputHelper testOutputHelper)
+    public SectionAggregateSerializationTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
     }

@@ -4,6 +4,7 @@ using Allard.Configinator.Core.Model;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NuGet.Versioning;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Allard.Configinator.Core.Tests;
@@ -18,7 +19,7 @@ public static class TestUtility
         section.AddEnvironment(NewEnvironmentId(0), "environmentType", "test1");
         return section;
     }
-    
+
     public static JsonDocument EmptyDoc()
     {
         return JsonDocument.Parse("{}");
@@ -45,22 +46,34 @@ public static class TestUtility
     {
         var serialized = ModelJsonUtility.Serialize(obj);
         var deserialized = ModelJsonUtility.Deserialize<T>(serialized);
-        
+
         EnsureObjectsHaveSameJson(obj, deserialized, _testOutputHelper);
     }
-    
+
+    /// <summary>
+    /// Serialize expected and actual to json.
+    /// Then deserialize to JSON objects.
+    /// Make sure the JSON object are identical.
+    /// This assures that serialization and deserialization don't work.
+    /// This doesn't assure that every property is serialized; it doesn't know
+    /// what should or shouldn't be. It just assures that the things that
+    /// are serialized are propertly deserialized.
+    /// </summary>
+    /// <param name="expected"></param>
+    /// <param name="actual"></param>
+    /// <param name="_testOutputHelper"></param>
     private static void EnsureObjectsHaveSameJson(object expected, object actual, ITestOutputHelper _testOutputHelper)
     {
         var eText = ModelJsonUtility.Serialize(expected);
         var aText = ModelJsonUtility.Serialize(actual);
         var eJson = JToken.Parse(eText);
         var aJson = JToken.Parse(aText);
-        
+
+        var isMatch = JToken.DeepEquals(eJson, aJson);
+        if (isMatch) return;
         _testOutputHelper.WriteLine(eText);
         _testOutputHelper.WriteLine("--------------------------------------");
         _testOutputHelper.WriteLine(aText);
-
-
-        JToken.DeepEquals(eJson, aJson).Should().BeTrue();
+        isMatch.Should().BeTrue("The json docs don't match. See the OUTPUT for details.");
     }
 }

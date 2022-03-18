@@ -1,18 +1,10 @@
-﻿using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Allard.Configinator.Core.Model;
-using Allard.DomainDrivenDesign;
-using Allard.Json;
-using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using NuGet.Versioning;
 using Xunit;
 using Xunit.Abstractions;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace Allard.Configinator.Core.Tests.Unit;
+namespace Allard.Configinator.Core.Tests.Unit.Model;
 
 public class SchemaAggregateSerializationTests
 {

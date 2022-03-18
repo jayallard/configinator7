@@ -1,10 +1,9 @@
 ﻿using System.Linq;
 using Allard.Configinator.Core.Model;
-using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Allard.Configinator.Core.Tests.Unit;
+namespace Allard.Configinator.Core.Tests.Unit.Model;
 
 public class NamespaceAggregateSerializationTests
 {
