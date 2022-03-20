@@ -3,7 +3,7 @@ using Allard.Configinator.Core.Model;
 using Allard.Configinator.Core.Repositories;
 using Allard.DomainDrivenDesign;
 
-namespace Allard.Configinator.Infrastructure.Repositories;
+namespace Allard.Configinator.Infrastructure.Memory.Repositories;
 
 public class UnitOfWorkMemory : IUnitOfWork, IDisposable
 {

@@ -45,6 +45,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Allard.Configinator.Core\Allard.Configinator.Core.csproj" />
+        <ProjectReference Include="..\Allard.Configinator.Infrastructure.Memory\Allard.Configinator.Infrastructure.Memory.csproj" />
         <ProjectReference Include="..\Allard.Configinator.Infrastructure\Allard.Configinator.Infrastructure.csproj" />
     </ItemGroup>
 

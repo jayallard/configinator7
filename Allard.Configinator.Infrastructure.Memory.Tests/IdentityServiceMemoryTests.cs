@@ -5,7 +5,7 @@ using Allard.Configinator.Core.Model;
 using FluentAssertions;
 using Xunit;
 
-namespace Allard.Configinator.Infrastructure.Tests.Unit;
+namespace Allard.Configinator.Infrastructure.Memory.Tests;
 
 public class IdentityServiceMemoryTests
 {

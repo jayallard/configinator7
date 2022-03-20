@@ -1,6 +1,6 @@
 ﻿using Allard.DomainDrivenDesign;
 
-namespace Allard.Configinator.Infrastructure;
+namespace Allard.Configinator.Core;
 
 public class IdNotIn : ISpecification<IAggregate>
 {

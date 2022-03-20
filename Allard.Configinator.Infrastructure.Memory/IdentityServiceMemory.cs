@@ -2,7 +2,7 @@
 using Allard.Configinator.Core.DomainServices;
 using Allard.DomainDrivenDesign;
 
-namespace Allard.Configinator.Infrastructure;
+namespace Allard.Configinator.Infrastructure.Memory;
 
 public class IdentityServiceMemory : IIdentityService
 {

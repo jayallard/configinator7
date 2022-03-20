@@ -3,7 +3,7 @@ using System.Reflection;
 using Allard.Configinator.Core;
 using Allard.DomainDrivenDesign;
 
-namespace Allard.Configinator.Infrastructure.Repositories;
+namespace Allard.Configinator.Infrastructure.Memory.Repositories;
 
 public class RepositoryMemoryBase<TAggregate, TIdentity> : IRepository<TAggregate, TIdentity>
     where TAggregate : IAggregate

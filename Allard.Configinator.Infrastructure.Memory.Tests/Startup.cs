@@ -1,11 +1,11 @@
 ﻿using Allard.Configinator.Core.DomainServices;
 using Allard.Configinator.Core.Repositories;
-using Allard.Configinator.Infrastructure.Repositories;
+using Allard.Configinator.Infrastructure.Memory.Repositories;
 using Allard.DomainDrivenDesign;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Allard.Configinator.Infrastructure.Tests;
+namespace Allard.Configinator.Infrastructure.Memory.Tests;
 
 public class Startup
 {

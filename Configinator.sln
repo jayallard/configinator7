@@ -25,6 +25,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allard.Configinator.Deploye
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allard.Configinator.Deployer.Abstractions", "Allard.Configinator.Deployer.Abstractions\Allard.Configinator.Deployer.Abstractions.csproj", "{143AD52F-D0B5-4333-A4C5-B0FDADB6F553}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allard.Configinator.Infrastructure.Memory", "Allard.Configinator.Infrastructure.Memory\Allard.Configinator.Infrastructure.Memory.csproj", "{854B6547-10BA-4840-940B-4F5ECBCC9AC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allard.Configinator.Infrastructure.Memory.Tests", "Allard.Configinator.Infrastructure.Memory.Tests\Allard.Configinator.Infrastructure.Memory.Tests.csproj", "{3E9E9158-1EF6-4AB0-B7C5-2AE854EC0674}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +75,14 @@ Global
 		{143AD52F-D0B5-4333-A4C5-B0FDADB6F553}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{143AD52F-D0B5-4333-A4C5-B0FDADB6F553}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{143AD52F-D0B5-4333-A4C5-B0FDADB6F553}.Release|Any CPU.Build.0 = Release|Any CPU
+		{854B6547-10BA-4840-940B-4F5ECBCC9AC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{854B6547-10BA-4840-940B-4F5ECBCC9AC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{854B6547-10BA-4840-940B-4F5ECBCC9AC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{854B6547-10BA-4840-940B-4F5ECBCC9AC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E9E9158-1EF6-4AB0-B7C5-2AE854EC0674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E9E9158-1EF6-4AB0-B7C5-2AE854EC0674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E9E9158-1EF6-4AB0-B7C5-2AE854EC0674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E9E9158-1EF6-4AB0-B7C5-2AE854EC0674}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿using Allard.Configinator.Infrastructure.Repositories;
+﻿using Allard.Configinator.Infrastructure.Memory.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConfiginatorWeb.Controllers;
