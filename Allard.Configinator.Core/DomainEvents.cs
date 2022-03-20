@@ -32,14 +32,6 @@ public record EnvironmentAddedToSectionEvent(
     string EnvironmentType,
     string EnvironmentName) : DomainEventBase;
 
-/// <summary>
-///     A schema was added to a configuration section.
-/// </summary>
-/// <param name="SectionId"></param>
-/// <param name="Schema"></param>
-// public record SchemaAddedToSectionEvent(
-//     SectionId SectionId,
-//     SchemaId SchemaId) : DomainEventBase;
 
 /// <summary>
 ///     A release was created.

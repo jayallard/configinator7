@@ -70,10 +70,24 @@ public static class TestUtility
         var aJson = JToken.Parse(aText);
 
         var isMatch = JToken.DeepEquals(eJson, aJson);
-        if (isMatch) return;
+        //if (isMatch) return;
         _testOutputHelper.WriteLine(eText);
         _testOutputHelper.WriteLine("--------------------------------------");
         _testOutputHelper.WriteLine(aText);
         isMatch.Should().BeTrue("The json docs don't match. See the OUTPUT for details.");
     }
+
+    public static object[] ToObjectArray(this object obj)
+    {
+        return new[] {obj};
+    }
+
+    public static object[] Displayable(this object obj) => new DisplayNameWrapper(obj).ToObjectArray();
+}
+public class DisplayNameWrapper
+{
+    public DisplayNameWrapper(object obj) => Data = obj;
+    public object Data { get; }
+
+    public override string ToString() => Data.GetType().Name;
 }

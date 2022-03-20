@@ -11,5 +11,5 @@ public interface IRepository<TEntity, in TIdentity>
 
     Task<bool> ExistsAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default);
 
-    Task SaveAsync(TEntity section, CancellationToken cancellationToken = default);
+    Task SaveAsync(TransactionContext txContext, TEntity aggregate, CancellationToken cancellationToken = default);
 }

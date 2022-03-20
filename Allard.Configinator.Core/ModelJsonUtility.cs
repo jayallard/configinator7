@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using Allard.Configinator.Core.Model;
 using Allard.DomainDrivenDesign;
+using Newtonsoft.Json.Linq;
 using NuGet.Versioning;
 
 namespace Allard.Configinator.Core;
@@ -18,15 +19,19 @@ public static class ModelJsonUtility
             new SemanticVersionSerializer(),
             new IdConverterFactory(),
             new SchemaNameConverter(),
-            new JsonStringEnumConverter()
+            new JsonStringEnumConverter(),
+            new JsonTokenConverter()
         },
         WriteIndented = true
     };
-    
-    public static string Serialize<T>(T obj) => JsonSerializer.Serialize(obj, ModelSerializerOptions);
+
+    public static string Serialize<T>(T obj) => JsonSerializer.Serialize(obj, obj.GetType(), ModelSerializerOptions);
 
     public static T Deserialize<T>(string serialized) =>
         JsonSerializer.Deserialize<T>(serialized, ModelSerializerOptions);
+
+    public static T Deserialize<T>(Type type, string serialized) =>
+        (T) JsonSerializer.Deserialize(serialized, type, ModelSerializerOptions);
 }
 
 public class SemanticVersionSerializer : JsonConverter<SemanticVersion>
@@ -84,5 +89,29 @@ public class SchemaNameConverter : JsonConverter<SchemaName>
     public override void Write(Utf8JsonWriter writer, SchemaName value, JsonSerializerOptions options)
     {
         writer.WriteStringValue(value.FullName);
+    }
+}
+
+/// <summary>
+/// Some values are JTokens (ie: variable set values).
+/// The JToken could be any type: object, array, string, number, whatever.
+/// JToken is a base class and can't be deserialized to.
+/// The WRITE wraps the JToken with a JObject, and saves the JObject as
+/// an escaped string.
+/// Thew READ loads the string into a JObject, and returns the value,
+/// which is the JToken.
+/// </summary>
+public class JsonTokenConverter : JsonConverter<JToken>
+{
+    public override JToken? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var value = reader.GetString();
+        return JObject.Parse(value).Root["value"];
+    }
+
+    public override void Write(Utf8JsonWriter writer, JToken value, JsonSerializerOptions options)
+    {
+        var obj = new JObject {new JProperty("value", value)};
+        writer.WriteStringValue(obj.ToString());
     }
 }

@@ -50,11 +50,11 @@ public sealed class DataChangeTracker<TAggregate, TIdentity> : IDataChangeTracke
         return Task.CompletedTask;
     }
 
-    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    public async Task SaveChangesAsync(TransactionContext txContext, CancellationToken cancellationToken = default)
     {
         foreach (var e in _localData)
         {
-            await _repository.SaveAsync(e, cancellationToken);
+            await _repository.SaveAsync(txContext, e, cancellationToken);
             e.ClearEvents();
         }
 

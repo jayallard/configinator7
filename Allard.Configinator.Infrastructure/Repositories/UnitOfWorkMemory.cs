@@ -7,6 +7,8 @@ namespace Allard.Configinator.Infrastructure.Repositories;
 
 public class UnitOfWorkMemory : IUnitOfWork, IDisposable
 {
+    public TransactionContext TxContext { get; } = new();
+    
     private readonly IEventPublisher _publisher;
 
     private bool _disposed;
@@ -31,6 +33,7 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
     public void Dispose()
     {
         if (_disposed) throw new ObjectDisposedException(nameof(UnitOfWorkMemory));
+        GC.SuppressFinalize(this);
         _disposed = true;
         (Sections as IDisposable)?.Dispose();
         (VariableSets as IDisposable)?.Dispose();
@@ -53,10 +56,10 @@ public class UnitOfWorkMemory : IUnitOfWork, IDisposable
         _allEventsTempHack.AddRange(events);
 
         // write the changes, then publish events.
-        await Sections.SaveChangesAsync(cancellationToken);
-        await VariableSets.SaveChangesAsync(cancellationToken);
-        await Schemas.SaveChangesAsync(cancellationToken);
-        await Namespaces.SaveChangesAsync(cancellationToken);
+        await Sections.SaveChangesAsync(TxContext, cancellationToken);
+        await VariableSets.SaveChangesAsync(TxContext, cancellationToken);
+        await Schemas.SaveChangesAsync(TxContext, cancellationToken);
+        await Namespaces.SaveChangesAsync(TxContext, cancellationToken);
 
         // this is after the commit. if this fails, then data changed and
         // downstream systems won't get word.

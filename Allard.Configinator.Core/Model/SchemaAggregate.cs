@@ -49,9 +49,10 @@ public class SchemaAggregate : AggregateBase<SchemaId>
     [JsonInclude] public SchemaName SchemaName { get; private set; }
     [JsonInclude] public JsonDocument Schema { get; private set; }
 
-    internal void Promote(string targetEnvironmentType)
+    internal SchemaAggregate Promote(string targetEnvironmentType)
     {
         Play(new SchemaPromotedEvent(Id, targetEnvironmentType));
+        return this;
     }
 
     private void Play(IDomainEvent evt)

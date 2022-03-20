@@ -10,7 +10,7 @@ public interface IDataChangeTracker<TAggregate, in TIdentity>
         CancellationToken cancellationToken = default);
 
     Task AddAsync(TAggregate entity, CancellationToken cancellationToken = default);
-    Task SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task SaveChangesAsync(TransactionContext txtContext, CancellationToken cancellationToken = default);
     Task<TAggregate> GetAsync(TIdentity id, CancellationToken cancellationToken = default);
 
     Task<TAggregate> FindOneAsync(ISpecification<TAggregate> specification,
