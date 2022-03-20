@@ -77,17 +77,30 @@ public static class TestUtility
         isMatch.Should().BeTrue("The json docs don't match. See the OUTPUT for details.");
     }
 
-    public static object[] ToObjectArray(this object obj)
+
+    /// <summary>
+    /// Wraps an object in an object[], so it can be passed to a test
+    /// Theory with method parameters.
+    /// Additionally, it wraps the object so that the display name
+    /// can be set either explicitly, or default to type name
+    /// of the value.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static object[] AsTestData(this object obj, string? displayName = null) => new object[] {new TestParameterWrapper(obj, displayName)};
+}
+
+public class TestParameterWrapper
+{
+    public TestParameterWrapper(object value, string? displayName = null)
     {
-        return new[] {obj};
+        this.Value = value;
+        DisplayName = displayName ?? value.GetType().Name;
     }
 
-    public static object[] Displayable(this object obj) => new DisplayNameWrapper(obj).ToObjectArray();
-}
-public class DisplayNameWrapper
-{
-    public DisplayNameWrapper(object obj) => Data = obj;
-    public object Data { get; }
+    public object Value { get; }
+    
+    public string DisplayName { get; }
 
-    public override string ToString() => Data.GetType().Name;
+    public override string ToString() => DisplayName;
 }

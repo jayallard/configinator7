@@ -19,14 +19,14 @@ public static class ModelJsonUtility
             // schemas use semantic versioning
             new SemanticVersionSerializer(),
             new SchemaNameConverter(),
-            
+
             // all of the entity ids. 
             // flattens the objects. Instead of { id: id: 0 }, it's just { id: 0 }
             new IdConverterFactory(),
-            
+
             // use the enum names, not numeric values
             new JsonStringEnumConverter(),
-            
+
             // wrap jtoken with a jobject, and
             // store it as a string.
             new JsonTokenConverter()
@@ -65,7 +65,7 @@ public class EntityIdConverter<T> : JsonConverter<T> where T : IIdentity
     public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var value = reader.GetInt64();
-        
+
         // there are better ways to do this... the factory could pass in a func.
         return _factory(value);
     }
@@ -84,14 +84,17 @@ public class IdConverterFactory : JsonConverterFactory
     }
 
     public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
-    { 
+    {
         if (typeToConvert == typeof(SchemaId)) return new EntityIdConverter<SchemaId>(id => new SchemaId(id));
         if (typeToConvert == typeof(NamespaceId)) return new EntityIdConverter<NamespaceId>(id => new NamespaceId(id));
-        if (typeToConvert == typeof(VariableSetId)) return new EntityIdConverter<VariableSetId>(id => new VariableSetId(id));
+        if (typeToConvert == typeof(VariableSetId))
+            return new EntityIdConverter<VariableSetId>(id => new VariableSetId(id));
         if (typeToConvert == typeof(SectionId)) return new EntityIdConverter<SectionId>(id => new SectionId(id));
-        if (typeToConvert == typeof(EnvironmentId)) return new EntityIdConverter<EnvironmentId>(id => new EnvironmentId(id));
+        if (typeToConvert == typeof(EnvironmentId))
+            return new EntityIdConverter<EnvironmentId>(id => new EnvironmentId(id));
         if (typeToConvert == typeof(ReleaseId)) return new EntityIdConverter<ReleaseId>(id => new ReleaseId(id));
-        if (typeToConvert == typeof(DeploymentId)) return new EntityIdConverter<DeploymentId>(id => new DeploymentId(id));
+        if (typeToConvert == typeof(DeploymentId))
+            return new EntityIdConverter<DeploymentId>(id => new DeploymentId(id));
         throw new InvalidOperationException("Unhandled id type: " + typeToConvert.FullName);
     }
 }
@@ -124,7 +127,9 @@ public class JsonTokenConverter : JsonConverter<JToken>
     public override JToken? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var value = reader.GetString();
-        return JObject.Parse(value).Root["value"];
+        return value == null
+            ? null
+            : JObject.Parse(value).Root["value"];
     }
 
     public override void Write(Utf8JsonWriter writer, JToken value, JsonSerializerOptions options)
