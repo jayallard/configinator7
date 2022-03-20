@@ -16,10 +16,19 @@ public static class ModelJsonUtility
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters =
         {
+            // schemas use semantic versioning
             new SemanticVersionSerializer(),
-            new IdConverterFactory(),
             new SchemaNameConverter(),
+            
+            // all of the entity ids. 
+            // flattens the objects. Instead of { id: id: 0 }, it's just { id: 0 }
+            new IdConverterFactory(),
+            
+            // use the enum names, not numeric values
             new JsonStringEnumConverter(),
+            
+            // wrap jtoken with a jobject, and
+            // store it as a string.
             new JsonTokenConverter()
         },
         WriteIndented = true
@@ -46,10 +55,19 @@ public class SemanticVersionSerializer : JsonConverter<SemanticVersion>
 
 public class EntityIdConverter<T> : JsonConverter<T> where T : IIdentity
 {
+    private readonly Func<long, T> _factory;
+
+    internal EntityIdConverter(Func<long, T> factory)
+    {
+        _factory = factory;
+    }
+
     public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var value = reader.GetInt64();
-        return (T) Activator.CreateInstance(typeToConvert, value);
+        
+        // there are better ways to do this... the factory could pass in a func.
+        return _factory(value);
     }
 
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
@@ -66,15 +84,15 @@ public class IdConverterFactory : JsonConverterFactory
     }
 
     public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
-    {
-        if (typeToConvert == typeof(SchemaId)) return new EntityIdConverter<SchemaId>();
-        if (typeToConvert == typeof(NamespaceId)) return new EntityIdConverter<NamespaceId>();
-        if (typeToConvert == typeof(VariableSetId)) return new EntityIdConverter<VariableSetId>();
-        if (typeToConvert == typeof(SectionId)) return new EntityIdConverter<SectionId>();
-        if (typeToConvert == typeof(EnvironmentId)) return new EntityIdConverter<EnvironmentId>();
-        if (typeToConvert == typeof(ReleaseId)) return new EntityIdConverter<ReleaseId>();
-        if (typeToConvert == typeof(DeploymentId)) return new EntityIdConverter<DeploymentId>();
-        throw new InvalidOperationException("Unhandled type: " + typeToConvert.FullName);
+    { 
+        if (typeToConvert == typeof(SchemaId)) return new EntityIdConverter<SchemaId>(id => new SchemaId(id));
+        if (typeToConvert == typeof(NamespaceId)) return new EntityIdConverter<NamespaceId>(id => new NamespaceId(id));
+        if (typeToConvert == typeof(VariableSetId)) return new EntityIdConverter<VariableSetId>(id => new VariableSetId(id));
+        if (typeToConvert == typeof(SectionId)) return new EntityIdConverter<SectionId>(id => new SectionId(id));
+        if (typeToConvert == typeof(EnvironmentId)) return new EntityIdConverter<EnvironmentId>(id => new EnvironmentId(id));
+        if (typeToConvert == typeof(ReleaseId)) return new EntityIdConverter<ReleaseId>(id => new ReleaseId(id));
+        if (typeToConvert == typeof(DeploymentId)) return new EntityIdConverter<DeploymentId>(id => new DeploymentId(id));
+        throw new InvalidOperationException("Unhandled id type: " + typeToConvert.FullName);
     }
 }
 
