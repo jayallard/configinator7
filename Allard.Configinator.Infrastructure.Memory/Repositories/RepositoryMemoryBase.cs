@@ -73,17 +73,9 @@ public class RepositoryMemoryBase<TAggregate, TIdentity> : IRepository<TAggregat
         var events = _events[id]
             .Select(e =>
             {
-                try
-                {
-                    var type = Type.GetType(e.EventType + ", Allard.Configinator.Core");
-                    var evt = ModelJsonUtility.Deserialize<IDomainEvent>(type, e.Event);
-                    return evt;
-                }
-                catch (Exception)
-                {
-                    var x = _events;
-                    throw;
-                }
+                var type = Type.GetType(e.EventType + ", Allard.Configinator.Core");
+                var evt = ModelJsonUtility.Deserialize<IDomainEvent>(type, e.Event);
+                return evt;
             })
             .ToList();
 

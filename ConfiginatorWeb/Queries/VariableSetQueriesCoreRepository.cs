@@ -43,7 +43,8 @@ public class VariableSetQueriesCoreRepository : IVariableSetQueries
                     t.EnvironmentType,
                     t.BaseVariableSetName, 
                     mermaid);
-            }).ToList();
+            })
+            .ToList();
         await Task.WhenAll(list);
         return list.Select(l => l.Result).ToList();
     }

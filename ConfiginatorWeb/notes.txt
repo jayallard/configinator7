@@ -34,3 +34,34 @@
        "password": "password"
    }
 }
+
+
+EventStreamType
+---------------
+EventStreamName
+EventStreamTypeId
+
+EventStream
+-----------
+EventStreamTypeId
+EventStreamId
+LatestEventId
+
+EventStreamEvents
+-----------------
+EventStreamId
+EventId
+EventDate
+Event
+
+
+get(event type, aggregate id)
+-----------------------------
+select and save latest event id
+
+save(event type, aggregate id)
+------------------------------
+if event type doesn't exist, error
+
+
+

@@ -1,4 +1,5 @@
 ﻿@using Newtonsoft.Json
+@using Allard.Configinator.Core
 @model IEnumerable<Allard.DomainDrivenDesign.IDomainEvent>
 
 @{
@@ -16,7 +17,7 @@
             <td>@e.EventDate.ToString("dddd, MMM dd yyyy HH:mm:ss")</td>
             <td>@e.GetType().Name</td>
             <td>
-                <pre>@(JsonConvert.SerializeObject(e, Formatting.Indented))</pre>
+                <pre>@ModelJsonUtility.Serialize(e)</pre>
             </td>
         </tr>
     }
